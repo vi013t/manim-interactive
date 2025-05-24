@@ -1,21 +1,21 @@
 <script lang="ts">
 	import ObjectEntry from "./ObjectEntry.svelte";
 
-	import { allObjects } from "../api/codegen.svelte";
-	import PlusIcon from "./icons/PlusIcon.svelte";
-	import {
-		default as AddObjectMenu,
-		default as ObjectMenu,
-	} from "./menus/AddObjectMenu.svelte";
+	import { getProjectObjects } from "../../../api/project.svelte";
+	import PlusIcon from "../../icons/PlusIcon.svelte";
+	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
 
-	let objectMenu: ObjectMenu;
+	let objectMenu: AddObjectMenu;
 
 	let top = $state("100%");
 	let left = $state("94%");
 
+	// svelte-ignore non_reactive_update
+	let plusButton: HTMLElement;
+
 	function addObject(event: MouseEvent) {
 		event.preventDefault();
-		top = `${event.clientY}px`;
+		top = `${event.clientY - 40}px`;
 		left = `${event.clientX}px`;
 		objectMenu.show();
 	}
@@ -23,35 +23,47 @@
 	function clickPlusButton() {
 		top = "4.8rem";
 		left = "24rem";
-		objectMenu.toggle();
+		objectMenu.show();
 	}
 </script>
 
 <section>
 	<div class="header">
 		<h1>Objects</h1>
-		<button onclick={clickPlusButton}>
+		<button bind:this={plusButton} onclick={clickPlusButton}>
 			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 		</button>
 	</div>
 
-	{#each allObjects().filter((object) => !("objectType" in object)) as object}
+	{#each getProjectObjects().filter(object => !("objectType" in object)) as object}
 		<ObjectEntry entry={object} />
 	{/each}
 
-	{#each allObjects().filter((object) => "objectType" in object) as object}
+	{#each getProjectObjects().filter(object => "objectType" in object) as object}
 		<ObjectEntry entry={object} />
 	{/each}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div style:height="100%;" oncontextmenu={addObject}></div>
 
-	<AddObjectMenu bind:this={objectMenu} {top} {left} />
+	<AddObjectMenu bind:this={objectMenu} {top} {left} openers={[plusButton]} />
 </section>
 
 <style>
 	section {
 		background-color: #1e1e2e;
 		padding: 1em;
+		position: relative;
+
+		&::after {
+			content: "";
+			height: 100%;
+			width: 4px;
+			position: absolute;
+			left: calc(100% - 2px);
+			top: 0px;
+			z-index: 999;
+			cursor: ew-resize;
+		}
 	}
 
 	.header {

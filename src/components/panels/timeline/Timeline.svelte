@@ -1,9 +1,13 @@
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
-	import { allAnimations, select, type Animation } from "../api/codegen.svelte";
-	import { animations, getAnimationCategory } from "../api/manim/animations";
-	import AddToTimelineMenu from "./menus/AddToTimelineMenu.svelte";
-	import AnimationActionsMenu from "./menus/AnimationActionsMenu.svelte";
+	import { animations, getAnimationCategory } from "../../../api/manim/animations";
+	import { getProjectAnimations, select, type Animation } from "../../../api/project.svelte";
+	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
+	import PlayIcon from "../../icons/PlayIcon.svelte";
+	import SquareIcon from "../../icons/SquareIcon.svelte";
+	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
+	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
 
 	let seconds = 1;
 
@@ -53,6 +57,7 @@
 		event.preventDefault();
 		top = `${event.clientY}px`;
 		left = `${event.clientX}px`;
+		animationActionsMenu.hide();
 		addAnimationMenu.show();
 	}
 
@@ -78,14 +83,65 @@
 			document.addEventListener("mousemove", resize(event.target as HTMLElement), false);
 		}
 	}
+
+	async function createAudio() {
+		const base64Audio = await invoke("load_audio_base64", {
+			path: "C:\\Users\\violet\\OneDrive\\Documents\\Coding\\manim-interactive\\test\\audio.mp3",
+		});
+
+		const audio = document.getElementById("my-audio") as HTMLAudioElement;
+		audio.src = `data:audio/mp3;base64,${base64Audio}`;
+		audio.play();
+	}
+
+	let timeSlider: HTMLElement;
+
+	onMount(() => {
+		document.addEventListener("keydown", event => {
+			console.log(event.key);
+			if (event.key === "ArrowRight") {
+				moveFrames(1);
+				return;
+			}
+
+			if (event.key === "ArrowLeft") {
+				moveFrames(-1);
+				return;
+			}
+		});
+
+		let dragging = false;
+		timeSlider.addEventListener("mousedown", event => {
+			dragging = true;
+		});
+
+		document.addEventListener("mousemove", event => {
+			if (dragging) {
+			}
+		});
+
+		document.addEventListener("mouseup", event => {
+			dragging = false;
+		});
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <section oncontextmenu={addAnimation}>
-	<h1>Timeline</h1>
+	<div class="header">
+		<h1>Timeline</h1>
+		<button onclick={togglePlaying}>
+			{#if isPlaying()}
+				<SquareIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+			{:else}
+				<PlayIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+			{/if}
+		</button>
+	</div>
+
 	<div id="timeline-wrapper">
 		<div id="timeline-content">
-			{#each allAnimations() as animation}
+			{#each getProjectAnimations() as animation}
 				<button
 					oncontextmenu={animationActions}
 					onmousedown={animationMouseDown}
@@ -99,12 +155,34 @@
 			<div></div>
 		</div>
 	</div>
+	<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 5}vh + 2.5rem)"></div>
 </section>
 
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
 
 <style>
+	.header {
+		display: flex;
+
+		> *:first-child {
+			margin-right: auto;
+		}
+
+		> *:last-child {
+			margin-right: 0.5rem;
+		}
+	}
+
+	.time {
+		height: 2px;
+		width: 100%;
+		background-color: #b4befe;
+		position: absolute;
+		left: 0px;
+		cursor: move;
+	}
+
 	section {
 		background-color: #1e1e2e;
 		height: 100%;
@@ -120,13 +198,14 @@
 	}
 
 	.animation {
-		margin-left: 3rem;
+		margin-left: 8rem;
 		border-radius: 0.3rem;
 		color: #000000;
 		position: absolute;
-		width: 80%;
+		width: 68%;
 		cursor: pointer;
 		text-align: left;
+		padding: 1rem;
 		height: 5vh;
 		z-index: 99;
 

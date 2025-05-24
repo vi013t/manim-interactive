@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	let { children, top = "0px", left = "0px", background = "#181825" } = $props();
+	let { children, top = "0px", left = "0px", background = "#181825", openers = [] } = $props();
 
 	let visible = $state(false);
 
@@ -22,7 +22,7 @@
 
 	onMount(() => {
 		document.addEventListener("click", event => {
-			if (!(event.target as any).contains(menu)) {
+			if (!event.composedPath().includes(menu) && openers.every(opener => !event.composedPath().includes(opener))) {
 				hide();
 			}
 		});

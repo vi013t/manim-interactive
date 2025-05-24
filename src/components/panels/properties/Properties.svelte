@@ -1,8 +1,8 @@
 <script lang="ts">
-	import { selected, type ManimObject } from "../api/codegen.svelte";
-	import { getItemData } from "../api/manim";
-	import PlusIcon from "./icons/PlusIcon.svelte";
-	import AddPropertyMenu from "./menus/AddPropertyMenu.svelte";
+	import { getItemData } from "../../../api/manim";
+	import { selected, type ManimObject } from "../../../api/project.svelte";
+	import PlusIcon from "../../icons/PlusIcon.svelte";
+	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
 	let item = $derived(selected());

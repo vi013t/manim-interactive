@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { select } from "../api/codegen.svelte";
-	import { getObjectCategory, objects } from "../api/manim/objects";
-	import PackageIcon from "./icons/PackageIcon.svelte";
-	import RightArrow from "./icons/RightArrow.svelte";
-	import GroupMenu from "./menus/GroupMenu.svelte";
-	import ObjectMenu from "./menus/ObjectMenu.svelte";
+	import { getObjectCategory, objects } from "../../../api/manim/objects";
+	import { select } from "../../../api/project.svelte";
+	import PackageIcon from "../../icons/PackageIcon.svelte";
+	import RightArrow from "../../icons/RightArrow.svelte";
+	import GroupMenu from "../../menus/GroupMenu.svelte";
+	import ObjectMenu from "../../menus/ObjectMenu.svelte";
 	import ObjectEntry from "./ObjectEntry.svelte";
 
 	let { entry } = $props();

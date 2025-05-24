@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { removeObjectEntry } from "../../api/codegen.svelte";
+	import { removeProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -24,35 +24,23 @@
 
 	function deleteGroup() {
 		menu.hide();
-		removeObjectEntry(id);
+		removeProjectObject(id);
 	}
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Group Actions</span>
 	<button onclick={deleteGroup}>
-		<PlusIcon
-			stroke="#a6e3a1"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<PlusIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Object
-		<RightArrow
-			stroke="#89b4fa"
-			style="width: 1rem; height: 0.8rem; margin-left: 0.5em;"
-		/>
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onclick={deleteGroup}>
-		<TypeIcon
-			stroke="#89b4fa"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Rename Group
 	</button>
 	<button onclick={deleteGroup}>
-		<TrashIcon
-			stroke="#f38ba8"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Group
 	</button>
 </ContextMenu>

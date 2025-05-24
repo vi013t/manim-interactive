@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { addAnimation, nextId } from "../../api/codegen.svelte";
 	import type { AnimationCategory } from "../../api/manim";
 	import { animations, getAnimationCategory } from "../../api/manim/animations";
+	import { addProjectAnimation, nextId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
 	let { top, left, hideParent, category }: { top: string; left: string; hideParent: () => void; id?: number; category: AnimationCategory } = $props();
@@ -24,7 +24,7 @@
 		return function () {
 			menu.toggle();
 			hideParent();
-			addAnimation({
+			addProjectAnimation({
 				name: name,
 				objects: [],
 				id: nextId(),

@@ -11,10 +11,12 @@
 		top,
 		left,
 		expandTo = "left",
+		hideParent,
 	}: {
 		top: string;
 		left: string;
 		expandTo?: "left" | "right";
+		hideParent: () => void;
 	} = $props();
 
 	let menu: ContextMenu;
@@ -40,6 +42,11 @@
 		addDestroyAnimationMenu.hide();
 		addHighlightAnimationMenu.hide();
 		addTransformAnimationMenu.hide();
+	}
+
+	function hideAll() {
+		hide();
+		hideParent();
 	}
 </script>
 
@@ -86,10 +93,10 @@
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 
-	<AddAnimationSubmenu bind:this={addCreateAnimationMenu} top="0px" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hide} category="Create" />
-	<AddAnimationSubmenu bind:this={addDestroyAnimationMenu} top="3.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hide} category="Destroy" />
-	<AddAnimationSubmenu bind:this={addHighlightAnimationMenu} top="5.25rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hide} category="Highlight" />
-	<AddAnimationSubmenu bind:this={addTransformAnimationMenu} top="7.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hide} category="Transform" />
+	<AddAnimationSubmenu bind:this={addCreateAnimationMenu} top="0px" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Create" />
+	<AddAnimationSubmenu bind:this={addDestroyAnimationMenu} top="3.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Destroy" />
+	<AddAnimationSubmenu bind:this={addHighlightAnimationMenu} top="5.25rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Highlight" />
+	<AddAnimationSubmenu bind:this={addTransformAnimationMenu} top="7.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Transform" />
 </ContextMenu>
 
 <style>

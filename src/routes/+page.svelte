@@ -1,8 +1,32 @@
 <script lang="ts">
-	import Navbar from "../components/Navbar.svelte";
-	import Objects from "../components/Objects.svelte";
-	import Properties from "../components/Properties.svelte";
-	import Timeline from "../components/Timeline.svelte";
+	import { onMount } from "svelte";
+	import AddMenu from "../components/menus/AddMenu.svelte";
+	import Navbar from "../components/panels/Navbar.svelte";
+	import Objects from "../components/panels/objects/Objects.svelte";
+	import Properties from "../components/panels/properties/Properties.svelte";
+	import Timeline from "../components/panels/timeline/Timeline.svelte";
+	import VideoPanel from "../components/panels/video/VideoPanel.svelte";
+
+	let mouseX: number;
+	let mouseY: number;
+
+	let top: string;
+	let left: string;
+	let menu: AddMenu;
+	onMount(() => {
+		document.addEventListener("mousemove", event => {
+			mouseX = event.clientX;
+			mouseY = event.clientY;
+		});
+
+		document.addEventListener("keypress", event => {
+			if (event.key === "A") {
+				top = `${mouseY}px`;
+				left = `${mouseX}px`;
+				menu.show();
+			}
+		});
+	});
 </script>
 
 <main>
@@ -10,12 +34,12 @@
 	<div class="container">
 		<Objects />
 		<div class="inner">
-			<!-- svelte-ignore a11y_media_has_caption -->
-			<video oncontextmenu={event => event.preventDefault()} controls id="video-source"></video>
+			<VideoPanel />
 			<Properties />
 		</div>
 		<Timeline />
 	</div>
+	<AddMenu bind:this={menu} {top} {left} />
 </main>
 
 <style>
@@ -37,10 +61,5 @@
 	.inner {
 		display: flex;
 		flex-direction: column;
-	}
-
-	#video-source {
-		width: 100%;
-		aspect-ratio: 1.78;
 	}
 </style>

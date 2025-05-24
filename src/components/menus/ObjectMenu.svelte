@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { removeObjectEntry } from "../../api/codegen.svelte";
+	import { removeProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -30,7 +30,7 @@
 
 	function deleteObject() {
 		menu.hide();
-		removeObjectEntry(id);
+		removeProjectObject(id);
 	}
 </script>
 
@@ -59,7 +59,7 @@
 		Delete Object
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" expandTo="right" />
+	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" expandTo="right" hideParent={hide} />
 </ContextMenu>
 
 <style>

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { addProperty, getItemFromId } from "../../api/codegen.svelte";
 	import { getItemData } from "../../api/manim";
+	import { addProperty, getItemFromId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
 	let { id, top, left } = $props();
@@ -23,17 +23,9 @@
 		menu?.hide();
 	}
 
-	let newProperties = $derived(
-		itemData?.properties.filter(
-			(property) => item.properties[property.name] === undefined,
-		) ?? [],
-	);
+	let newProperties = $derived(itemData?.properties.filter(property => item.properties[property.name] === undefined) ?? []);
 
-	let hasProperties = $derived(
-		itemData?.properties.filter(
-			(property) => item.properties[property.name] !== undefined,
-		) ?? [],
-	);
+	let hasProperties = $derived(itemData?.properties.filter(property => item.properties[property.name] !== undefined) ?? []);
 
 	function addObjectProperty(name: string, value: unknown) {
 		return function () {

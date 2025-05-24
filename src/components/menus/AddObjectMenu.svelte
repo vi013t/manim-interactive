@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { addObjectEntry, nextId } from "../../api/codegen.svelte";
+	import { addProjectObject, nextId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AsteriskIcon from "../icons/AsteriskIcon.svelte";
 	import CircleIcon from "../icons/CircleIcon.svelte";
@@ -9,7 +9,7 @@
 	import TextIcon from "../icons/TextIcon.svelte";
 	import AddObjectSubmenu from "./AddObjectSubmenu.svelte";
 
-	let { top, left }: { top: string; left: string } = $props();
+	let { top, left, openers = [] }: { top: string; left: string; openers?: HTMLElement[] } = $props();
 
 	let menu: ContextMenu;
 	let addLineMenu: AddObjectSubmenu;
@@ -36,7 +36,7 @@
 
 	function addGroup() {
 		menu.toggle();
-		addObjectEntry({
+		addProjectObject({
 			name: "New Group",
 			objects: [],
 			groups: [],
@@ -45,8 +45,8 @@
 	}
 </script>
 
-<ContextMenu bind:this={menu} {top} {left}>
-	<span>Add New</span>
+<ContextMenu bind:this={menu} {top} {left} {openers}>
+	<span>Add Object</span>
 	<button onclick={addGroup} onmouseenter={hideSubmenus}>
 		<PackageIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Group
