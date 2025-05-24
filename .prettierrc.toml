@@ -1,0 +1,4 @@
+useTabs = true
+htmlWhitespaceSensitivity = "ignore"
+printWidth = 180
+arrowParens = "avoid"

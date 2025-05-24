@@ -1,0 +1,89 @@
+<script lang="ts">
+	import { removeObjectEntry } from "../../api/codegen.svelte";
+	import ContextMenu from "../ContextMenu.svelte";
+	import AnimationIcon from "../icons/AnimationIcon.svelte";
+	import RightArrow from "../icons/RightArrow.svelte";
+	import TrashIcon from "../icons/TrashIcon.svelte";
+	import TypeIcon from "../icons/TypeIcon.svelte";
+	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+
+	let { top, left, id }: { top: string; left: string; id: number } = $props();
+
+	let menu: ContextMenu;
+	let addAnimationMenu: AddAnimationMenu;
+
+	export function show() {
+		menu.show();
+	}
+
+	export function toggle() {
+		menu.toggle();
+	}
+
+	export function hide() {
+		menu.hide();
+	}
+
+	function hideSubmenus() {
+		addAnimationMenu.hide();
+	}
+
+	function deleteGroup() {
+		menu.hide();
+		removeObjectEntry(id);
+	}
+</script>
+
+<ContextMenu bind:this={menu} {top} {left}>
+	<span>Object Actions</span>
+	<button onclick={deleteGroup} onmouseover={hideSubmenus}>
+		<TypeIcon
+			stroke="#89b4fa"
+			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
+		/>
+		Rename Object
+	</button>
+	<button
+		onclick={deleteGroup}
+		onmouseover={() => {
+			hideSubmenus();
+			addAnimationMenu.show();
+		}}
+	>
+		<AnimationIcon
+			stroke="#94e2d5"
+			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
+		/>
+		Add Animation
+		<RightArrow
+			stroke="#89b4fa"
+			style="width: 1rem; height: 0.8rem; margin-left: 0.5em;"
+		/>
+	</button>
+	<button onclick={deleteGroup} onmouseover={hideSubmenus}>
+		<TrashIcon
+			stroke="#f38ba8"
+			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
+		/>
+		Delete Object
+	</button>
+
+	<AddAnimationMenu
+		bind:this={addAnimationMenu}
+		top="3.5rem"
+		left="100%"
+		expandTo="right"
+	/>
+</ContextMenu>
+
+<style>
+	:global(button) {
+		display: flex;
+		align-items: center;
+	}
+
+	span {
+		font-size: 0.85rem;
+		border-bottom: 1px solid #313244;
+	}
+</style>

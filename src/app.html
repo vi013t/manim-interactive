@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" href="%sveltekit.assets%/logo.png" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+	<style>
+		* {
+			padding: 0px;
+			margin: 0px;
+			box-sizing: border-box;
+			border: none;
+			outline: none;
+			background: transparent;
+			font-weight: normal;
+			font-family: Segoe UI;
+			-ms-overflow-style: none;  /* IE and Edge */
+			scrollbar-width: none;  /* Firefox */
+
+			&::-webkit-scrollbar {
+				display: none;
+			}
+		}
+
+		html {
+			width: 100vw;
+			height: 100vh;
+		}
+
+		body {
+			height: 100%;
+			width: 100%;
+		}
+
+		button {
+			cursor: pointer;
+		}
+	</style>
+
+	<title>Manim Interactive</title>
+	%sveltekit.head%
+</head>
+
+<body data-sveltekit-preload-data="hover">
+	<div style="display: contents">%sveltekit.body%</div>
+</body>
+
+</html>
