@@ -28,52 +28,38 @@
 		addAnimationMenu.hide();
 	}
 
-	function deleteGroup() {
+	function deleteObject() {
 		menu.hide();
 		removeObjectEntry(id);
 	}
 </script>
 
+<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Object Actions</span>
-	<button onclick={deleteGroup} onmouseover={hideSubmenus}>
-		<TypeIcon
-			stroke="#89b4fa"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+	<button onclick={deleteObject} onmouseover={hideSubmenus}>
+		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Rename Object
 	</button>
+
 	<button
-		onclick={deleteGroup}
+		onclick={deleteObject}
 		onmouseover={() => {
 			hideSubmenus();
 			addAnimationMenu.show();
 		}}
 	>
-		<AnimationIcon
-			stroke="#94e2d5"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Animation
-		<RightArrow
-			stroke="#89b4fa"
-			style="width: 1rem; height: 0.8rem; margin-left: 0.5em;"
-		/>
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button onclick={deleteGroup} onmouseover={hideSubmenus}>
-		<TrashIcon
-			stroke="#f38ba8"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+
+	<button onclick={deleteObject} onmouseover={hideSubmenus}>
+		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Object
 	</button>
 
-	<AddAnimationMenu
-		bind:this={addAnimationMenu}
-		top="3.5rem"
-		left="100%"
-		expandTo="right"
-	/>
+	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" expandTo="right" />
 </ContextMenu>
 
 <style>
