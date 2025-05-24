@@ -17,7 +17,7 @@ export type ObjectEntry = ManimObject | ObjectGroup;
 export type Animation = {
 	id: number;
 	name: string;
-	objects: string[];
+	objects: number[];
 	properties: { [key: string]: unknown };
 };
 
@@ -38,7 +38,7 @@ export function addObjectEntry(object: ObjectEntry) {
 }
 
 export function removeObjectEntry(id: number) {
-	objects = objects.filter((object) => object.id !== id);
+	objects = objects.filter(object => object.id !== id);
 }
 
 const animations: Animation[] = $state([]);
@@ -51,17 +51,11 @@ export function addAnimation(animation: Animation) {
 	animations.push(animation);
 }
 
-export const projectLocation =
-	"C:\\Users\\violet\\OneDrive\\Documents\\Coding\\manim-interactive\\test";
+export const projectLocation = "C:\\Users\\violet\\OneDrive\\Documents\\Coding\\manim-interactive\\test";
 
 export function generateCode(): string {
-	const objectLines = objects.map((object) =>
-		"objectType" in object ? `\t\tvar = ${object.objectType}()` : ""
-	);
-	const animationLines = animations.map(
-		(animation) =>
-			`\t\tself.play(${animation.name}(${animation.objects.join(",")}))`
-	);
+	const objectLines = objects.map(object => ("objectType" in object ? `\t\tvar = ${object.objectType}()` : ""));
+	const animationLines = animations.map(animation => `\t\tself.play(${animation.name}(${animation.objects.join(",")}))`);
 
 	return `from manim import *
 
@@ -90,12 +84,9 @@ export type Item = {
 };
 
 export function getItemFromId(id: number): Item {
-	return objects.find(
-		(object) => "objectType" in object && object.id === id
-	) as Item;
+	return objects.find(object => "objectType" in object && object.id === id) as Item;
 }
 
 export function addProperty(id: number, name: string, value: unknown) {
-	(objects.find((object) => object.id === id) as ManimObject).properties[name] =
-		value;
+	(objects.find(object => object.id === id) as ManimObject).properties[name] = value;
 }

@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { allAnimations, select, type Animation } from "../api/codegen.svelte";
-	import AddAnimationMenu from "./menus/AddAnimationMenu.svelte";
+	import { animations, getAnimationCategory } from "../api/manim/animations";
+	import AddToTimelineMenu from "./menus/AddToTimelineMenu.svelte";
+	import AnimationActionsMenu from "./menus/AnimationActionsMenu.svelte";
 
 	let seconds = 1;
 
@@ -12,16 +14,13 @@
 	}
 
 	onMount(() => {
-		var wrapper = document.getElementById("timeline-wrapper")!;
+		const wrapper = document.getElementById("timeline-wrapper")!;
+		wrapper.addEventListener("scroll", checkForNewDiv);
 
-		wrapper.addEventListener("scroll", function (event) {
-			checkForNewDiv();
-		});
-
-		var checkForNewDiv = function () {
-			var lastDiv = document.querySelector("#timeline-content > div:last-child") as HTMLElement;
-			var lastDivOffset = lastDiv.offsetTop + lastDiv.clientHeight;
-			var pageOffset = wrapper.scrollTop + wrapper.clientHeight;
+		function checkForNewDiv() {
+			const lastDiv = document.querySelector("#timeline-content > div:last-child") as HTMLElement;
+			const lastDivOffset = lastDiv.offsetTop + lastDiv.clientHeight;
+			const pageOffset = wrapper.scrollTop + wrapper.clientHeight;
 
 			if (pageOffset > lastDivOffset - 500) {
 				const newDiv = document.createElement("div");
@@ -35,21 +34,17 @@
 				seconds++;
 				checkForNewDiv();
 			}
-		};
+		}
 
 		checkForNewDiv();
 	});
 
-	function animationColor(animation: Animation) {
-		switch (animation.name) {
-			case "Create":
-				return "#a6e3a1";
-			default:
-				return "#FFFFFF";
-		}
+	function animationColor(animation: Animation): string {
+		return getAnimationCategory(animations.find(manimation => manimation.name === animation.name)!.category).color;
 	}
 
-	let addAnimationMenu: AddAnimationMenu;
+	let addAnimationMenu: AddToTimelineMenu;
+	let animationActionsMenu: AnimationActionsMenu;
 
 	let top = $state("100%");
 	let left = $state("94%");
@@ -59,6 +54,13 @@
 		top = `${event.clientY}px`;
 		left = `${event.clientX}px`;
 		addAnimationMenu.show();
+	}
+
+	function animationActions(event: MouseEvent) {
+		event.preventDefault();
+		top = `${event.clientY}px`;
+		left = `${event.clientX}px`;
+		animationActionsMenu.show();
 	}
 
 	const BORDER_SIZE = 4;
@@ -80,21 +82,27 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <section oncontextmenu={addAnimation}>
-	<h1>Animations</h1>
+	<h1>Timeline</h1>
 	<div id="timeline-wrapper">
 		<div id="timeline-content">
 			{#each allAnimations() as animation}
-				<button onmousedown={animationMouseDown} class="animation" style:background-color={animationColor(animation)} onclick={() => select(animation)}>
+				<button
+					oncontextmenu={animationActions}
+					onmousedown={animationMouseDown}
+					class="animation"
+					style:background-color={animationColor(animation)}
+					onclick={() => select(animation)}
+				>
 					{animation.name}
 				</button>
 			{/each}
-
 			<div></div>
 		</div>
 	</div>
 </section>
 
-<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} />
+<AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
+<AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
 
 <style>
 	section {

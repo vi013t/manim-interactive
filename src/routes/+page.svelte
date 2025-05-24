@@ -11,7 +11,7 @@
 		<Objects />
 		<div class="inner">
 			<!-- svelte-ignore a11y_media_has_caption -->
-			<video controls id="video-source"></video>
+			<video oncontextmenu={event => event.preventDefault()} controls id="video-source"></video>
 			<Properties />
 		</div>
 		<Timeline />

@@ -1,15 +1,8 @@
 <script lang="ts">
 	import { select } from "../api/codegen.svelte";
-	import AnnulusIcon from "./icons/AnnulusIcon.svelte";
-	import CircleIcon from "./icons/CircleIcon.svelte";
-	import EllipseIcon from "./icons/EllipseIcon.svelte";
-	import HexagonIcon from "./icons/HexagonIcon.svelte";
+	import { getObjectCategory, objects } from "../api/manim/objects";
 	import PackageIcon from "./icons/PackageIcon.svelte";
 	import RightArrow from "./icons/RightArrow.svelte";
-	import SquareIcon from "./icons/SquareIcon.svelte";
-	import StarIcon from "./icons/StarIcon.svelte";
-	import TextIcon from "./icons/TextIcon.svelte";
-	import TriangleIcon from "./icons/TriangleIcon.svelte";
 	import GroupMenu from "./menus/GroupMenu.svelte";
 	import ObjectMenu from "./menus/ObjectMenu.svelte";
 	import ObjectEntry from "./ObjectEntry.svelte";
@@ -72,30 +65,11 @@
 
 		<!-- Object -->
 	{:else}
+		{@const data = objects.find(object => object.name === entry.objectType)!}
+
 		<!-- Object name & icon -->
 		<div class="top" oncontextmenu={rightClickObject}>
-			{#if entry.objectType === "Text"}
-				<TextIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-
-				<!-- Shapes -->
-			{:else if entry.objectType === "Annulus"}
-				<AnnulusIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Circle"}
-				<CircleIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Ellipse"}
-				<EllipseIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Polygon"}
-				<HexagonIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Rectangle"}
-				<SquareIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Square"}
-				<SquareIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Star"}
-				<StarIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{:else if entry.objectType === "Triangle"}
-				<TriangleIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			{/if}
-
+			<data.icon stroke={getObjectCategory(data.category).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
 			<span onkeydown={typeName} contenteditable autocapitalize="off" spellcheck="false">
 				{entry.name}
 			</span>

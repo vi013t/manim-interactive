@@ -1,10 +1,7 @@
 <script lang="ts">
-	let {
-		children,
-		top = "0px",
-		left = "0px",
-		background = "#181825",
-	} = $props();
+	import { onMount } from "svelte";
+
+	let { children, top = "0px", left = "0px", background = "#181825" } = $props();
 
 	let visible = $state(false);
 
@@ -20,14 +17,19 @@
 		if (visible) hide();
 		else show();
 	}
+
+	let menu: HTMLElement;
+
+	onMount(() => {
+		document.addEventListener("click", event => {
+			if (!(event.target as any).contains(menu)) {
+				hide();
+			}
+		});
+	});
 </script>
 
-<section
-	style:background-color={background}
-	style:display={visible ? "flex" : "none"}
-	style:top
-	style:left
->
+<section bind:this={menu} style:background-color={background} style:display={visible ? "flex" : "none"} style:top style:left>
 	{@render children()}
 </section>
 
@@ -46,10 +48,14 @@
 			padding-left: 2em;
 			padding-right: 2em;
 			min-width: 15rem;
+		}
 
-			&:hover {
-				background: rgba(180, 150, 255, 10%);
-			}
+		:global(> *:not(span):hover) {
+			background: rgba(180, 150, 255, 10%);
+		}
+
+		:global(> span) {
+			cursor: default;
 		}
 	}
 </style>

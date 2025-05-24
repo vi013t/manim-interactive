@@ -20,13 +20,19 @@
 
 	function getPropertyType(propertyName: string) {
 		let itemData = getItemData((item as ManimObject).objectType);
-		return itemData.properties.find(
-			(property) => property.name === propertyName,
-		)!.type;
+		return itemData.properties.find(property => property.name === propertyName)!.type;
+	}
+
+	function addProperty(event: MouseEvent) {
+		event.preventDefault();
+		top = `${event.clientY}px`;
+		left = `${event.clientX}px`;
+		propertiesMenu.show();
 	}
 </script>
 
-<section>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<section oncontextmenu={addProperty}>
 	<div class="header">
 		<h1>Properties</h1>
 		<button onclick={clickPlusButton}>
@@ -39,10 +45,7 @@
 			<span>Name: {item.name}</span>
 			{#each Object.entries(item.properties) as [name, value]}
 				<span>
-					{name}: <PropertyValueInput
-						propertyType={getPropertyType(name)}
-						defaultValue={value}
-					/>
+					{name}: <PropertyValueInput propertyType={getPropertyType(name)} defaultValue={value} />
 				</span>
 			{/each}
 			<AddPropertyMenu {top} {left} id={item.id} bind:this={propertiesMenu} />

@@ -7,16 +7,14 @@
 	import PackageIcon from "../icons/PackageIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TextIcon from "../icons/TextIcon.svelte";
-	import AddLineMenu from "./AddLineMenu.svelte";
-	import AddShapeMenu from "./AddShapeMenu.svelte";
-	import AddTextMenu from "./AddTextMenu.svelte";
+	import AddObjectSubmenu from "./AddObjectSubmenu.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 
 	let menu: ContextMenu;
-	let addShapeMenu: AddShapeMenu;
-	let addTextMenu: AddShapeMenu;
-	let addLineMenu: AddLineMenu;
+	let addLineMenu: AddObjectSubmenu;
+	let addShapeMenu: AddObjectSubmenu;
+	let addTextMenu: AddObjectSubmenu;
 
 	export function show() {
 		menu.show();
@@ -49,16 +47,8 @@
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Add New</span>
-	<button
-		onclick={addGroup}
-		onmouseenter={() => {
-			hideSubmenus();
-		}}
-	>
-		<PackageIcon
-			stroke="#89b4fa"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+	<button onclick={addGroup} onmouseenter={hideSubmenus}>
+		<PackageIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Group
 	</button>
 	<button
@@ -67,15 +57,9 @@
 			addLineMenu.show();
 		}}
 	>
-		<LineIcon
-			stroke="#cba6f7"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<LineIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Line
-		<RightArrow
-			stroke="#89b4fa"
-			style="width: 1rem; height: 0.8rem; margin-left: 0.5em;"
-		/>
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button
 		onmouseenter={() => {
@@ -83,15 +67,9 @@
 			addShapeMenu.show();
 		}}
 	>
-		<CircleIcon
-			stroke="#f38ba8"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<CircleIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Shape
-		<RightArrow
-			stroke="#89b4fa"
-			style="width: 1rem; height: 0.8rem; margin-left: 0.5em;"
-		/>
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button
 		onmouseenter={() => {
@@ -99,15 +77,9 @@
 			addTextMenu.show();
 		}}
 	>
-		<TextIcon
-			stroke="#f9e2af"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<TextIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Text
-		<RightArrow
-			stroke="#89b4fa"
-			style="width: 1rem; height: 0.7rem; margin-left: 0.5em;"
-		/>
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.7rem; margin-left: 0.5em;" />
 	</button>
 	<button
 		onmouseenter={() => {
@@ -115,25 +87,14 @@
 			addTextMenu.show();
 		}}
 	>
-		<AsteriskIcon
-			stroke="#9399b2"
-			style="width: 1rem; height: 1rem; margin-right: 0.5em;"
-		/>
+		<AsteriskIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Miscellaneous
-		<RightArrow
-			stroke="#89b4fa"
-			style="width: 1rem; height: 0.7rem; margin-left: 0.5em;"
-		/>
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.7rem; margin-left: 0.5em;" />
 	</button>
 
-	<AddShapeMenu
-		bind:this={addShapeMenu}
-		top="5rem"
-		left="100%"
-		hideOuter={hide}
-	/>
-	<AddTextMenu bind:this={addTextMenu} top="7rem" left="100%" />
-	<AddLineMenu bind:this={addLineMenu} top="3.5rem" left="100%" />
+	<AddObjectSubmenu bind:this={addLineMenu} top="3.5rem" left="100%" category="Line" hideOuter={hide} />
+	<AddObjectSubmenu bind:this={addShapeMenu} top="5rem" left="100%" category="Shape" hideOuter={hide} />
+	<AddObjectSubmenu bind:this={addTextMenu} top="7rem" left="100%" category="Text" hideOuter={hide} />
 </ContextMenu>
 
 <style>

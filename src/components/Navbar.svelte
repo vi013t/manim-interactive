@@ -40,7 +40,7 @@
 	}
 </script>
 
-<nav>
+<nav oncontextmenu={event => event.preventDefault()}>
 	<img src={icon} alt="Manim Interactive" />
 
 	<button onclick={projectMenu.toggle}>Project</button>
