@@ -4,7 +4,7 @@ let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
 let id = 0;
 let projectObjects: ObjectEntry[] = $state([]);
-let projectAnimations: Animation[] = $state([]);
+let projectAnimations: ProjectAnimation[] = $state([]);
 
 export async function getProjectLocation(): Promise<string> {
 	return projectLocation ?? join(await tempDir(), "manim-interactive-project");
@@ -41,7 +41,7 @@ export function loadProjectData(data: string) {
 	id = nextId;
 }
 
-export function getProjectAnimations(): Animation[] {
+export function getProjectAnimations(): ProjectAnimation[] {
 	return projectAnimations;
 }
 
@@ -49,7 +49,7 @@ export function getProjectObjects(): ObjectEntry[] {
 	return projectObjects;
 }
 
-export function addProjectAnimation(animation: Animation) {
+export function addProjectAnimation(animation: ProjectAnimation) {
 	projectAnimations.push(animation);
 }
 
@@ -69,12 +69,18 @@ export type ObjectGroup = {
 
 export type ObjectEntry = ProjectObject | ObjectGroup;
 
-export type Animation = {
+export type ProjectAnimation = {
 	id: number;
 	name: string;
 	objects: number[];
+	startTime: number;
+	duration: number;
 	properties: { [key: string]: unknown };
 };
+
+export function animationEndTime(animation: ProjectAnimation): number {
+	return animation.startTime + animation.duration;
+}
 
 export function nextId() {
 	return id++;
@@ -88,7 +94,7 @@ export function removeProjectObject(id: number) {
 	projectObjects = projectObjects.filter(object => object.id !== id);
 }
 
-type Selectable = ProjectObject | Animation;
+type Selectable = ProjectObject | ProjectAnimation;
 
 let selectedThing: Selectable | null = $state(null);
 

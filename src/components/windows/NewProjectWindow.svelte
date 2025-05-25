@@ -16,7 +16,7 @@
 
 	async function confirm() {
 		setProjectLocation(await invoke("new_project", { path, name }));
-		close();
+		windowComponent.close();
 	}
 
 	export function openWindow() {
@@ -24,7 +24,7 @@
 	}
 
 	onMount(() => {
-		fileInput.addEventListener("click", async event => {
+		fileInput.addEventListener("click", async _event => {
 			const selected = await open({
 				directory: true,
 				multiple: false,

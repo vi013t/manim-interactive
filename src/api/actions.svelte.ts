@@ -1,3 +1,7 @@
+import { invoke } from "@tauri-apps/api/core";
+import { generateCode } from "./codegen.svelte";
+import { getProjectLocation, saveProjectData } from "./project.svelte";
+
 export type KeyModifier = "ctrl" | "shift" | "alt";
 
 export type Key = {
@@ -7,19 +11,47 @@ export type Key = {
 
 type Action = {
 	name: string;
+	run: (() => void) | (() => Promise<void>);
 };
 
 const actions = {
 	"Save Project": {
 		name: "Save Project",
+		async run() {
+			let projectData = saveProjectData();
+
+			let save_data = invoke("save_project_data", {
+				path: await getProjectLocation(),
+				data: projectData,
+			});
+
+			await invoke("recompile", {
+				projectPath: await getProjectLocation(),
+				code: generateCode(),
+			});
+
+			const videoData = (await invoke("load_video", {
+				path: await getProjectLocation(),
+			})) as string;
+
+			document.getElementById("video-source")?.setAttribute("src", videoData);
+
+			await save_data;
+		},
 	},
 	"Open Project": {
 		name: "Open Project",
+		run: () => {},
 	},
 	"New Project": {
 		name: "New Project",
+		run: () => {},
 	},
 } as const satisfies { [key: string]: Action };
+
+export async function runAction(name: ActionName) {
+	await actions[name].run();
+}
 
 export function getActions(): Action[] {
 	return Object.values(actions);

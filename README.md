@@ -8,6 +8,8 @@ A graphical frontend to the Python animation library [Manim](https://www.manim.c
 
 ### Prerequisites
 
+#### Manim
+
 Before installing Manim Interactive, you must have `manim` itself installed as a global tool. You can do so with `uv`. First, install `uv`:
 
 ```bash
@@ -20,6 +22,10 @@ Then, install `manim` globally with `uv`:
 ```bash
 uv tool install manim
 ```
+
+#### LaTeX
+
+`LaTeX` is also needed to use Manim Interactive. Manim recommends installing it with [MikTeX](https://miktex.org/download).
 
 ### Prebuilt Binary
 

@@ -42,7 +42,19 @@
 
 	<div class="items">
 		{#if item}
-			<span>Name: {item.name}</span>
+			<span>
+				Name: <PropertyValueInput propertyType="string" defaultValue={item.name} />
+			</span>
+			<!-- Animation -->
+			{#if "startTime" in item}
+				<span>
+					Animation: <PropertyValueInput propertyType="animation" defaultValue={item.name} />
+				</span>
+				<span></span>
+				<span>
+					Start Time: <PropertyValueInput propertyType="float" defaultValue={item.startTime} />
+				</span>
+			{/if}
 			{#each Object.entries(item.properties) as [name, value]}
 				<span>
 					{name}: <PropertyValueInput propertyType={getPropertyType(name)} defaultValue={value} />

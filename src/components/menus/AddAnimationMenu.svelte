@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
 	import { isDeveloperMode } from "../../api/preferences.svelte";
+	import { type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
@@ -12,14 +14,19 @@
 	let {
 		top,
 		left,
-		expandTo = "left",
+		openers = [],
 		hideParent,
+		id = undefined,
 	}: {
 		top: string;
 		left: string;
-		expandTo?: "left" | "right";
+		openers?: HTMLElement[];
 		hideParent: () => void;
+		id?: number;
 	} = $props();
+
+	let horizontalExpand = $state("right");
+	let verticalExpand = $state("bottom");
 
 	let menu: ContextMenu;
 	let addCreateAnimationMenu: AddAnimationSubmenu;
@@ -28,6 +35,8 @@
 	let addTransformAnimationMenu: AddAnimationSubmenu;
 
 	export function show() {
+		horizontalExpand = getHorizontalExpandDirection();
+		verticalExpand = getVerticalExpandDirection();
 		menu.show();
 	}
 
@@ -67,9 +76,13 @@
 		hide();
 		hideParent();
 	}
+
+	function onAdd(animation: ProjectAnimation) {
+		if (id !== undefined) animation.objects.push(id);
+	}
 </script>
 
-<ContextMenu bind:this={menu} {top} {left}>
+<ContextMenu {openers} bind:this={menu} {top} {left}>
 	<span>Add Animation</span>
 	<button style:background={selectedMenu === "create" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("create")}>
 		<PlusIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
@@ -102,10 +115,38 @@
 		</button>
 	{/if}
 
-	<AddAnimationSubmenu bind:this={addCreateAnimationMenu} top="0px" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Create" />
-	<AddAnimationSubmenu bind:this={addDestroyAnimationMenu} top="3.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Destroy" />
-	<AddAnimationSubmenu bind:this={addHighlightAnimationMenu} top="5.25rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Highlight" />
-	<AddAnimationSubmenu bind:this={addTransformAnimationMenu} top="7.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Transform" />
+	<AddAnimationSubmenu
+		bind:this={addCreateAnimationMenu}
+		top={verticalExpand === "bottom" ? "0px" : "-12rem"}
+		left={horizontalExpand === "left" ? "-100%" : "100%"}
+		hideParent={hideAll}
+		{onAdd}
+		category="Create"
+	/>
+	<AddAnimationSubmenu
+		bind:this={addDestroyAnimationMenu}
+		top={verticalExpand === "bottom" ? "3.5rem" : "-5rem"}
+		left={horizontalExpand === "left" ? "-100%" : "100%"}
+		hideParent={hideAll}
+		{onAdd}
+		category="Destroy"
+	/>
+	<AddAnimationSubmenu
+		bind:this={addHighlightAnimationMenu}
+		top={verticalExpand === "bottom" ? "5.25rem" : "-8.5rem"}
+		left={horizontalExpand === "left" ? "-100%" : "100%"}
+		hideParent={hideAll}
+		{onAdd}
+		category="Highlight"
+	/>
+	<AddAnimationSubmenu
+		bind:this={addTransformAnimationMenu}
+		top={verticalExpand === "bottom" ? "7.5rem" : "-3.5rem"}
+		left={horizontalExpand === "left" ? "-100%" : "100%"}
+		hideParent={hideAll}
+		{onAdd}
+		category="Transform"
+	/>
 </ContextMenu>
 
 <style>

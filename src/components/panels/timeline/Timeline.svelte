@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
+	import { runAction } from "../../../api/actions.svelte";
 	import { animations, getAnimationCategory } from "../../../api/manim/animations";
-	import { getProjectAnimations, select, type Animation } from "../../../api/project.svelte";
+	import { getProjectAnimations, select, type ProjectAnimation } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -43,7 +44,7 @@
 		checkForNewDiv();
 	});
 
-	function animationColor(animation: Animation): string {
+	function animationColor(animation: ProjectAnimation): string {
 		return getAnimationCategory(animations.find(manimation => manimation.name === animation.name)!.category).color;
 	}
 
@@ -77,13 +78,16 @@
 		};
 	}
 
-	function animationMouseDown(event: MouseEvent) {
-		if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
-			height = event.offsetY;
-			document.addEventListener("mousemove", resize(event.target as HTMLElement), false);
-		} else {
-			draggingElement = event.target as HTMLElement;
-		}
+	function animationMouseDown(animation: ProjectAnimation) {
+		return function (event: MouseEvent) {
+			if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
+				height = event.offsetY;
+				document.addEventListener("mousemove", resize(event.target as HTMLElement), false);
+			} else {
+				draggingElement = event.target as HTMLElement;
+				draggingAnimation = animation;
+			}
+		};
 	}
 
 	async function createAudio() {
@@ -97,12 +101,12 @@
 	}
 
 	let draggingElement: HTMLElement | null = $state(null);
+	let draggingAnimation: ProjectAnimation | null = $state(null);
 	let timeSlider: HTMLElement;
 	let timelineElement: HTMLElement;
 
 	onMount(() => {
 		document.addEventListener("keydown", event => {
-			console.log(event.key);
 			if (event.key === "ArrowRight") {
 				moveFrames(1);
 				return;
@@ -133,8 +137,11 @@
 				}
 				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "pointer";
+				if (draggingAnimation) draggingAnimation.startTime = newTop / cellHeight;
+				runAction("Save Project");
 			}
 			draggingElement = null;
+			draggingAnimation = null;
 		});
 	});
 </script>
@@ -157,7 +164,7 @@
 			{#each getProjectAnimations() as animation}
 				<button
 					oncontextmenu={animationActions}
-					onmousedown={animationMouseDown}
+					onmousedown={animationMouseDown(animation)}
 					class="animation"
 					style:background-color={animationColor(animation)}
 					onclick={() => select(animation)}
@@ -168,7 +175,7 @@
 			<div></div>
 		</div>
 	</div>
-	<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 5}vh + 2.5rem)"></div>
+	<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 4}rem + 2.5rem)"></div>
 </section>
 
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />

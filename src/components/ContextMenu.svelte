@@ -27,6 +27,10 @@
 			}
 		});
 	});
+
+	export function element(): HTMLElement {
+		return menu;
+	}
 </script>
 
 <section bind:this={menu} style:background-color={background} style:display={visible ? "flex" : "none"} style:top style:left>

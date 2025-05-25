@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
 	import { addProjectObject, nextId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AsteriskIcon from "../icons/AsteriskIcon.svelte";
@@ -16,7 +17,12 @@
 	let addShapeMenu: AddObjectSubmenu;
 	let addTextMenu: AddObjectSubmenu;
 
+	let horizontalExpand = $state("right");
+	let verticalExpand = $state("bottom");
+
 	export function show() {
+		horizontalExpand = getHorizontalExpandDirection();
+		verticalExpand = getVerticalExpandDirection();
 		menu.show();
 	}
 
@@ -92,9 +98,27 @@
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.7rem; margin-left: 0.5em;" />
 	</button>
 
-	<AddObjectSubmenu bind:this={addLineMenu} top="3.5rem" left="100%" category="Line" hideOuter={hide} />
-	<AddObjectSubmenu bind:this={addShapeMenu} top="5rem" left="100%" category="Shape" hideOuter={hide} />
-	<AddObjectSubmenu bind:this={addTextMenu} top="7rem" left="100%" category="Text" hideOuter={hide} />
+	<AddObjectSubmenu
+		bind:this={addLineMenu}
+		top={verticalExpand === "bottom" ? "3.5rem" : "-2rem"}
+		left={horizontalExpand === "right" ? "100%" : "-100%"}
+		category="Line"
+		hideOuter={hide}
+	/>
+	<AddObjectSubmenu
+		bind:this={addShapeMenu}
+		top={verticalExpand === "bottom" ? "5rem" : "-8.5rem"}
+		left={horizontalExpand === "right" ? "100%" : "-100%"}
+		category="Shape"
+		hideOuter={hide}
+	/>
+	<AddObjectSubmenu
+		bind:this={addTextMenu}
+		top={verticalExpand === "bottom" ? "7rem" : "1.75rem"}
+		left={horizontalExpand === "right" ? "100%" : "-100%"}
+		category="Text"
+		hideOuter={hide}
+	/>
 </ContextMenu>
 
 <style>

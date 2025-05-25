@@ -3,8 +3,8 @@
 	import { sep } from "@tauri-apps/api/path";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { open } from "@tauri-apps/plugin-dialog";
-	import { generateCode } from "../../api/codegen.svelte";
-	import { getProjectLocation, getProjectName, loadProjectData, saveProjectData, setProjectLocation, setProjectName } from "../../api/project.svelte";
+	import { runAction } from "../../api/actions.svelte";
+	import { getProjectName, loadProjectData, setProjectLocation, setProjectName } from "../../api/project.svelte";
 	import icon from "../../assets/icon.png";
 	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
@@ -20,22 +20,7 @@
 
 	async function saveProject() {
 		projectMenu.hide();
-
-		let projectData = saveProjectData();
-		await invoke("save_project_data", {
-			path: await getProjectLocation(),
-			data: projectData,
-		});
-
-		await invoke("recompile", {
-			projectPath: await getProjectLocation(),
-			code: generateCode(),
-		});
-
-		const videoData = (await invoke("load_video", {
-			path: await getProjectLocation(),
-		})) as string;
-		document.getElementById("video-source")?.setAttribute("src", videoData);
+		runAction("Save Project");
 	}
 
 	async function openProject() {

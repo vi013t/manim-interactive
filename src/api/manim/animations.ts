@@ -50,7 +50,15 @@ import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
 import type { Property } from "./shared";
 
-export type ManimAnimation = { name: string; category: AnimationCategory; icon: Component<{ stroke: string }>; properties: Property[]; description?: string; demo?: string };
+export type ManimAnimation = {
+	name: string;
+	category: AnimationCategory;
+	icon: Component<{ stroke: string }>;
+	properties: Property[];
+	description?: string;
+	demo?: string;
+	internalName?: string;
+};
 
 export const animationCategories = {
 	Create: { color: "#a6e3a1" },
@@ -63,6 +71,10 @@ export function getAnimationCategory(name: AnimationCategory) {
 	return animationCategories[name];
 }
 
+export function getManimAnimationByName(name: string): ManimAnimation | null {
+	return animations.find(animation => animation.name === name) ?? null;
+}
+
 export type AnimationCategory = keyof typeof animationCategories;
 
 export const animations = [
@@ -72,6 +84,7 @@ export const animations = [
 		description: "Add an object without any kind of animation.",
 		icon: SparkleIcon,
 		demo: appearDemo,
+		internalName: "Add",
 		properties: [],
 	},
 	{
@@ -80,6 +93,7 @@ export const animations = [
 		description: "Delete text one letter at a time.",
 		icon: PlainTextIcon,
 		demo: backspaceDemo,
+		internalName: "RemoveTextLetterByLetter",
 		properties: [],
 	},
 	{
@@ -112,6 +126,7 @@ export const animations = [
 		description: "Cycle objects in a group.",
 		demo: cyclicReplaceDemo,
 		icon: CycleIcon,
+		internalName: "CyclicReplace",
 		properties: [],
 	},
 	{
@@ -128,6 +143,7 @@ export const animations = [
 		description: "Draw an object's border, then fill it in.",
 		demo: drawBorderThenFillDemo,
 		icon: BorderIcon,
+		internalName: "DrawBorderThenFill",
 		properties: [],
 	},
 	{
@@ -136,6 +152,7 @@ export const animations = [
 		demo: eraseDemo,
 		description: "Erase text away like handwriting.",
 		icon: EraserIcon,
+		internalName: "Unwrite",
 		properties: [],
 	},
 	{
@@ -144,6 +161,7 @@ export const animations = [
 		demo: fadeInDemo,
 		description: "Fade an object in from nothing.",
 		icon: FadeInIcon,
+		internalName: "FadeIn",
 		properties: [],
 	},
 	{
@@ -152,6 +170,7 @@ export const animations = [
 		description: "Fade an object away into nothing.",
 		demo: fadeOutDemo,
 		icon: FadeOutIcon,
+		internalName: "FadeOut",
 		properties: [],
 	},
 	{
@@ -160,6 +179,7 @@ export const animations = [
 		description: "Fade one object into another object.",
 		demo: fadeTransformDemo,
 		icon: FadeOutIcon,
+		internalName: "FadeTransform",
 		properties: [],
 	},
 	{
@@ -184,6 +204,7 @@ export const animations = [
 		icon: PlantIcon,
 		description: "Grow an object in from nothing.",
 		demo: growInDemo,
+		internalName: "GrowFromCenter",
 		properties: [],
 	},
 	{
@@ -206,12 +227,14 @@ export const animations = [
 		description: "Show a passing flash over an object.",
 		demo: passingFlashDemo,
 		icon: CircledLightningIcon,
+		internalName: "ShowPassingFlash",
 		properties: [],
 	},
 	{
-		name: "ReplacementTransform",
+		name: "Replacement Transform",
 		category: "Transform",
 		icon: ReplaceIcon,
+		internalName: "ReplacementTransform",
 		properties: [],
 	},
 	{
@@ -244,6 +267,7 @@ export const animations = [
 		description: "Shrink an object away into nothing.",
 		demo: shrinkAwayDemo,
 		icon: ShrinkIcon,
+		internalName: "ShrinkToCenter",
 		properties: [],
 	},
 	{
@@ -252,6 +276,7 @@ export const animations = [
 		description: "Creates a group by spiraling in its objects.",
 		demo: spiralInDemo,
 		icon: SpiralIcon,
+		internalName: "SpiralIn",
 		properties: [],
 	},
 	{
@@ -266,6 +291,7 @@ export const animations = [
 		description: "Add text in one letter at a time.",
 		demo: typeDemo,
 		icon: PlainTextIcon,
+		internalName: "AddTextLetterByLetter",
 		properties: [],
 	},
 	{
@@ -274,6 +300,7 @@ export const animations = [
 		description: "Apply a wave effect to an object.",
 		demo: waveDemo,
 		icon: WaveIcon,
+		internalName: "ApplyWave",
 		properties: [],
 	},
 	{

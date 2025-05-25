@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { animations, getAnimationCategory, type AnimationCategory, type ManimAnimation } from "../../api/manim/animations";
-	import { addProjectAnimation, nextId } from "../../api/project.svelte";
+	import { addProjectAnimation, nextId, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
-	let { top, left, hideParent, category }: { top: string; left: string; hideParent: () => void; id?: number; category: AnimationCategory } = $props();
+	let {
+		top,
+		left,
+		hideParent,
+		category,
+		onAdd,
+	}: { top: string; left: string; hideParent: () => void; id?: number; category: AnimationCategory; onAdd: (animation: ProjectAnimation) => void } = $props();
 
 	let menu: ContextMenu;
 
@@ -24,12 +30,16 @@
 		return function () {
 			menu.toggle();
 			hideParent();
-			addProjectAnimation({
+			let animation = {
 				name: name,
+				startTime: 0,
+				duration: 1,
 				objects: [],
 				id: nextId(),
 				properties: {},
-			});
+			};
+			addProjectAnimation(animation);
+			onAdd(animation);
 		};
 	}
 

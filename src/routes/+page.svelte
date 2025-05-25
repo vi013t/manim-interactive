@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { updateMouseCoordinates } from "../api/client.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
 	import Navbar from "../components/panels/Navbar.svelte";
 	import Objects from "../components/panels/objects/Objects.svelte";
@@ -17,6 +18,8 @@
 		document.addEventListener("mousemove", event => {
 			mouseX = event.clientX;
 			mouseY = event.clientY;
+
+			updateMouseCoordinates(event.clientX, event.clientY);
 		});
 
 		document.addEventListener("keypress", event => {

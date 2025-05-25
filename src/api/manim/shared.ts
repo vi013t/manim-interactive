@@ -2,7 +2,7 @@ import { getProjectObjects, type ProjectObject } from "../project.svelte";
 import { animations } from "./animations";
 import { objects } from "./objects";
 
-export type PropertyType = "color" | "float" | "integer" | "string";
+export type PropertyType = "color" | "float" | "integer" | "string" | "animation";
 export type Property = { name: string; type: PropertyType; defaultValue: unknown };
 
 export function getPossibleProperties(type: string): Property[] {

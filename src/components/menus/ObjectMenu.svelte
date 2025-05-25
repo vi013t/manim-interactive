@@ -59,7 +59,7 @@
 		Delete Object
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" expandTo="right" hideParent={hide} />
+	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" hideParent={hide} {id} />
 </ContextMenu>
 
 <style>
