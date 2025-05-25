@@ -81,6 +81,8 @@
 		if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
 			height = event.offsetY;
 			document.addEventListener("mousemove", resize(event.target as HTMLElement), false);
+		} else {
+			draggingElement = event.target as HTMLElement;
 		}
 	}
 
@@ -94,7 +96,9 @@
 		audio.play();
 	}
 
+	let draggingElement: HTMLElement | null = $state(null);
 	let timeSlider: HTMLElement;
+	let timelineElement: HTMLElement;
 
 	onMount(() => {
 		document.addEventListener("keydown", event => {
@@ -110,18 +114,27 @@
 			}
 		});
 
-		let dragging = false;
-		timeSlider.addEventListener("mousedown", event => {
-			dragging = true;
-		});
-
 		document.addEventListener("mousemove", event => {
-			if (dragging) {
+			if (draggingElement) {
+				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
+				draggingElement.style.top = `${newTop}px`;
+				draggingElement.style.cursor = "grabbing";
 			}
 		});
 
 		document.addEventListener("mouseup", event => {
-			dragging = false;
+			if (draggingElement) {
+				let snapping = !(event.ctrlKey || event.shiftKey);
+				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
+				let cellHeight = 64;
+				if (snapping) {
+					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
+					else newTop = newTop + (cellHeight - (newTop % cellHeight));
+				}
+				draggingElement.style.top = `${newTop}px`;
+				draggingElement.style.cursor = "pointer";
+			}
+			draggingElement = null;
 		});
 	});
 </script>
@@ -139,7 +152,7 @@
 		</button>
 	</div>
 
-	<div id="timeline-wrapper">
+	<div bind:this={timelineElement} id="timeline-wrapper">
 		<div id="timeline-content">
 			{#each getProjectAnimations() as animation}
 				<button
@@ -206,8 +219,8 @@
 		cursor: pointer;
 		text-align: left;
 		padding: 1rem;
-		height: 5vh;
-		z-index: 99;
+		height: 4rem;
+		z-index: 99999;
 
 		&::after {
 			content: "";
@@ -228,7 +241,7 @@
 
 	#timeline-content {
 		:global(> div) {
-			height: 5vh;
+			height: 4rem;
 			border-bottom: 1px solid #313244;
 			display: flex;
 			flex-direction: column;

@@ -8,11 +8,22 @@ A graphical frontend to the Python animation library [Manim](https://www.manim.c
 
 ### Prerequisites
 
-Before installing Manim Interactive, you must have `manim` itself installed as a global tool.
+Before installing Manim Interactive, you must have `manim` itself installed as a global tool. You can do so with `uv`. First, install `uv`:
+
+```bash
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex" # Windows
+curl -LsSf https://astral.sh/uv/install.sh | sh # Unix
+```
+
+Then, install `manim` globally with `uv`:
+
+```bash
+uv tool install manim
+```
 
 ### Prebuilt Binary
 
-Prebuild binary releases are available on the releases page.
+Prebuilt binary releases are available on the releases page.
 
 ### Building From Source
 
