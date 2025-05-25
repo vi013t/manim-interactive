@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getItemData } from "../../../api/manim";
-	import { selected, type ManimObject } from "../../../api/project.svelte";
+	import { getPossibleProperties } from "../../../api/manim/shared";
+	import { selected, type ProjectObject } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
@@ -19,8 +19,8 @@
 	}
 
 	function getPropertyType(propertyName: string) {
-		let itemData = getItemData((item as ManimObject).objectType);
-		return itemData.properties.find(property => property.name === propertyName)!.type;
+		let properties = getPossibleProperties((item as ProjectObject).objectType);
+		return properties.find(property => property.name === propertyName)!.type;
 	}
 
 	function addProperty(event: MouseEvent) {

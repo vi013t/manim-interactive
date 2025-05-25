@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { getItemData } from "../../api/manim";
-	import { addProperty, getItemFromId } from "../../api/project.svelte";
+	import { addProperty, getPossibleProperties } from "../../api/manim/shared";
+	import { getItemFromId, type ProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
 	let { id, top, left } = $props();
 
 	let item = $derived(getItemFromId(id));
-	let itemData = $derived(item ? getItemData(item.objectType) : null);
+	let properties = $derived(item ? getPossibleProperties((item as ProjectObject).objectType) : null);
 
 	// svelte-ignore non_reactive_update
 	let menu: ContextMenu;
@@ -23,9 +23,8 @@
 		menu?.hide();
 	}
 
-	let newProperties = $derived(itemData?.properties.filter(property => item.properties[property.name] === undefined) ?? []);
-
-	let hasProperties = $derived(itemData?.properties.filter(property => item.properties[property.name] !== undefined) ?? []);
+	let newProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined) ?? []);
+	let hasProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] !== undefined) ?? []);
 
 	function addObjectProperty(name: string, value: unknown) {
 		return function () {
@@ -35,7 +34,7 @@
 	}
 </script>
 
-{#if itemData}
+{#if item}
 	<ContextMenu bind:this={menu} {top} {left} background="#1e1e2e">
 		<span class="heading">Add Property</span>
 		{#each newProperties as property}

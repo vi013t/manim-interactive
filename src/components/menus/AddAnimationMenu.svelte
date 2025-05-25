@@ -1,5 +1,7 @@
 <script lang="ts">
+	import { isDeveloperMode } from "../../api/preferences.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
+	import CodeIcon from "../icons/CodeIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import SparkleIcon from "../icons/SparkleIcon.svelte";
@@ -92,6 +94,16 @@
 		Transform
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
+	{#if isDeveloperMode()}
+		<button
+			onmouseenter={() => {
+				hideSubmenus();
+			}}
+		>
+			<CodeIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			Script
+		</button>
+	{/if}
 
 	<AddAnimationSubmenu bind:this={addCreateAnimationMenu} top="0px" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Create" />
 	<AddAnimationSubmenu bind:this={addDestroyAnimationMenu} top="3.5rem" left={expandTo === "left" ? "-100%" : "100%"} hideParent={hideAll} category="Destroy" />

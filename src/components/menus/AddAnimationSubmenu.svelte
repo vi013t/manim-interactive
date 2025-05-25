@@ -1,6 +1,5 @@
 <script lang="ts">
-	import type { AnimationCategory } from "../../api/manim";
-	import { animations, getAnimationCategory } from "../../api/manim/animations";
+	import { animations, getAnimationCategory, type AnimationCategory, type ManimAnimation } from "../../api/manim/animations";
 	import { addProjectAnimation, nextId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
@@ -18,6 +17,7 @@
 
 	export function hide() {
 		menu.hide();
+		currentAnimation = null;
 	}
 
 	function addAnimationEntry(name: string) {
@@ -35,22 +35,55 @@
 
 	const categoryData = getAnimationCategory(category);
 	const useAnimations = animations.filter(animation => animation.category === category);
+
+	let currentAnimation: ManimAnimation | null = $state(null);
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Add {category} Animation</span>
 	{#each useAnimations as animation}
-		<button onclick={addAnimationEntry(animation.name)}>
+		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+		<button onclick={addAnimationEntry(animation.name)} onmouseover={() => (currentAnimation = animation)}>
 			<animation.icon stroke={categoryData.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{animation.name}
 		</button>
 	{/each}
 </ContextMenu>
 
+{#if currentAnimation}
+	<div class="info">
+		<h1>{currentAnimation.name}</h1>
+		<p>{currentAnimation.description}</p>
+		<!-- svelte-ignore a11y_media_has_caption -->
+		<video src={currentAnimation.demo} autoplay loop></video>
+	</div>
+{/if}
+
 <style>
 	:global(button) {
 		display: flex;
 		align-items: center;
+	}
+
+	.info {
+		position: absolute;
+		left: -35rem;
+		background-color: #1e1e2e;
+		padding: 2rem;
+		width: 20rem;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		border-radius: 0.5rem;
+
+		p {
+			color: #9399b2;
+		}
+
+		video {
+			width: 16rem;
+			height: 9rem;
+		}
 	}
 
 	span {

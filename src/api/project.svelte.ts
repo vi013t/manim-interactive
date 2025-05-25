@@ -53,7 +53,7 @@ export function addProjectAnimation(animation: Animation) {
 	projectAnimations.push(animation);
 }
 
-export type ManimObject = {
+export type ProjectObject = {
 	name: string;
 	id: number;
 	objectType: string;
@@ -63,11 +63,11 @@ export type ManimObject = {
 export type ObjectGroup = {
 	name: string;
 	id: number;
-	objects: ManimObject[];
+	objects: ProjectObject[];
 	groups: ObjectGroup[];
 };
 
-export type ObjectEntry = ManimObject | ObjectGroup;
+export type ObjectEntry = ProjectObject | ObjectGroup;
 
 export type Animation = {
 	id: number;
@@ -88,7 +88,7 @@ export function removeProjectObject(id: number) {
 	projectObjects = projectObjects.filter(object => object.id !== id);
 }
 
-type Selectable = ManimObject | Animation;
+type Selectable = ProjectObject | Animation;
 
 let selectedThing: Selectable | null = $state(null);
 
@@ -100,15 +100,6 @@ export function select(object: Selectable | null) {
 	selectedThing = object;
 }
 
-export type Item = {
-	objectType: string;
-	properties: { [key: string]: unknown };
-};
-
-export function getItemFromId(id: number): Item {
-	return getProjectObjects().find(object => "objectType" in object && object.id === id) as Item;
-}
-
-export function addProperty(id: number, name: string, value: unknown) {
-	(getProjectObjects().find(object => object.id === id) as ManimObject).properties[name] = value;
+export function getItemFromId(id: number): ObjectEntry | null {
+	return getProjectObjects().find(object => object.id === id) ?? null;
 }

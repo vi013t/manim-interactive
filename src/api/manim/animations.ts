@@ -1,4 +1,17 @@
 import type { Component } from "svelte";
+import appearDemo from "../../assets/videos/appear_demo.mp4";
+import backspaceDemo from "../../assets/videos/backspace_demo.mp4";
+import createDemo from "../../assets/videos/create_demo.mp4";
+import destroyDemo from "../../assets/videos/destroy_demo.mp4";
+import drawBorderThenFillDemo from "../../assets/videos/draw_border_then_fill_demo.mp4";
+import eraseDemo from "../../assets/videos/erase_demo.mp4";
+import fadeInDemo from "../../assets/videos/fade_in_demo.mp4";
+import fadeOutDemo from "../../assets/videos/fade_out_demo.mp4";
+import growInDemo from "../../assets/videos/grow_in_demo.mp4";
+import shrinkAwayDemo from "../../assets/videos/shrink_away_demo.mp4";
+import spiralInDemo from "../../assets/videos/spiral_in_demo.mp4";
+import typeDemo from "../../assets/videos/type_demo.mp4";
+import writeDemo from "../../assets/videos/write_demo.mp4";
 import BlinkIcon from "../../components/icons/BlinkIcon.svelte";
 import BorderIcon from "../../components/icons/BorderIcon.svelte";
 import CircledLightningIcon from "../../components/icons/CircledLightningIcon.svelte";
@@ -27,7 +40,7 @@ import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
 import type { Property } from "./shared";
 
-export type ManimAnimation = { name: string; category: AnimationCategory; icon: Component<{ stroke: string }>; properties: Property[] };
+export type ManimAnimation = { name: string; category: AnimationCategory; icon: Component<{ stroke: string }>; properties: Property[]; description?: string; demo?: string };
 
 export const animationCategories = {
 	Create: { color: "#a6e3a1" },
@@ -46,13 +59,17 @@ export const animations = [
 	{
 		name: "Appear",
 		category: "Create",
+		description: "Add an object without any kind of animation.",
 		icon: SparkleIcon,
+		demo: appearDemo,
 		properties: [],
 	},
 	{
 		name: "Backspace",
 		category: "Destroy",
+		description: "Delete text one letter at a time.",
 		icon: PlainTextIcon,
+		demo: backspaceDemo,
 		properties: [],
 	},
 	{
@@ -70,6 +87,8 @@ export const animations = [
 	{
 		name: "Create",
 		category: "Create",
+		description: "Incrementally show an object.",
+		demo: createDemo,
 		icon: PlusIcon,
 		properties: [],
 	},
@@ -82,30 +101,40 @@ export const animations = [
 	{
 		name: "Destroy",
 		category: "Destroy",
+		description: "Remove an object with no animation.",
+		demo: destroyDemo,
 		icon: SparkleIcon,
 		properties: [],
 	},
 	{
 		name: "Draw Border Then Fill",
 		category: "Create",
+		description: "Draw an object's border, then fill it in.",
+		demo: drawBorderThenFillDemo,
 		icon: BorderIcon,
 		properties: [],
 	},
 	{
 		name: "Erase",
 		category: "Destroy",
+		demo: eraseDemo,
+		description: "Erase text away like handwriting.",
 		icon: EraserIcon,
 		properties: [],
 	},
 	{
 		name: "Fade In",
 		category: "Create",
+		demo: fadeInDemo,
+		description: "Fade an object in from nothing.",
 		icon: FadeInIcon,
 		properties: [],
 	},
 	{
 		name: "Fade Out",
 		category: "Destroy",
+		description: "Fade an object away into nothing.",
+		demo: fadeOutDemo,
 		icon: FadeOutIcon,
 		properties: [],
 	},
@@ -131,6 +160,8 @@ export const animations = [
 		name: "Grow In",
 		category: "Create",
 		icon: PlantIcon,
+		demo: growInDemo,
+		description: "Grow an object in from nothing.",
 		properties: [],
 	},
 	{
@@ -178,12 +209,16 @@ export const animations = [
 	{
 		name: "Shrink Away",
 		category: "Destroy",
+		description: "Shrink an object away into nothing.",
+		demo: shrinkAwayDemo,
 		icon: ShrinkIcon,
 		properties: [],
 	},
 	{
 		name: "Spiral In",
 		category: "Create",
+		description: "Creates a group by spiraling in its objects.",
+		demo: spiralInDemo,
 		icon: SpiralIcon,
 		properties: [],
 	},
@@ -196,6 +231,8 @@ export const animations = [
 	{
 		name: "Type",
 		category: "Create",
+		description: "Add text in one letter at a time.",
+		demo: typeDemo,
 		icon: PlainTextIcon,
 		properties: [],
 	},
@@ -214,6 +251,8 @@ export const animations = [
 	{
 		name: "Write",
 		category: "Create",
+		demo: writeDemo,
+		description: "Write text in like handwriting.",
 		icon: PencilIcon,
 		properties: [],
 	},

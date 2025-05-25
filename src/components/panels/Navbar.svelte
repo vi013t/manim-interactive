@@ -9,8 +9,8 @@
 	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
-	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
 	import NewProjectWindow from "../windows/NewProjectWindow.svelte";
+	import PreferencesWindow from "../windows/PreferencesWindow.svelte";
 
 	let projectButton: HTMLElement;
 	let windowButton: HTMLElement;
@@ -75,10 +75,16 @@
 	}
 
 	let newProjectWindow: NewProjectWindow;
+	let preferencesWindow: PreferencesWindow;
 
 	function newProject() {
 		newProjectWindow.openWindow();
 		projectMenu.hide();
+	}
+
+	function preferences() {
+		preferencesWindow.openWindow();
+		windowMenu.hide();
 	}
 </script>
 
@@ -103,7 +109,7 @@
 
 	<button bind:this={windowButton} onclick={windowMenu.toggle}>Window</button>
 	<ContextMenu bind:this={windowMenu} top="2rem" left="6rem" openers={[windowButton]}>
-		<button>Preferences</button>
+		<button onclick={preferences}>Preferences</button>
 	</ContextMenu>
 
 	<span class="title">{getProjectName() ?? "Untitled Project"} - Manim Interactive</span>
@@ -113,14 +119,20 @@
 			<MinimizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 		<button onclick={maximize}>
-			<UnmaximizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
+			<!-- {#if await getCurrentWindow().isMaximized()}
+				<UnmaximizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
+			{:else}
+				<SquareIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
+			{/if} -->
 		</button>
 		<button onclick={close}>
 			<CloseIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 	</div>
 </nav>
+
 <NewProjectWindow bind:this={newProjectWindow} />
+<PreferencesWindow bind:this={preferencesWindow} />
 
 <style>
 	button:has(> span) {
