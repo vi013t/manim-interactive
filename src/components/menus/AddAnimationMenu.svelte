@@ -46,6 +46,23 @@
 		addTransformAnimationMenu.hide();
 	}
 
+	type Submenu = "create" | "destroy" | "transform" | "highlight";
+
+	let selectedMenu: Submenu | null = $state(null);
+
+	function selectMenu(name: Submenu) {
+		return function () {
+			selectedMenu = name;
+			hideSubmenus();
+			({
+				create: addCreateAnimationMenu,
+				destroy: addDestroyAnimationMenu,
+				highlight: addHighlightAnimationMenu,
+				transform: addTransformAnimationMenu,
+			})[name].show();
+		};
+	}
+
 	function hideAll() {
 		hide();
 		hideParent();
@@ -54,42 +71,22 @@
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Add Animation</span>
-	<button
-		onmouseenter={() => {
-			hideSubmenus();
-			addCreateAnimationMenu.show();
-		}}
-	>
+	<button style:background={selectedMenu === "create" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("create")}>
 		<PlusIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Create
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button
-		onmouseenter={() => {
-			hideSubmenus();
-			addDestroyAnimationMenu.show();
-		}}
-	>
+	<button style:background={selectedMenu === "destroy" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("destroy")}>
 		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Destroy
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button
-		onmouseenter={() => {
-			hideSubmenus();
-			addHighlightAnimationMenu.show();
-		}}
-	>
+	<button style:background={selectedMenu === "highlight" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("highlight")}>
 		<SparkleIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Highlight
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button
-		onmouseenter={() => {
-			hideSubmenus();
-			addTransformAnimationMenu.show();
-		}}
-	>
+	<button style:background={selectedMenu === "transform" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("transform")}>
 		<TransformIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Transform
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />

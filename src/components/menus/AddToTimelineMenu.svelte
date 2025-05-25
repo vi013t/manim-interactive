@@ -21,30 +21,42 @@
 
 	export function hide() {
 		menu.hide();
+		hideSubmenus();
 	}
 
 	function hideSubmenus() {
 		addAnimationMenu.hide();
 	}
+
+	type Submenu = "animation";
+
+	let selectedMenu: Submenu | null = $state(null);
+
+	function selectMenu(name: Submenu | null) {
+		return function () {
+			selectedMenu = name;
+			if (name) {
+				hideSubmenus();
+				({
+					animation: addAnimationMenu,
+				})[name].show();
+			}
+		};
+	}
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Timeline Actions</span>
-	<button onmouseenter={hideSubmenus}>
+	<button onmouseenter={selectMenu(null)}>
 		<AudioIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Audio
 	</button>
-	<button
-		onmouseenter={() => {
-			hideSubmenus();
-			addAnimationMenu.show();
-		}}
-	>
+	<button style:background={selectedMenu === "animation" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("animation")}>
 		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Animation
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button onmouseenter={hideSubmenus}>
+	<button onmouseenter={selectMenu(null)}>
 		<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Open Timeline Preferences
 	</button>

@@ -51,7 +51,7 @@
 </ContextMenu>
 
 {#if currentAnimation}
-	<div class="info">
+	<div class="info" style:top>
 		<h1>{currentAnimation.name}</h1>
 		<p>{currentAnimation.description}</p>
 		<!-- svelte-ignore a11y_media_has_caption -->
@@ -78,6 +78,7 @@
 
 		p {
 			color: #9399b2;
+			margin-top: -0.5rem;
 		}
 
 		video {

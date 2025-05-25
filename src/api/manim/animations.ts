@@ -1,16 +1,24 @@
 import type { Component } from "svelte";
 import appearDemo from "../../assets/videos/appear_demo.mp4";
 import backspaceDemo from "../../assets/videos/backspace_demo.mp4";
+import blinkDemo from "../../assets/videos/blink_demo.mp4";
+import circumscribeDemo from "../../assets/videos/circumscribe_demo.mp4";
 import createDemo from "../../assets/videos/create_demo.mp4";
 import destroyDemo from "../../assets/videos/destroy_demo.mp4";
 import drawBorderThenFillDemo from "../../assets/videos/draw_border_then_fill_demo.mp4";
 import eraseDemo from "../../assets/videos/erase_demo.mp4";
 import fadeInDemo from "../../assets/videos/fade_in_demo.mp4";
 import fadeOutDemo from "../../assets/videos/fade_out_demo.mp4";
+import flashDemo from "../../assets/videos/flash_demo.mp4";
+import focusDemo from "../../assets/videos/focus_demo.mp4";
 import growInDemo from "../../assets/videos/grow_in_demo.mp4";
+import indicateDemo from "../../assets/videos/indicate_demo.mp4";
+import passingFlashDemo from "../../assets/videos/passing_flash_demo.mp4";
 import shrinkAwayDemo from "../../assets/videos/shrink_away_demo.mp4";
 import spiralInDemo from "../../assets/videos/spiral_in_demo.mp4";
 import typeDemo from "../../assets/videos/type_demo.mp4";
+import waveDemo from "../../assets/videos/wave_demo.mp4";
+import wiggleDemo from "../../assets/videos/wiggle_demo.mp4";
 import writeDemo from "../../assets/videos/write_demo.mp4";
 import BlinkIcon from "../../components/icons/BlinkIcon.svelte";
 import BorderIcon from "../../components/icons/BorderIcon.svelte";
@@ -75,12 +83,16 @@ export const animations = [
 	{
 		name: "Blink",
 		category: "Highlight",
+		description: "Flicker an object.",
+		demo: blinkDemo,
 		icon: BlinkIcon,
 		properties: [],
 	},
 	{
 		name: "Circumscribe",
 		category: "Highlight",
+		description: "Draw a shape around an object.",
+		demo: circumscribeDemo,
 		icon: IncompleteCircle,
 		properties: [],
 	},
@@ -147,12 +159,16 @@ export const animations = [
 	{
 		name: "Flash",
 		category: "Highlight",
+		description: "Flash lines around an object.",
+		demo: flashDemo,
 		icon: LightningIcon,
 		properties: [],
 	},
 	{
 		name: "Focus",
 		category: "Highlight",
+		description: "Draw focus to an object.",
+		demo: focusDemo,
 		icon: ReticleIcon,
 		properties: [],
 	},
@@ -167,6 +183,8 @@ export const animations = [
 	{
 		name: "Indicate",
 		category: "Highlight",
+		description: "Highlight and expand an object.",
+		demo: indicateDemo,
 		icon: MegaphoneIcon,
 		properties: [],
 	},
@@ -179,6 +197,8 @@ export const animations = [
 	{
 		name: "Passing Flash",
 		category: "Highlight",
+		description: "Show a passing flash over an object.",
+		demo: passingFlashDemo,
 		icon: CircledLightningIcon,
 		properties: [],
 	},
@@ -239,12 +259,16 @@ export const animations = [
 	{
 		name: "Wave",
 		category: "Highlight",
+		description: "Apply a wave effect to an object.",
+		demo: waveDemo,
 		icon: WaveIcon,
 		properties: [],
 	},
 	{
 		name: "Wiggle",
 		category: "Highlight",
+		description: "Wiggle an object.",
+		demo: wiggleDemo,
 		icon: WiggleIcon,
 		properties: [],
 	},
