@@ -9,6 +9,7 @@
 	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
+	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
 	import NewProjectWindow from "../windows/NewProjectWindow.svelte";
 	import PreferencesWindow from "../windows/PreferencesWindow.svelte";
 
@@ -119,11 +120,7 @@
 			<MinimizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 		<button onclick={maximize}>
-			<!-- {#if await getCurrentWindow().isMaximized()}
-				<UnmaximizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
-			{:else}
-				<SquareIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
-			{/if} -->
+			<UnmaximizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 		<button onclick={close}>
 			<CloseIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />

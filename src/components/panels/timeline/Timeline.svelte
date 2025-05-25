@@ -223,13 +223,15 @@
 	#timeline-wrapper {
 		position: relative;
 		overflow: auto;
-		height: 90vh;
+		height: 95vh;
 	}
 
 	#timeline-content {
 		:global(> div) {
 			height: 5vh;
 			border-bottom: 1px solid #313244;
+			display: flex;
+			flex-direction: column;
 
 			&:first-child {
 				border-top: 1px solid #313244;
@@ -239,11 +241,12 @@
 
 	:global(.timestamp) {
 		position: relative;
-		top: -1.2em;
+		top: -1.6em;
 		padding: 0.75em;
 		background-color: #1e1e2e;
 		color: #585b70;
 		font-size: 0.75rem;
 		left: 0px;
+		width: fit-content;
 	}
 </style>

@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import Titlebar from "./Titlebar.svelte";
 
-	let { children, ...rest } = $props();
+	let { title = "", children, ...rest }: { title?: string; children: any; [key: string]: unknown } = $props();
 
 	let visible = $state(false);
 
@@ -51,8 +51,8 @@
 	});
 </script>
 
-<section bind:this={draggable} style:display={visible ? "block" : "none"} {...rest}>
-	<Titlebar {close} />
+<section bind:this={draggable} style:display={visible ? "flex" : "none"} {...rest}>
+	<Titlebar {close} {title} />
 	<div class="content">
 		{@render children()}
 	</div>
@@ -69,11 +69,14 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
+		display: flex;
+		flex-direction: column;
 	}
+
 	.content {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
-		padding: 2rem;
+		flex-grow: 1;
 	}
 </style>

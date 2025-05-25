@@ -4,16 +4,20 @@ import backspaceDemo from "../../assets/videos/backspace_demo.mp4";
 import blinkDemo from "../../assets/videos/blink_demo.mp4";
 import circumscribeDemo from "../../assets/videos/circumscribe_demo.mp4";
 import createDemo from "../../assets/videos/create_demo.mp4";
+import cyclicReplaceDemo from "../../assets/videos/cyclic_replace_demo.mp4";
 import destroyDemo from "../../assets/videos/destroy_demo.mp4";
 import drawBorderThenFillDemo from "../../assets/videos/draw_border_then_fill_demo.mp4";
 import eraseDemo from "../../assets/videos/erase_demo.mp4";
 import fadeInDemo from "../../assets/videos/fade_in_demo.mp4";
 import fadeOutDemo from "../../assets/videos/fade_out_demo.mp4";
+import fadeTransformDemo from "../../assets/videos/fade_transform_demo.mp4";
 import flashDemo from "../../assets/videos/flash_demo.mp4";
 import focusDemo from "../../assets/videos/focus_demo.mp4";
 import growInDemo from "../../assets/videos/grow_in_demo.mp4";
 import indicateDemo from "../../assets/videos/indicate_demo.mp4";
 import passingFlashDemo from "../../assets/videos/passing_flash_demo.mp4";
+import restoreDemo from "../../assets/videos/restore_demo.mp4";
+import scaleDemo from "../../assets/videos/scale_demo.mp4";
 import shrinkAwayDemo from "../../assets/videos/shrink_away_demo.mp4";
 import spiralInDemo from "../../assets/videos/spiral_in_demo.mp4";
 import typeDemo from "../../assets/videos/type_demo.mp4";
@@ -37,12 +41,10 @@ import PlusIcon from "../../components/icons/PlusIcon.svelte";
 import ReplaceIcon from "../../components/icons/ReplaceIcon.svelte";
 import ReticleIcon from "../../components/icons/ReticleIcon.svelte";
 import RevertIcon from "../../components/icons/RevertIcon.svelte";
-import RotateIcon from "../../components/icons/RotateIcon.svelte";
 import ScaleIcon from "../../components/icons/ScaleIcon.svelte";
 import ShrinkIcon from "../../components/icons/ShrinkIcon.svelte";
 import SparkleIcon from "../../components/icons/SparkleIcon.svelte";
 import SpiralIcon from "../../components/icons/SpiralIcon.svelte";
-import TargetIcon from "../../components/icons/TargetIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
@@ -107,6 +109,8 @@ export const animations = [
 	{
 		name: "Cyclic Replace",
 		category: "Transform",
+		description: "Cycle objects in a group.",
+		demo: cyclicReplaceDemo,
 		icon: CycleIcon,
 		properties: [],
 	},
@@ -153,6 +157,8 @@ export const animations = [
 	{
 		name: "Fade Transform",
 		category: "Transform",
+		description: "Fade one object into another object.",
+		demo: fadeTransformDemo,
 		icon: FadeOutIcon,
 		properties: [],
 	},
@@ -176,8 +182,8 @@ export const animations = [
 		name: "Grow In",
 		category: "Create",
 		icon: PlantIcon,
-		demo: growInDemo,
 		description: "Grow an object in from nothing.",
+		demo: growInDemo,
 		properties: [],
 	},
 	{
@@ -188,12 +194,12 @@ export const animations = [
 		icon: MegaphoneIcon,
 		properties: [],
 	},
-	{
-		name: "Move To Target",
-		category: "Transform",
-		icon: TargetIcon,
-		properties: [],
-	},
+	// {
+	// 	name: "Move To Target",
+	// 	category: "Transform",
+	// 	icon: TargetIcon,
+	// 	properties: [],
+	// },
 	{
 		name: "Passing Flash",
 		category: "Highlight",
@@ -211,18 +217,24 @@ export const animations = [
 	{
 		name: "Restore",
 		category: "Transform",
+		description: "Restore an object to a previously saved state.",
+		demo: restoreDemo,
 		icon: RevertIcon,
 		properties: [],
 	},
-	{
-		name: "Rotate",
-		category: "Transform",
-		icon: RotateIcon,
-		properties: [],
-	},
+	// {
+	// 	name: "Rotate",
+	// 	category: "Transform",
+	// 	description: "Rotate an object.",
+	// 	demo: rotateDemo,
+	// 	icon: RotateIcon,
+	// 	properties: [],
+	// },
 	{
 		name: "Scale",
 		category: "Transform",
+		description: "Change the size of an object.",
+		demo: scaleDemo,
 		icon: ScaleIcon,
 		properties: [],
 	},

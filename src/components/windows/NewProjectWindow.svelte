@@ -44,8 +44,7 @@
 	});
 </script>
 
-<Window bind:this={windowComponent}>
-	<h1>New Project</h1>
+<Window title="New Project" bind:this={windowComponent}>
 	<div>
 		<span>Name</span>
 		<input type="text" bind:value={name} />
