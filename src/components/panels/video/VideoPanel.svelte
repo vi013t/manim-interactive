@@ -116,7 +116,7 @@
 		left: 0px;
 		width: 100%;
 		height: 100%;
-		z-index: 999;
+		z-index: 9;
 		pointer-events: none;
 	}
 </style>
