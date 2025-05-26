@@ -24,6 +24,7 @@ let preferences = $state({
 	autoOpenLastProject: true,
 	grid: false,
 	lowRes: false,
+	vimMode: false,
 	keybindings: [
 		keybinding(action("Save Project"), key("s", "ctrl")),
 		keybinding(action("New Project"), key("n", "ctrl")),

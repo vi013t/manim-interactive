@@ -1,6 +1,14 @@
 let mouseX = $state(0);
 let mouseY = $state(0);
 
+export function getMouseX(): number {
+	return mouseX;
+}
+
+export function getMouseY(): number {
+	return mouseY;
+}
+
 export function updateMouseCoordinates(x: number, y: number): void {
 	mouseX = x;
 	mouseY = y;

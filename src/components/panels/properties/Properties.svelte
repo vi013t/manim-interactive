@@ -60,7 +60,7 @@
 					{name}: <PropertyValueInput propertyType={getPropertyType(name)} defaultValue={value} />
 				</span>
 			{/each}
-			<AddPropertyMenu {top} {left} id={item.id} bind:this={propertiesMenu} />
+			<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
 		{/if}
 	</div>
 </section>

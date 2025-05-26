@@ -188,7 +188,7 @@
 					onclick={() => select(animation)}
 					{@attach onAnimationMount(animation)}
 					style:background-color={animationColor(animation)}
-					style:outline={selected() && animation.objects.includes(selected()!.id) ? "4px solid white" : "none"}
+					style:outline={selected() && animation.objects.includes(selected()!.id) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
 					style:opacity={!selected() || animation.objects.includes(selected()!.id) ? "100%" : "30%"}
 				>
 					<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />

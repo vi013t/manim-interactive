@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { displayKey, getActions, key, type Key, type KeyModifier } from "../../api/actions.svelte";
 	import { deleteKeybinding, getKeybindings, getPreferences, savePreferences, updateKeybinding, type Preference } from "../../api/preferences.svelte";
+	import BeakerIcon from "../icons/BeakerIcon.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 	import CubeIcon from "../icons/CubeIcon.svelte";
@@ -185,8 +186,17 @@
 					<p>When first opening Manim Interactive, automatically open the last project that was open last time Manim Interactive was open.</p>
 				</label>
 			{:else if view === "keybinds"}
+				<h1>Keybindings</h1>
+				<label for="vim-mode">
+					<span>
+						<span>
+							Vim Mode <div title="This feature is currently experimental"><BeakerIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem;" /></div>
+						</span>
+						<input oninput={updateBooleanPreference("vimMode")} id="vim-mode" checked={getPreferences().vimMode} type="checkbox" />
+					</span>
+					<p>Enable keyboard navigation with Vim-style bindings.</p>
+				</label>
 				<span>
-					<h1>Keybindings</h1>
 					<button class="add-keybinding"><PlusIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" /></button>
 				</span>
 				{#each getKeybindings() as keybinding, index}
@@ -341,6 +351,18 @@
 
 		> *:first-child {
 			margin-bottom: 0.5rem;
+		}
+
+		> span > span {
+			gap: 1rem;
+
+			> div {
+				width: fit-content;
+				height: 100%;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+			}
 		}
 	}
 

@@ -30,6 +30,7 @@
 
 	function rightClickObject(event: MouseEvent) {
 		event.preventDefault();
+		select(entry);
 		top = `${event.clientY - 30}px`;
 		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		objectMenu.show();

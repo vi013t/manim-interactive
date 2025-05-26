@@ -4,6 +4,7 @@
 	import { getPreferences } from "../../../api/preferences.svelte";
 	import { getProjectAnimations } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
+	import CursorCoordinates from "./CursorCoordinates.svelte";
 
 	onMount(() => {
 		const canvas = document.getElementById("grid-canvas") as HTMLCanvasElement;
@@ -46,6 +47,11 @@
 		ctx.moveTo(0, centerY);
 		ctx.lineTo(canvas.width, centerY);
 		ctx.stroke();
+
+		document.addEventListener("keydown", event => {
+			if (event.altKey) {
+			}
+		});
 	});
 </script>
 
@@ -75,6 +81,7 @@
 	{/if}
 	<canvas id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
 </div>
+<CursorCoordinates />
 
 <style>
 	.container {
