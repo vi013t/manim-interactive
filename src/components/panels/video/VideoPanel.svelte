@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { getProjectAnimations } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 
 	let video: HTMLVideoElement;
@@ -64,7 +65,14 @@
 
 <!-- svelte-ignore a11y_media_has_caption -->
 <div class="container">
-	<video bind:this={video} oncontextmenu={event => event.preventDefault()} controls id="video-source"></video>
+	{#if getProjectAnimations().length > 0}
+		<video bind:this={video} oncontextmenu={event => event.preventDefault()} controls id="video-source"></video>
+	{:else}
+		<div class="novideo">
+			<h1>No Animations Yet</h1>
+			<p>When you add an animation, the video will appear here.</p>
+		</div>
+	{/if}
 	<canvas id="grid-canvas" style:display={gridOn ? "block" : "none"}></canvas>
 </div>
 
@@ -73,6 +81,27 @@
 		width: 100%;
 		aspect-ratio: 1.78;
 		position: relative;
+	}
+
+	.novideo {
+		width: 100%;
+		height: 100%;
+		background-color: #11111b;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: 2rem;
+
+		h1 {
+			color: #cdd6f4;
+			font-size: 5rem;
+		}
+
+		p {
+			color: #9399b2;
+			font-size: 2rem;
+		}
 	}
 
 	#video-source {
