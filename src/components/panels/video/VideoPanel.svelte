@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { isVideoLoaded } from "../../../api/actions.svelte";
+	import { getPreferences } from "../../../api/preferences.svelte";
 	import { getProjectAnimations } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
-
-	let gridOn = $state(false);
 
 	onMount(() => {
 		const canvas = document.getElementById("grid-canvas") as HTMLCanvasElement;
@@ -12,14 +12,14 @@
 		canvas.height = height;
 		const ctx = canvas.getContext("2d")!;
 
-		const cellSize = 50; // 50px cells
+		const cellSize = canvas.width / 14; // 50px cells
 
 		for (let x = 0; x <= canvas.width; x += cellSize) {
 			ctx.moveTo(x, 0);
 			ctx.lineTo(x, canvas.height);
 		}
 
-		for (let y = 0; y <= canvas.height; y += cellSize) {
+		for (let y = -10; y <= canvas.height; y += cellSize) {
 			ctx.moveTo(0, y);
 			ctx.lineTo(canvas.width, y);
 		}
@@ -49,10 +49,11 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y_media_has_caption -->
 <div class="container">
 	{#if getProjectAnimations().length > 0}
+		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
+			style:display={isVideoLoaded() ? "block" : "none"}
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
@@ -60,13 +61,19 @@
 			controls
 			id="video-source"
 		></video>
+		{#if !isVideoLoaded()}
+			<div class="novideo">
+				<h1>Reloading...</h1>
+				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
+			</div>
+		{/if}
 	{:else}
 		<div class="novideo">
 			<h1>No Animations Yet</h1>
 			<p>When you add an animation, the video will appear here.</p>
 		</div>
 	{/if}
-	<canvas id="grid-canvas" style:display={gridOn ? "block" : "none"}></canvas>
+	<canvas id="grid-canvas" style:opacity={isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
 </div>
 
 <style>
@@ -88,18 +95,19 @@
 
 		h1 {
 			color: #cdd6f4;
-			font-size: 3rem;
+			font-size: 2rem;
 		}
 
 		p {
 			color: #9399b2;
-			font-size: 1.5rem;
+			font-size: 1rem;
 		}
 	}
 
 	#video-source {
 		width: 100%;
 		height: 100%;
+		display: block;
 	}
 
 	canvas {

@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { generateCode } from "./codegen.svelte";
+import { getPreferences } from "./preferences.svelte";
 import { getExplicitProjectLocation, getProjectLocation, loadProjectData, saveProjectData, select, setProjectLocation } from "./project.svelte";
 
 export type KeyModifier = "ctrl" | "shift" | "alt";
@@ -15,10 +16,17 @@ type Action = {
 	run: (() => void) | (() => Promise<void>);
 };
 
+let videoLoaded = $state(true);
+
+export function isVideoLoaded() {
+	return videoLoaded;
+}
+
 const actions = {
 	"Save Project": {
 		name: "Save Project",
 		async run() {
+			videoLoaded = false;
 			let projectData = saveProjectData();
 			let location = getExplicitProjectLocation();
 
@@ -41,14 +49,17 @@ const actions = {
 
 			await invoke("recompile", {
 				projectPath: await getProjectLocation(),
+				lowRes: getPreferences().lowRes,
 				code: generateCode(),
 			});
 
 			const videoData = (await invoke("load_video", {
 				path: await getProjectLocation(),
+				lowRes: getPreferences().lowRes,
 			})) as string;
 
 			document.getElementById("video-source")?.setAttribute("src", videoData);
+			videoLoaded = true;
 
 			await save_data;
 		},

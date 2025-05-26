@@ -21,10 +21,10 @@ pub fn run() {
 }
 
 #[tauri::command]
-fn recompile(project_path: &str, code: &str) {
+fn recompile(project_path: &str, code: &str, low_res: bool) {
     std::fs::write(Path::new(project_path).join("main.py"), code).unwrap();
     Command::new("manim")
-        .arg("-qh")
+        .arg(if low_res { "-ql" } else { "-qh" })
         .arg("main.py")
         .current_dir(project_path)
         .spawn()
@@ -34,12 +34,12 @@ fn recompile(project_path: &str, code: &str) {
 }
 
 #[tauri::command]
-fn load_video(path: String) -> Result<String, String> {
+fn load_video(path: String, low_res: bool) -> Result<String, String> {
     let video_path = Path::new(&path)
         .join("media")
         .join("videos")
         .join("main")
-        .join("1080p60")
+        .join(if low_res { "480p15" } else { "1080p60" })
         .join("Main.mp4");
     match std::fs::read(&video_path) {
         Ok(contents) => {

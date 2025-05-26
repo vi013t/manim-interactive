@@ -1,11 +1,14 @@
 <script lang="ts">
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { runAction } from "../../api/actions.svelte";
+	import { getPreferences, savePreferences, type Preference } from "../../api/preferences.svelte";
 	import { getProjectName } from "../../api/project.svelte";
 	import icon from "../../assets/icon.png";
 	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
+	import GridIcon from "../icons/GridIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
+	import ResolutionIcon from "../icons/ResolutionIcon.svelte";
 	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
 	import NewProjectWindow from "../windows/NewProjectWindow.svelte";
 	import PreferencesWindow from "../windows/PreferencesWindow.svelte";
@@ -52,6 +55,14 @@
 		preferencesWindow.openWindow();
 		windowMenu.hide();
 	}
+
+	function togglePreference(preferenceName: Preference) {
+		return function (_event: Event) {
+			getPreferences()[preferenceName] = !(getPreferences()[preferenceName] as boolean) as any;
+			if (preferenceName === "lowRes") runAction("Save Project");
+			savePreferences();
+		};
+	}
 </script>
 
 <nav oncontextmenu={event => event.preventDefault()}>
@@ -77,6 +88,19 @@
 	<ContextMenu bind:this={windowMenu} top="2rem" left="6rem" openers={[windowButton]}>
 		<button onclick={preferences}>Preferences</button>
 	</ContextMenu>
+
+	<div class="video-options">
+		<button
+			onclick={togglePreference("lowRes")}
+			title="Toggle Low Resolution (faster reload times)"
+			style:background-color={getPreferences().lowRes ? "rgba(180, 150, 255, 20%)" : "transparent"}
+		>
+			<ResolutionIcon stroke="#9399b2" style="width: 1.25rem; height: 1.25rem;" />
+		</button>
+		<button onclick={togglePreference("grid")} title="Toggle Grid" style:background-color={getPreferences().grid ? "rgba(180, 150, 255, 20%)" : "transparent"}>
+			<GridIcon stroke="#9399b2" style="width: 1.25rem; height: 1.25rem;" />
+		</button>
+	</div>
 
 	<span class="title">{getProjectName() ?? "Untitled Project"} - Manim Interactive</span>
 
@@ -106,10 +130,25 @@
 		}
 	}
 
+	.video-options {
+		display: flex;
+		height: 100%;
+		align-items: center;
+		position: absolute;
+		left: 16.67vw;
+
+		> * {
+			height: 100%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			aspect-ratio: 1;
+		}
+	}
+
 	nav {
 		font-size: 0.75rem;
 		display: flex;
-		grid-area: nav;
 		background-color: #11111b;
 		color: #cdd6f4;
 		padding-left: 0.5em;

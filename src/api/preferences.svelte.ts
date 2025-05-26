@@ -22,6 +22,8 @@ let preferences = $state({
 	developerMode: false,
 	autosave: true,
 	autoOpenLastProject: true,
+	grid: false,
+	lowRes: false,
 	keybindings: [
 		keybinding(action("Save Project"), key("s", "ctrl")),
 		keybinding(action("New Project"), key("n", "ctrl")),
