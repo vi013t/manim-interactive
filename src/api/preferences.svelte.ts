@@ -21,6 +21,7 @@ let preferences = $state({
 	dimUnselectedAnimations: true,
 	developerMode: false,
 	autosave: true,
+	autoOpenLastProject: true,
 	keybindings: [
 		keybinding(action("Save Project"), key("s", "ctrl")),
 		keybinding(action("New Project"), key("n", "ctrl")),
@@ -28,6 +29,7 @@ let preferences = $state({
 		keybinding(action("Add New"), key("a", "shift")),
 		keybinding(action("Deselect"), key("Escape")),
 		keybinding(action("Deselect"), key("d", "ctrl")),
+		keybinding(action("Play"), key(" ")),
 	],
 });
 

@@ -1,7 +1,9 @@
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
 	import { updateMouseCoordinates } from "../api/client.svelte";
-	import { loadPreferences, savePreferences } from "../api/preferences.svelte";
+	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
+	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
 	import Navbar from "../components/panels/Navbar.svelte";
 	import Objects from "../components/panels/objects/Objects.svelte";
@@ -19,6 +21,12 @@
 	// Preferences
 	if (localStorage.getItem("manim-interactive-preferences")) loadPreferences();
 	else savePreferences();
+
+	if (getPreferences().autoOpenLastProject) {
+		let projectLocation = localStorage.getItem("last-project");
+		if (projectLocation) setProjectLocation(projectLocation);
+		invoke<string>("get_project_data", { path: projectLocation }).then(loadProjectData);
+	}
 
 	onMount(() => {
 		document.addEventListener("mousemove", event => {

@@ -6,6 +6,7 @@ import circumscribeDemo from "../../assets/videos/circumscribe_demo.mp4";
 import createDemo from "../../assets/videos/create_demo.mp4";
 import cyclicReplaceDemo from "../../assets/videos/cyclic_replace_demo.mp4";
 import destroyDemo from "../../assets/videos/destroy_demo.mp4";
+import disappearDemo from "../../assets/videos/disappear_demo.mp4";
 import drawBorderThenFillDemo from "../../assets/videos/draw_border_then_fill_demo.mp4";
 import eraseDemo from "../../assets/videos/erase_demo.mp4";
 import fadeInDemo from "../../assets/videos/fade_in_demo.mp4";
@@ -35,6 +36,7 @@ import FadeOutIcon from "../../components/icons/FadeOutIcon.svelte";
 import IncompleteCircle from "../../components/icons/IncompleteCircle.svelte";
 import LightningIcon from "../../components/icons/LightningIcon.svelte";
 import MegaphoneIcon from "../../components/icons/MegaphoneIcon.svelte";
+import MinimizeIcon from "../../components/icons/MinimizeIcon.svelte";
 import PencilIcon from "../../components/icons/PencilIcon.svelte";
 import PlainTextIcon from "../../components/icons/PlainTextIcon.svelte";
 import PlantIcon from "../../components/icons/PlantIcon.svelte";
@@ -134,8 +136,16 @@ export const animations = [
 	{
 		name: "Destroy",
 		category: "Destroy",
-		description: "Remove an object with no animation.",
+		description: "Incrementally remove an object.",
 		demo: destroyDemo,
+		icon: MinimizeIcon,
+		properties: [],
+	},
+	{
+		name: "Disappear",
+		category: "Destroy",
+		description: "Remove an object with no animation.",
+		demo: disappearDemo,
 		icon: SparkleIcon,
 		properties: [],
 	},

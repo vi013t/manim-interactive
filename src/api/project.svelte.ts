@@ -1,4 +1,4 @@
-import { join, tempDir } from "@tauri-apps/api/path";
+import { join, sep, tempDir } from "@tauri-apps/api/path";
 import { runAction } from "./actions.svelte";
 
 let projectLocation: string | null = $state(null);
@@ -21,10 +21,7 @@ export function getProjectName(): string | null {
 
 export function setProjectLocation(location: string) {
 	projectLocation = location;
-}
-
-export function setProjectName(name: string) {
-	projectName = name;
+	projectName = location.substring(location.lastIndexOf(sep()) + 1);
 }
 
 export async function getVideoLocation(): Promise<string> {

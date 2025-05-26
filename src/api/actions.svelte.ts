@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { generateCode } from "./codegen.svelte";
-import { getExplicitProjectLocation, getProjectLocation, saveProjectData, select, setProjectLocation } from "./project.svelte";
+import { getExplicitProjectLocation, getProjectLocation, loadProjectData, saveProjectData, select, setProjectLocation } from "./project.svelte";
 
 export type KeyModifier = "ctrl" | "shift" | "alt";
 
@@ -55,11 +55,35 @@ const actions = {
 	},
 	"Open Project": {
 		name: "Open Project",
-		run: () => {},
+		run: async () => {
+			const selected = await open({
+				directory: true,
+				multiple: false,
+				title: "Select a directory",
+			});
+
+			// Directory Chosen
+			if (typeof selected === "string") {
+				setProjectLocation(selected);
+				loadProjectData(await invoke("get_project_data", { path: selected }));
+				localStorage.setItem("last-project", selected);
+			}
+
+			// No directory chosen
+			else {
+				console.log("No directory selected");
+			}
+		},
 	},
 	"Add New": {
 		name: "Open Project",
 		run: () => {},
+	},
+	Play: {
+		name: "Play",
+		run: () => {
+			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
+		},
 	},
 	"New Project": {
 		name: "New Project",

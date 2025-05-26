@@ -3,23 +3,9 @@
 	import { getProjectAnimations } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 
-	let video: HTMLVideoElement;
-
 	let gridOn = $state(false);
 
 	onMount(() => {
-		video.addEventListener("timeupdate", () => {
-			setCurrentTime(video.currentTime);
-		});
-
-		video.addEventListener("seeking", () => {
-			setCurrentTime(video.currentTime);
-		});
-
-		video.addEventListener("seeked", () => {
-			setCurrentTime(video.currentTime);
-		});
-
 		const canvas = document.getElementById("grid-canvas") as HTMLCanvasElement;
 		const { width, height } = canvas.getBoundingClientRect();
 		canvas.width = width;
@@ -66,7 +52,14 @@
 <!-- svelte-ignore a11y_media_has_caption -->
 <div class="container">
 	{#if getProjectAnimations().length > 0}
-		<video bind:this={video} oncontextmenu={event => event.preventDefault()} controls id="video-source"></video>
+		<video
+			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
+			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
+			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
+			oncontextmenu={event => event.preventDefault()}
+			controls
+			id="video-source"
+		></video>
 	{:else}
 		<div class="novideo">
 			<h1>No Animations Yet</h1>
@@ -91,16 +84,16 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 2rem;
+		gap: 1rem;
 
 		h1 {
 			color: #cdd6f4;
-			font-size: 5rem;
+			font-size: 3rem;
 		}
 
 		p {
 			color: #9399b2;
-			font-size: 2rem;
+			font-size: 1.5rem;
 		}
 	}
 

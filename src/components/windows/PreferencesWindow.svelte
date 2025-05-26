@@ -22,9 +22,6 @@
 	let view = $state("appearance");
 	let hoverView: string | null = $state("appearance");
 
-	// svelte-ignore non_reactive_update
-	let developerMode: HTMLInputElement;
-
 	let recordingIndex: number | null = $state(null);
 
 	function record(index: number) {
@@ -36,10 +33,23 @@
 	let chosenKey: string = $state("");
 	let binding: Key = $derived(key(chosenKey, ...modifiers));
 
+	function isUserTyping() {
+		const active = document.activeElement as HTMLElement;
+
+		if (!active) return false;
+
+		// Check if active element is an input, textarea, or contenteditable
+		const isInputOrTextarea = active.tagName === "INPUT" || active.tagName === "TEXTAREA";
+		const isContentEditable = active.isContentEditable;
+
+		return isInputOrTextarea || isContentEditable;
+	}
+
 	onMount(() => {
 		document.addEventListener("keydown", event => {
 			// Recording new keybinding
 			if (recordingIndex !== null) {
+				event.preventDefault();
 				if (event.ctrlKey && !modifiers.includes("ctrl")) modifiers.push("ctrl");
 				if (event.shiftKey && !modifiers.includes("shift")) modifiers.push("shift");
 				if (event.altKey && !modifiers.includes("alt")) modifiers.push("alt");
@@ -53,9 +63,10 @@
 				}
 			}
 
-			// Not Recording
-			else {
-				getKeybindings().forEach(keybinding => {
+			// Not Recording (and not typing)
+			else if (!isUserTyping()) {
+				event.preventDefault();
+				getKeybindings().some(keybinding => {
 					if (
 						event.key === keybinding.key.key &&
 						event.ctrlKey === keybinding.key.modifiers.includes("ctrl") &&
@@ -63,7 +74,10 @@
 						event.shiftKey === keybinding.key.modifiers.includes("shift")
 					) {
 						keybinding.action.run();
+						return true;
 					}
+
+					return false;
 				});
 			}
 		});
@@ -127,7 +141,7 @@
 				<label for="preview-videos">
 					<span>
 						Object &amp; Animation Previews
-						<input id="preview-videos" type="checkbox" />
+						<input id="preview-videos" type="checkbox" checked={getPreferences().previews} />
 					</span>
 					<p>Show preview images and videos when adding new objects or animations.</p>
 				</label>
@@ -136,14 +150,14 @@
 				<label for="collapse-wait-times">
 					<span>
 						Automatically Collapse Wait Times
-						<input oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
+						<input checked={getPreferences().collapseWaitTimes} oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
 					</span>
 					<p>Automatically collapse blank space on the timeline. The space will open up when dragging an animation.</p>
 				</label>
 				<label for="relative-timestamps">
 					<span>
 						Relative Timestamps
-						<input oninput={updateBooleanPreference("relativeTimestamps")} id="relative-timestamps" type="checkbox" />
+						<input checked={getPreferences().relativeTimestamps} oninput={updateBooleanPreference("relativeTimestamps")} id="relative-timestamps" type="checkbox" />
 					</span>
 					<p>Show timestamps relative to the last animation instead of relative to the start of the video.</p>
 				</label>
@@ -162,6 +176,13 @@
 						<input oninput={updateBooleanPreference("autosave")} id="autosave" checked={getPreferences().autosave} type="checkbox" />
 					</span>
 					<p>Automatically save the project when making changes, such as adding or deleting objects or animations, moving animations, changing properties, etc.</p>
+				</label>
+				<label for="auto-open-last">
+					<span>
+						Automatically Open Last Project
+						<input oninput={updateBooleanPreference("autoOpenLastProject")} id="auto-open-last" checked={getPreferences().autoOpenLastProject} type="checkbox" />
+					</span>
+					<p>When first opening Manim Interactive, automatically open the last project that was open last time Manim Interactive was open.</p>
 				</label>
 			{:else if view === "keybinds"}
 				<span>
@@ -250,6 +271,7 @@
 			padding-top: 0.5rem;
 			padding-bottom: 0.5rem;
 			width: 8rem;
+			height: 100%;
 		}
 	}
 

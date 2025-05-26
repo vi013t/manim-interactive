@@ -1,10 +1,7 @@
 <script lang="ts">
-	import { invoke } from "@tauri-apps/api/core";
-	import { sep } from "@tauri-apps/api/path";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
-	import { open } from "@tauri-apps/plugin-dialog";
 	import { runAction } from "../../api/actions.svelte";
-	import { getProjectName, loadProjectData, setProjectLocation, setProjectName } from "../../api/project.svelte";
+	import { getProjectName } from "../../api/project.svelte";
 	import icon from "../../assets/icon.png";
 	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
@@ -25,24 +22,7 @@
 
 	async function openProject() {
 		projectMenu.hide();
-		const selected = await open({
-			directory: true,
-			multiple: false,
-			title: "Select a directory",
-		});
-
-		// Directory Chosen
-		if (typeof selected === "string") {
-			setProjectLocation(selected);
-			let components = selected.split(sep());
-			setProjectName(components[components.length - 1]);
-			loadProjectData(await invoke("get_project_data", { path: selected }));
-		}
-
-		// No directory chosen
-		else {
-			console.log("No directory selected");
-		}
+		runAction("Open Project");
 	}
 
 	function close() {
