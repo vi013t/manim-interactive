@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { select } from "../../../api/project.svelte";
+	import { select, selected } from "../../../api/project.svelte";
 	import PackageIcon from "../../icons/PackageIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import GroupMenu from "../../menus/GroupMenu.svelte";
@@ -29,15 +30,22 @@
 
 	function rightClickObject(event: MouseEvent) {
 		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
+		top = `${event.clientY - 30}px`;
+		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		objectMenu.show();
+	}
+
+	let isSelected = $derived(selected()?.id === entry.id);
+	let isHovered = $state(false);
+
+	function clickObject(event: MouseEvent) {
+		select(entry);
 	}
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="object" onclick={() => select(entry)}>
+<div class="object" onclick={clickObject}>
 	<!-- Group -->
 	{#if entry.objects}
 		<!-- Group name & Icon -->
@@ -68,7 +76,14 @@
 		{@const data = objects.find(object => object.name === entry.objectType)!}
 
 		<!-- Object name & icon -->
-		<div class="top" oncontextmenu={rightClickObject}>
+		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+		<div
+			onmouseover={() => (isHovered = true)}
+			onmouseout={() => (isHovered = false)}
+			style:background={isSelected ? `rgba(180, 150, 255, 20%)` : isHovered ? `rgba(180, 150, 255, 10%)` : "transparent"}
+			class="top"
+			oncontextmenu={rightClickObject}
+		>
 			<data.icon stroke={getObjectCategory(data.category).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
 			<span onkeydown={typeName} contenteditable autocapitalize="off" spellcheck="false">
 				{entry.name}
@@ -96,7 +111,7 @@
 		width: 100%;
 
 		&:hover {
-			background: rgba(255, 255, 255, 8%);
+			background: rgba(180, 150, 255, 8%);
 		}
 
 		span {

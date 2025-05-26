@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { generateCode } from "./codegen.svelte";
-import { getProjectLocation, saveProjectData } from "./project.svelte";
+import { getProjectLocation, saveProjectData, select } from "./project.svelte";
 
 export type KeyModifier = "ctrl" | "shift" | "alt";
 
@@ -47,6 +47,10 @@ const actions = {
 		name: "New Project",
 		run: () => {},
 	},
+	Deselect: {
+		name: "Deselect",
+		run: () => select(null),
+	},
 } as const satisfies { [key: string]: Action };
 
 export async function runAction(name: ActionName) {
@@ -89,6 +93,8 @@ let keybindings: Keybinding[] = $state([
 	keybinding(action("Save Project"), key("s", "ctrl")),
 	keybinding(action("New Project"), key("n", "ctrl")),
 	keybinding(action("Open Project"), key("o", "ctrl")),
+	keybinding(action("Deselect"), key("Escape")),
+	keybinding(action("Deselect"), key("d", "ctrl")),
 ]);
 
 export function updateKeybinding(index: number, key: Key) {

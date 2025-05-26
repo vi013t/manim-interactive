@@ -27,6 +27,7 @@ import writeDemo from "../../assets/videos/write_demo.mp4";
 import BlinkIcon from "../../components/icons/BlinkIcon.svelte";
 import BorderIcon from "../../components/icons/BorderIcon.svelte";
 import CircledLightningIcon from "../../components/icons/CircledLightningIcon.svelte";
+import ClockIcon from "../../components/icons/ClockIcon.svelte";
 import CycleIcon from "../../components/icons/CycleIcon.svelte";
 import EraserIcon from "../../components/icons/EraserIcon.svelte";
 import FadeInIcon from "../../components/icons/FadeInIcon.svelte";
@@ -53,7 +54,7 @@ import type { Property } from "./shared";
 export type ManimAnimation = {
 	name: string;
 	category: AnimationCategory;
-	icon: Component<{ stroke: string }>;
+	icon: Component<{ stroke: string; [key: string]: unknown }>;
 	properties: Property[];
 	description?: string;
 	demo?: string;
@@ -65,6 +66,7 @@ export const animationCategories = {
 	Destroy: { color: "#f38ba8" },
 	Highlight: { color: "#f9e2af" },
 	Transform: { color: "#89b4fa" },
+	Miscellaneous: { color: "#9399b2" },
 } as const satisfies { [key: string]: { color: string } };
 
 export function getAnimationCategory(name: AnimationCategory) {
@@ -292,6 +294,14 @@ export const animations = [
 		demo: typeDemo,
 		icon: PlainTextIcon,
 		internalName: "AddTextLetterByLetter",
+		properties: [],
+	},
+	{
+		name: "Wait",
+		category: "Miscellaneous",
+		description: "Wait for some time and do nothing in between animations",
+		demo: focusDemo,
+		icon: ClockIcon,
 		properties: [],
 	},
 	{

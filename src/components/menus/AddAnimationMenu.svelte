@@ -3,6 +3,7 @@
 	import { isDeveloperMode } from "../../api/preferences.svelte";
 	import { type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
+	import AsteriskIcon from "../icons/AsteriskIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -35,6 +36,7 @@
 	let addDestroyAnimationMenu: AddAnimationSubmenu;
 	let addHighlightAnimationMenu: AddAnimationSubmenu;
 	let addTransformAnimationMenu: AddAnimationSubmenu;
+	let addMiscellaneousMenu: AddAnimationSubmenu;
 
 	export function show() {
 		horizontalExpand = getHorizontalExpandDirection();
@@ -55,9 +57,10 @@
 		addDestroyAnimationMenu.hide();
 		addHighlightAnimationMenu.hide();
 		addTransformAnimationMenu.hide();
+		addMiscellaneousMenu.hide();
 	}
 
-	type Submenu = "create" | "destroy" | "transform" | "highlight";
+	type Submenu = "create" | "destroy" | "transform" | "highlight" | "miscellaneous";
 
 	let selectedMenu: Submenu | null = $state(null);
 
@@ -70,6 +73,7 @@
 				destroy: addDestroyAnimationMenu,
 				highlight: addHighlightAnimationMenu,
 				transform: addTransformAnimationMenu,
+				miscellaneous: addMiscellaneousMenu,
 			})[name].show();
 		};
 	}
@@ -105,6 +109,11 @@
 	<button style:background={selectedMenu === "transform" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("transform")}>
 		<TransformIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Transform
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+	</button>
+	<button style:background={selectedMenu === "miscellaneous" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("miscellaneous")}>
+		<AsteriskIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		Miscellaneous
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	{#if isDeveloperMode()}
@@ -149,6 +158,14 @@
 		hideParent={hideAll}
 		onAdd={onAddAnimation}
 		category="Transform"
+	/>
+	<AddAnimationSubmenu
+		bind:this={addMiscellaneousMenu}
+		top={verticalExpand === "bottom" ? "8.5rem" : "-3.5rem"}
+		left={horizontalExpand === "left" ? "-100%" : "100%"}
+		hideParent={hideAll}
+		onAdd={onAddAnimation}
+		category="Miscellaneous"
 	/>
 </ContextMenu>
 

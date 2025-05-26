@@ -23,7 +23,7 @@
 
 {#if propertyType === "animation"}
 	<button bind:this={addAnimationButton} onclick={addAnimation}>{defaultValue}</button>
-	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[document]} />
+	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addAnimationButton]} />
 {:else}
 	<input type={inputType} placeholder={`${defaultValue}`} />
 {/if}

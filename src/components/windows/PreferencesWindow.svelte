@@ -2,8 +2,12 @@
 	import { onMount } from "svelte";
 	import { deleteKeybinding, displayKey, getActions, getKeybindings, key, updateKeybinding, type Key, type KeyModifier } from "../../api/actions.svelte";
 	import { setDeveloperMode } from "../../api/preferences.svelte";
+	import ClockIcon from "../icons/ClockIcon.svelte";
+	import CodeIcon from "../icons/CodeIcon.svelte";
 	import FilledCircleIcon from "../icons/FilledCircleIcon.svelte";
 	import FilledSquareIcon from "../icons/FilledSquareIcon.svelte";
+	import KeyIcon from "../icons/KeyIcon.svelte";
+	import PaintRollerIcon from "../icons/PaintRollerIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import RevertIcon from "../icons/RevertIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
@@ -16,6 +20,7 @@
 	}
 
 	let view = $state("appearance");
+	let hoverView = $state("appearance");
 
 	// svelte-ignore non_reactive_update
 	let developerMode: HTMLInputElement;
@@ -33,6 +38,7 @@
 
 	onMount(() => {
 		document.addEventListener("keydown", event => {
+			// Recording new keybinding
 			if (recordingIndex !== null) {
 				if (event.ctrlKey && !modifiers.includes("ctrl")) modifiers.push("ctrl");
 				if (event.shiftKey && !modifiers.includes("shift")) modifiers.push("shift");
@@ -46,6 +52,20 @@
 					modifiers = [];
 				}
 			}
+
+			// Not Recording
+			else {
+				getKeybindings().forEach(keybinding => {
+					if (
+						event.key === keybinding.key.key &&
+						event.ctrlKey === keybinding.key.modifiers.includes("ctrl") &&
+						event.altKey === keybinding.key.modifiers.includes("alt") &&
+						event.shiftKey === keybinding.key.modifiers.includes("shift")
+					) {
+						keybinding.action.run();
+					}
+				});
+			}
 		});
 	});
 </script>
@@ -53,10 +73,42 @@
 <Window bind:this={windowComponent} title="Preferences" style="width: 50rem; height: 40rem; padding-bottom: 0px;">
 	<div class="container">
 		<div class="sidebar">
-			<button onclick={() => (view = "appearance")}>Appearance</button>
-			<button onclick={() => (view = "timeline")}>Timeline</button>
-			<button onclick={() => (view = "keybinds")}>Keybindings</button>
-			<button onclick={() => (view = "developer")}>Developer Settings</button>
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<button
+				onmouseover={() => (hoverView = "appearance")}
+				style:background={hoverView === "appearance" || view === "appearance" ? "rgba(180, 150, 255, 10%)" : "transparent"}
+				onclick={() => (view = "appearance")}
+			>
+				<PaintRollerIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				Appearance
+			</button>
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<button
+				onmouseover={() => (hoverView = "timeline")}
+				style:background={hoverView === "timeline" || view === "timeline" ? "rgba(180, 150, 255, 10%)" : "transparent"}
+				onclick={() => (view = "timeline")}
+			>
+				<ClockIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				Timeline
+			</button>
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<button
+				onmouseover={() => (hoverView = "keybinds")}
+				style:background={hoverView === "keybinds" || view === "keybinds" ? "rgba(180, 150, 255, 10%)" : "transparent"}
+				onclick={() => (view = "keybinds")}
+			>
+				<KeyIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				Keybindings
+			</button>
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<button
+				onmouseover={() => (hoverView = "developer")}
+				style:background={hoverView === "developer" || view === "developer" ? "rgba(180, 150, 255, 10%)" : "transparent"}
+				onclick={() => (view = "developer")}
+			>
+				<CodeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				Developer Settings
+			</button>
 		</div>
 		<div class="content">
 			{#if view === "appearance"}
@@ -201,6 +253,11 @@
 	.sidebar {
 		background-color: #181825;
 		height: 100%;
+
+		> button {
+			display: flex;
+			gap: 0.5rem;
+		}
 	}
 
 	h1 {

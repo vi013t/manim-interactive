@@ -58,11 +58,6 @@
 </Window>
 
 <style>
-	h1 {
-		margin-bottom: 1rem;
-		color: #cdd6f4;
-	}
-
 	input {
 		background: #181825;
 		border-radius: 0.5rem;

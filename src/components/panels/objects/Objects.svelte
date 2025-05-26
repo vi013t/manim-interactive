@@ -1,6 +1,7 @@
 <script lang="ts">
 	import ObjectEntry from "./ObjectEntry.svelte";
 
+	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getProjectObjects } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
@@ -16,7 +17,7 @@
 	function addObject(event: MouseEvent) {
 		event.preventDefault();
 		top = `${event.clientY - 40}px`;
-		left = `${event.clientX}px`;
+		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		objectMenu.show();
 	}
 

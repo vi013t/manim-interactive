@@ -2,8 +2,9 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
 	import { runAction } from "../../../api/actions.svelte";
-	import { animations, getAnimationCategory } from "../../../api/manim/animations";
-	import { animationEndTime, getProjectAnimations, select, type ProjectAnimation } from "../../../api/project.svelte";
+	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
+	import { animationEndTime, getProjectAnimations, select, selected, type ProjectAnimation } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -59,7 +60,7 @@
 		return function (event: MouseEvent) {
 			event.preventDefault();
 			top = `${event.clientY}px`;
-			left = `${event.clientX}px`;
+			left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 			animationActionsMenu.hide();
 			addAnimationMenu.show();
 		};
@@ -68,7 +69,7 @@
 	function animationActions(event: MouseEvent) {
 		event.preventDefault();
 		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
+		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		animationActionsMenu.show();
 	}
 
@@ -179,14 +180,17 @@
 	<div bind:this={timelineElement} id="timeline-wrapper">
 		<div id="timeline-content">
 			{#each getProjectAnimations() as animation}
+				{@const Icon = getManimAnimationByName(animation.name)!.icon}
 				<button
 					oncontextmenu={animationActions}
 					onmousedown={animationMouseDown(animation)}
 					class="animation"
-					style:background-color={animationColor(animation)}
 					onclick={() => select(animation)}
 					{@attach onAnimationMount(animation)}
+					style:background-color={animationColor(animation)}
+					style:opacity={selected() && animation.objects.includes(selected()!.id) ? "100%" : "30%"}
 				>
+					<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
 					{animation.name}
 				</button>
 			{/each}
@@ -219,6 +223,20 @@
 		position: absolute;
 		left: 0px;
 		cursor: move;
+
+		&::after {
+			content: "";
+			width: 0px;
+			height: 0px;
+			border-top: 0.5rem solid transparent;
+			border-bottom: 0.5rem solid transparent;
+			border-left: 0.5rem solid #b4befe;
+			z-index: 9999;
+			position: absolute;
+			top: 50%;
+			left: 0px;
+			transform: translateY(-50%);
+		}
 	}
 
 	section {
@@ -246,6 +264,8 @@
 		padding: 1rem;
 		height: 4rem;
 		z-index: 99999;
+		display: flex;
+		gap: 0.5rem;
 
 		&::after {
 			content: "";
