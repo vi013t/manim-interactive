@@ -82,6 +82,7 @@
 		left: -35rem;
 		background-color: #1e1e2e;
 		padding: 2rem;
+		padding-top: 1rem;
 		width: 20rem;
 		display: flex;
 		flex-direction: column;
@@ -91,6 +92,7 @@
 		p {
 			color: #9399b2;
 			margin-top: -0.5rem;
+			font-size: 0.85rem;
 		}
 
 		video {

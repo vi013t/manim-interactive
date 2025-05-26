@@ -73,7 +73,7 @@
 			<p>When you add an animation, the video will appear here.</p>
 		</div>
 	{/if}
-	<canvas id="grid-canvas" style:opacity={isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
+	<canvas id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
 </div>
 
 <style>
