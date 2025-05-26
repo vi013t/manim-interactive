@@ -1,10 +1,10 @@
 <script lang="ts">
-	import { removeProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
+	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
 
 	let { top, left, id }: { top: string; left: string; id: number } = $props();
@@ -30,8 +30,10 @@
 
 	function deleteObject() {
 		menu.hide();
-		removeProjectObject(id);
+		confirmDeleteObjectWindow.show();
 	}
+
+	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
 </script>
 
 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -61,6 +63,8 @@
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" hideParent={hide} {id} />
 </ContextMenu>
+
+<ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />
 
 <style>
 	:global(button) {

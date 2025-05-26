@@ -6,6 +6,10 @@ let id = 0;
 let projectObjects: ObjectEntry[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
 
+export function getExplicitProjectLocation(): string | null {
+	return projectLocation;
+}
+
 export async function getProjectLocation(): Promise<string> {
 	return projectLocation ?? join(await tempDir(), "manim-interactive-project");
 }

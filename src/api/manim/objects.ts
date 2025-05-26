@@ -6,6 +6,7 @@ import EllipseIcon from "../../components/icons/EllipseIcon.svelte";
 import HexagonIcon from "../../components/icons/HexagonIcon.svelte";
 import ItalicIcon from "../../components/icons/ItalicIcon.svelte";
 import LineIcon from "../../components/icons/LineIcon.svelte";
+import PackageIcon from "../../components/icons/PackageIcon.svelte";
 import PlainTextIcon from "../../components/icons/PlainTextIcon.svelte";
 import RectangleIcon from "../../components/icons/RectangleIcon.svelte";
 import SquareIcon from "../../components/icons/SquareIcon.svelte";
@@ -58,6 +59,12 @@ export const objects = [
 		name: "Ellipse",
 		category: "Shape",
 		icon: EllipseIcon,
+		properties: [],
+	},
+	{
+		name: "Group",
+		category: "Miscellaneous",
+		icon: PackageIcon,
 		properties: [],
 	},
 	{

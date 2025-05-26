@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { runAction } from "../../api/actions.svelte";
 	import { getObjectCategory, objects, type ObjectCategory } from "../../api/manim/objects";
-	import { addProjectObject, nextId } from "../../api/project.svelte";
+	import { addProjectObject, nextId, select } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
 	let { top, left, hideOuter, category }: { top: string; left: string; hideOuter: () => void; category: ObjectCategory } = $props();
@@ -22,13 +23,16 @@
 	function addObject(name: string, type: string) {
 		return function () {
 			menu.toggle();
-			addProjectObject({
+			let object = {
 				name: name,
 				objectType: type,
 				properties: {},
 				id: nextId(),
-			});
+			};
+			addProjectObject(object);
+			select(object);
 			hideOuter();
+			runAction("Save Project");
 		};
 	}
 

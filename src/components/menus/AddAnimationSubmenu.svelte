@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { runAction } from "../../api/actions.svelte";
 	import { animations, getAnimationCategory, type AnimationCategory, type ManimAnimation } from "../../api/manim/animations";
 	import { addProjectAnimation, nextId, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
@@ -40,6 +41,7 @@
 			};
 			addProjectAnimation(animation);
 			onAdd(animation);
+			runAction("Save Project");
 		};
 	}
 

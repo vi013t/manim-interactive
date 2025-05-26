@@ -28,6 +28,8 @@ fn recompile(project_path: &str, code: &str) {
         .arg("main.py")
         .current_dir(project_path)
         .spawn()
+        .unwrap()
+        .wait()
         .unwrap();
 }
 

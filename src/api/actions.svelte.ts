@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
+import { open } from "@tauri-apps/plugin-dialog";
 import { generateCode } from "./codegen.svelte";
-import { getProjectLocation, saveProjectData, select } from "./project.svelte";
+import { getExplicitProjectLocation, getProjectLocation, saveProjectData, select, setProjectLocation } from "./project.svelte";
 
 export type KeyModifier = "ctrl" | "shift" | "alt";
 
@@ -19,6 +20,19 @@ const actions = {
 		name: "Save Project",
 		async run() {
 			let projectData = saveProjectData();
+			let location = getExplicitProjectLocation();
+
+			if (!location) {
+				let selected = await open({
+					directory: true,
+					multiple: false,
+					title: "Save Project To",
+				});
+
+				if (typeof selected !== "string") return;
+
+				setProjectLocation(selected);
+			}
 
 			let save_data = invoke("save_project_data", {
 				path: await getProjectLocation(),

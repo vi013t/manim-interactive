@@ -62,7 +62,7 @@
 	section {
 		border-radius: 0.5rem;
 		background-color: #1e1e2e;
-		position: absolute;
+		position: fixed;
 		width: 30rem;
 		z-index: 999;
 		box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.75);

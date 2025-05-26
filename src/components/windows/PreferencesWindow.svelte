@@ -4,6 +4,7 @@
 	import { deleteKeybinding, getKeybindings, getPreferences, savePreferences, updateKeybinding, type Preference } from "../../api/preferences.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
+	import CubeIcon from "../icons/CubeIcon.svelte";
 	import FilledCircleIcon from "../icons/FilledCircleIcon.svelte";
 	import FilledSquareIcon from "../icons/FilledSquareIcon.svelte";
 	import KeyIcon from "../icons/KeyIcon.svelte";
@@ -105,6 +106,11 @@
 				Timeline
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<button onmouseout={unHover("project")} onmouseover={() => (hoverView = "project")} style:background={backgroundColor("project")} onclick={() => (view = "project")}>
+				<CubeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				Project Settings
+			</button>
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("keybinds")} onmouseover={() => (hoverView = "keybinds")} style:background={backgroundColor("keybinds")} onclick={() => (view = "keybinds")}>
 				<KeyIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 				Keybindings
@@ -144,9 +150,18 @@
 				<label for="dim-inactive-animations">
 					<span>
 						Dim Unselected Animations
-						<input oninput={updateBooleanPreference("dimUnselectedAnimations")} id="dim-inactive-animations" checked type="checkbox" />
+						<input oninput={updateBooleanPreference("dimUnselectedAnimations")} id="dim-inactive-animations" checked={getPreferences().dimUnselectedAnimations} type="checkbox" />
 					</span>
 					<p>When an object is selected, dim animations for other objects, and highlight animations for the selected object.</p>
+				</label>
+			{:else if view === "project"}
+				<h1>Project Settings</h1>
+				<label for="autosave">
+					<span>
+						Autosave
+						<input oninput={updateBooleanPreference("autosave")} id="autosave" checked={getPreferences().autosave} type="checkbox" />
+					</span>
+					<p>Automatically save the project when making changes, such as adding or deleting objects or animations, moving animations, changing properties, etc.</p>
 				</label>
 			{:else if view === "keybinds"}
 				<span>

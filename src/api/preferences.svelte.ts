@@ -20,6 +20,7 @@ let preferences = $state({
 	relativeTimestamps: false,
 	dimUnselectedAnimations: true,
 	developerMode: false,
+	autosave: true,
 	keybindings: [
 		keybinding(action("Save Project"), key("s", "ctrl")),
 		keybinding(action("New Project"), key("n", "ctrl")),

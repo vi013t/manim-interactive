@@ -16,6 +16,7 @@
 	let addLineMenu: AddObjectSubmenu;
 	let addShapeMenu: AddObjectSubmenu;
 	let addTextMenu: AddObjectSubmenu;
+	let addMiscellaneousMenu: AddObjectSubmenu;
 
 	let horizontalExpand = $state("right");
 	let verticalExpand = $state("bottom");
@@ -38,6 +39,7 @@
 		addShapeMenu.hide();
 		addTextMenu.hide();
 		addLineMenu.hide();
+		addMiscellaneousMenu.hide();
 	}
 
 	function addGroup() {
@@ -90,7 +92,7 @@
 	<button
 		onmouseenter={() => {
 			hideSubmenus();
-			addTextMenu.show();
+			addMiscellaneousMenu.show();
 		}}
 	>
 		<AsteriskIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
@@ -117,6 +119,13 @@
 		top={verticalExpand === "bottom" ? "7rem" : "1.75rem"}
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Text"
+		hideOuter={hide}
+	/>
+	<AddObjectSubmenu
+		bind:this={addMiscellaneousMenu}
+		top={verticalExpand === "bottom" ? "9rem" : "1.75rem"}
+		left={horizontalExpand === "right" ? "100%" : "-100%"}
+		category="Miscellaneous"
 		hideOuter={hide}
 	/>
 </ContextMenu>
