@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 	import { runAction } from "../../../api/actions.svelte";
 	import { animations, getAnimationCategory } from "../../../api/manim/animations";
-	import { getProjectAnimations, select, type ProjectAnimation } from "../../../api/project.svelte";
+	import { animationEndTime, getProjectAnimations, select, type ProjectAnimation } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -35,6 +35,7 @@
 				timestamp.classList.add("timestamp");
 				timestamp.innerHTML = formatTime(seconds);
 				newDiv.appendChild(timestamp);
+				newDiv.oncontextmenu = addAnimation();
 
 				seconds++;
 				checkForNewDiv();
@@ -54,12 +55,14 @@
 	let top = $state("100%");
 	let left = $state("94%");
 
-	function addAnimation(event: MouseEvent) {
-		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
-		animationActionsMenu.hide();
-		addAnimationMenu.show();
+	function addAnimation() {
+		return function (event: MouseEvent) {
+			event.preventDefault();
+			top = `${event.clientY}px`;
+			left = `${event.clientX}px`;
+			animationActionsMenu.hide();
+			addAnimationMenu.show();
+		};
 	}
 
 	function animationActions(event: MouseEvent) {
@@ -75,6 +78,20 @@
 	function resize(element: HTMLElement) {
 		return function (event: MouseEvent) {
 			element.style.height = `${event.y - element.clientTop}px`;
+		};
+	}
+
+	let ids: number[] = [];
+
+	function onAnimationMount(animation: ProjectAnimation) {
+		return function (element: HTMLElement) {
+			if (!ids.includes(animation.id)) {
+				const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
+				let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
+				animation.startTime = startTime;
+				element.style.top = `${startTime * 4}rem`;
+				ids.push(animation.id);
+			}
 		};
 	}
 
@@ -147,7 +164,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section oncontextmenu={addAnimation}>
+<section>
 	<div class="header">
 		<h1>Timeline</h1>
 		<button onclick={togglePlaying}>
@@ -168,11 +185,12 @@
 					class="animation"
 					style:background-color={animationColor(animation)}
 					onclick={() => select(animation)}
+					{@attach onAnimationMount(animation)}
 				>
 					{animation.name}
 				</button>
 			{/each}
-			<div></div>
+			<div oncontextmenu={addAnimation()}></div>
 		</div>
 	</div>
 	<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 4}rem + 2.5rem)"></div>

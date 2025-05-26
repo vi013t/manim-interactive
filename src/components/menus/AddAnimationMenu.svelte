@@ -17,12 +17,14 @@
 		openers = [],
 		hideParent,
 		id = undefined,
+		onAdd = (animation: ProjectAnimation) => {},
 	}: {
 		top: string;
 		left: string;
 		openers?: HTMLElement[];
 		hideParent: () => void;
 		id?: number;
+		onAdd?: (animation: ProjectAnimation) => void;
 	} = $props();
 
 	let horizontalExpand = $state("right");
@@ -77,8 +79,9 @@
 		hideParent();
 	}
 
-	function onAdd(animation: ProjectAnimation) {
+	function onAddAnimation(animation: ProjectAnimation) {
 		if (id !== undefined) animation.objects.push(id);
+		onAdd(animation);
 	}
 </script>
 
@@ -120,7 +123,7 @@
 		top={verticalExpand === "bottom" ? "0px" : "-12rem"}
 		left={horizontalExpand === "left" ? "-100%" : "100%"}
 		hideParent={hideAll}
-		{onAdd}
+		onAdd={onAddAnimation}
 		category="Create"
 	/>
 	<AddAnimationSubmenu
@@ -128,7 +131,7 @@
 		top={verticalExpand === "bottom" ? "3.5rem" : "-5rem"}
 		left={horizontalExpand === "left" ? "-100%" : "100%"}
 		hideParent={hideAll}
-		{onAdd}
+		onAdd={onAddAnimation}
 		category="Destroy"
 	/>
 	<AddAnimationSubmenu
@@ -136,7 +139,7 @@
 		top={verticalExpand === "bottom" ? "5.25rem" : "-8.5rem"}
 		left={horizontalExpand === "left" ? "-100%" : "100%"}
 		hideParent={hideAll}
-		{onAdd}
+		onAdd={onAddAnimation}
 		category="Highlight"
 	/>
 	<AddAnimationSubmenu
@@ -144,7 +147,7 @@
 		top={verticalExpand === "bottom" ? "7.5rem" : "-3.5rem"}
 		left={horizontalExpand === "left" ? "-100%" : "100%"}
 		hideParent={hideAll}
-		{onAdd}
+		onAdd={onAddAnimation}
 		category="Transform"
 	/>
 </ContextMenu>

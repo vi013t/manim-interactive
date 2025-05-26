@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
@@ -10,9 +11,14 @@
 
 	let menu: ContextMenu;
 	let addAnimationMenu: AddAnimationMenu;
+	let startTime = $state(0);
 
 	export function show() {
 		menu.show();
+	}
+
+	export function setStartTime(time: number) {
+		startTime = time;
 	}
 
 	export function toggle() {
@@ -26,6 +32,10 @@
 
 	function hideSubmenus() {
 		addAnimationMenu.hide();
+	}
+
+	function onAdd(animation: ProjectAnimation) {
+		animation.startTime = startTime;
 	}
 
 	type Submenu = "animation";
@@ -61,7 +71,7 @@
 		Open Timeline Preferences
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="-100%" hideParent={hide} />
+	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="-100%" hideParent={hide} {onAdd} />
 </ContextMenu>
 
 <style>

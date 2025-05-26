@@ -70,6 +70,20 @@
 				</label>
 			{:else if view === "timeline"}
 				<h1>Timeline Settings</h1>
+				<label for="collapse-wait-times">
+					<span>
+						Automatically Collapse Wait Times
+						<input id="collapse-wait-times" type="checkbox" />
+					</span>
+					<p>Automatically collapse blank space on the timeline. The space will open up when dragging an animation.</p>
+				</label>
+				<label for="relative-timestamps">
+					<span>
+						Relative Timestamps
+						<input id="relative-timestamps" type="checkbox" />
+					</span>
+					<p>Show timestamps relative to the last animation instead of relative to the start of the video.</p>
+				</label>
 			{:else if view === "keybinds"}
 				<span>
 					<h1>Keybindings</h1>
@@ -176,6 +190,7 @@
 
 	p {
 		color: #6c7086;
+		font-size: 0.85rem;
 	}
 
 	.container {
