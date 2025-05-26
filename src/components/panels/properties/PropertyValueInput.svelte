@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { PropertyType } from "../../../api/manim/shared";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
+	import ColorPicker from "./ColorPicker.svelte";
 
 	let { propertyType, defaultValue = "", required = false }: { propertyType: PropertyType; defaultValue?: unknown; required?: boolean } = $props();
 
@@ -24,6 +25,8 @@
 {#if propertyType === "animation"}
 	<button bind:this={addAnimationButton} onclick={addAnimation}>{defaultValue}</button>
 	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addAnimationButton]} />
+{:else if propertyType === "color"}
+	<ColorPicker oninput={() => {}}/>
 {:else}
 	<input type={inputType} placeholder={`${defaultValue}`} />
 {/if}

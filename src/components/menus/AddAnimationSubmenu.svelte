@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { runAction } from "../../api/actions.svelte";
+	import { getHorizontalExpandDirection } from "../../api/client.svelte";
 	import { animations, getAnimationCategory, type AnimationCategory, type ManimAnimation } from "../../api/manim/animations";
 	import { addProjectAnimation, nextId, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
@@ -63,7 +64,7 @@
 </ContextMenu>
 
 {#if currentAnimation}
-	<div class="info" style:top>
+	<div class="info" style:top style:left={getHorizontalExpandDirection() === "left" ? "-35rem" : "30rem"}>
 		<h1>{currentAnimation.name}</h1>
 		<p>{currentAnimation.description}</p>
 		<!-- svelte-ignore a11y_media_has_caption -->

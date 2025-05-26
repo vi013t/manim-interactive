@@ -3,6 +3,7 @@
 	import { selected, type ProjectObject } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
+	import ColorPicker from "./ColorPicker.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
 	let item = $derived(selected());

@@ -23,6 +23,7 @@ pub fn run() {
 #[tauri::command]
 fn recompile(project_path: &str, code: &str, low_res: bool) {
     std::fs::write(Path::new(project_path).join("main.py"), code).unwrap();
+    println!("Recompiling project at {}", project_path);
     Command::new("manim")
         .arg(if low_res { "-ql" } else { "-qh" })
         .arg("main.py")
@@ -45,7 +46,7 @@ fn load_video(path: String, low_res: bool) -> Result<String, String> {
         Ok(contents) => {
             let encoded = base64::engine::general_purpose::STANDARD.encode(contents);
             Ok(format!("data:video/mp4;base64,{}", encoded))
-        }
+        },
         Err(e) => Err(format!("Failed to read file: {}", e)),
     }
 }
@@ -66,13 +67,11 @@ fn new_project(path: String, name: String) -> Result<String, String> {
 
 #[tauri::command]
 fn save_project_data(path: String, data: String) -> Result<(), String> {
-    std::fs::write(Path::new(&path).join("project.manim"), data)
-        .map_err(|_| "Error saving project".to_owned())?;
+    std::fs::write(Path::new(&path).join("project.manim"), data).map_err(|_| "Error saving project".to_owned())?;
     Ok(())
 }
 
 #[tauri::command]
 fn get_project_data(path: String) -> Result<String, String> {
-    std::fs::read_to_string(Path::new(&path).join("project.manim"))
-        .map_err(|_| "Error reading project".to_owned())
+    std::fs::read_to_string(Path::new(&path).join("project.manim")).map_err(|_| "Error reading project".to_owned())
 }
