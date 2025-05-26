@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { updateMouseCoordinates } from "../api/client.svelte";
+	import { loadPreferences, savePreferences } from "../api/preferences.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
 	import Navbar from "../components/panels/Navbar.svelte";
 	import Objects from "../components/panels/objects/Objects.svelte";
@@ -14,6 +15,11 @@
 	let top: string;
 	let left: string;
 	let menu: AddMenu;
+
+	// Preferences
+	if (localStorage.getItem("manim-interactive-preferences")) loadPreferences();
+	else savePreferences();
+
 	onMount(() => {
 		document.addEventListener("mousemove", event => {
 			mouseX = event.clientX;
@@ -21,6 +27,8 @@
 
 			updateMouseCoordinates(event.clientX, event.clientY);
 		});
+
+		document.addEventListener("contextmenu", event => event.preventDefault());
 
 		document.addEventListener("keypress", event => {
 			if (event.key === "A") {

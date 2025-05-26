@@ -4,7 +4,7 @@
 	import { runAction } from "../../../api/actions.svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
-	import { animationEndTime, getProjectAnimations, select, selected, type ProjectAnimation } from "../../../api/project.svelte";
+	import { animationEndTime, getItemFromId, getProjectAnimations, select, selected, type ProjectAnimation } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -188,10 +188,12 @@
 					onclick={() => select(animation)}
 					{@attach onAnimationMount(animation)}
 					style:background-color={animationColor(animation)}
-					style:opacity={selected() && animation.objects.includes(selected()!.id) ? "100%" : "30%"}
+					style:outline={selected() && animation.objects.includes(selected()!.id) ? "4px solid white" : "none"}
+					style:opacity={!selected() || animation.objects.includes(selected()!.id) ? "100%" : "30%"}
 				>
 					<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
 					{animation.name}
+					{animation.objects.length ? getItemFromId(animation.objects[0])!.name : ""}
 				</button>
 			{/each}
 			<div oncontextmenu={addAnimation()}></div>
@@ -266,6 +268,7 @@
 		z-index: 99999;
 		display: flex;
 		gap: 0.5rem;
+		outline-offset: -4px;
 
 		&::after {
 			content: "";

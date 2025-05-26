@@ -2,24 +2,9 @@
 	let { stroke, ...rest } = $props();
 </script>
 
-<svg
-	{...rest}
-	fill={stroke}
-	height="200px"
-	width="200px"
-	version="1.1"
-	id="XMLID_125_"
-	xmlns="http://www.w3.org/2000/svg"
-	xmlns:xlink="http://www.w3.org/1999/xlink"
-	viewBox="0 0 24 24"
-	xml:space="preserve"
->
+<svg {...rest} fill={stroke} version="1.1" id="XMLID_125_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" xml:space="preserve">
 	<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-	<g
-		id="SVGRepo_tracerCarrier"
-		stroke-linecap="round"
-		stroke-linejoin="round"
-	></g>
+	<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
 	<g id="SVGRepo_iconCarrier">
 		<g id="grow">
 			<g>

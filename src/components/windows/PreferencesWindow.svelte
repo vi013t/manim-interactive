@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { deleteKeybinding, displayKey, getActions, getKeybindings, key, updateKeybinding, type Key, type KeyModifier } from "../../api/actions.svelte";
-	import { setDeveloperMode } from "../../api/preferences.svelte";
+	import { displayKey, getActions, key, type Key, type KeyModifier } from "../../api/actions.svelte";
+	import { deleteKeybinding, getKeybindings, getPreferences, savePreferences, updateKeybinding, type Preference } from "../../api/preferences.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 	import FilledCircleIcon from "../icons/FilledCircleIcon.svelte";
@@ -9,7 +9,6 @@
 	import KeyIcon from "../icons/KeyIcon.svelte";
 	import PaintRollerIcon from "../icons/PaintRollerIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
-	import RevertIcon from "../icons/RevertIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import Window from "./Window.svelte";
 
@@ -20,7 +19,7 @@
 	}
 
 	let view = $state("appearance");
-	let hoverView = $state("appearance");
+	let hoverView: string | null = $state("appearance");
 
 	// svelte-ignore non_reactive_update
 	let developerMode: HTMLInputElement;
@@ -68,44 +67,50 @@
 			}
 		});
 	});
+
+	function backgroundColor(viewName: string) {
+		return view === viewName ? "rgba(180, 150, 255, 20%)" : hoverView === viewName ? "rgba(180, 150, 255, 10%)" : "transparent";
+	}
+
+	function unHover(viewName: string) {
+		return function () {
+			if (hoverView === viewName) hoverView = null;
+		};
+	}
+
+	function updateBooleanPreference(preferenceName: Preference) {
+		return function (event: Event) {
+			getPreferences()[preferenceName] = (event.target as HTMLInputElement).checked as any;
+			savePreferences();
+		};
+	}
 </script>
 
-<Window bind:this={windowComponent} title="Preferences" style="width: 50rem; height: 40rem; padding-bottom: 0px;">
+<Window bind:this={windowComponent} title="Preferences" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
 	<div class="container">
 		<div class="sidebar">
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button
+				onmouseout={unHover("appearance")}
 				onmouseover={() => (hoverView = "appearance")}
-				style:background={hoverView === "appearance" || view === "appearance" ? "rgba(180, 150, 255, 10%)" : "transparent"}
+				style:background={backgroundColor("appearance")}
 				onclick={() => (view = "appearance")}
 			>
 				<PaintRollerIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 				Appearance
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-			<button
-				onmouseover={() => (hoverView = "timeline")}
-				style:background={hoverView === "timeline" || view === "timeline" ? "rgba(180, 150, 255, 10%)" : "transparent"}
-				onclick={() => (view = "timeline")}
-			>
+			<button onmouseout={unHover("timeline")} onmouseover={() => (hoverView = "timeline")} style:background={backgroundColor("timeline")} onclick={() => (view = "timeline")}>
 				<ClockIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 				Timeline
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-			<button
-				onmouseover={() => (hoverView = "keybinds")}
-				style:background={hoverView === "keybinds" || view === "keybinds" ? "rgba(180, 150, 255, 10%)" : "transparent"}
-				onclick={() => (view = "keybinds")}
-			>
+			<button onmouseout={unHover("keybinds")} onmouseover={() => (hoverView = "keybinds")} style:background={backgroundColor("keybinds")} onclick={() => (view = "keybinds")}>
 				<KeyIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 				Keybindings
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-			<button
-				onmouseover={() => (hoverView = "developer")}
-				style:background={hoverView === "developer" || view === "developer" ? "rgba(180, 150, 255, 10%)" : "transparent"}
-				onclick={() => (view = "developer")}
-			>
+			<button onmouseout={unHover("developer")} onmouseover={() => (hoverView = "developer")} style:background={backgroundColor("developer")} onclick={() => (view = "developer")}>
 				<CodeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 				Developer Settings
 			</button>
@@ -118,23 +123,30 @@
 						Object &amp; Animation Previews
 						<input id="preview-videos" type="checkbox" />
 					</span>
-					<p>Whether to show previews when adding new objects or animations</p>
+					<p>Show preview images and videos when adding new objects or animations.</p>
 				</label>
 			{:else if view === "timeline"}
 				<h1>Timeline Settings</h1>
 				<label for="collapse-wait-times">
 					<span>
 						Automatically Collapse Wait Times
-						<input id="collapse-wait-times" type="checkbox" />
+						<input oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
 					</span>
 					<p>Automatically collapse blank space on the timeline. The space will open up when dragging an animation.</p>
 				</label>
 				<label for="relative-timestamps">
 					<span>
 						Relative Timestamps
-						<input id="relative-timestamps" type="checkbox" />
+						<input oninput={updateBooleanPreference("relativeTimestamps")} id="relative-timestamps" type="checkbox" />
 					</span>
 					<p>Show timestamps relative to the last animation instead of relative to the start of the video.</p>
+				</label>
+				<label for="dim-inactive-animations">
+					<span>
+						Dim Unselected Animations
+						<input oninput={updateBooleanPreference("dimUnselectedAnimations")} id="dim-inactive-animations" checked type="checkbox" />
+					</span>
+					<p>When an object is selected, dim animations for other objects, and highlight animations for the selected object.</p>
 				</label>
 			{:else if view === "keybinds"}
 				<span>
@@ -162,9 +174,6 @@
 								<FilledCircleIcon stroke="#585b70" style="width: 1rem; height: 1rem;" />
 							{/if}
 						</button>
-						<button class="revert">
-							<RevertIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" />
-						</button>
 						<button class="revert" onclick={() => deleteKeybinding(index)}>
 							<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
 						</button>
@@ -175,9 +184,9 @@
 				<label for="developer-mode">
 					<span>
 						Developer Mode
-						<input bind:this={developerMode} id="developer-mode" type="checkbox" oninput={() => setDeveloperMode(developerMode.checked)} />
+						<input checked={getPreferences().developerMode} id="developer-mode" type="checkbox" oninput={updateBooleanPreference("developerMode")} />
 					</span>
-					<p>Enabling Developer mode allows adding custom scripts for animations or objects.</p>
+					<p>Enabling Developer mode allows adding custom Python scripts for animations or objects with access to the Manim library.</p>
 				</label>
 			{/if}
 		</div>
@@ -192,11 +201,16 @@
 		color: #cdd6f4;
 	}
 
+	.content {
+		width: 100%;
+	}
+
 	.add-keybinding {
 		margin-left: auto;
 		width: fit-content;
 		border-radius: 0.5rem;
 		padding: 0.5rem;
+		margin-right: 2rem;
 	}
 
 	.binding {
@@ -205,6 +219,7 @@
 
 	.keybinding-entry {
 		margin-left: 2rem;
+		margin-bottom: 0.5rem;
 
 		.revert {
 			width: fit-content;
@@ -238,6 +253,14 @@
 		padding: 0.5rem;
 		margin-left: 0.5rem;
 		margin-right: 0.5rem;
+		width: 15rem;
+		border-radius: 0.5rem;
+
+		option {
+			&:hover {
+				background: rgba(180, 150, 255, 10%);
+			}
+		}
 	}
 
 	p {
@@ -273,6 +296,7 @@
 		padding-right: 2rem;
 		padding-top: 1rem;
 		padding-bottom: 1rem;
+		width: 100%;
 
 		&:hover {
 			background: rgba(180, 150, 255, 10%);

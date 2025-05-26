@@ -43,6 +43,10 @@ const actions = {
 		name: "Open Project",
 		run: () => {},
 	},
+	"Add New": {
+		name: "Open Project",
+		run: () => {},
+	},
 	"New Project": {
 		name: "New Project",
 		run: () => {},
@@ -87,24 +91,4 @@ export function displayKey(key: Key): string {
 	if (key.modifiers.includes("shift")) result += "Shift+";
 	result += key.key.toUpperCase();
 	return result;
-}
-
-let keybindings: Keybinding[] = $state([
-	keybinding(action("Save Project"), key("s", "ctrl")),
-	keybinding(action("New Project"), key("n", "ctrl")),
-	keybinding(action("Open Project"), key("o", "ctrl")),
-	keybinding(action("Deselect"), key("Escape")),
-	keybinding(action("Deselect"), key("d", "ctrl")),
-]);
-
-export function updateKeybinding(index: number, key: Key) {
-	keybindings[index].key = key;
-}
-
-export function deleteKeybinding(index: number) {
-	keybindings = keybindings.filter((_, elementIndex) => index !== elementIndex);
-}
-
-export function getKeybindings(): Keybinding[] {
-	return keybindings;
 }

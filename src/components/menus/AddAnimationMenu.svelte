@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
-	import { isDeveloperMode } from "../../api/preferences.svelte";
+	import { getPreferences } from "../../api/preferences.svelte";
 	import { type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AsteriskIcon from "../icons/AsteriskIcon.svelte";
@@ -116,7 +116,7 @@
 		Miscellaneous
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	{#if isDeveloperMode()}
+	{#if getPreferences().developerMode}
 		<button
 			onmouseenter={() => {
 				hideSubmenus();
