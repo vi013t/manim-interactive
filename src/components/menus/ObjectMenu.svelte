@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getProjectAnimations, removeProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -30,7 +31,11 @@
 
 	function deleteObject() {
 		menu.hide();
-		confirmDeleteObjectWindow.show();
+		if (getProjectAnimations().some(animation => animation.objects.includes(id))) {
+			confirmDeleteObjectWindow.show();
+		} else {
+			removeProjectObject(id);
+		}
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
