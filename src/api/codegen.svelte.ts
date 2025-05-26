@@ -11,8 +11,9 @@ export function generateCode(): string {
 			if (waitTime > 0) animationsWithWaits.push({ wait: waitTime });
 		}
 	});
-	console.log(animations);
-	console.log(animationsWithWaits);
+	if (animationsWithWaits.length && (animationsWithWaits[0] as ProjectAnimation).startTime > 0) {
+		animationsWithWaits.unshift({ wait: (animationsWithWaits[0] as ProjectAnimation).startTime });
+	}
 
 	const objectLines = getProjectObjects()
 		.map(object => ("objectType" in object ? `\t\tvar_${object.id} = ${object.objectType}()` : ""))
