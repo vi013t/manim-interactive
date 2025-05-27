@@ -31,9 +31,9 @@ export function getObjectCategory(name: ObjectCategory) {
 }
 
 const mobjectProperties = [
-	{ name: "Fill Color", internalName: "fill_color", type: "color", defaultValue: "#FFFFFF", category: "color" },
+	{ name: "Fill Color", internalName: "fill_color", type: "color", defaultValue: "#FFFFFF", category: "color", prioritized: true },
 	{ name: "Fill Opacity", internalName: "fill_opacity", type: "float", defaultValue: 0, category: "color" },
-	{ name: "Stroke Color", internalName: "stroke_color", type: "color", defaultValue: "#FFFFFF", category: "color" },
+	{ name: "Stroke Color", internalName: "stroke_color", type: "color", defaultValue: "#FFFFFF", category: "color", prioritized: true },
 	{ name: "Stroke Opacity", internalName: "stroke_opacity", type: "float", defaultValue: 1, category: "color" },
 	{ name: "Stroke Width", internalName: "stroke_width", type: "float", defaultValue: 4, category: "color" },
 	{ name: "Background Stroke Color", internalName: "background_stroke_color", type: "color", defaultValue: "#000000", category: "color" },
