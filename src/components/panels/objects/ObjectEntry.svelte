@@ -2,7 +2,8 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { select, selected } from "../../../api/project.svelte";
+	import { itemHasErrors, select, selected } from "../../../api/project.svelte";
+	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import PackageIcon from "../../icons/PackageIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import GroupMenu from "../../menus/GroupMenu.svelte";
@@ -50,10 +51,17 @@
 	onMount(() => {
 		document.getElementById("object-panel")!.addEventListener("click", event => {
 			if (!event.composedPath().includes(topElement) && selected() === entry) {
-				select(null);
+				//select(null);
 			}
 		});
 	});
+
+	function getBackgroundColor(): string {
+		if (itemHasErrors(entry.id)) return `rgba(243, 139, 168, ${isSelected ? "40%" : isHovered ? "30%" : "20%"})`;
+		if (isSelected) return `rgba(180, 150, 255, 20%)`;
+		if (isHovered) return `rgba(180, 150, 255, 10%)`;
+		return "transparent";
+	}
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -93,7 +101,7 @@
 		<div
 			onmouseover={() => (isHovered = true)}
 			onmouseout={() => (isHovered = false)}
-			style:background={isSelected ? `rgba(180, 150, 255, 20%)` : isHovered ? `rgba(180, 150, 255, 10%)` : "transparent"}
+			style:background={getBackgroundColor()}
 			class="top"
 			bind:this={topElement}
 			oncontextmenu={rightClickObject}
@@ -102,6 +110,9 @@
 			<span onkeydown={typeName} contenteditable autocapitalize="off" spellcheck="false">
 				{entry.name}
 			</span>
+			{#if itemHasErrors(entry.id)}
+				<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
+			{/if}
 		</div>
 	{/if}
 </div>

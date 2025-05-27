@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { slide } from "svelte/transition";
 	import { getNotifications, removeNotification } from "../api/project.svelte";
 	import CloseIcon from "./icons/CloseIcon.svelte";
 	import ErrorIcon from "./icons/ErrorIcon.svelte";
@@ -12,7 +13,7 @@
 
 <div class="notifications">
 	{#each getNotifications() as notification}
-		<div style:outline-color={notification.severity === "error" ? "#f38ba8" : "transparent"} class="notification">
+		<div transition:slide style:outline-color={notification.severity === "error" ? "#f38ba8" : "transparent"} class="notification">
 			<h1 style:color={notification.severity === "error" ? "#f38ba8" : "inherit"}>
 				{#if notification.severity === "error"}
 					<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
@@ -49,6 +50,11 @@
 			.close {
 				margin-left: auto;
 			}
+		}
+
+		p {
+			color: #bac2de;
+			font-size: 0.85rem;
 		}
 	}
 

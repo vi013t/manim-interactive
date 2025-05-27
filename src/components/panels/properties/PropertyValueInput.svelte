@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { type PropertyType } from "../../../api/manim/properties";
+	import { type PropertyType } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { addErrorId, nextErrorId, removeErrorId, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
+	import { addError, nextErrorId, removeError, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 	import ColorPicker from "./ColorPicker.svelte";
+	import LatexPreview from "./LatexPreview.svelte";
 
 	let {
 		type,
@@ -17,6 +18,7 @@
 	}: { type: PropertyType; name: string; defaultValue: unknown; required: boolean; deleteProperty: (name: string) => () => void } = $props();
 
 	const errorId = nextErrorId();
+	let id = selected()!.id;
 
 	// svelte-ignore non_reactive_update
 	let addAnimationMenu: AddAnimationMenu;
@@ -36,13 +38,12 @@
 
 	// svelte-ignore non_reactive_update
 	let input: HTMLInputElement;
-
-	let colorValue = $state("#FFFFFF");
+	let inputValue = $state(`${defaultValue === null ? "" : defaultValue}`);
 
 	function validate(): void {
 		valid = isValid();
-		if (!valid) addErrorId(errorId);
-		else removeErrorId(errorId);
+		if (!valid) addError({ objectId: selected()!.id, propertyName: name });
+		else removeError({ objectId: selected()!.id, propertyName: name });
 	}
 
 	function isValid(): boolean {
@@ -61,6 +62,8 @@
 
 		return true;
 	}
+
+	let inputHover = $state(false);
 
 	let previousValue = defaultValue;
 
@@ -108,14 +111,14 @@
 
 	<!-- string, number -->
 {:else if type.base === "string" || type.base === "number"}
-	<input
-		onblur={setProperty}
-		bind:this={input}
-		style:outline={valid ? "none" : "2px solid #f38ba8"}
-		type="text"
-		oninput={validate}
-		value={`${defaultValue === null ? "" : defaultValue}`}
-	/>
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false)} class="input-container">
+		<input onblur={setProperty} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} bind:value={inputValue} />
+
+		{#if type.base === "string" && type.isMath}
+			<LatexPreview latex={inputValue} show={inputHover} />
+		{/if}
+	</div>
 {/if}
 
 {#if !valid}
@@ -136,8 +139,19 @@
 		background: #11111b;
 		padding: 0.3em;
 		border-radius: 0.5em;
-		width: 5rem;
 		outline-offset: -2px;
+	}
+
+	.input-container {
+		position: relative;
+	}
+
+	.add-animation {
+		width: 5rem;
+	}
+
+	input {
+		width: 20rem;
 	}
 
 	.error {

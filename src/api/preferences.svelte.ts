@@ -17,6 +17,12 @@ export function getKeybindings(): Keybinding[] {
 	return preferences.keybindings;
 }
 
+let videoGenerated = $state(false);
+
+export function hasEverGeneratedVideo(): boolean {
+	return videoGenerated;
+}
+
 const actions = {
 	"Save Project": {
 		name: "Save Project",
@@ -44,6 +50,7 @@ const actions = {
 
 			if (projectHasErrors()) {
 				addNotification("Error Reloading Video", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", "error");
+				videoLoaded = true;
 				return;
 			}
 
@@ -61,6 +68,7 @@ const actions = {
 			document.getElementById("video-source")?.setAttribute("src", videoData);
 			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
 			videoLoaded = true;
+			videoGenerated = true;
 
 			await save_data;
 		},
@@ -79,6 +87,7 @@ const actions = {
 				setProjectLocation(selected);
 				loadProjectData(await invoke("get_project_data", { path: selected }));
 				localStorage.setItem("last-project", selected);
+				videoGenerated = false;
 			}
 
 			// No directory chosen
@@ -118,6 +127,7 @@ let preferences = $state({
 	grid: false,
 	lowRes: false,
 	vimMode: false,
+	latexPreviews: true,
 	keybindings: [
 		keybinding(action("Save Project"), key("s", "ctrl")),
 		keybinding(action("New Project"), key("n", "ctrl")),

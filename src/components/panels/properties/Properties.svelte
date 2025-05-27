@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getPossibleProperties, property, type PropertyType } from "../../../api/manim/properties";
+	import { getPossibleProperties } from "../../../api/manim/properties";
+	import { property, type PropertyType } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
 	import { selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
@@ -42,10 +43,6 @@
 			runAction("Save Project");
 		};
 	}
-
-	$effect(() => {
-		console.log("Selection changed:", $state.snapshot(selected()));
-	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

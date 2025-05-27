@@ -96,6 +96,7 @@ export function removeProjectObject(id: number) {
 	if (selected()?.id === id) select(null);
 	projectObjects = projectObjects.filter(object => object.id !== id);
 	projectAnimations = projectAnimations.filter(animation => !animation.objects.includes(id));
+	errors = errors.filter(error => error.objectId !== id);
 	runAction("Save Project");
 }
 
@@ -115,18 +116,27 @@ export function getItemFromId(id: number): ObjectEntry | null {
 	return getProjectObjects().find(object => object.id === id) ?? null;
 }
 
-let errors: Set<number> = $state(new Set([]));
+type Error = PropertyError;
+type PropertyError = { propertyName: string; objectId: number };
 
-export function addErrorId(errorId: number): void {
-	errors.add(errorId);
+let errors: Error[] = $state([]);
+
+export function addError(error: Error): void {
+	if (errors.every(existingError => existingError.objectId !== error.objectId || existingError.propertyName !== error.propertyName)) {
+		errors.push(error);
+	}
 }
 
 export function projectHasErrors(): boolean {
-	return errors.size !== 0;
+	return errors.length !== 0;
 }
 
-export function removeErrorId(errorId: number): void {
-	errors.delete(errorId);
+export function itemHasErrors(id: number): boolean {
+	return !!errors.find(error => error.objectId === id);
+}
+
+export function removeError(error: Error): void {
+	errors = errors.filter(existingError => existingError.propertyName !== error.propertyName || existingError.objectId !== error.objectId);
 }
 
 let errorId = 0;

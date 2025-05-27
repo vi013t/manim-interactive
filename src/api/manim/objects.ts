@@ -14,7 +14,7 @@ import StarIcon from "../../components/icons/StarIcon.svelte";
 import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import UpArrowIcon from "../../components/icons/UpArrowIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
-import { property, type Property } from "./properties";
+import { property, type Property } from "./property";
 
 export const objectCategories = {
 	Line: { color: "#cba6f7" },
@@ -110,9 +110,21 @@ export const objects = [
 	},
 	{
 		name: "Math Text",
+		internalName: "MathTex",
 		category: "Text",
 		icon: VariableIcon,
-		properties: [],
+		properties: [
+			{
+				name: "Text",
+				internalName: "tex_strings",
+				type: property().string().notEmpty().math(),
+				defaultValue: null,
+				category: "size",
+				prioritized: true,
+				required: true,
+				position: 0,
+			},
+		],
 	},
 	{
 		name: "Plain Text",

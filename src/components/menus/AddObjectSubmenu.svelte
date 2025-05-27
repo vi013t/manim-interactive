@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getObjectCategory, objects, type ObjectCategory } from "../../api/manim/objects";
-	import type { Property } from "../../api/manim/properties";
+	import type { Property } from "../../api/manim/property";
 	import { runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, nextId, select } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";

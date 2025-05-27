@@ -1,6 +1,7 @@
 import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
 import { getPossibleProperties } from "./manim/properties";
+import { propertyValueToString } from "./manim/property";
 import { animationEndTime, getProjectAnimations, getProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
@@ -21,21 +22,40 @@ export function generateCode(): string {
 		.map(object => {
 			if (!("objectType" in object)) return;
 			let possibleProperties = getPossibleProperties(object.objectType);
-			let properties = Object.entries(object.properties)
+
+			let positionalArguments = Object.entries(object.properties)
 				.filter(([propertyName, propertyValue]) => {
-					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;
-					return propertyValue !== defaultValue;
+					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
+					return position !== undefined;
+				})
+				.toSorted(([nameA, _valueA], [nameB, _valueB]) => {
+					let positionA = possibleProperties.find(possible => possible.name === nameA)!.position!;
+					let positionB = possibleProperties.find(possible => possible.name === nameB)!.position!;
+					return positionA - positionB;
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyBase.internalName} = ${["string", "color"].includes(propertyBase.type.base) ? `"${propertyValue}"` : propertyValue}`;
+					return `${propertyValueToString(propertyBase, propertyValue)}, `;
+				})
+				.join("");
+
+			let keywordArguments = Object.entries(object.properties)
+				.filter(([propertyName, propertyValue]) => {
+					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;
+					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
+					return position === undefined && propertyValue !== defaultValue;
+				})
+				.map(([propertyName, propertyValue]) => {
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase, propertyValue)}`;
 				})
 				.join(", ");
 
 			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
-			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${properties})`;
+			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${keywordArguments})`;
 		})
 		.join("\n");
+
 	const animationLines = animationsWithWaits
 		.map(animation => {
 			if ("wait" in animation) return `\t\tself.wait(${animation.wait})`;

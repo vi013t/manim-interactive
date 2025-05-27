@@ -153,9 +153,16 @@
 				<label for="preview-videos">
 					<span>
 						Object &amp; Animation Previews
-						<input id="preview-videos" type="checkbox" checked={getPreferences().previews} />
+						<input oninput={updateBooleanPreference("previews")} id="preview-videos" type="checkbox" checked={getPreferences().previews} />
 					</span>
 					<p>Show preview images and videos when adding new objects or animations.</p>
+				</label>
+				<label for="latex-preview">
+					<span>
+						Show LaTeX Previews
+						<input oninput={updateBooleanPreference("latexPreviews")} id="latex-preview" type="checkbox" checked={getPreferences().latexPreviews} />
+					</span>
+					<p>Show previews for LaTeX math equations as you type them.</p>
 				</label>
 			{:else if view === "timeline"}
 				<h1>Timeline Settings</h1>

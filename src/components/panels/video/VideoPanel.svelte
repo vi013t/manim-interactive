@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getPreferences, isVideoLoaded } from "../../../api/preferences.svelte";
-	import { getProjectAnimations } from "../../../api/project.svelte";
+	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
+	import { getProjectAnimations, projectHasErrors } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 
@@ -56,9 +56,21 @@
 
 <div class="container">
 	{#if getProjectAnimations().length > 0}
+		{#if !isVideoLoaded()}
+			<div class="novideo">
+				<h1>Reloading...</h1>
+				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
+			</div>
+		{:else if projectHasErrors() && !hasEverGeneratedVideo()}
+			<div class="novideo">
+				<h1>Project Has Errors</h1>
+				<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
+			</div>
+		{/if}
+
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
-			style:display={isVideoLoaded() ? "block" : "none"}
+			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) ? "block" : "none"}
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
@@ -66,12 +78,6 @@
 			controls
 			id="video-source"
 		></video>
-		{#if !isVideoLoaded()}
-			<div class="novideo">
-				<h1>Reloading...</h1>
-				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
-			</div>
-		{/if}
 	{:else}
 		<div class="novideo">
 			<h1>No Animations Yet</h1>
