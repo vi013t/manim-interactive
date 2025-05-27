@@ -2,6 +2,7 @@
 	import { getPossibleProperties } from "../../../api/manim/shared";
 	import { selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
+	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
@@ -30,6 +31,12 @@
 		left = `${event.clientX}px`;
 		propertiesMenu.show();
 	}
+
+	function deleteProperty(name: string) {
+		return function () {
+			delete item!.properties[name];
+		};
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -43,8 +50,9 @@
 
 	<div class="items">
 		{#if item}
-			<span>
-				Name: <PropertyValueInput type="string" name="name" defaultValue={item.name} />
+			<span class="property">
+				<span class="property-name">Name:</span>
+				<PropertyValueInput type="string" name="name" defaultValue={item.name} />
 			</span>
 			<!-- Animation -->
 			{#if "startTime" in item}
@@ -58,7 +66,9 @@
 			{/if}
 			{#each Object.entries(item.properties) as [name, value]}
 				<span class="property">
-					{name}: <PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} />
+					<span class="property-name">{name}:</span>
+					<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} />
+					<button onclick={deleteProperty(name)}><TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
 				</span>
 			{/each}
 			<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
@@ -75,6 +85,18 @@
 
 	.property {
 		align-items: center;
+		padding: 0.5rem;
+		border-radius: 0.5rem;
+
+		&:hover {
+			background-color: rgba(180, 150, 255, 10%);
+		}
+	}
+
+	.property-name {
+		width: 8rem;
+		display: flex;
+		flex-direction: row-reverse;
 	}
 
 	h1 {
@@ -94,7 +116,6 @@
 	.items {
 		display: flex;
 		flex-direction: column;
-		gap: 0.5rem;
 
 		span {
 			display: flex;

@@ -3,7 +3,7 @@ import { animations } from "./animations";
 import { objects } from "./objects";
 
 export type PropertyTypeBase = "color" | "float" | "integer" | "string" | "animation" | "object" | "coordinate" | "boolean";
-export type Property = { name: string; type: PropertyTypeBase; defaultValue: unknown; category: PropertyCategory; internalName: string };
+export type Property = { name: string; type: PropertyTypeBase; defaultValue: unknown; category: PropertyCategory; internalName: string; prioritized?: true };
 export type PropertyCategory = "color" | "size" | "rendering" | "position";
 
 export type NumberPropertyType = {

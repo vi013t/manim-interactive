@@ -28,14 +28,31 @@
 	// svelte-ignore non_reactive_update
 	let input: HTMLInputElement;
 
+	let colorValue = $state("#FFFFFF");
+
 	function validate() {
 		if (type === "float") {
 			valid = /^-?\d+(\.\d+)?$/.test(input.value);
 		}
 	}
 
+	let previousValue = defaultValue;
+
+	function hasValueChanged() {
+		return input && input.value !== previousValue;
+	}
+
+	function setColorProperty(color: string) {
+		selected()!.properties[name] = color;
+		runAction("Save Project");
+	}
+
+	export function isValid() {
+		return valid;
+	}
+
 	function setProperty() {
-		if (!valid) return;
+		if (!valid || !hasValueChanged()) return;
 
 		if (name === "startTime") {
 			(selected() as ProjectAnimation).startTime = Number(input.value);
@@ -47,7 +64,7 @@
 		} else if (type === "float") {
 			selected()!.properties[name] = Number(input.value);
 		}
-
+		previousValue = input.value;
 		runAction("Save Project");
 	}
 
@@ -61,7 +78,7 @@
 
 	<!-- Color -->
 {:else if type === "color"}
-	<ColorPicker oninput={() => {}} />
+	<ColorPicker onSelect={setColorProperty} />
 
 	<!-- string, number -->
 {:else if type === "string" || type === "float"}

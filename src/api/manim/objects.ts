@@ -85,8 +85,8 @@ export const objects = [
 		category: "Shape",
 		icon: CircleIcon,
 		properties: [
-			{ name: "Radius", internalName: "radius", type: "float", defaultValue: 1, category: "size" },
-			{ name: "Center", internalName: "center", type: "coordinate", defaultValue: [0, 0, 0], category: "position" },
+			{ name: "Radius", internalName: "radius", type: "float", defaultValue: 1, category: "size", prioritized: true },
+			{ name: "Center", internalName: "center", type: "coordinate", defaultValue: [0, 0, 0], category: "position", prioritized: true },
 			...mobjectProperties,
 		],
 		base: "Arc",

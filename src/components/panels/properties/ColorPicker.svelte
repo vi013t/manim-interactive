@@ -8,7 +8,7 @@
 	let left = $state("0px");
 	let top = $state("0px");
 
-	let { oninput } = $props();
+	let { onSelect } = $props();
 
 	export function show() {
 		left = `${getMouseX()}px`;
@@ -20,20 +20,23 @@
 		visible = false;
 	}
 
-	$effect(() => {
-		oninput(selected);
-	});
-
 	let picker: HTMLElement;
 	let pickIcon: HTMLElement;
 
 	onMount(() => {
 		document.addEventListener("click", event => {
 			if (!event.composedPath().includes(picker) && !event.composedPath().includes(pickIcon)) {
+				if (visible) onSelect(selected);
 				hide();
 			}
 		});
 	});
+
+	function onColorClick(shade: string) {
+		return function () {
+			selected = shade;
+		};
+	}
 </script>
 
 <div class="colors">
@@ -45,7 +48,7 @@
 				<div>
 					{#each hue as shade}
 						<!-- svelte-ignore a11y_consider_explicit_label -->
-						<button onclick={() => (selected = shade)} style:background-color={shade}></button>
+						<button onclick={onColorClick(shade)} style:background-color={shade}></button>
 					{/each}
 				</div>
 			{/each}
@@ -67,7 +70,7 @@
 	}
 
 	.picker {
-		width: 4rem;
+		width: 5rem;
 		height: 1rem;
 		border-radius: 0.25rem;
 	}

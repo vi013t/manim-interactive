@@ -2,6 +2,7 @@
 	import { addProperty, getPossibleProperties } from "../../api/manim/shared";
 	import { selected, type ProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
+	import StarIcon from "../icons/StarIcon.svelte";
 
 	let { top, left, category } = $props();
 
@@ -23,7 +24,8 @@
 		menu?.hide();
 	}
 
-	let newProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined) ?? []);
+	let prioritized = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined && property.prioritized) ?? []);
+	let newProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined && !property.prioritized) ?? []);
 	let hasProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] !== undefined) ?? []);
 
 	function addObjectProperty(name: string, value: unknown) {
@@ -37,6 +39,12 @@
 {#if item}
 	<ContextMenu bind:this={menu} {top} {left} background="#1e1e2e">
 		<span class="heading">Add {category} Property</span>
+		{#each prioritized as property}
+			<button onclick={addObjectProperty(property.name, property.defaultValue)}>
+				<StarIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5rem;" />
+				{property.name}
+			</button>
+		{/each}
 		{#each newProperties as property}
 			<button onclick={addObjectProperty(property.name, property.defaultValue)}>
 				{property.name}

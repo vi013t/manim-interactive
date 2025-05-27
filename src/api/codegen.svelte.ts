@@ -26,7 +26,10 @@ export function generateCode(): string {
 					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;
 					return propertyValue !== defaultValue;
 				})
-				.map(([propertyName, propertyValue]) => `${possibleProperties.find(possible => possible.name === propertyName)!.internalName} = ${propertyValue}`)
+				.map(([propertyName, propertyValue]) => {
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					return `${propertyBase.internalName} = ${["string", "color"].includes(propertyBase.type) ? `"${propertyValue}"` : propertyValue}`;
+				})
 				.join(", ");
 			console.log("properties", properties);
 			return `\t\tvar_${object.id} = ${object.objectType}(${properties})`;
