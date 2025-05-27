@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getPossibleProperties } from "../../../api/manim/shared";
+	import { runAction } from "../../../api/preferences.svelte";
 	import { selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
@@ -35,6 +36,7 @@
 	function deleteProperty(name: string) {
 		return function () {
 			delete item!.properties[name];
+			runAction("Save Project");
 		};
 	}
 </script>

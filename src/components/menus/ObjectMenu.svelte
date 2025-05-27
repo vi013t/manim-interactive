@@ -74,19 +74,13 @@
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 
-	<button
-		onclick={deleteObject}
-		onmouseover={() => {
-			hideSubmenus();
-			addPropertyMenu.show();
-		}}
-	>
+	<button onclick={deleteObject} onmouseover={hideSubmenus}>
 		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Object
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" hideParent={hide} {id} />
-	<AddPropertyMenu bind:this={addPropertyMenu} top="5.25rem" left="100%" />
+	<AddPropertyMenu bind:this={addPropertyMenu} top="5.25rem" left="100%" background="#181825" />
 </ContextMenu>
 
 <ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />

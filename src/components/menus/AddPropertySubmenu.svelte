@@ -4,7 +4,7 @@
 	import ContextMenu from "../ContextMenu.svelte";
 	import StarIcon from "../icons/StarIcon.svelte";
 
-	let { top, left, category } = $props();
+	let { top, left, category, background } = $props();
 
 	let item = $derived(selected());
 	let properties = $derived(item ? getPossibleProperties((item as ProjectObject).name).filter(property => property.category === category) : null);
@@ -24,9 +24,15 @@
 		menu?.hide();
 	}
 
-	let prioritized = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined && property.prioritized) ?? []);
-	let newProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined && !property.prioritized) ?? []);
-	let hasProperties = $derived(properties?.filter(property => (item as ProjectObject).properties[property.name] !== undefined) ?? []);
+	let prioritized = $derived(
+		properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined && property.prioritized).toSorted((a, b) => a.name.localeCompare(b.name)) ?? [],
+	);
+	let newProperties = $derived(
+		properties?.filter(property => (item as ProjectObject).properties[property.name] === undefined && !property.prioritized).toSorted((a, b) => a.name.localeCompare(b.name)) ?? [],
+	);
+	let hasProperties = $derived(
+		properties?.filter(property => (item as ProjectObject).properties[property.name] !== undefined).toSorted((a, b) => a.name.localeCompare(b.name)) ?? [],
+	);
 
 	function addObjectProperty(name: string, value: unknown) {
 		return function () {
@@ -37,7 +43,7 @@
 </script>
 
 {#if item}
-	<ContextMenu bind:this={menu} {top} {left} background="#1e1e2e">
+	<ContextMenu bind:this={menu} {top} {left} {background}>
 		<span class="heading">Add {category} Property</span>
 		{#each prioritized as property}
 			<button onclick={addObjectProperty(property.name, property.defaultValue)}>
