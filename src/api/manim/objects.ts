@@ -14,7 +14,7 @@ import StarIcon from "../../components/icons/StarIcon.svelte";
 import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import UpArrowIcon from "../../components/icons/UpArrowIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
-import type { Property } from "./shared";
+import { property, type Property } from "./shared";
 
 export const objectCategories = {
 	Line: { color: "#cba6f7" },
@@ -24,14 +24,14 @@ export const objectCategories = {
 } as const satisfies { [key: string]: { color: string } };
 
 export type ObjectCategory = keyof typeof objectCategories;
-export type ManimObject = { name: string; category: ObjectCategory; icon: Component<{ stroke: string }>; properties: Property[]; base?: string };
+export type ManimObject = { name: string; internalName?: string; category: ObjectCategory; icon: Component<{ stroke: string }>; properties: Property[]; base?: string };
 
 export function getObjectCategory(name: ObjectCategory) {
 	return objectCategories[name];
 }
 
 const mobjectProperties = [
-	{ name: "Fill Color", internalName: "fill_color", type: "color", defaultValue: "#FFFFFF", category: "color", prioritized: true },
+	{ name: "Fill Color", internalName: "fill_color", type: property().color(), defaultValue: "#FFFFFF", category: "color", prioritized: true },
 	{ name: "Fill Opacity", internalName: "fill_opacity", type: "float", defaultValue: 0, category: "color" },
 	{ name: "Stroke Color", internalName: "stroke_color", type: "color", defaultValue: "#FFFFFF", category: "color", prioritized: true },
 	{ name: "Stroke Opacity", internalName: "stroke_opacity", type: "float", defaultValue: 1, category: "color" },
@@ -119,7 +119,14 @@ export const objects = [
 		name: "Plain Text",
 		category: "Text",
 		icon: PlainTextIcon,
-		properties: [],
+		internalName: "Text",
+		properties: [
+			{ name: "Text", internalName: "text", type: "string", defaultValue: null, category: "size", prioritized: true, required: true },
+			{ name: "Line Spacing", internalName: "line_spacing", type: "float", defaultValue: -1, category: "size" },
+			{ name: "Tab Width", internalName: "tab_width", type: "integer", defaultValue: 4, category: "rendering" },
+			{ name: "Center", internalName: "should_center", type: "boolean", defaultValue: true, category: "rendering" },
+			...mobjectProperties,
+		],
 	},
 	{
 		name: "Polygon",
@@ -131,7 +138,13 @@ export const objects = [
 		name: "Rectangle",
 		category: "Shape",
 		icon: RectangleIcon,
-		properties: [],
+		properties: [
+			{ name: "Width", internalName: "width", type: "float", defaultValue: 4, category: "size", prioritized: true },
+			{ name: "Height", internalName: "height", type: "float", defaultValue: 2, category: "size", prioritized: true },
+			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: "float", defaultValue: null, category: "rendering" },
+			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: "float", defaultValue: null, category: "rendering" },
+			...mobjectProperties,
+		],
 	},
 	{
 		name: "Square",
@@ -143,7 +156,14 @@ export const objects = [
 		name: "Star",
 		category: "Shape",
 		icon: StarIcon,
-		properties: [],
+		properties: [
+			{ name: "Points", internalName: "n", type: "float", defaultValue: 1, category: "size", prioritized: true },
+			{ name: "Outer Radius", internalName: "outer_radius", type: "float", defaultValue: 1, category: "size", prioritized: true },
+			{ name: "Inner Radius", internalName: "outer_radius", type: "float", defaultValue: null, category: "size" },
+			{ name: "Density", internalName: "density", type: "float", defaultValue: 2, category: "rendering" },
+			{ name: "Start Angle", internalName: "density", type: "float", defaultValue: 1.57, category: "rendering" },
+			...mobjectProperties,
+		],
 	},
 	{
 		name: "Styled Text",

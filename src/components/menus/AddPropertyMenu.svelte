@@ -84,7 +84,7 @@
 		}}
 	>
 		<CameraIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Rendering
+		Details
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button

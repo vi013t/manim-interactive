@@ -8,3 +8,15 @@ export let colors = [
 	["#ECABC1", "#EC92AB", "#C55F73", "#A24D61", "#94424F"],
 	["#CAA3E8", "#B189C6", "#9A72AC", "#715582", "#644172"],
 ];
+
+export function getDefaultStrokeColor(objectType: string) {
+	return (
+		{
+			Circle: "#FC6255",
+			Ellipse: "#FC6255",
+			Star: "#58C4DD",
+			Triangle: "#58C4DD",
+			Polygon: "#58C4DD",
+		}[objectType] ?? "#FFFFFF"
+	);
+}

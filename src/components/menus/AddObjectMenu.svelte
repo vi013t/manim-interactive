@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
+	import { objects } from "../../api/manim/objects";
 	import { addProjectObject, nextId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AsteriskIcon from "../icons/AsteriskIcon.svelte";

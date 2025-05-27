@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getObjectCategory, objects, type ObjectCategory } from "../../api/manim/objects";
+	import type { Property } from "../../api/manim/shared";
 	import { runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, nextId, select } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
@@ -21,13 +22,17 @@
 	}
 
 	function addObject(name: string, type: string) {
+		let manimObject = objects.find(object => object.name === type)!;
+		let properties: { [key: string]: unknown } = {};
+		manimObject.properties.filter((property: Property) => property.required).forEach(property => properties[property.name] = null);
+
 		return function () {
 			menu.toggle();
 			let object = {
 				name: name,
 				objectType: type,
-				properties: {},
 				id: nextId(),
+				properties
 			};
 			addProjectObject(object);
 			select(object);

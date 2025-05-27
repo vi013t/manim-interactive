@@ -82,7 +82,7 @@
 
 	<!-- string, number -->
 {:else if type === "string" || type === "float"}
-	<input onblur={setProperty} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} value={`${defaultValue}`} />
+	<input onblur={setProperty} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} value={`${defaultValue === null ? "" : defaultValue}`} />
 {/if}
 
 {#if !valid}

@@ -1,9 +1,9 @@
 import { getManimAnimationByName } from "./manim/animations";
+import { objects, type ManimObject } from "./manim/objects";
 import { getPossibleProperties } from "./manim/shared";
 import { type ProjectAnimation, animationEndTime, getProjectAnimations, getProjectObjects } from "./project.svelte";
 
 export function generateCode(): string {
-	console.log("codegen");
 	let animations = getProjectAnimations().toSorted((first, other) => first.startTime - other.startTime);
 	let animationsWithWaits: (ProjectAnimation | { wait: number })[] = [];
 	animations.forEach((animation, index) => {
@@ -31,8 +31,9 @@ export function generateCode(): string {
 					return `${propertyBase.internalName} = ${["string", "color"].includes(propertyBase.type) ? `"${propertyValue}"` : propertyValue}`;
 				})
 				.join(", ");
-			console.log("properties", properties);
-			return `\t\tvar_${object.id} = ${object.objectType}(${properties})`;
+
+			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
+			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${properties})`;
 		})
 		.join("\n");
 	const animationLines = animationsWithWaits
