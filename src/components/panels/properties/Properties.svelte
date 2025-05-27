@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { getPossibleProperties } from "../../../api/manim/shared";
+	import { getPossibleProperties, property, type PropertyType } from "../../../api/manim/properties";
 	import { runAction } from "../../../api/preferences.svelte";
 	import { selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
-	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
@@ -20,10 +19,14 @@
 		propertiesMenu.toggle();
 	}
 
-	function getPropertyType(propertyName: string) {
+	function getPropertyType(propertyName: string): PropertyType {
 		let properties = getPossibleProperties(item!.name);
-		console.log("pname", propertyName);
 		return properties.find(property => property.name === propertyName)!.type;
+	}
+
+	function getPropertyRequired(propertyName: string): boolean {
+		let properties = getPossibleProperties(item!.name);
+		return !!properties.find(property => property.name === propertyName)!.required;
 	}
 
 	function addProperty(event: MouseEvent) {
@@ -39,6 +42,10 @@
 			runAction("Save Project");
 		};
 	}
+
+	$effect(() => {
+		console.log("Selection changed:", $state.snapshot(selected()));
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -54,23 +61,30 @@
 		{#if item}
 			<span class="property">
 				<span class="property-name">Name:</span>
-				<PropertyValueInput type="string" name="name" defaultValue={item.name} />
+				<PropertyValueInput type={property().string().notEmpty()} name="name" defaultValue={item.name} {deleteProperty} required />
 			</span>
+
 			<!-- Animation -->
 			{#if "startTime" in item}
 				<span>
-					Animation: <PropertyValueInput name="animation" type="animation" defaultValue={item.name} />
+					Animation: <PropertyValueInput name="animation" type={property().animation()} defaultValue={item.name} {deleteProperty} required />
 				</span>
-				<span></span>
 				<span>
-					Start Time: <PropertyValueInput name="startTime" type="float" defaultValue={item.startTime} />
+					Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} defaultValue={item.startTime} {deleteProperty} required />
+				</span>
+
+				<!-- Object -->
+			{:else}
+				<span class="property">
+					<span class="property-name">Type:</span>
+					<PropertyValueInput name="objectType" type={property().string()} defaultValue={item.objectType} required {deleteProperty} />
 				</span>
 			{/if}
+
 			{#each Object.entries(item.properties) as [name, value]}
 				<span class="property">
 					<span class="property-name">{name}:</span>
-					<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} />
-					<button onclick={deleteProperty(name)}><TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
+					<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} {deleteProperty} required={getPropertyRequired(name)} />
 				</span>
 			{/each}
 			<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />

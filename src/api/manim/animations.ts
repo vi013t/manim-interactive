@@ -51,7 +51,7 @@ import SpiralIcon from "../../components/icons/SpiralIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
-import type { Property } from "./shared";
+import type { Property } from "./properties";
 
 export type ManimAnimation = {
 	name: string;

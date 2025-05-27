@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { generateCode } from "./codegen.svelte";
-import { getExplicitProjectLocation, getProjectLocation, loadProjectData, saveProjectData, select, setProjectLocation } from "./project.svelte";
+import { addNotification, getExplicitProjectLocation, getProjectLocation, loadProjectData, projectHasErrors, saveProjectData, select, setProjectLocation } from "./project.svelte";
 
 export function updateKeybinding(index: number, key: Key) {
 	preferences.keybindings[index].key = key;
@@ -41,6 +41,11 @@ const actions = {
 				path: await getProjectLocation(),
 				data: projectData,
 			});
+
+			if (projectHasErrors()) {
+				addNotification("Error Reloading Video", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", "error");
+				return;
+			}
 
 			await invoke("recompile", {
 				projectPath: await getProjectLocation(),

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { addProperty, getPossibleProperties } from "../../api/manim/shared";
+	import { addProperty, getPossibleProperties } from "../../api/manim/properties";
 	import { selected, type ProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import StarIcon from "../icons/StarIcon.svelte";

@@ -2,8 +2,6 @@ import { getProjectObjects, type ProjectObject } from "../project.svelte";
 import { animations } from "./animations";
 import { objects } from "./objects";
 
-export type PropertyTypeBase = "color" | "number" | "string" | "animation" | "object" | "coordinate" | "boolean";
-export type PropertyType = { base: PropertyTypeBase; [key: string]: unknown };
 export type Property = { name: string; type: PropertyType; defaultValue: unknown; category: PropertyCategory; internalName: string; prioritized?: true; required?: true };
 export type PropertyCategory = "color" | "size" | "rendering" | "position";
 
@@ -18,6 +16,14 @@ export type ColorProperty = {
 	base: "color";
 };
 
+export type ObjectProperty = {
+	base: "object";
+};
+
+export type AnimationProperty = {
+	base: "animation";
+};
+
 export type StringProperty = {
 	base: "string";
 	canBeEmpty: boolean;
@@ -26,38 +32,63 @@ export type StringProperty = {
 
 export type NumberProperty = {
 	base: "number";
-	maximum: number;
-	minimum: number;
-	integer: boolean;
+	maximumValue: number;
+	minimumValue: number;
+	isIntegeric: boolean;
 	max(value: number): NumberProperty;
 	min(value: number): NumberProperty;
 	integeric(): NumberProperty;
+	nonnegative(): NumberProperty;
+	positive(): NumberProperty;
 };
 
-export function property(): { [key: string]: () => PropertyType } {
+export type CoordinateProperty = {
+	base: "coordinate";
+};
+
+export type BooleanProperty = {
+	base: "boolean";
+};
+
+export type PropertyType = NumberProperty | StringProperty | ColorProperty | CoordinateProperty | BooleanProperty | ObjectProperty | AnimationProperty;
+export type PropertyTypeBase = PropertyType["base"];
+
+export const property = (() => {
 	return {
-		numeric(): NumberProperty {
+		number(): NumberProperty {
 			return {
 				base: "number",
-				maximum: Infinity,
-				minimum: -Infinity,
-				integer: false,
+				maximumValue: Infinity,
+				minimumValue: -Infinity,
+				isIntegeric: false,
 				max(value: number): NumberProperty {
 					return {
 						...this,
-						maximum: value,
+						maximumValue: value,
 					};
 				},
 				min(value: number): NumberProperty {
 					return {
 						...this,
-						minimum: value,
+						minimumValue: value,
 					};
 				},
 				integeric(): NumberProperty {
 					return {
 						...this,
-						integer: true,
+						isIntegeric: true,
+					};
+				},
+				nonnegative(): NumberProperty {
+					return {
+						...this,
+						minimumValue: 0,
+					};
+				},
+				positive(): NumberProperty {
+					return {
+						...this,
+						minimumValue: 0.000001,
 					};
 				},
 			};
@@ -74,7 +105,7 @@ export function property(): { [key: string]: () => PropertyType } {
 				},
 			};
 		},
-		boolean() {
+		boolean(): BooleanProperty {
 			return {
 				base: "boolean",
 			};
@@ -84,23 +115,23 @@ export function property(): { [key: string]: () => PropertyType } {
 				base: "color",
 			};
 		},
-		object() {
+		object(): ObjectProperty {
 			return {
 				base: "object",
 			};
 		},
-		animation() {
+		animation(): AnimationProperty {
 			return {
 				base: "animation",
 			};
 		},
-		coordinate() {
+		coordinate(): CoordinateProperty {
 			return {
 				base: "coordinate",
 			};
 		},
 	};
-}
+}) satisfies () => { [Key in PropertyTypeBase]: () => PropertyType };
 
 export function getPossibleProperties(type: string): Property[] {
 	return (objects.find(object => object.name === type) ?? animations.find(animation => animation.name === type))!.properties;

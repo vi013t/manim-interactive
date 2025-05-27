@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { select, selected } from "../../../api/project.svelte";
@@ -42,6 +43,17 @@
 	function clickObject(event: MouseEvent) {
 		select(entry);
 	}
+
+	// svelte-ignore non_reactive_update
+	let topElement: HTMLElement;
+
+	onMount(() => {
+		document.getElementById("object-panel")!.addEventListener("click", event => {
+			if (!event.composedPath().includes(topElement) && selected() === entry) {
+				select(null);
+			}
+		});
+	});
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -50,7 +62,7 @@
 	<!-- Group -->
 	{#if entry.objects}
 		<!-- Group name & Icon -->
-		<button class="top" onclick={() => (expanded = !expanded)} oncontextmenu={rightClickGroup}>
+		<button bind:this={topElement} class="top" onclick={() => (expanded = !expanded)} oncontextmenu={rightClickGroup}>
 			{#if expanded}
 				<RightArrow stroke="#89b4fa" style="width: 1rem; height: 1rem; rotate: 90deg; margin-right: 0.2rem;" />
 			{:else}
@@ -83,6 +95,7 @@
 			onmouseout={() => (isHovered = false)}
 			style:background={isSelected ? `rgba(180, 150, 255, 20%)` : isHovered ? `rgba(180, 150, 255, 10%)` : "transparent"}
 			class="top"
+			bind:this={topElement}
 			oncontextmenu={rightClickObject}
 		>
 			<data.icon stroke={getObjectCategory(data.category).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
@@ -91,10 +104,9 @@
 			</span>
 		</div>
 	{/if}
-
-	<GroupMenu bind:this={groupMenu} {top} {left} id={entry.id} />
-	<ObjectMenu bind:this={objectMenu} {top} {left} id={entry.id} />
 </div>
+<GroupMenu bind:this={groupMenu} {top} {left} id={entry.id} />
+<ObjectMenu bind:this={objectMenu} {top} {left} id={entry.id} />
 
 <style>
 	.object {

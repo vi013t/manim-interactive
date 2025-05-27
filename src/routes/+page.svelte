@@ -5,6 +5,7 @@
 	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
 	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
+	import Notifications from "../components/Notifications.svelte";
 	import Navbar from "../components/panels/Navbar.svelte";
 	import Objects from "../components/panels/objects/Objects.svelte";
 	import Properties from "../components/panels/properties/Properties.svelte";
@@ -60,6 +61,7 @@
 	</div>
 	<AddMenu bind:this={menu} {top} {left} />
 </main>
+<Notifications />
 
 <style>
 	main {

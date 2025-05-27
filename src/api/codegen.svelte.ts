@@ -1,7 +1,7 @@
 import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
-import { getPossibleProperties } from "./manim/shared";
-import { type ProjectAnimation, animationEndTime, getProjectAnimations, getProjectObjects } from "./project.svelte";
+import { getPossibleProperties } from "./manim/properties";
+import { animationEndTime, getProjectAnimations, getProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
 	let animations = getProjectAnimations().toSorted((first, other) => first.startTime - other.startTime);
@@ -28,7 +28,7 @@ export function generateCode(): string {
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyBase.internalName} = ${["string", "color"].includes(propertyBase.type) ? `"${propertyValue}"` : propertyValue}`;
+					return `${propertyBase.internalName} = ${["string", "color"].includes(propertyBase.type.base) ? `"${propertyValue}"` : propertyValue}`;
 				})
 				.join(", ");
 

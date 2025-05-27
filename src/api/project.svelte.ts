@@ -93,6 +93,7 @@ export function addProjectObject(object: ObjectEntry) {
 }
 
 export function removeProjectObject(id: number) {
+	if (selected()?.id === id) select(null);
 	projectObjects = projectObjects.filter(object => object.id !== id);
 	projectAnimations = projectAnimations.filter(animation => !animation.objects.includes(id));
 	runAction("Save Project");
@@ -112,4 +113,56 @@ export function select(object: Selectable | null) {
 
 export function getItemFromId(id: number): ObjectEntry | null {
 	return getProjectObjects().find(object => object.id === id) ?? null;
+}
+
+let errors: Set<number> = $state(new Set([]));
+
+export function addErrorId(errorId: number): void {
+	errors.add(errorId);
+}
+
+export function projectHasErrors(): boolean {
+	return errors.size !== 0;
+}
+
+export function removeErrorId(errorId: number): void {
+	errors.delete(errorId);
+}
+
+let errorId = 0;
+
+export function nextErrorId(): number {
+	return errorId++;
+}
+
+let notifications: NotificationData[] = $state([]);
+let notificationId = 0;
+
+export type NotificationData = {
+	header: string;
+	message: string;
+	severity: "normal" | "error" | "warning";
+	id: number;
+};
+
+export function addNotification(header: string, message: string, severity: "normal" | "error" | "warning" = "normal") {
+	let id = notificationId++;
+	notifications.push({
+		header,
+		message,
+		severity,
+		id,
+	});
+
+	setTimeout(() => {
+		notifications = notifications.filter(notification => notification.id !== id);
+	}, 5000);
+}
+
+export function getNotifications(): NotificationData[] {
+	return notifications;
+}
+
+export function removeNotification(id: number): void {
+	notifications = notifications.filter(notification => notification.id !== id);
 }

@@ -2,7 +2,7 @@
 	import ObjectEntry from "./ObjectEntry.svelte";
 
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { getProjectObjects, select } from "../../../api/project.svelte";
+	import { getProjectObjects } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
 
@@ -28,7 +28,7 @@
 	}
 </script>
 
-<section>
+<section id="object-panel">
 	<div class="header">
 		<h1>Objects</h1>
 		<button bind:this={plusButton} onclick={clickPlusButton}>
@@ -45,7 +45,7 @@
 	{/each}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
-	<div style:height="100%;" oncontextmenu={addObject} onclick={() => select(null)}></div>
+	<div style:height="100%;" oncontextmenu={addObject}></div>
 
 	<AddObjectMenu bind:this={objectMenu} {top} {left} openers={[plusButton]} />
 </section>
