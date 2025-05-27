@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getCurrentWindow } from "@tauri-apps/api/window";
-	import { runAction } from "../../api/actions.svelte";
-	import { getPreferences, savePreferences, type Preference } from "../../api/preferences.svelte";
+	import { getPreferences, runAction, savePreferences, type Preference } from "../../api/preferences.svelte";
 	import { getProjectName } from "../../api/project.svelte";
 	import icon from "../../assets/icon.png";
 	import ContextMenu from "../ContextMenu.svelte";

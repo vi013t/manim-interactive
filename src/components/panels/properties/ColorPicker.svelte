@@ -9,7 +9,7 @@
 	let top = $state("0px");
 
 	let { oninput } = $props();
-	
+
 	export function show() {
 		left = `${getMouseX()}px`;
 		top = `${getMouseY()}px`;
@@ -17,7 +17,7 @@
 	}
 
 	export function hide() {
-		visible = false;	
+		visible = false;
 	}
 
 	$effect(() => {
@@ -36,21 +36,21 @@
 	});
 </script>
 
-<div class="colors" >
+<div class="colors">
 	<!-- svelte-ignore a11y_consider_explicit_label -->
 	<button class="picker" bind:this={pickIcon} style:background-color={selected} onclick={show}></button>
 	<div class="choose" bind:this={picker} style:top style:left style:display={visible ? "flex" : "none"}>
 		<div class="preset">
 			{#each colors as hue}
 				<div>
-				{#each hue as shade}
-					<!-- svelte-ignore a11y_consider_explicit_label -->
-					<button onclick={() => selected = shade} style:background-color={shade}></button>
-				{/each}
+					{#each hue as shade}
+						<!-- svelte-ignore a11y_consider_explicit_label -->
+						<button onclick={() => (selected = shade)} style:background-color={shade}></button>
+					{/each}
 				</div>
 			{/each}
 			<label for="color-picker" class="custom"></label>
-			<input type="color" id="color-picker" bind:value={selected}/>
+			<input type="color" id="color-picker" bind:value={selected} />
 		</div>
 		<button class="preview" style:background-color={selected}>Preview</button>
 	</div>
@@ -66,11 +66,10 @@
 		position: absolute;
 	}
 
-
 	.picker {
-		width: 1rem;
+		width: 4rem;
 		height: 1rem;
-		border-radius: 50%;
+		border-radius: 0.25rem;
 	}
 
 	.preset {

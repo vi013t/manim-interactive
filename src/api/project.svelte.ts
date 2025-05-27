@@ -1,5 +1,5 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
-import { runAction } from "./actions.svelte";
+import { runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);

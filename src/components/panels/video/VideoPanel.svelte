@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { isVideoLoaded } from "../../../api/actions.svelte";
-	import { getPreferences } from "../../../api/preferences.svelte";
+	import { getPreferences, isVideoLoaded } from "../../../api/preferences.svelte";
 	import { getProjectAnimations } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";

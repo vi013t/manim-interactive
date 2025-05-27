@@ -1,7 +1,18 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { displayKey, getActions, key, type Key, type KeyModifier } from "../../api/actions.svelte";
-	import { deleteKeybinding, getKeybindings, getPreferences, savePreferences, updateKeybinding, type Preference } from "../../api/preferences.svelte";
+	import {
+		deleteKeybinding,
+		displayKey,
+		getActions,
+		getKeybindings,
+		getPreferences,
+		key,
+		savePreferences,
+		updateKeybinding,
+		type Key,
+		type KeyModifier,
+		type Preference,
+	} from "../../api/preferences.svelte";
 	import BeakerIcon from "../icons/BeakerIcon.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";

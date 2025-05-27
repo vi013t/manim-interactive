@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { runAction } from "../../api/actions.svelte";
 	import { getHorizontalExpandDirection } from "../../api/client.svelte";
 	import { animations, getAnimationCategory, type AnimationCategory, type ManimAnimation } from "../../api/manim/animations";
+	import { runAction } from "../../api/preferences.svelte";
 	import { addProjectAnimation, nextId, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 

@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { getPossibleProperties } from "../../../api/manim/shared";
-	import { selected, type ProjectObject } from "../../../api/project.svelte";
+	import { selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
-	import ColorPicker from "./ColorPicker.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
 	let item = $derived(selected());
@@ -20,7 +19,8 @@
 	}
 
 	function getPropertyType(propertyName: string) {
-		let properties = getPossibleProperties((item as ProjectObject).objectType);
+		let properties = getPossibleProperties(item!.name);
+		console.log("pname", propertyName);
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
@@ -44,21 +44,21 @@
 	<div class="items">
 		{#if item}
 			<span>
-				Name: <PropertyValueInput propertyType="string" defaultValue={item.name} />
+				Name: <PropertyValueInput type="string" name="name" defaultValue={item.name} />
 			</span>
 			<!-- Animation -->
 			{#if "startTime" in item}
 				<span>
-					Animation: <PropertyValueInput propertyType="animation" defaultValue={item.name} />
+					Animation: <PropertyValueInput name="animation" type="animation" defaultValue={item.name} />
 				</span>
 				<span></span>
 				<span>
-					Start Time: <PropertyValueInput propertyType="float" defaultValue={item.startTime} />
+					Start Time: <PropertyValueInput name="startTime" type="float" defaultValue={item.startTime} />
 				</span>
 			{/if}
 			{#each Object.entries(item.properties) as [name, value]}
-				<span>
-					{name}: <PropertyValueInput propertyType={getPropertyType(name)} defaultValue={value} />
+				<span class="property">
+					{name}: <PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} />
 				</span>
 			{/each}
 			<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
@@ -71,6 +71,10 @@
 		background-color: #181825;
 		height: 100%;
 		padding: 1rem;
+	}
+
+	.property {
+		align-items: center;
 	}
 
 	h1 {
