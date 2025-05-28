@@ -6,7 +6,7 @@
 	let latexHTML = $derived.by(() => {
 		try {
 			let generator = new HtmlGenerator({ hyphenate: false });
-			let body = parse(`$${latex}$`, { generator: generator }).htmlDocument().getElementsByClassName("body")[0];
+			let body = parse(`$$${latex}$$`, { generator: generator }).htmlDocument().getElementsByClassName("body")[0];
 			body!.classList.add("latex");
 			return body.outerHTML;
 		} catch (error) {
@@ -35,9 +35,13 @@
 		height: fit-content;
 		padding: 1rem;
 		border-radius: 0.5rem;
-		font-size: 2rem;
+		font-size: 1.5rem;
 		box-shadow: 0px 0px 1rem black;
 		border: 2px solid #1e1e2e;
+
+		:global(&, *) {
+			font-family: "CMU Serif"
+		}
 
 		:global(.katex-html) {
 			display: none;

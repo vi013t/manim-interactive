@@ -8,6 +8,9 @@
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 	import ColorPicker from "./ColorPicker.svelte";
 	import LatexPreview from "./LatexPreview.svelte";
+	import LatexIcon from "../../icons/LatexIcon.svelte";
+	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
+	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
 
 	let {
 		type,
@@ -39,6 +42,8 @@
 	// svelte-ignore non_reactive_update
 	let input: HTMLInputElement;
 	let inputValue = $state(`${defaultValue === null ? "" : defaultValue}`);
+
+	let inputFocus = $state(false);
 
 	function validate(): void {
 		valid = isValid();
@@ -105,6 +110,10 @@
 	<button class="add-animation" bind:this={addAnimationButton} onclick={addAnimation}>{defaultValue}</button>
 	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addAnimationButton]} />
 
+{:else if type.base === "object"}
+	<button class="add-animation" bind:this={addAnimationButton} onclick={addAnimation}>{defaultValue}</button>
+	<AddObjectMenu bind:this={addAnimationMenu} {top} {left} openers={[addAnimationButton]} />
+
 	<!-- Color -->
 {:else if type.base === "color"}
 	<ColorPicker onSelect={setColorProperty} />
@@ -112,11 +121,15 @@
 	<!-- string, number -->
 {:else if type.base === "string" || type.base === "number"}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false)} class="input-container">
-		<input onblur={setProperty} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} bind:value={inputValue} />
+	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false) } class="input-container">
+		<input onfocus={() => inputFocus = true} onblur={() => { setProperty(); inputFocus = false; }} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} bind:value={inputValue} />
 
 		{#if type.base === "string" && type.isMath}
-			<LatexPreview latex={inputValue} show={inputHover} />
+			<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
+				<QuestionMarkIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" />
+			</a>
+			<LatexIcon stroke="#cdd6f4" style="width: 3rem; position: absolute; top: -0.58rem; right: 1.5rem;" />
+			<LatexPreview latex={inputValue} show={inputHover || inputFocus} />
 		{/if}
 	</div>
 {/if}
@@ -144,6 +157,14 @@
 
 	.input-container {
 		position: relative;
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+
+		a {
+			align-items: center;
+			display: flex;
+		}
 	}
 
 	.add-animation {

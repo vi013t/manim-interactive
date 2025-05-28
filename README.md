@@ -8,6 +8,10 @@ A graphical frontend to the Python animation library [Manim](https://www.manim.c
 
 ### Prerequisites
 
+#### Python
+
+Manim Interactive requires [Python 3](https://www.python.org/downloads/) to be installed.
+
 #### Manim
 
 Before installing Manim Interactive, you must have `manim` itself installed as a global tool. You can do so with `uv`. First, install `uv`:
