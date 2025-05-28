@@ -2,13 +2,14 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { sep } from "@tauri-apps/api/path";
 	import { open } from "@tauri-apps/plugin-dialog";
-	import { addProjectAudio, type ProjectAnimation } from "../../api/project.svelte";
+	import { addProjectAudio, addProjectMarker, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+	import BookmarkIcon from "../icons/BookmarkIcon.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 
@@ -71,6 +72,12 @@
 			addProjectAudio(file.substring(file.lastIndexOf(sep()) + 1), audioData);
 		}
 	}
+
+	function addMarker(event: MouseEvent) {
+		hide();	
+		addProjectMarker("", event.clientY / 64);
+	}
+
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
@@ -83,6 +90,10 @@
 		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Animation
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+	</button>
+	<button onclick={addMarker} style:background={selectedMenu === "marker" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("marker")}>
+		<BookmarkIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		Add Marker
 	</button>
 	<button onmouseenter={selectMenu(null)}>
 		<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />

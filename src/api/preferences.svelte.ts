@@ -32,59 +32,61 @@ export function hasEverGeneratedVideo(): boolean {
 	return videoGenerated;
 }
 
-const actions = {
-	"Save Project": {
-		name: "Save Project",
-		async run() {
-			videoLoaded = false;
-			let projectData = getProjectSaveData();
-			let location = getExplicitProjectLocation();
+const saveAction: Action<undefined> = {
+	name: "Save Project",
+	async run() {
+		videoLoaded = false;
+		let projectData = getProjectSaveData();
+		let location = getExplicitProjectLocation();
 
-			if (!location) {
-				let selected = await open({
-					directory: true,
-					multiple: false,
-					title: "Save Project To",
-				});
-
-				if (typeof selected !== "string") return;
-
-				setProjectLocation(selected);
-			}
-
-			let save_data = invoke("save_project_data", {
-				path: await getProjectLocation(),
-				data: projectData,
+		if (!location) {
+			let selected = await open({
+				directory: true,
+				multiple: false,
+				title: "Save Project To",
 			});
 
-			if (projectHasErrors()) {
-				addNotification("Error Reloading Video", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", "error");
-				videoLoaded = true;
-				return;
-			}
+			if (typeof selected !== "string") return;
 
-			await invoke("recompile", {
-				projectPath: await getProjectLocation(),
-				lowRes: getPreferences().lowRes,
-				code: generateCode(),
-			});
+			setProjectLocation(selected);
+		}
 
-			const videoData = (await invoke("load_video", {
-				path: await getProjectLocation(),
-				lowRes: getPreferences().lowRes,
-			})) as string;
+		let save_data = invoke("save_project_data", {
+			path: await getProjectLocation(),
+			data: projectData,
+		});
 
-			document.getElementById("video-source")?.setAttribute("src", videoData);
-			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
+		if (projectHasErrors()) {
+			addNotification("Error Reloading Video", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", "error");
 			videoLoaded = true;
-			videoGenerated = true;
+			return;
+		}
 
-			await save_data;
-		},
+		await invoke("recompile", {
+			projectPath: await getProjectLocation(),
+			lowRes: getPreferences().lowRes,
+			code: generateCode(),
+		});
+
+		const videoData = (await invoke("load_video", {
+			path: await getProjectLocation(),
+			lowRes: getPreferences().lowRes,
+		})) as string;
+
+		document.getElementById("video-source")?.setAttribute("src", videoData);
+		(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
+		videoLoaded = true;
+		videoGenerated = true;
+
+		await save_data;
 	},
+};
+
+const actions = {
+	"Save Project": saveAction,
 	"Open Project": {
 		name: "Open Project",
-		run: async () => {
+		async run() {
 			const selected = await open({
 				directory: true,
 				multiple: false,
@@ -107,23 +109,25 @@ const actions = {
 	},
 	"Add New": {
 		name: "Open Project",
-		run: () => {},
+		run() {},
 	},
 	Play: {
 		name: "Play",
-		run: () => {
+		run() {
 			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
 		},
 	},
 	"New Project": {
 		name: "New Project",
-		run: () => {},
+		run() {},
 	},
 	Deselect: {
 		name: "Deselect",
-		run: () => select(null),
+		run() {
+			select(null);
+		},
 	},
-} as const satisfies { [key: string]: Action };
+} as const satisfies { [key: string]: Action<any> };
 
 let preferences = $state({
 	previews: true,
@@ -169,9 +173,10 @@ export type Key = {
 	modifiers: KeyModifier[];
 };
 
-type Action = {
+type Action<T = undefined> = {
 	name: string;
-	run: (() => void) | (() => Promise<void>);
+	run: T extends undefined ? (() => void) | (() => Promise<void>) : ((data: T) => void) | ((data: T) => Promise<void>);
+	undo?: T extends undefined ? (() => void) | (() => Promise<void>) : ((data: T) => void) | ((data: T) => Promise<void>);
 };
 
 let videoLoaded = $state(true);
@@ -180,8 +185,15 @@ export function isVideoLoaded() {
 	return videoLoaded;
 }
 
-export async function runAction(name: ActionName) {
-	await actions[name].run();
+type ActionData<Name extends ActionName> = (typeof actions)[Name] extends Action<infer Data> ? Data : never;
+
+export async function runAction<Name extends ActionName>(name: Name): Promise<void>;
+export async function runAction<Name extends ActionName>(name: Name, data: ActionData<Name>): Promise<void>;
+
+export async function runAction<Name extends ActionName>(name: Name, data?: ActionData<Name>): Promise<void> {
+	let action = actions[name];
+	if (data) await (action.run as any)(data);
+	if ("undo" in action) undoHistory.push({ action: action as any, data });
 }
 
 export function getActions(): Action[] {
@@ -214,4 +226,11 @@ export function displayKey(key: Key): string {
 	if (key.modifiers.includes("shift")) result += "Shift+";
 	result += key.key.toUpperCase();
 	return result;
+}
+
+let undoHistory: { action: Action<unknown>; data: unknown }[] = [];
+
+export function undo() {
+	let action = undoHistory.pop();
+	action?.action.undo!(action.data);
 }

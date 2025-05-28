@@ -11,7 +11,7 @@
 	import TextIcon from "../icons/TextIcon.svelte";
 	import AddObjectSubmenu from "./AddObjectSubmenu.svelte";
 
-	let { top, left, openers = [] }: { top: string; left: string; openers?: HTMLElement[] } = $props();
+	let { top, left, title = "Add Object", openers = [], onSelect = undefined }: { top: string; left: string; openers?: HTMLElement[], title?: string, onSelect?: (type: string) => void } = $props();
 
 	let menu: ContextMenu;
 	let addLineMenu: AddObjectSubmenu;
@@ -55,11 +55,7 @@
 </script>
 
 <ContextMenu bind:this={menu} {top} {left} {openers}>
-	<span>Add Object</span>
-	<button onclick={addGroup} onmouseenter={hideSubmenus}>
-		<PackageIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Group
-	</button>
+	<span>{title}</span>
 	<button
 		onmouseenter={() => {
 			hideSubmenus();
@@ -107,6 +103,7 @@
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Line"
 		hideOuter={hide}
+		{onSelect}
 	/>
 	<AddObjectSubmenu
 		bind:this={addShapeMenu}
@@ -114,6 +111,7 @@
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Shape"
 		hideOuter={hide}
+		{onSelect}
 	/>
 	<AddObjectSubmenu
 		bind:this={addTextMenu}
@@ -121,6 +119,7 @@
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Text"
 		hideOuter={hide}
+		{onSelect}
 	/>
 	<AddObjectSubmenu
 		bind:this={addMiscellaneousMenu}
@@ -128,6 +127,7 @@
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Miscellaneous"
 		hideOuter={hide}
+		{onSelect}
 	/>
 </ContextMenu>
 

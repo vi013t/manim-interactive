@@ -74,7 +74,7 @@
 			{:else}
 				<span class="property">
 					<span class="property-name">Type:</span>
-					<PropertyValueInput name="objectType" type={property().string()} defaultValue={item.objectType} required {deleteProperty} />
+					<PropertyValueInput name="objectType" type={property().object()} defaultValue={item.objectType} required {deleteProperty} />
 				</span>
 			{/if}
 

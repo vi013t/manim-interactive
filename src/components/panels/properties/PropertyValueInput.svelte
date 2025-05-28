@@ -20,13 +20,14 @@
 		deleteProperty,
 	}: { type: PropertyType; name: string; defaultValue: unknown; required: boolean; deleteProperty: (name: string) => () => void } = $props();
 
-	const errorId = nextErrorId();
-	let id = selected()!.id;
+	let objectValueInput = $state(defaultValue);
 
 	// svelte-ignore non_reactive_update
 	let addAnimationMenu: AddAnimationMenu;
 	// svelte-ignore non_reactive_update
-	let addAnimationButton: HTMLElement;
+	let addObjectMenu: AddObjectMenu;
+
+	let addButton: HTMLElement | null = $state(null);
 
 	let top = $state("0px");
 	let left = $state("0px");
@@ -35,6 +36,12 @@
 		top = `${event.clientY}px`;
 		left = `${event.clientX}px`;
 		addAnimationMenu.show();
+	}
+
+	function addObject(event: MouseEvent) {
+		top = `${event.clientY}px`;
+		left = `${event.clientX}px`;
+		addObjectMenu.show();
 	}
 
 	let valid = $state(true);
@@ -72,6 +79,7 @@
 
 	let previousValue = defaultValue;
 
+
 	function hasValueChanged() {
 		return input && input.value !== previousValue;
 	}
@@ -103,16 +111,21 @@
 	onMount(() => {
 		validate();
 	});
+
+	function selectObject(type: string) {
+		objectValueInput = type;
+		selected()!.properties
+	}
 </script>
 
 <!-- Animation -->
 {#if type.base === "animation"}
-	<button class="add-animation" bind:this={addAnimationButton} onclick={addAnimation}>{defaultValue}</button>
-	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addAnimationButton]} />
+	<button class="add-animation" bind:this={addButton} onclick={addAnimation}>{defaultValue}</button>
+	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addButton]} />
 
 {:else if type.base === "object"}
-	<button class="add-animation" bind:this={addAnimationButton} onclick={addAnimation}>{defaultValue}</button>
-	<AddObjectMenu bind:this={addAnimationMenu} {top} {left} openers={[addAnimationButton]} />
+	<button class="add-animation" bind:this={addButton} onclick={addObject}>{objectValueInput}</button>
+	<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type"/>
 
 	<!-- Color -->
 {:else if type.base === "color"}
@@ -122,7 +135,7 @@
 {:else if type.base === "string" || type.base === "number"}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false) } class="input-container">
-		<input onfocus={() => inputFocus = true} onblur={() => { setProperty(); inputFocus = false; }} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} bind:value={inputValue} />
+		<input style:font-family={type.base === "string" && type.isMath ? "monospace" : "inherit"} onfocus={() => inputFocus = true} onblur={() => { setProperty(); inputFocus = false; }} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} bind:value={inputValue} />
 
 		{#if type.base === "string" && type.isMath}
 			<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">

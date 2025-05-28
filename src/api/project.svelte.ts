@@ -8,6 +8,7 @@ let id = 0;
 let projectObjects: ObjectEntry[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
 let projectAudios: ProjectAudio[] = $state([]);
+let projectMarkers: { id: number; name: string; time: number }[] = $state([]);
 
 export type ProjectAudio = {
 	id: number;
@@ -41,10 +42,12 @@ export function getProjectAudios() {
 	return projectAudios;
 }
 
-export function addAudioMarker(id: number, name: string, time: number) {
-	projectAudios.find(audio => audio.id === id)!.markers.push({ name, time });
+export function addProjectMarker(name: string, time: number) {
+	projectMarkers.push({ name, time, id: nextId() });
+}
 
-	console.log($state.snapshot(projectAudios));
+export function getProjectMarkers() {
+	return projectMarkers;
 }
 
 export function getExplicitProjectLocation(): string | null {

@@ -1,13 +1,11 @@
 <script lang="ts">
 	import { getProjectAnimations, removeProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
-	import BookmarkIcon from "../icons/BookmarkIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
-	import { addAudioMarker } from "../../api/project.svelte";
 
-	let { top, left, id, clickTime }: { top: string; left: string; id: number, clickTime: number } = $props();
+	let { top, left, id }: { top: string; left: string; id: number } = $props();
 
 	let menu: ContextMenu;
 
@@ -32,11 +30,6 @@
 		}
 	}
 
-	function addMarker() {
-		hide();	
-		addAudioMarker(id, "", clickTime);
-	}
-
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
 </script>
 
@@ -47,11 +40,6 @@
 		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Rename Audio
 	</button>
-	<button onclick={addMarker}>
-		<BookmarkIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Marker
-	</button>
-
 	<button onclick={deleteObject}>
 		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Audio

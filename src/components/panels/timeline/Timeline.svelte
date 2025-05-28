@@ -1,15 +1,21 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
-	import { runAction } from "../../../api/preferences.svelte";
-	import { animationEndTime, getItemFromId, getProjectAnimations, getProjectAudios, select, selected, type ProjectAnimation } from "../../../api/project.svelte";
-	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
+	import { getProjectAnimations, getProjectAudios, getProjectMarkers } from "../../../api/project.svelte";
+	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
 	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
-	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
-	import AudioMenu from "../../menus/AudioMenu.svelte";
+	import Audio from "./Audio.svelte";
+	import Animation from "./Animation.svelte";
+
+	// svelte-ignore non_reactive_update
+	let timelineElement: HTMLElement;
+	let timeSlider: HTMLElement;
+	let addAnimationMenu: AddToTimelineMenu;
+
+	let top = $state("100%");
+	let left = $state("94%");
 
 	let seconds = 1;
 
@@ -36,7 +42,7 @@
 				timestamp.classList.add("timestamp");
 				timestamp.innerHTML = formatTime(seconds);
 				newDiv.appendChild(timestamp);
-				newDiv.oncontextmenu = addAnimation();
+				newDiv.oncontextmenu = addAnimation;
 
 				seconds++;
 				checkForNewDiv();
@@ -46,195 +52,13 @@
 		checkForNewDiv();
 	});
 
-	function animationColor(animation: ProjectAnimation): string {
-		return getAnimationCategory(animations.find(manimation => manimation.name === animation.name)!.category).color;
-	}
 
-	let addAnimationMenu: AddToTimelineMenu;
-	let animationActionsMenu: AnimationActionsMenu;
-	let audioActionsMenu: AudioMenu;
-
-	let top = $state("100%");
-	let left = $state("94%");
-	let audioId = $state(0);
-
-	function addAnimation() {
-		return function (event: MouseEvent) {
-			event.preventDefault();
-			top = `${event.clientY}px`;
-			left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
-			animationActionsMenu.hide();
-			addAnimationMenu.show();
-		};
-	}
-
-	function animationActions(event: MouseEvent) {
+	function addAnimation(event: MouseEvent) {
 		event.preventDefault();
 		top = `${event.clientY}px`;
 		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
-		animationActionsMenu.show();
+		addAnimationMenu.show();
 	}
-
-	let clickTime = $state(0);
-
-	function audioActions(id: number) {
-		return function (event: MouseEvent) {
-			event.preventDefault();
-			top = `${event.clientY}px`;
-			left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
-			audioId = id;
-			clickTime = event.clientY / 64;
-			audioActionsMenu.show();
-		};
-	}
-
-	const BORDER_SIZE = 4;
-	let height: number;
-
-	function resize(element: HTMLElement) {
-		return function (event: MouseEvent) {
-			element.style.height = `${event.y - element.clientTop}px`;
-		};
-	}
-
-	let ids: number[] = [];
-
-	function onAnimationMount(animation: ProjectAnimation) {
-		return function (element: HTMLElement) {
-			if (!ids.includes(animation.id)) {
-				const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
-				let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
-				animation.startTime = startTime;
-				element.style.top = `${startTime * 4}rem`;
-				ids.push(animation.id);
-			}
-		};
-	}
-
-	function animationMouseDown(animation: ProjectAnimation) {
-		return function (event: MouseEvent) {
-			if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
-				height = event.offsetY;
-				document.addEventListener("mousemove", resize(event.target as HTMLElement), false);
-			} else {
-				draggingElement = event.target as HTMLElement;
-				draggingAnimation = animation;
-			}
-		};
-	}
-
-	function createWaveform(audio: string, canvas: HTMLCanvasElement) {
-		const ctx = canvas.getContext("2d")!;
-		canvas.width = canvas.clientWidth;
-		canvas.height = canvas.clientHeight;
-
-		const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-
-		function base64ToArrayBuffer(base64: string) {
-			const binaryString = atob(base64);
-			const len = binaryString.length;
-			const bytes = new Uint8Array(len);
-			for (let i = 0; i < len; i++) {
-				bytes[i] = binaryString.charCodeAt(i);
-			}
-			return bytes.buffer;
-		}
-
-		let audioData = base64ToArrayBuffer(audio);
-		audioContext.decodeAudioData(audioData).then(drawWaveform);
-
-		function drawWaveform(audioBuffer: AudioBuffer) {
-			const rawData = audioBuffer.getChannelData(0);
-			const height = canvas.height;
-			const width = canvas.width;
-			const samples = height; // One line per vertical pixel
-			const blockSize = Math.floor(rawData.length / samples);
-			const filteredData = [];
-
-			// Use peak detection to preserve sharp features
-			for (let i = 0; i < samples; i++) {
-				let max = 0;
-				for (let j = 0; j < blockSize; j++) {
-					const sample = rawData[i * blockSize + j];
-					if (Math.abs(sample) > max) max = Math.abs(sample);
-				}
-				filteredData.push(max);
-			}
-
-			// Optional: normalize the waveform to fit max width
-			const maxVal = Math.max(...filteredData) || 1;
-			const normalizedData = filteredData.map(val => val / maxVal);
-
-			const maxLineLength = width * 0.9; // 90% of canvas width
-			ctx.clearRect(0, 0, width, height);
-			ctx.beginPath();
-
-			for (let i = 0; i < normalizedData.length; i++) {
-				const y = i;
-				const amplitude = normalizedData[i] * maxLineLength;
-				const x = width / 2;
-
-				ctx.moveTo(x - amplitude / 2, y);
-				ctx.lineTo(x + amplitude / 2, y);
-			}
-
-			ctx.strokeStyle = "#11111b";
-			ctx.lineWidth = 1;
-			ctx.stroke();
-		}
-	}
-
-	let draggingElement: HTMLElement | null = $state(null);
-	let draggingAnimation: ProjectAnimation | null = $state(null);
-	let timeSlider: HTMLElement;
-	let timelineElement: HTMLElement;
-
-	onMount(() => {
-		document.addEventListener("keydown", event => {
-			if (event.key === "ArrowRight") {
-				moveFrames(1);
-				return;
-			}
-
-			if (event.key === "ArrowLeft") {
-				moveFrames(-1);
-				return;
-			}
-		});
-
-		document.addEventListener("mousemove", event => {
-			if (draggingElement) {
-				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
-				draggingElement.style.top = `${newTop}px`;
-				draggingElement.style.cursor = "grabbing";
-			}
-		});
-
-		document.addEventListener("mouseup", event => {
-			if (draggingElement) {
-				let snapping = !(event.ctrlKey || event.shiftKey);
-				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
-				let cellHeight = 64;
-				if (snapping) {
-					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
-					else newTop = newTop + (cellHeight - (newTop % cellHeight));
-				}
-				draggingElement.style.top = `${newTop}px`;
-				draggingElement.style.cursor = "pointer";
-				if (draggingAnimation) draggingAnimation.startTime = newTop / cellHeight;
-				runAction("Save Project");
-			}
-			draggingElement = null;
-			draggingAnimation = null;
-		});
-	});
-
-	$effect(() => {
-		if (getProjectAudios().length) {
-			let audio = (document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null);
-			if (audio) audio.currentTime = currentTime();
-		}
-	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -255,46 +79,26 @@
 
 			<!-- Animations -->
 			{#each getProjectAnimations() as animation}
-				{@const Icon = getManimAnimationByName(animation.name)!.icon}
-				<button
-					oncontextmenu={animationActions}
-					onmousedown={animationMouseDown(animation)}
-					class="animation"
-					onclick={() => select(animation)}
-					{@attach onAnimationMount(animation)}
-					style:background-color={animationColor(animation)}
-					style:outline={selected() && animation.objects.includes(selected()!.id) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
-					style:opacity={!selected() || animation.objects.includes(selected()!.id) ? "100%" : "30%"}
-				>
-					<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
-					{animation.name}
-					{animation.objects.length ? getItemFromId(animation.objects[0])!.name : ""}
-				</button>
+				<Animation {animation} {timelineElement}/>
 			{/each}
 
 			<!-- Audios -->
 			{#each getProjectAudios() as audio}
-				<!-- svelte-ignore a11y_consider_explicit_label -->
-				<button oncontextmenu={audioActions(audio.id)} class="audio" style:height="{audio.duration * 4}rem">
-					<audio id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
-					<canvas {@attach canvas => createWaveform(audio.data, canvas)} width="100" height="400"></canvas>
-					{#each audio.markers as marker}
-						<div class="marker" style:top="{marker.time * 4}rem"></div>
-					{/each}
-				</button>
+				<Audio {audio} />
 			{/each}
 
-			<div oncontextmenu={addAnimation()}></div>
+			<!-- Markers -->
+			{#each getProjectMarkers() as marker}
+				<div class="marker" style:top="{marker.time * 4}rem"></div>
+			{/each}
+
+			<div oncontextmenu={addAnimation}></div>
 
 			<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 4}rem + 2.5rem)"></div>
 		</div>
 	</div>
-
 </section>
-
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
-<AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
-<AudioMenu bind:this={audioActionsMenu} {top} {left} id={audioId} clickTime={clickTime}/>
 
 <style>
 	.header {
@@ -309,60 +113,16 @@
 		}
 	}
 
-	.audio {
+	.marker {
 		position: absolute;
-		top: 0px;
-		left: 4rem;
-		width: 4rem;
-		height: 3rem;
-		border-radius: 0.5rem;
-		background: #cba6f7;
-		border: 4px solid rgba(255, 255, 255, 50%);
+		width: 100%;
+		height: 2px;
+		background-color: #FFFF00;
+		left: 0px;
+		transform: translateY(-50%);
 
-		canvas {
-			width: 100%;
-			height: 100%;
-		}
-
-		.marker {
-			position: absolute;
-			width: 100%;
-			height: 3px;
-			background-color: #FFFF00;
-			left: 0px;
-			transform: translateY(-50%);
-
-			&:hover {
-				cursor: grab;
-			}
-
-			&::before {
-				content: "";
-				width: 0px;
-				height: 0px;
-				border-top: 0.5rem solid transparent;
-				border-bottom: 0.5rem solid transparent;
-				border-left: 0.5rem solid #FFFF00;
-				z-index: 9999;
-				position: absolute;
-				top: 50%;
-				left: 0px;
-				transform: translateY(-50%);
-			}
-
-			&::after {
-				content: "";
-				width: 0px;
-				height: 0px;
-				border-top: 0.5rem solid transparent;
-				border-bottom: 0.5rem solid transparent;
-				border-right: 0.5rem solid #FFFF00;
-				z-index: 9999;
-				position: absolute;
-				top: 50%;
-				left: 100%;
-				transform: translate(-100%, -50%);
-			}
+		&:hover {
+			cursor: grab;
 		}
 	}
 
@@ -403,32 +163,6 @@
 		padding: 1em;
 	}
 
-	.animation {
-		margin-left: 8rem;
-		border-radius: 0.3rem;
-		color: #000000;
-		position: absolute;
-		width: 68%;
-		cursor: pointer;
-		text-align: left;
-		padding: 1rem;
-		height: 4rem;
-		z-index: 99999;
-		display: flex;
-		gap: 0.5rem;
-		outline-offset: -4px;
-
-		&::after {
-			content: "";
-			position: absolute;
-			left: 0;
-			top: calc(100% - 4px);
-			width: 100%;
-			height: 4px;
-			cursor: ns-resize;
-		}
-	}
-
 	#timeline-wrapper {
 		position: relative;
 		overflow: auto;
@@ -436,7 +170,7 @@
 	}
 
 	#timeline-content {
-		:global(> div:not(.time)) {
+		:global(> div:not(.time, .marker)) {
 			height: 4rem;
 			border-bottom: 1px solid #313244;
 			display: flex;

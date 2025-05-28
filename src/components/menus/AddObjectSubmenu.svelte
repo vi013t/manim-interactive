@@ -1,11 +1,27 @@
 <script lang="ts">
 	import { getObjectCategory, objects, type ObjectCategory } from "../../api/manim/objects";
 	import type { Property } from "../../api/manim/property";
-	import { runAction } from "../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, nextId, select } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
+	import CodeIcon from "../icons/CodeIcon.svelte";
 
-	let { top, left, hideOuter, category }: { top: string; left: string; hideOuter: () => void; category: ObjectCategory } = $props();
+	let { top, left, hideOuter, category, onSelect = (type: string) => {
+		let manimObject = objects.find(object => object.name === type)!;
+		let properties: { [key: string]: unknown } = {};
+		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = null));
+		menu.toggle();
+		let object = {
+			name: type,
+			objectType: type,
+			id: nextId(),
+			properties,
+		};
+		addProjectObject(object);
+		select(object);
+		hideOuter();
+		runAction("Save Project");
+	}}: { top: string; left: string; hideOuter: () => void; category: ObjectCategory, onSelect?: (type: string) => void } = $props();
 
 	let menu: ContextMenu;
 
@@ -21,26 +37,6 @@
 		menu.hide();
 	}
 
-	function addObject(name: string, type: string) {
-		let manimObject = objects.find(object => object.name === type)!;
-		let properties: { [key: string]: unknown } = {};
-		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = null));
-
-		return function () {
-			menu.toggle();
-			let object = {
-				name: name,
-				objectType: type,
-				id: nextId(),
-				properties,
-			};
-			addProjectObject(object);
-			select(object);
-			hideOuter();
-			runAction("Save Project");
-		};
-	}
-
 	const categoryData = getObjectCategory(category);
 	const useObjects = objects.filter(object => object.category === category);
 </script>
@@ -48,11 +44,17 @@
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Add {category}</span>
 	{#each useObjects as object}
-		<button onclick={addObject(object.name, object.name)}>
+		<button onclick={() => onSelect(object.name)}>
 			<object.icon stroke={categoryData.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{object.name}
 		</button>
 	{/each}
+	{#if category === "Miscellaneous" && getPreferences().developerMode}
+		<button>
+			<CodeIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			Scripted Object
+		</button>
+	{/if}
 </ContextMenu>
 
 <style>
