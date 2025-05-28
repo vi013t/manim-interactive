@@ -1,10 +1,9 @@
 <script lang="ts">
-	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { animationEndTime, getItemFromId, getProjectAnimations, select, selected, type ProjectAnimation } from "../../../api/project.svelte";
+	import { animationEndTime, getItemFromId, getProjectAnimations, getProjectAudios, select, selected, type ProjectAnimation } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, moveFrames, togglePlaying } from "../../../api/timeline.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -108,14 +107,65 @@
 		};
 	}
 
-	async function createAudio() {
-		const base64Audio = await invoke("load_audio_base64", {
-			path: "C:\\Users\\violet\\OneDrive\\Documents\\Coding\\manim-interactive\\test\\audio.mp3",
-		});
+	function createWaveform(audio: string, canvas: HTMLCanvasElement) {
+		const ctx = canvas.getContext("2d")!;
+		canvas.width = canvas.clientWidth;
+		canvas.height = canvas.clientHeight;
 
-		const audio = document.getElementById("my-audio") as HTMLAudioElement;
-		audio.src = `data:audio/mp3;base64,${base64Audio}`;
-		audio.play();
+		const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+
+		function base64ToArrayBuffer(base64: string) {
+			const binaryString = atob(base64);
+			const len = binaryString.length;
+			const bytes = new Uint8Array(len);
+			for (let i = 0; i < len; i++) {
+				bytes[i] = binaryString.charCodeAt(i);
+			}
+			return bytes.buffer;
+		}
+
+		let audioData = base64ToArrayBuffer(audio);
+		audioContext.decodeAudioData(audioData).then(drawWaveform);
+
+		function drawWaveform(audioBuffer: AudioBuffer) {
+			const rawData = audioBuffer.getChannelData(0);
+			const height = canvas.height;
+			const width = canvas.width;
+			const samples = height; // One line per vertical pixel
+			const blockSize = Math.floor(rawData.length / samples);
+			const filteredData = [];
+
+			// Use peak detection to preserve sharp features
+			for (let i = 0; i < samples; i++) {
+				let max = 0;
+				for (let j = 0; j < blockSize; j++) {
+					const sample = rawData[i * blockSize + j];
+					if (Math.abs(sample) > max) max = Math.abs(sample);
+				}
+				filteredData.push(max);
+			}
+
+			// Optional: normalize the waveform to fit max width
+			const maxVal = Math.max(...filteredData) || 1;
+			const normalizedData = filteredData.map(val => val / maxVal);
+
+			const maxLineLength = width; // 90% of canvas width
+			ctx.clearRect(0, 0, width, height);
+			ctx.beginPath();
+
+			for (let i = 0; i < normalizedData.length; i++) {
+				const y = i;
+				const amplitude = normalizedData[i] * maxLineLength;
+				const x = width / 2;
+
+				ctx.moveTo(x - amplitude / 2, y);
+				ctx.lineTo(x + amplitude / 2, y);
+			}
+
+			ctx.strokeStyle = "#11111b";
+			ctx.lineWidth = 1;
+			ctx.stroke();
+		}
 	}
 
 	let draggingElement: HTMLElement | null = $state(null);
@@ -196,6 +246,13 @@
 					{animation.objects.length ? getItemFromId(animation.objects[0])!.name : ""}
 				</button>
 			{/each}
+			{#each getProjectAudios() as audio}
+				<!-- svelte-ignore a11y_consider_explicit_label -->
+				<button class="audio" style:height="{audio.duration * 4}rem">
+					<audio id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
+					<canvas {@attach canvas => createWaveform(audio.data, canvas)} width="100" height="400"></canvas>
+				</button>
+			{/each}
 			<div oncontextmenu={addAnimation()}></div>
 		</div>
 	</div>
@@ -215,6 +272,23 @@
 
 		> *:last-child {
 			margin-right: 0.5rem;
+		}
+	}
+
+	.audio {
+		position: absolute;
+		top: 0px;
+		left: 4rem;
+		width: 4rem;
+		height: 3rem;
+		border-radius: 0.5rem;
+		background: #cba6f7;
+		outline: 4px solid rgba(255, 255, 255, 50%);
+		outline-offset: -4px;
+
+		canvas {
+			width: 100%;
+			height: 100%;
 		}
 	}
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
-	import { getProjectAnimations, projectHasErrors } from "../../../api/project.svelte";
+	import { getProjectAnimations, getProjectAudios, projectHasErrors } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 
@@ -46,12 +46,15 @@
 		ctx.moveTo(0, centerY);
 		ctx.lineTo(canvas.width, centerY);
 		ctx.stroke();
-
-		document.addEventListener("keydown", event => {
-			if (event.altKey) {
-			}
-		});
 	});
+
+	function onPlay() {
+		(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).play();
+	}
+
+	function onPause() {
+		(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).pause();
+	}
 </script>
 
 <div class="container">
@@ -76,6 +79,8 @@
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			oncontextmenu={event => event.preventDefault()}
 			controls
+			onplay={onPlay}
+			onpause={onPause}
 			id="video-source"
 		></video>
 	{:else}

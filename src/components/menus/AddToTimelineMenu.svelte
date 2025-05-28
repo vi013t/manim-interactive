@@ -1,5 +1,8 @@
 <script lang="ts">
-	import type { ProjectAnimation } from "../../api/project.svelte";
+	import { invoke } from "@tauri-apps/api/core";
+	import { sep } from "@tauri-apps/api/path";
+	import { open } from "@tauri-apps/plugin-dialog";
+	import { addProjectAudio, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
@@ -53,11 +56,26 @@
 			}
 		};
 	}
+
+	async function addAudio() {
+		hide();
+
+		let file = await open({
+			directory: false,
+			multiple: false,
+			filters: [{ name: "Audio", extensions: ["mp3"] }],
+		});
+
+		if (typeof file === "string") {
+			let audioData = await invoke<string>("load_audio", { path: file });
+			addProjectAudio(file.substring(file.lastIndexOf(sep()) + 1), audioData);
+		}
+	}
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Timeline Actions</span>
-	<button onmouseenter={selectMenu(null)}>
+	<button onclick={addAudio} onmouseenter={selectMenu(null)}>
 		<AudioIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Audio
 	</button>

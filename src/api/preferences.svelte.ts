@@ -1,7 +1,16 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { generateCode } from "./codegen.svelte";
-import { addNotification, getExplicitProjectLocation, getProjectLocation, loadProjectData, projectHasErrors, saveProjectData, select, setProjectLocation } from "./project.svelte";
+import {
+	addNotification,
+	getExplicitProjectLocation,
+	getProjectLocation,
+	getProjectSaveData,
+	loadProjectData,
+	projectHasErrors,
+	select,
+	setProjectLocation,
+} from "./project.svelte";
 
 export function updateKeybinding(index: number, key: Key) {
 	preferences.keybindings[index].key = key;
@@ -28,7 +37,7 @@ const actions = {
 		name: "Save Project",
 		async run() {
 			videoLoaded = false;
-			let projectData = saveProjectData();
+			let projectData = getProjectSaveData();
 			let location = getExplicitProjectLocation();
 
 			if (!location) {

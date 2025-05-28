@@ -4,8 +4,37 @@ import { runAction } from "./preferences.svelte";
 let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
 let id = 0;
+
 let projectObjects: ObjectEntry[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
+let projectAudios: ProjectAudio[] = $state([]);
+
+export type ProjectAudio = {
+	id: number;
+	data: string;
+	name: string;
+	duration: number;
+};
+
+export async function addProjectAudio(name: string, data: string) {
+	let duration = await new Promise<number>(resolve => {
+		const audioElement = new Audio(`data:audio/mp3;base64,${data}`);
+		audioElement.addEventListener("loadedmetadata", () => {
+			resolve(audioElement.duration);
+		});
+	});
+
+	projectAudios.push({
+		name,
+		data,
+		duration,
+		id: nextId(),
+	});
+}
+
+export function getProjectAudios() {
+	return projectAudios;
+}
 
 export function getExplicitProjectLocation(): string | null {
 	return projectLocation;
@@ -28,18 +57,20 @@ export async function getVideoLocation(): Promise<string> {
 	return join(await getProjectLocation(), "media", "videos", "main", "1080p60", "Main.mp4");
 }
 
-export function saveProjectData(): string {
+export function getProjectSaveData(): string {
 	return JSON.stringify({
 		objects: projectObjects,
 		animations: projectAnimations,
+		audios: projectAudios,
 		nextId: id,
 	});
 }
 
 export function loadProjectData(data: string) {
-	const { objects, animations, nextId } = JSON.parse(data);
+	const { objects, animations, nextId, audios } = JSON.parse(data);
 	projectAnimations = animations;
 	projectObjects = objects;
+	projectAudios = audios;
 	id = nextId;
 }
 
