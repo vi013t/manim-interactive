@@ -9,6 +9,7 @@
 	import SquareIcon from "../../icons/SquareIcon.svelte";
 	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
+	import AudioMenu from "../../menus/AudioMenu.svelte";
 
 	let seconds = 1;
 
@@ -51,9 +52,11 @@
 
 	let addAnimationMenu: AddToTimelineMenu;
 	let animationActionsMenu: AnimationActionsMenu;
+	let audioActionsMenu: AudioMenu;
 
 	let top = $state("100%");
 	let left = $state("94%");
+	let audioId = $state(0);
 
 	function addAnimation() {
 		return function (event: MouseEvent) {
@@ -70,6 +73,19 @@
 		top = `${event.clientY}px`;
 		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		animationActionsMenu.show();
+	}
+
+	let clickTime = $state(0);
+
+	function audioActions(id: number) {
+		return function (event: MouseEvent) {
+			event.preventDefault();
+			top = `${event.clientY}px`;
+			left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
+			audioId = id;
+			clickTime = event.clientY / 64;
+			audioActionsMenu.show();
+		};
 	}
 
 	const BORDER_SIZE = 4;
@@ -149,7 +165,7 @@
 			const maxVal = Math.max(...filteredData) || 1;
 			const normalizedData = filteredData.map(val => val / maxVal);
 
-			const maxLineLength = width; // 90% of canvas width
+			const maxLineLength = width * 0.9; // 90% of canvas width
 			ctx.clearRect(0, 0, width, height);
 			ctx.beginPath();
 
@@ -212,6 +228,13 @@
 			draggingAnimation = null;
 		});
 	});
+
+	$effect(() => {
+		if (getProjectAudios().length) {
+			let audio = (document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null);
+			if (audio) audio.currentTime = currentTime();
+		}
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -229,6 +252,8 @@
 
 	<div bind:this={timelineElement} id="timeline-wrapper">
 		<div id="timeline-content">
+
+			<!-- Animations -->
 			{#each getProjectAnimations() as animation}
 				{@const Icon = getManimAnimationByName(animation.name)!.icon}
 				<button
@@ -246,21 +271,30 @@
 					{animation.objects.length ? getItemFromId(animation.objects[0])!.name : ""}
 				</button>
 			{/each}
+
+			<!-- Audios -->
 			{#each getProjectAudios() as audio}
 				<!-- svelte-ignore a11y_consider_explicit_label -->
-				<button class="audio" style:height="{audio.duration * 4}rem">
+				<button oncontextmenu={audioActions(audio.id)} class="audio" style:height="{audio.duration * 4}rem">
 					<audio id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
 					<canvas {@attach canvas => createWaveform(audio.data, canvas)} width="100" height="400"></canvas>
+					{#each audio.markers as marker}
+						<div class="marker" style:top="{marker.time * 4}rem"></div>
+					{/each}
 				</button>
 			{/each}
+
 			<div oncontextmenu={addAnimation()}></div>
+
+			<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 4}rem + 2.5rem)"></div>
 		</div>
 	</div>
-	<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 4}rem + 2.5rem)"></div>
+
 </section>
 
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
+<AudioMenu bind:this={audioActionsMenu} {top} {left} id={audioId} clickTime={clickTime}/>
 
 <style>
 	.header {
@@ -283,12 +317,52 @@
 		height: 3rem;
 		border-radius: 0.5rem;
 		background: #cba6f7;
-		outline: 4px solid rgba(255, 255, 255, 50%);
-		outline-offset: -4px;
+		border: 4px solid rgba(255, 255, 255, 50%);
 
 		canvas {
 			width: 100%;
 			height: 100%;
+		}
+
+		.marker {
+			position: absolute;
+			width: 100%;
+			height: 3px;
+			background-color: #FFFF00;
+			left: 0px;
+			transform: translateY(-50%);
+
+			&:hover {
+				cursor: grab;
+			}
+
+			&::before {
+				content: "";
+				width: 0px;
+				height: 0px;
+				border-top: 0.5rem solid transparent;
+				border-bottom: 0.5rem solid transparent;
+				border-left: 0.5rem solid #FFFF00;
+				z-index: 9999;
+				position: absolute;
+				top: 50%;
+				left: 0px;
+				transform: translateY(-50%);
+			}
+
+			&::after {
+				content: "";
+				width: 0px;
+				height: 0px;
+				border-top: 0.5rem solid transparent;
+				border-bottom: 0.5rem solid transparent;
+				border-right: 0.5rem solid #FFFF00;
+				z-index: 9999;
+				position: absolute;
+				top: 50%;
+				left: 100%;
+				transform: translate(-100%, -50%);
+			}
 		}
 	}
 
@@ -362,7 +436,7 @@
 	}
 
 	#timeline-content {
-		:global(> div) {
+		:global(> div:not(.time)) {
 			height: 4rem;
 			border-bottom: 1px solid #313244;
 			display: flex;

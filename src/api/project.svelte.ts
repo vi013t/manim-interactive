@@ -14,6 +14,10 @@ export type ProjectAudio = {
 	data: string;
 	name: string;
 	duration: number;
+	markers: {
+		name: string;
+		time: number;
+	}[];
 };
 
 export async function addProjectAudio(name: string, data: string) {
@@ -28,12 +32,19 @@ export async function addProjectAudio(name: string, data: string) {
 		name,
 		data,
 		duration,
+		markers: [],
 		id: nextId(),
 	});
 }
 
 export function getProjectAudios() {
 	return projectAudios;
+}
+
+export function addAudioMarker(id: number, name: string, time: number) {
+	projectAudios.find(audio => audio.id === id)!.markers.push({ name, time });
+
+	console.log($state.snapshot(projectAudios));
 }
 
 export function getExplicitProjectLocation(): string | null {

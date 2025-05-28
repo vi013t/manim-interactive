@@ -1,3 +1,5 @@
+import { getProjectAudios } from "./project.svelte";
+
 let timeInSeconds = $state(0);
 
 export function currentTime() {
