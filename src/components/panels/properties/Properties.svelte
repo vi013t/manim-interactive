@@ -2,12 +2,12 @@
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { property, type PropertyType } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { selected } from "../../../api/project.svelte";
+	import { getItemFromId, selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
-	let item = $derived(selected());
+	let item = $derived(selected() ? getItemFromId(selected()!) : null);
 
 	let top = $state("100%");
 	let left = $state("94%");
@@ -55,37 +55,41 @@
 	</div>
 
 	<div class="items">
-		{#if item}
-			<span class="property">
-				<span class="property-name">Name:</span>
-				<PropertyValueInput type={property().string().notEmpty()} name="name" defaultValue={item.name} {deleteProperty} required />
-			</span>
-
-			<!-- Animation -->
-			{#if "startTime" in item}
-				<span>
-					Animation: <PropertyValueInput name="animation" type={property().animation()} defaultValue={item.name} {deleteProperty} required />
-				</span>
-				<span>
-					Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} defaultValue={item.startTime} {deleteProperty} required />
-				</span>
-
-				<!-- Object -->
-			{:else}
+		{#key selected()}
+			{#if item}
 				<span class="property">
-					<span class="property-name">Type:</span>
-					<PropertyValueInput name="objectType" type={property().object()} defaultValue={item.objectType} required {deleteProperty} />
+					<span class="property-name">Name:</span>
+					<PropertyValueInput type={property().string().notEmpty()} name="name" defaultValue={item.name} {deleteProperty} required />
 				</span>
+
+				<!-- Animation -->
+				{#if "startTime" in item}
+					<span>
+						Animation: <PropertyValueInput name="animation" type={property().animation()} defaultValue={item.name} {deleteProperty} required />
+					</span>
+					<span>
+						Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} defaultValue={item.startTime} {deleteProperty} required />
+					</span>
+
+					<!-- Object -->
+				{:else}
+					<span class="property">
+						<span class="property-name">Type:</span>
+						<PropertyValueInput name="objectType" type={property().object()} defaultValue={item.objectType} required {deleteProperty} />
+					</span>
+				{/if}
+
+				<!-- Properties -->
+				{#each Object.entries(item.properties) as [name, value]}
+					<span class="property">
+						<span class="property-name">{name}:</span>
+						<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} {deleteProperty} required={getPropertyRequired(name)} />
+					</span>
+				{/each}
+
+				<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
 			{/if}
-
-			{#each Object.entries(item.properties) as [name, value]}
-				<span class="property">
-					<span class="property-name">{name}:</span>
-					<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} {deleteProperty} required={getPropertyRequired(name)} />
-				</span>
-			{/each}
-			<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
-		{/if}
+		{/key}
 	</div>
 </section>
 

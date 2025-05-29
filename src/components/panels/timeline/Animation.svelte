@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { getManimAnimationByName, animations, getAnimationCategory } from "../../../api/manim/animations";
+	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
+	import { runAction } from "../../../api/preferences.svelte";
 	import { type ProjectAnimation, animationEndTime, getItemFromId, getProjectAnimations, select, selected } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
-	import { runAction } from "../../../api/preferences.svelte";
 
-	let { animation, timelineElement }: { animation: ProjectAnimation, timelineElement: HTMLElement } = $props();
+	let { animation, timelineElement }: { animation: ProjectAnimation; timelineElement: HTMLElement } = $props();
 
 	let draggingElement: HTMLElement | null = $state(null);
 	let draggingAnimation: ProjectAnimation | null = $state(null);
@@ -84,7 +84,7 @@
 				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "pointer";
 				if (draggingAnimation) draggingAnimation.startTime = newTop / cellHeight;
-				runAction("Save Project"); 
+				runAction("Save Project");
 			}
 			draggingElement = null;
 			draggingAnimation = null;
@@ -99,8 +99,8 @@
 	onclick={() => select(animation)}
 	{@attach onAnimationMount(animation)}
 	style:background-color={animationColor(animation)}
-	style:outline={selected() && animation.objects.includes(selected()!.id) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
-	style:opacity={!selected() || animation.objects.includes(selected()!.id) ? "100%" : "30%"}
+	style:outline={selected() && animation.objects.includes(selected()!) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
+	style:opacity={!selected() || animation.objects.includes(selected()!) ? "100%" : "30%"}
 >
 	<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
 	{animation.name}
@@ -110,7 +110,7 @@
 
 <style>
 	.animation {
-		margin-left: 8rem;
+		margin-left: calc(4rem + 20%);
 		border-radius: 0.3rem;
 		color: #000000;
 		position: absolute;

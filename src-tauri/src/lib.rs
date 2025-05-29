@@ -14,7 +14,9 @@ pub fn run() {
             load_audio,
             new_project,
             save_project_data,
-            get_project_data
+            get_project_data,
+            is_new_project_valid,
+            path_exists
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -46,7 +48,7 @@ fn load_video(path: String, low_res: bool) -> Result<String, String> {
         Ok(contents) => {
             let encoded = base64::engine::general_purpose::STANDARD.encode(contents);
             Ok(format!("data:video/mp4;base64,{}", encoded))
-        },
+        }
         Err(e) => Err(format!("Failed to read file: {}", e)),
     }
 }
@@ -67,11 +69,33 @@ fn new_project(path: String, name: String) -> Result<String, String> {
 
 #[tauri::command]
 fn save_project_data(path: String, data: String) -> Result<(), String> {
-    std::fs::write(Path::new(&path).join("project.manim"), data).map_err(|_| "Error saving project".to_owned())?;
+    std::fs::write(Path::new(&path).join("project.manim"), data)
+        .map_err(|_| "Error saving project".to_owned())?;
     Ok(())
 }
 
 #[tauri::command]
 fn get_project_data(path: String) -> Result<String, String> {
-    std::fs::read_to_string(Path::new(&path).join("project.manim")).map_err(|_| "Error reading project".to_owned())
+    std::fs::read_to_string(Path::new(&path).join("project.manim"))
+        .map_err(|_| "Error reading project".to_owned())
+}
+
+#[tauri::command]
+fn is_new_project_valid(path: &str, name: &str) -> bool {
+    let path = Path::new(path);
+
+    if !path.is_dir() {
+        return false;
+    }
+
+    if path.join(name).exists() {
+        return false;
+    }
+
+    true
+}
+
+#[tauri::command]
+fn path_exists(path: &str) -> bool {
+    Path::new(path).exists()
 }

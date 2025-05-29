@@ -6,18 +6,23 @@
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
 	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
-	import Audio from "./Audio.svelte";
+	import AudioMenu from "../../menus/AudioMenu.svelte";
 	import Animation from "./Animation.svelte";
+	import Audio from "./Audio.svelte";
 
 	// svelte-ignore non_reactive_update
 	let timelineElement: HTMLElement;
 	let timeSlider: HTMLElement;
 	let addAnimationMenu: AddToTimelineMenu;
+	let audioActionsMenu: AudioMenu | null = $state(null);
 
 	let top = $state("100%");
 	let left = $state("94%");
+	let audioId: number = $state(0);
 
 	let seconds = 1;
+
+	function audioActions(id: number) {}
 
 	function formatTime(seconds: number): string {
 		if (seconds < 60) return `${seconds}s`;
@@ -52,7 +57,6 @@
 		checkForNewDiv();
 	});
 
-
 	function addAnimation(event: MouseEvent) {
 		event.preventDefault();
 		top = `${event.clientY}px`;
@@ -76,15 +80,14 @@
 
 	<div bind:this={timelineElement} id="timeline-wrapper">
 		<div id="timeline-content">
-
 			<!-- Animations -->
 			{#each getProjectAnimations() as animation}
-				<Animation {animation} {timelineElement}/>
+				<Animation {animation} {timelineElement} />
 			{/each}
 
 			<!-- Audios -->
 			{#each getProjectAudios() as audio}
-				<Audio {audio} />
+				<Audio {audio} menu={audioActionsMenu} />
 			{/each}
 
 			<!-- Markers -->
@@ -94,11 +97,12 @@
 
 			<div oncontextmenu={addAnimation}></div>
 
-			<div bind:this={timeSlider} class="time" style:top="calc({currentTime() * 4}rem + 2.5rem)"></div>
+			<div bind:this={timeSlider} class="time" style:top="{currentTime() * 4}rem"></div>
 		</div>
 	</div>
 </section>
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
+<AudioMenu bind:this={audioActionsMenu} />
 
 <style>
 	.header {
@@ -117,7 +121,7 @@
 		position: absolute;
 		width: 100%;
 		height: 2px;
-		background-color: #FFFF00;
+		background-color: #ffff00;
 		left: 0px;
 		transform: translateY(-50%);
 
@@ -133,6 +137,7 @@
 		position: absolute;
 		left: 0px;
 		cursor: move;
+		z-index: 99;
 
 		&::after {
 			content: "";

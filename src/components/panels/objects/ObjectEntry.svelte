@@ -38,7 +38,7 @@
 		objectMenu.show();
 	}
 
-	let isSelected = $derived(selected()?.id === entry.id);
+	let isSelected = $derived(selected() === entry.id);
 	let isHovered = $state(false);
 
 	function clickObject(event: MouseEvent) {

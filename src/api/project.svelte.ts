@@ -5,7 +5,7 @@ let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
 let id = 0;
 
-let projectObjects: ObjectEntry[] = $state([]);
+let projectObjects: ProjectObject[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
 let projectAudios: ProjectAudio[] = $state([]);
 let projectMarkers: { id: number; name: string; time: number }[] = $state([]);
@@ -92,7 +92,7 @@ export function getProjectAnimations(): ProjectAnimation[] {
 	return projectAnimations;
 }
 
-export function getProjectObjects(): ObjectEntry[] {
+export function getProjectObjects(): ProjectObject[] {
 	return projectObjects;
 }
 
@@ -106,15 +106,6 @@ export type ProjectObject = {
 	objectType: string;
 	properties: { [key: string]: unknown };
 };
-
-export type ObjectGroup = {
-	name: string;
-	id: number;
-	objects: ProjectObject[];
-	groups: ObjectGroup[];
-};
-
-export type ObjectEntry = ProjectObject | ObjectGroup;
 
 export type ProjectAnimation = {
 	id: number;
@@ -133,31 +124,32 @@ export function nextId() {
 	return id++;
 }
 
-export function addProjectObject(object: ObjectEntry) {
+export function addProjectObject(object: ProjectObject) {
 	projectObjects.push(object);
 }
 
 export function removeProjectObject(id: number) {
-	if (selected()?.id === id) select(null);
+	if (selected() === id) select(null);
 	projectObjects = projectObjects.filter(object => object.id !== id);
 	projectAnimations = projectAnimations.filter(animation => !animation.objects.includes(id));
+	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
 	runAction("Save Project");
 }
 
 type Selectable = ProjectObject | ProjectAnimation;
 
-let selectedThing: Selectable | null = $state(null);
+let selectedThing: number | null = $state(null);
 
-export function selected(): Selectable | null {
+export function selected(): number | null {
 	return selectedThing;
 }
 
 export function select(object: Selectable | null) {
-	selectedThing = object;
+	selectedThing = object?.id ?? null;
 }
 
-export function getItemFromId(id: number): ObjectEntry | null {
+export function getItemFromId(id: number): ProjectObject | null {
 	return getProjectObjects().find(object => object.id === id) ?? null;
 }
 
@@ -220,4 +212,8 @@ export function getNotifications(): NotificationData[] {
 
 export function removeNotification(id: number): void {
 	notifications = notifications.filter(notification => notification.id !== id);
+}
+
+export function isNameTaken(name: string, exclude: number): boolean {
+	return projectObjects.some(object => object.name === name && object.id !== exclude) || projectAnimations.some(animation => animation.name === name && animation.id !== exclude);
 }

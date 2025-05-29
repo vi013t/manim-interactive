@@ -6,10 +6,10 @@
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
+	import BookmarkIcon from "../icons/BookmarkIcon.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
-	import BookmarkIcon from "../icons/BookmarkIcon.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 
@@ -42,7 +42,7 @@
 		animation.startTime = startTime;
 	}
 
-	type Submenu = "animation";
+	type Submenu = "animation" | "marker";
 
 	let selectedMenu: Submenu | null = $state(null);
 
@@ -53,6 +53,7 @@
 				hideSubmenus();
 				({
 					animation: addAnimationMenu,
+					marker: addAnimationMenu,
 				})[name].show();
 			}
 		};
@@ -74,10 +75,9 @@
 	}
 
 	function addMarker(event: MouseEvent) {
-		hide();	
+		hide();
 		addProjectMarker("", event.clientY / 64);
 	}
-
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>

@@ -4,7 +4,7 @@
 	import { currentTime } from "../../../api/timeline.svelte";
 	import AudioMenu from "../../menus/AudioMenu.svelte";
 
-	let { audio }: { audio: ProjectAudio } = $props();
+	let { audio, menu }: { audio: ProjectAudio; menu: AudioMenu | null } = $props();
 
 	function createWaveform(audio: string, canvas: HTMLCanvasElement) {
 		const ctx = canvas.getContext("2d")!;
@@ -69,21 +69,23 @@
 
 	let left = $state("");
 	let top = $state("");
-	let audioActionsMenu: AudioMenu;
-
-	function audioActions(event: MouseEvent) {
-		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
-		audioActionsMenu.show();
-	};
 
 	$effect(() => {
 		if (getProjectAudios().length) {
-			let audio = (document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null);
+			let audio = document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null;
 			if (audio) audio.currentTime = currentTime();
 		}
 	});
+
+	function audioActions(event: MouseEvent) {
+		if (menu) {
+			menu.setId(audio.id);
+			event.preventDefault();
+			top = `${event.clientY}px`;
+			left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `${event.clientX}px`;
+			menu.showAt(top, left);
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
@@ -91,13 +93,12 @@
 	<audio id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
 	<canvas {@attach canvas => createWaveform(audio.data, canvas)} width="100" height="400"></canvas>
 </button>
-<AudioMenu bind:this={audioActionsMenu} {top} {left} id={audio.id} />
 
 <style>
 	.audio {
 		position: absolute;
 		top: 0px;
-		left: 20%;
+		left: 4rem;
 		width: 20%;
 		height: 3rem;
 		border-radius: 0.5rem;

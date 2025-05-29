@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { getObjectCategory, objects } from "../../../api/manim/objects";
+	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { type PropertyType } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { addError, nextErrorId, removeError, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
+	import { addError, getItemFromId, isNameTaken, removeError, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
-	import TrashIcon from "../../icons/TrashIcon.svelte";
-	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
-	import ColorPicker from "./ColorPicker.svelte";
-	import LatexPreview from "./LatexPreview.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
 	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
+	import TrashIcon from "../../icons/TrashIcon.svelte";
+	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
+	import ColorPicker from "./ColorPicker.svelte";
+	import LatexPreview from "./LatexPreview.svelte";
 
 	let {
 		type,
@@ -54,8 +56,8 @@
 
 	function validate(): void {
 		valid = isValid();
-		if (!valid) addError({ objectId: selected()!.id, propertyName: name });
-		else removeError({ objectId: selected()!.id, propertyName: name });
+		if (!valid) addError({ objectId: selected()!, propertyName: name });
+		else removeError({ objectId: selected()!, propertyName: name });
 	}
 
 	function isValid(): boolean {
@@ -69,6 +71,7 @@
 
 		if (type.base === "string") {
 			if (!type.canBeEmpty && input.value === "") return false;
+			if (name === "name" && isNameTaken(input.value, selected()!)) return false;
 			return true;
 		}
 
@@ -76,16 +79,16 @@
 	}
 
 	let inputHover = $state(false);
+	let item = $derived(getItemFromId(selected()!)!);
 
 	let previousValue = defaultValue;
-
 
 	function hasValueChanged() {
 		return input && input.value !== previousValue;
 	}
 
 	function setColorProperty(color: string) {
-		selected()!.properties[name] = color;
+		item.properties[name] = color;
 		runAction("Save Project");
 	}
 
@@ -93,16 +96,16 @@
 		if (!valid || !hasValueChanged()) return;
 
 		if (name === "startTime") {
-			(selected() as ProjectAnimation).startTime = Number(input.value);
+			(item as unknown as ProjectAnimation).startTime = Number(input.value);
 		} else if (name === "animation") {
 		} else if (name === "objectType") {
-			(selected() as ProjectObject).objectType = input.value;
+			(item as ProjectObject).objectType = input.value;
 		} else if (name === "name") {
-			selected()!.name = input.value;
+			item.name = input.value;
 		} else if (type.base === "string") {
-			selected()!.properties[name] = input.value;
+			item.properties[name] = input.value;
 		} else if (type.base === "number") {
-			selected()!.properties[name] = Number(input.value);
+			item.properties[name] = Number(input.value);
 		}
 		previousValue = input.value;
 		runAction("Save Project");
@@ -110,22 +113,39 @@
 
 	onMount(() => {
 		validate();
+		console.log(name);
 	});
 
 	function selectObject(type: string) {
+		addObjectMenu.hide();
 		objectValueInput = type;
-		selected()!.properties
+		const possibleProperties = getPossibleProperties(type);
+		const propertiesToDelete: string[] = [];
+		Object.entries(item.properties).forEach(([propertyName, propertyValue]) => {
+			let propertyBase = possibleProperties.find(property => property.name === propertyName);
+			if (!propertyBase) propertiesToDelete.push(propertyName);
+		});
+		propertiesToDelete.forEach(property => {
+			delete item.properties[property];
+		});
 	}
+
+	let Icon = $derived(objects.find(object => object.name === item.objectType)!.icon);
+	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === item.objectType)!.category).color);
 </script>
 
 <!-- Animation -->
 {#if type.base === "animation"}
-	<button class="add-animation" bind:this={addButton} onclick={addAnimation}>{defaultValue}</button>
+	<button class="add-animation" bind:this={addButton} onclick={addAnimation}>
+		{defaultValue}
+	</button>
 	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addButton]} />
-
 {:else if type.base === "object"}
-	<button class="add-animation" bind:this={addButton} onclick={addObject}>{objectValueInput}</button>
-	<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type"/>
+	<button class="add-animation" bind:this={addButton} onclick={addObject}>
+		<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
+		{objectValueInput}
+	</button>
+	<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type" />
 
 	<!-- Color -->
 {:else if type.base === "color"}
@@ -134,8 +154,20 @@
 	<!-- string, number -->
 {:else if type.base === "string" || type.base === "number"}
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false) } class="input-container">
-		<input style:font-family={type.base === "string" && type.isMath ? "monospace" : "inherit"} onfocus={() => inputFocus = true} onblur={() => { setProperty(); inputFocus = false; }} bind:this={input} style:outline={valid ? "none" : "2px solid #f38ba8"} type="text" oninput={validate} bind:value={inputValue} />
+	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false)} class="input-container">
+		<input
+			style:font-family={type.base === "string" && type.isMath ? "monospace" : "inherit"}
+			onfocus={() => (inputFocus = true)}
+			onblur={() => {
+				setProperty();
+				inputFocus = false;
+			}}
+			bind:this={input}
+			style:outline={valid ? "none" : "2px solid #f38ba8"}
+			type="text"
+			oninput={validate}
+			bind:value={inputValue}
+		/>
 
 		{#if type.base === "string" && type.isMath}
 			<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
@@ -166,6 +198,9 @@
 		padding: 0.3em;
 		border-radius: 0.5em;
 		outline-offset: -2px;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	.input-container {
@@ -181,7 +216,7 @@
 	}
 
 	.add-animation {
-		width: 5rem;
+		width: 10rem;
 	}
 
 	input {

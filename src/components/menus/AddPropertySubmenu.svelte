@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { addProperty, getPossibleProperties } from "../../api/manim/properties";
-	import { selected, type ProjectObject } from "../../api/project.svelte";
+	import { getItemFromId, selected, type ProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import StarIcon from "../icons/StarIcon.svelte";
 
 	let { top, left, category, background } = $props();
 
-	let item = $derived(selected());
+	let item = $derived(getItemFromId(selected()!)!);
 	let properties = $derived(item ? getPossibleProperties((item as ProjectObject).name).filter(property => property.category === category) : null);
 
 	// svelte-ignore non_reactive_update

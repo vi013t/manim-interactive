@@ -1,15 +1,22 @@
 <script lang="ts">
-	import { getProjectAnimations, removeProjectObject } from "../../api/project.svelte";
+	import { removeProjectObject } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
 
-	let { top, left, id }: { top: string; left: string; id: number } = $props();
-
 	let menu: ContextMenu;
+	let id = $state(0);
+	let top = $state("");
+	let left = $state("");
 
-	export function show() {
+	export function setId(newId: number) {
+		id = newId;
+	}
+
+	export function showAt(newTop: string, newLeft: string) {
+		top = newTop;
+		left = newLeft;
 		menu.show();
 	}
 
@@ -21,13 +28,9 @@
 		menu.hide();
 	}
 
-	function deleteObject() {
+	function deleteAudio() {
 		menu.hide();
-		if (getProjectAnimations().some(animation => animation.objects.includes(id))) {
-			confirmDeleteObjectWindow.show();
-		} else {
-			removeProjectObject(id);
-		}
+		removeProjectObject(id);
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
@@ -36,11 +39,11 @@
 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Audio Actions</span>
-	<button onclick={deleteObject}>
+	<button onclick={deleteAudio}>
 		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Rename Audio
 	</button>
-	<button onclick={deleteObject}>
+	<button onclick={deleteAudio}>
 		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Audio
 	</button>

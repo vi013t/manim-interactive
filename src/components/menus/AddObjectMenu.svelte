@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
-	import { objects } from "../../api/manim/objects";
-	import { addProjectObject, nextId } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AsteriskIcon from "../icons/AsteriskIcon.svelte";
 	import CircleIcon from "../icons/CircleIcon.svelte";
 	import LineIcon from "../icons/LineIcon.svelte";
-	import PackageIcon from "../icons/PackageIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TextIcon from "../icons/TextIcon.svelte";
 	import AddObjectSubmenu from "./AddObjectSubmenu.svelte";
 
-	let { top, left, title = "Add Object", openers = [], onSelect = undefined }: { top: string; left: string; openers?: HTMLElement[], title?: string, onSelect?: (type: string) => void } = $props();
+	let {
+		top,
+		left,
+		title = "Add Object",
+		openers = [],
+		onSelect = undefined,
+	}: { top: string; left: string; openers?: HTMLElement[]; title?: string; onSelect?: (type: string) => void } = $props();
 
 	let menu: ContextMenu;
 	let addLineMenu: AddObjectSubmenu;
@@ -41,16 +44,6 @@
 		addTextMenu.hide();
 		addLineMenu.hide();
 		addMiscellaneousMenu.hide();
-	}
-
-	function addGroup() {
-		menu.toggle();
-		addProjectObject({
-			name: "New Group",
-			objects: [],
-			groups: [],
-			id: nextId(),
-		});
 	}
 </script>
 

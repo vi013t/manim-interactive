@@ -69,6 +69,12 @@ export function generateCode(): string {
 class Main(Scene):
 	def construct(self):
 ${objectLines}
+
+	def object(name: str):
+		return {
+${getProjectObjects().map(object => `\t\t\t"${object.name}": var_${object.id}`)}	
+		}.get(name);
+
 ${animationLines}
 `;
 }

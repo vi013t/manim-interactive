@@ -37,9 +37,8 @@
 
 		function onMouseMove(e: MouseEvent) {
 			if (!isDragging) return;
-
-			draggable.style.left = `${e.clientX - offsetX}px`;
-			draggable.style.top = `${e.clientY - offsetY}px`;
+			draggable.style.left = `${Math.min(screen.availWidth - draggable.clientWidth / 2, Math.max(draggable.clientWidth / 2, e.clientX - offsetX))}px`;
+			draggable.style.top = `${Math.min(screen.availHeight - draggable.clientHeight / 2, Math.max(draggable.clientHeight / 2, e.clientY - offsetY))}px`;
 		}
 
 		function onMouseUp() {
