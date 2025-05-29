@@ -7,6 +7,7 @@
 	import LineIcon from "../icons/LineIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TextIcon from "../icons/TextIcon.svelte";
+	import VariableIcon from "../icons/VariableIcon.svelte";
 	import AddObjectSubmenu from "./AddObjectSubmenu.svelte";
 
 	let {
@@ -23,6 +24,7 @@
 	let addTextMenu: AddObjectSubmenu;
 	let addMiscellaneousMenu: AddObjectSubmenu;
 	let addSolidMenu: AddObjectSubmenu;
+	let addMathMenu: AddObjectSubmenu;
 
 	let horizontalExpand = $state("right");
 	let verticalExpand = $state("bottom");
@@ -47,6 +49,7 @@
 		addLineMenu.hide();
 		addMiscellaneousMenu.hide();
 		addSolidMenu.hide();
+		addMathMenu.hide();
 	}
 </script>
 
@@ -60,6 +63,16 @@
 	>
 		<LineIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Line
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+	</button>
+	<button
+		onmouseenter={() => {
+			hideSubmenus();
+			addMathMenu.show();
+		}}
+	>
+		<VariableIcon stroke="#fab387" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		Math
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button
@@ -108,6 +121,14 @@
 		top={verticalExpand === "bottom" ? "3.5rem" : "-2rem"}
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Line"
+		hideOuter={hide}
+		{onSelect}
+	/>
+	<AddObjectSubmenu
+		bind:this={addMathMenu}
+		top={verticalExpand === "bottom" ? "5rem" : "-8.5rem"}
+		left={horizontalExpand === "right" ? "100%" : "-100%"}
+		category="Math"
 		hideOuter={hide}
 		{onSelect}
 	/>

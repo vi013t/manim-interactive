@@ -2,46 +2,58 @@ import type { Component } from "svelte";
 import annulusDemo from "../../assets/images/annulus_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
 import ellipseDemo from "../../assets/images/ellipse_demo.png";
-import rectangleDemo from "../../assets/images/rectangle_demo.png";
 import polygonDemo from "../../assets/images/polygon_demo.png";
+import rectangleDemo from "../../assets/images/rectangle_demo.png";
 import regularPolygonDemo from "../../assets/images/regular_polygon_demo.png";
 import regularPolygramDemo from "../../assets/images/regular_polygram_demo.png";
 import squareDemo from "../../assets/images/square_demo.png";
 import starDemo from "../../assets/images/star_demo.png";
 import triangleDemo from "../../assets/images/triangle_demo.png";
+import AngleIcon from "../../components/icons/AngleIcon.svelte";
+import AnnularSectorIcon from "../../components/icons/AnnularSectorIcon.svelte";
 import AnnulusIcon from "../../components/icons/AnnulusIcon.svelte";
-import ParagraphIcon from "../../components/icons/ParagraphIcon.svelte";
-import CodeIcon from "../../components/icons/CodeIcon.svelte";
-import DodecahedronIcon from "../../components/icons/DodecahedronIcon.svelte";
-import TetrahedronIcon from "../../components/icons/TetrahedronIcon.svelte";
-import RectangularPrismIcon from "../../components/icons/RectangularPrismIcon.svelte";
-import OctahedronIcon from "../../components/icons/OctahedronIcon.svelte";
-import IcosahedronIcon from "../../components/icons/IcosahedronIcon.svelte";
-import ConeIcon from "../../components/icons/ConeIcon.svelte";
-import CylinderIcon from "../../components/icons/CylinderIcon.svelte";
-import CubeIcon from "../../components/icons/CubeIcon.svelte";
-import SphereIcon from "../../components/icons/SphereIcon.svelte";
-import PolygonIcon from "../../components/icons/PolygonIcon.svelte";
-import NetworkIcon from "../../components/icons/NetworkIcon.svelte";
 import ArcIcon from "../../components/icons/ArcIcon.svelte";
+import BarChartIcon from "../../components/icons/BarChartIcon.svelte";
+import BoundingPolygonIcon from "../../components/icons/BoundingPolygonIcon.svelte";
+import BulletedListIcon from "../../components/icons/BulletedListIcon.svelte";
 import CircleIcon from "../../components/icons/CircleIcon.svelte";
+import CodeIcon from "../../components/icons/CodeIcon.svelte";
+import CombinatorIcon from "../../components/icons/CombinatorIcon.svelte";
+import ConeIcon from "../../components/icons/ConeIcon.svelte";
+import CubeIcon from "../../components/icons/CubeIcon.svelte";
+import CylinderIcon from "../../components/icons/CylinderIcon.svelte";
+import DodecahedronIcon from "../../components/icons/DodecahedronIcon.svelte";
 import EllipseIcon from "../../components/icons/EllipseIcon.svelte";
+import GridIcon from "../../components/icons/GridIcon.svelte";
 import HexagonIcon from "../../components/icons/HexagonIcon.svelte";
+import IcosahedronIcon from "../../components/icons/IcosahedronIcon.svelte";
+import ImageIcon from "../../components/icons/ImageIcon.svelte";
 import ItalicIcon from "../../components/icons/ItalicIcon.svelte";
 import LineIcon from "../../components/icons/LineIcon.svelte";
+import NetworkIcon from "../../components/icons/NetworkIcon.svelte";
+import OctahedronIcon from "../../components/icons/OctahedronIcon.svelte";
 import PackageIcon from "../../components/icons/PackageIcon.svelte";
+import ParagraphIcon from "../../components/icons/ParagraphIcon.svelte";
 import PlainTextIcon from "../../components/icons/PlainTextIcon.svelte";
+import PlusIcon from "../../components/icons/PlusIcon.svelte";
+import PolygonIcon from "../../components/icons/PolygonIcon.svelte";
 import RectangleIcon from "../../components/icons/RectangleIcon.svelte";
+import RectangularPrismIcon from "../../components/icons/RectangularPrismIcon.svelte";
+import SectorIcon from "../../components/icons/SectorIcon.svelte";
+import SphereIcon from "../../components/icons/SphereIcon.svelte";
 import SquareIcon from "../../components/icons/SquareIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
 import StarOfDavidIcon from "../../components/icons/StarOfDavidIcon.svelte";
+import TetrahedronIcon from "../../components/icons/TetrahedronIcon.svelte";
+import TorusIcon from "../../components/icons/TorusIcon.svelte";
 import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
-import UpArrowIcon from "../../components/icons/UpArrowIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
+import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { property, type Property } from "./property";
 
 export const objectCategories = {
 	Line: { color: "#cba6f7" },
+	Math: { color: "#fab387" },
 	Shape: { color: "#f38ba8" },
 	Solid: { color: "#89b4fa" },
 	Text: { color: "#f9e2af" },
@@ -87,12 +99,20 @@ const mobjectProperties = [
 
 export const objects = [
 	{
+		name: "Angle",
+		category: "Line",
+		icon: AngleIcon,
+		description: "A geometric angle.",
+		demo: circleDemo,
+		properties: [],
+	},
+	{
 		name: "Annular Sector",
 		internalName: "AnnularSector",
 		category: "Shape",
-		icon: CircleIcon,
+		icon: AnnularSectorIcon,
 		demo: circleDemo,
-		description: "All points equidistant from a center point.",
+		description: "An angular slice of an annulus.",
 		properties: [],
 	},
 	{
@@ -107,6 +127,8 @@ export const objects = [
 		name: "Arc",
 		category: "Line",
 		icon: ArcIcon,
+		description: "Part of a circle.",
+		demo: circleDemo,
 		properties: [
 			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, category: "size", prioritized: true },
 			{ name: "Start Angle", internalName: "start_angle", type: property().number(), defaultValue: 0, category: "size", prioritized: true },
@@ -119,16 +141,38 @@ export const objects = [
 		],
 	},
 	{
-		name: "Arrow",
-		category: "Line",
-		icon: UpArrowIcon,
+		name: "Axes",
+		category: "Math",
+		icon: PlusIcon,
+		description: "Mathematical axis lines.",
+		demo: circleDemo,
+		properties: [],
+	},
+	{
+		name: "Bar Chart",
+		internalName: "BarChart",
+		category: "Math",
+		icon: BarChartIcon,
+		description: "A statistical bar chart.",
+		demo: circleDemo,
+		properties: [],
+	},
+	{
+		name: "Bounding Polygon",
+		internalName: "ConvexHull",
+		category: "Shape",
+		icon: BoundingPolygonIcon,
+		description: "A polygon that connects the outermost points in a group of points.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Bulleted List",
 		internalName: "BulletedList",
 		category: "Text",
-		icon: LineIcon,
+		icon: BulletedListIcon,
+		description: "A list of text items with bullets.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -144,15 +188,27 @@ export const objects = [
 		],
 	},
 	{
+		name: "Combinator",
+		category: "Miscellaneous",
+		icon: CombinatorIcon,
+		description: "Allows combining two objects in different ways.",
+		demo: circleDemo,
+		properties: [],
+	},
+	{
 		name: "Code",
 		category: "Text",
 		icon: CodeIcon,
+		description: "A block of code or script.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Cone",
 		category: "Solid",
 		icon: ConeIcon,
+		description: "The set of all lines between a circle and a point on the axis normal to its center.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -167,18 +223,16 @@ export const objects = [
 		name: "Cylinder",
 		category: "Solid",
 		icon: CylinderIcon,
-		properties: [],
-	},
-	{
-		name: "Dashed Line",
-		category: "Dashed Line",
-		icon: LineIcon,
+		description: "A circle extruded into 3D space.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Dodecahedron",
 		category: "Solid",
 		icon: DodecahedronIcon,
+		description: "A regular polyhedron with 12 sides.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -190,28 +244,52 @@ export const objects = [
 		properties: [],
 	},
 	{
+		name: "Graph",
+		category: "Math",
+		icon: GridIcon,
+		demo: annulusDemo,
+		description: "A mathematical graph.",
+		properties: [],
+	},
+	{
 		name: "Group",
 		category: "Miscellaneous",
 		icon: PackageIcon,
+		description: "A group of other objects, allowing animating them at the same time.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Icosahedron",
 		category: "Solid",
 		icon: IcosahedronIcon,
+		description: "A regular polyhedron with 20 sides.",
+		demo: circleDemo,
+		properties: [],
+	},
+	{
+		name: "Image",
+		category: "Miscellaneous",
+		icon: ImageIcon,
+		description: "An image loaded from a file.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Line",
 		category: "Line",
 		icon: LineIcon,
+		description: "A customizeable line.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
-		name: "Math Text",
+		name: "Equation",
 		internalName: "MathTex",
 		category: "Text",
 		icon: VariableIcon,
+		description: "A mathematical equation formatted with LaTeX",
+		demo: circleDemo,
 		properties: [
 			{
 				name: "Text",
@@ -226,22 +304,28 @@ export const objects = [
 		],
 	},
 	{
-		name: "Number",
-		internalName: "DecimalNumber",
-		category: "Text",
-		icon: LineIcon,
+		name: "Network",
+		internalName: "Graph",
+		category: "Line",
+		icon: NetworkIcon,
+		description: "A connected graph of node points.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Octahedron",
 		category: "Solid",
+		description: "A regular polyhedron with 8 sides.",
 		icon: OctahedronIcon,
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Paragraph",
 		category: "Text",
 		icon: ParagraphIcon,
+		description: "Text with multiple lines.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -249,6 +333,8 @@ export const objects = [
 		category: "Text",
 		icon: PlainTextIcon,
 		internalName: "Text",
+		description: "Plain text.",
+		demo: circleDemo,
 		properties: [
 			{ name: "Text", internalName: "text", type: property().string().notEmpty(), defaultValue: null, category: "size", prioritized: true, required: true },
 			{ name: "Line Spacing", internalName: "line_spacing", type: property().number(), defaultValue: -1, category: "size" },
@@ -269,6 +355,8 @@ export const objects = [
 		name: "Polygram",
 		category: "Shape",
 		icon: NetworkIcon,
+		description: "A polygon with intersecting edges.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -289,7 +377,9 @@ export const objects = [
 		name: "Rectangular Prism",
 		internalName: "Prism",
 		category: "Solid",
+		description: "A rectangle extruded into 3D space.",
 		icon: RectangularPrismIcon,
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -311,9 +401,17 @@ export const objects = [
 		properties: [],
 	},
 	{
+		name: "Scripted Object",
+		category: "Miscellaneous",
+		icon: CodeIcon,
+		description: "An object custom scripted in Python.",
+		demo: circleDemo,
+		properties: [],
+	},
+	{
 		name: "Sector",
 		category: "Shape",
-		icon: CircleIcon,
+		icon: SectorIcon,
 		demo: circleDemo,
 		description: "All points equidistant from a center point.",
 		properties: [],
@@ -322,6 +420,8 @@ export const objects = [
 		name: "Sphere",
 		category: "Solid",
 		icon: SphereIcon,
+		description: "All three-dimensional points equidistant from a center point.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
@@ -348,28 +448,44 @@ export const objects = [
 		],
 	},
 	{
+		name: "Stream Lines",
+		category: "Math",
+		icon: WaveIcon,
+		demo: triangleDemo,
+		description: "A regular polygon with three sides.",
+		properties: [],
+	},
+	{
 		name: "Styled Text",
 		category: "Text",
 		icon: ItalicIcon,
+		description: "Text with formatting and styling.",
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Tangent Line",
 		internalName: "TangentLine",
+		description: "A line tangent to an object at some point.",
 		category: "Line",
 		icon: LineIcon,
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Tetrahedron",
+		description: "A regular polyhedron with 4 sides.",
 		category: "Solid",
 		icon: TetrahedronIcon,
+		demo: circleDemo,
 		properties: [],
 	},
 	{
 		name: "Torus",
+		description: "A circle revolved around a coplanar axis.",
 		category: "Solid",
-		icon: AnnulusIcon,
+		icon: TorusIcon,
+		demo: circleDemo,
 		properties: [],
 	},
 	{

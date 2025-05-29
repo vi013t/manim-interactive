@@ -2,10 +2,9 @@
 	import { getHorizontalExpandDirection } from "../../api/client.svelte";
 	import { getObjectCategory, objects, type ManimObject, type ObjectCategory } from "../../api/manim/objects";
 	import type { Property } from "../../api/manim/property";
-	import { getPreferences, runAction } from "../../api/preferences.svelte";
+	import { runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
-	import CodeIcon from "../icons/CodeIcon.svelte";
 
 	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
@@ -68,12 +67,6 @@
 			{object.name}
 		</button>
 	{/each}
-	{#if category === "Miscellaneous" && getPreferences().developerMode}
-		<button>
-			<CodeIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-			Scripted Object
-		</button>
-	{/if}
 </ContextMenu>
 
 {#if currentObject}
