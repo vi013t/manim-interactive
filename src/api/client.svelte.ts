@@ -29,3 +29,26 @@ export function getHorizontalExpandDirectionFromPosition(position: number): "lef
 export function getVerticalExpandDirectionFromPosition(position: number): "top" | "bottom" {
 	return position < screen.height / 2 ? "bottom" : "top";
 }
+
+let isPreferencesOpen = $state(false);
+let preferencesView = $state("appearance");
+
+export function openPreferencesWindow() {
+	isPreferencesOpen = true;
+}
+
+export function closePreferencesWindow() {
+	isPreferencesOpen = false;
+}
+
+export function isPreferencesWindowOpen(): boolean {
+	return isPreferencesOpen;
+}
+
+export function setPreferencesView(view: string) {
+	preferencesView = view;
+}
+
+export function getPreferencesView(): string {
+	return preferencesView;
+}

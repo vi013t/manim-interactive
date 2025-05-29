@@ -15,10 +15,6 @@ export type ProjectAudio = {
 	data: string;
 	name: string;
 	duration: number;
-	markers: {
-		name: string;
-		time: number;
-	}[];
 };
 
 export async function addProjectAudio(name: string, data: string) {
@@ -33,7 +29,6 @@ export async function addProjectAudio(name: string, data: string) {
 		name,
 		data,
 		duration,
-		markers: [],
 		id: nextId(),
 	});
 }
@@ -224,6 +219,9 @@ export function removeNotification(id: number): void {
 	notifications = notifications.filter(notification => notification.id !== id);
 }
 
-export function isNameTaken(name: string, exclude: number): boolean {
-	return projectObjects.some(object => object.name === name && object.id !== exclude) || projectAnimations.some(animation => animation.name === name && animation.id !== exclude);
+export function isNameTaken(name: string, exclude?: number): boolean {
+	return (
+		projectObjects.some(object => object.name === name && (exclude === undefined || object.id !== exclude)) ||
+		projectAnimations.some(animation => animation.name === name && (exclude === undefined || animation.id !== exclude))
+	);
 }

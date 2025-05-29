@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { closePreferencesWindow, getPreferencesView, isPreferencesWindowOpen, openPreferencesWindow } from "../../api/client.svelte";
 	import {
 		deleteKeybinding,
 		displayKey,
@@ -28,10 +29,18 @@
 	let windowComponent: Window;
 
 	export function openWindow() {
-		windowComponent.openWindow();
+		openPreferencesWindow();
 	}
 
-	let view = $state("appearance");
+	$effect(() => {
+		if (isPreferencesWindowOpen()) {
+			windowComponent.openWindow();
+		} else {
+			windowComponent.close();
+		}
+	});
+
+	let view = $derived(getPreferencesView());
 	let hoverView: string | null = $state("appearance");
 
 	let recordingIndex: number | null = $state(null);
@@ -113,7 +122,7 @@
 	}
 </script>
 
-<Window bind:this={windowComponent} title="Preferences" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
+<Window onClose={closePreferencesWindow} bind:this={windowComponent} title="Preferences" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
 	<div class="container">
 		<div class="sidebar">
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->

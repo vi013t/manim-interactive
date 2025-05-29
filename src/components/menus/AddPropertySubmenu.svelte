@@ -7,7 +7,7 @@
 	let { top, left, category, background } = $props();
 
 	let item = $derived(getItemFromId(selected()!)!);
-	let properties = $derived(item ? getPossibleProperties((item as ProjectObject).name).filter(property => property.category === category) : null);
+	let properties = $derived(item ? getPossibleProperties((item as ProjectObject).objectType).filter(property => property.category === category) : null);
 
 	// svelte-ignore non_reactive_update
 	let menu: ContextMenu;

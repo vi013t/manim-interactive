@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import Titlebar from "./Titlebar.svelte";
 
-	let { title = "", children, ...rest }: { title?: string; children: any; [key: string]: unknown } = $props();
+	let { title = "", children, onClose = close, ...rest }: { title?: string; children: any; onClose?: () => void; [key: string]: unknown } = $props();
 
 	let visible = $state(false);
 
@@ -51,7 +51,7 @@
 </script>
 
 <section bind:this={draggable} style:display={visible ? "flex" : "none"} {...rest}>
-	<Titlebar {close} {title} />
+	<Titlebar close={onClose} {title} />
 	<div class="content">
 		{@render children()}
 	</div>

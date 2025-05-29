@@ -7,7 +7,7 @@
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
-	let item = $derived(selected() ? getItemFromId(selected()!) : null);
+	let item = $derived(selected() ? getItemFromId(selected()!)! : null);
 
 	let top = $state("100%");
 	let left = $state("94%");
@@ -21,12 +21,12 @@
 	}
 
 	function getPropertyType(propertyName: string): PropertyType {
-		let properties = getPossibleProperties(item!.name);
+		let properties = getPossibleProperties(item!.objectType);
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
 	function getPropertyRequired(propertyName: string): boolean {
-		let properties = getPossibleProperties(item!.name);
+		let properties = getPossibleProperties(item!.objectType);
 		return !!properties.find(property => property.name === propertyName)!.required;
 	}
 
@@ -40,6 +40,7 @@
 	function deleteProperty(name: string) {
 		return function () {
 			delete item!.properties[name];
+			console.log($state.snapshot(item!.properties));
 			runAction("Save Project");
 		};
 	}
@@ -80,7 +81,7 @@
 				{/if}
 
 				<!-- Properties -->
-				{#each Object.entries(item.properties) as [name, value]}
+				{#each Object.entries(item.properties).toSorted( ([firstName, _firstValue], [secondName, _secondValue]) => firstName.localeCompare(secondName), ) as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
 						<span class="property-name">{name}:</span>
 						<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} {deleteProperty} required={getPropertyRequired(name)} />

@@ -46,7 +46,7 @@
 		addObjectMenu.show();
 	}
 
-	let valid = $state(true);
+	let errorMessage: string | null = $state(null);
 
 	// svelte-ignore non_reactive_update
 	let input: HTMLInputElement;
@@ -55,27 +55,28 @@
 	let inputFocus = $state(false);
 
 	function validate(): void {
-		valid = isValid();
-		if (!valid) addError({ objectId: selected()!, propertyName: name });
+		errorMessage = getErrorMessage();
+		if (errorMessage) addError({ objectId: selected()!, propertyName: name });
 		else removeError({ objectId: selected()!, propertyName: name });
 	}
 
-	function isValid(): boolean {
+	function getErrorMessage(): string | null {
 		if (type.base === "number") {
-			if (!/^-?\d+(\.\d+)?$/.test(input.value)) return false;
+			if (!/^-?\d+(\.\d+)?$/.test(input.value)) return "Value must be a number";
 			let number = Number(input.value);
-			if (type.isIntegeric && number !== Math.floor(number)) return false;
-			if (number < type.minimumValue || number > type.maximumValue) return false;
-			return true;
+			if (type.isIntegeric && number !== Math.floor(number)) return "Value must be an integer";
+			if (number < type.minimumValue) return `Value cannot be less than ${type.minimumValue}`;
+			if (number > type.maximumValue) return `Value cannot be greater than ${type.maximumValue}`;
+			return null;
 		}
 
 		if (type.base === "string") {
-			if (!type.canBeEmpty && input.value === "") return false;
-			if (name === "name" && isNameTaken(input.value, selected()!)) return false;
-			return true;
+			if (!type.canBeEmpty && input.value === "") return "Value cannot be empty";
+			if (name === "name" && isNameTaken(input.value.trim(), selected()!)) return "Name is already taken";
+			return null;
 		}
 
-		return true;
+		return null;
 	}
 
 	let inputHover = $state(false);
@@ -93,7 +94,7 @@
 	}
 
 	function setProperty() {
-		if (!valid || !hasValueChanged()) return;
+		if (errorMessage || !hasValueChanged()) return;
 
 		if (name === "startTime") {
 			(item as unknown as ProjectAnimation).startTime = Number(input.value);
@@ -101,7 +102,7 @@
 		} else if (name === "objectType") {
 			(item as ProjectObject).objectType = input.value;
 		} else if (name === "name") {
-			item.name = input.value;
+			item.name = input.value.trim();
 		} else if (type.base === "string") {
 			item.properties[name] = input.value;
 		} else if (type.base === "number") {
@@ -113,7 +114,6 @@
 
 	onMount(() => {
 		validate();
-		console.log(name);
 	});
 
 	function selectObject(type: string) {
@@ -135,60 +135,63 @@
 </script>
 
 <!-- Animation -->
-{#if type.base === "animation"}
-	<button class="add-animation" bind:this={addButton} onclick={addAnimation}>
-		{defaultValue}
-	</button>
-	<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addButton]} />
-{:else if type.base === "object"}
-	<button class="add-animation" bind:this={addButton} onclick={addObject}>
-		<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
-		{objectValueInput}
-	</button>
-	<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type" />
+{#key getItemFromId(selected()!)}
+	{#if type.base === "animation"}
+		<button class="add-animation" bind:this={addButton} onclick={addAnimation}>
+			{defaultValue}
+		</button>
+		<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addButton]} />
+	{:else if type.base === "object"}
+		<button class="add-animation" bind:this={addButton} onclick={addObject}>
+			<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
+			{objectValueInput}
+		</button>
+		<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type" />
 
-	<!-- Color -->
-{:else if type.base === "color"}
-	<ColorPicker onSelect={setColorProperty} />
+		<!-- Color -->
+	{:else if type.base === "color"}
+		<ColorPicker onSelect={setColorProperty} />
 
-	<!-- string, number -->
-{:else if type.base === "string" || type.base === "number"}
-	<!-- svelte-ignore a11y_no_static_element_interactions -->
-	<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false)} class="input-container">
-		<input
-			style:font-family={type.base === "string" && type.isMath ? "monospace" : "inherit"}
-			onfocus={() => (inputFocus = true)}
-			onblur={() => {
-				setProperty();
-				inputFocus = false;
-			}}
-			bind:this={input}
-			style:outline={valid ? "none" : "2px solid #f38ba8"}
-			type="text"
-			oninput={validate}
-			bind:value={inputValue}
-		/>
+		<!-- string, number -->
+	{:else if type.base === "string" || type.base === "number"}
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false)} class="input-container">
+			<input
+				style:font-family={type.base === "string" && type.isMath ? "monospace" : "inherit"}
+				onfocus={() => (inputFocus = true)}
+				onblur={() => {
+					setProperty();
+					inputFocus = false;
+				}}
+				bind:this={input}
+				style:outline={errorMessage ? "2px solid #f38ba8" : "none"}
+				type="text"
+				oninput={validate}
+				autocomplete="off"
+				bind:value={inputValue}
+			/>
 
-		{#if type.base === "string" && type.isMath}
-			<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
-				<QuestionMarkIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" />
-			</a>
-			<LatexIcon stroke="#cdd6f4" style="width: 3rem; position: absolute; top: -0.58rem; right: 1.5rem;" />
-			<LatexPreview latex={inputValue} show={inputHover || inputFocus} />
-		{/if}
-	</div>
-{/if}
+			{#if type.base === "string" && type.isMath}
+				<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
+					<QuestionMarkIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" />
+				</a>
+				<LatexIcon stroke="#cdd6f4" style="width: 3rem; position: relative; left: -5rem;" />
+				<LatexPreview latex={inputValue} show={inputHover || inputFocus} />
+			{/if}
+		</div>
+	{/if}
 
-{#if !valid}
-	<span class="error">
-		<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
-		<span>Invalid Value</span>
-	</span>
-{/if}
+	{#if errorMessage}
+		<span class="error">
+			<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+			<span>{errorMessage}</span>
+		</span>
+	{/if}
 
-{#if !required}
-	<button onclick={deleteProperty(name)}><TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
-{/if}
+	{#if !required}
+		<button onclick={deleteProperty(name)}><TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
+	{/if}
+{/key}
 
 <style>
 	input,

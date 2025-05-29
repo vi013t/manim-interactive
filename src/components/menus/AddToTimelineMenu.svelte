@@ -2,6 +2,7 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { sep } from "@tauri-apps/api/path";
 	import { open } from "@tauri-apps/plugin-dialog";
+	import { openPreferencesWindow, setPreferencesView } from "../../api/client.svelte";
 	import { addProjectAudio, addProjectMarker, type ProjectAnimation } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
@@ -49,8 +50,8 @@
 	function selectMenu(name: Submenu | null) {
 		return function () {
 			selectedMenu = name;
+			hideSubmenus();
 			if (name) {
-				hideSubmenus();
 				({
 					animation: addAnimationMenu,
 					marker: addAnimationMenu,
@@ -78,6 +79,12 @@
 		hide();
 		addProjectMarker("", event.clientY / 64);
 	}
+
+	function openTimelinePreferences() {
+		hide();
+		setPreferencesView("timeline");
+		openPreferencesWindow();
+	}
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
@@ -92,10 +99,10 @@
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onclick={addMarker} style:background={selectedMenu === "marker" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("marker")}>
-		<BookmarkIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<BookmarkIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Marker
 	</button>
-	<button onmouseenter={selectMenu(null)}>
+	<button onmouseenter={selectMenu(null)} onclick={openTimelinePreferences}>
 		<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Open Timeline Preferences
 	</button>

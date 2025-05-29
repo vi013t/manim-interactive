@@ -2,17 +2,24 @@
 	import { getObjectCategory, objects, type ObjectCategory } from "../../api/manim/objects";
 	import type { Property } from "../../api/manim/property";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import { addProjectObject, nextId, select } from "../../api/project.svelte";
+	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 
-	let { top, left, hideOuter, category, onSelect = (type: string) => {
+	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
 		let properties: { [key: string]: unknown } = {};
 		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = null));
 		menu.toggle();
+
+		let name = type;
+		let number = 2;
+		while (isNameTaken(name)) {
+			name = `${type} ${number++}`;
+		}
+
 		let object = {
-			name: type,
+			name,
 			objectType: type,
 			id: nextId(),
 			properties,
@@ -21,7 +28,15 @@
 		select(object);
 		hideOuter();
 		runAction("Save Project");
-	}}: { top: string; left: string; hideOuter: () => void; category: ObjectCategory, onSelect?: (type: string) => void } = $props();
+	}
+
+	let {
+		top,
+		left,
+		hideOuter,
+		category,
+		onSelect = addObject,
+	}: { top: string; left: string; hideOuter: () => void; category: ObjectCategory; onSelect?: (type: string) => void } = $props();
 
 	let menu: ContextMenu;
 
