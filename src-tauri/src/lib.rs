@@ -1,5 +1,7 @@
 use std::{path::Path, process::Command};
 
+mod audio;
+
 use base64::Engine;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
