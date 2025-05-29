@@ -3,6 +3,7 @@
 	import ContextMenu from "../ContextMenu.svelte";
 	import AsteriskIcon from "../icons/AsteriskIcon.svelte";
 	import CircleIcon from "../icons/CircleIcon.svelte";
+	import CubeIcon from "../icons/CubeIcon.svelte";
 	import LineIcon from "../icons/LineIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TextIcon from "../icons/TextIcon.svelte";
@@ -21,6 +22,7 @@
 	let addShapeMenu: AddObjectSubmenu;
 	let addTextMenu: AddObjectSubmenu;
 	let addMiscellaneousMenu: AddObjectSubmenu;
+	let addSolidMenu: AddObjectSubmenu;
 
 	let horizontalExpand = $state("right");
 	let verticalExpand = $state("bottom");
@@ -44,6 +46,7 @@
 		addTextMenu.hide();
 		addLineMenu.hide();
 		addMiscellaneousMenu.hide();
+		addSolidMenu.hide();
 	}
 </script>
 
@@ -67,6 +70,16 @@
 	>
 		<CircleIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Shape
+		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+	</button>
+	<button
+		onmouseenter={() => {
+			hideSubmenus();
+			addSolidMenu.show();
+		}}
+	>
+		<CubeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		Solid
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button
@@ -103,6 +116,14 @@
 		top={verticalExpand === "bottom" ? "5rem" : "-8.5rem"}
 		left={horizontalExpand === "right" ? "100%" : "-100%"}
 		category="Shape"
+		hideOuter={hide}
+		{onSelect}
+	/>
+	<AddObjectSubmenu
+		bind:this={addSolidMenu}
+		top={verticalExpand === "bottom" ? "7rem" : "1.75rem"}
+		left={horizontalExpand === "right" ? "100%" : "-100%"}
+		category="Solid"
 		hideOuter={hide}
 		{onSelect}
 	/>
