@@ -76,16 +76,26 @@ export function getProjectSaveData(): string {
 		objects: projectObjects,
 		animations: projectAnimations,
 		audios: projectAudios,
+		markers: projectMarkers,
 		nextId: id,
 	});
 }
 
 export function loadProjectData(data: string) {
-	const { objects, animations, nextId, audios } = JSON.parse(data);
+	const { objects, animations, nextId, audios, markers } = JSON.parse(data);
 	projectAnimations = animations;
 	projectObjects = objects;
 	projectAudios = audios;
+	projectMarkers = markers;
 	id = nextId;
+}
+
+export function resetProject() {
+	projectAnimations = [];
+	projectObjects = [];
+	projectAudios = [];
+	projectMarkers = [];
+	id = 0;
 }
 
 export function getProjectAnimations(): ProjectAnimation[] {

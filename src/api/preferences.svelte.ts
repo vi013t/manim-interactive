@@ -8,6 +8,7 @@ import {
 	getProjectSaveData,
 	loadProjectData,
 	projectHasErrors,
+	resetProject,
 	select,
 	setProjectLocation,
 } from "./project.svelte";
@@ -118,7 +119,13 @@ const actions = {
 	},
 	"New Project": {
 		name: "New Project",
-		run() {},
+		async run({ path, name }: { path: string; name: string }) {
+			let projectPath = await invoke<string>("new_project", { path, name });
+			setProjectLocation(projectPath);
+			resetProject();
+			localStorage.setItem("last-project", projectPath);
+			videoGenerated = false;
+		},
 	},
 	Deselect: {
 		name: "Deselect",
@@ -142,7 +149,6 @@ let preferences = $state({
 	latexPreviews: true,
 	keybindings: [
 		keybinding(action("Save Project"), key("s", "ctrl")),
-		keybinding(action("New Project"), key("n", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),
 		keybinding(action("Add New"), key("a", "shift")),
 		keybinding(action("Deselect"), key("Escape")),
@@ -192,7 +198,7 @@ export async function runAction<Name extends ActionName>(name: Name, data?: Acti
 	if ("undo" in action) undoHistory.push({ action: action as any, data });
 }
 
-export function getActions(): Action[] {
+export function getActions(): Action<any>[] {
 	return Object.values(actions);
 }
 
@@ -202,7 +208,7 @@ export function key(key: string, ...modifiers: KeyModifier[]): Key {
 	return { key, modifiers };
 }
 
-export function action(name: ActionName): Action {
+export function action<Name extends ActionName>(name: Name): (typeof actions)[Name] {
 	return actions[name];
 }
 
@@ -220,7 +226,7 @@ export function displayKey(key: Key): string {
 	if (key.modifiers.includes("ctrl")) result += "Ctrl+";
 	if (key.modifiers.includes("alt")) result += "Alt+";
 	if (key.modifiers.includes("shift")) result += "Shift+";
-	result += key.key.toUpperCase();
+	result += key.key === " " ? "Space" : key.key.length > 1 ? key.key.charAt(0).toUpperCase() + key.key.substring(1).toLowerCase() : key.key.toUpperCase();
 	return result;
 }
 

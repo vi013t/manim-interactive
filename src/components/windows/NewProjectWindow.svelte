@@ -2,7 +2,7 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { open } from "@tauri-apps/plugin-dialog";
 	import { onMount } from "svelte";
-	import { setProjectLocation } from "../../api/project.svelte";
+	import { runAction } from "../../api/preferences.svelte";
 	import ErrorIcon from "../icons/ErrorIcon.svelte";
 	import FolderIcon from "../icons/FolderIcon.svelte";
 	import Window from "./Window.svelte";
@@ -17,7 +17,8 @@
 	let valid = $derived(nameErrorMessage === null && pathErrorMessage === null);
 
 	async function confirm() {
-		setProjectLocation(await invoke("new_project", { path, name }));
+		runAction("New Project", { path, name });
+		name = "";
 		windowComponent.close();
 	}
 

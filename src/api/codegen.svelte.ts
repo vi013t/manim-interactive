@@ -70,10 +70,10 @@ class Main(Scene):
 	def construct(self):
 ${objectLines}
 
-	def object(name: str):
-		return {
-${getProjectObjects().map(object => `\t\t\t"${object.name}": var_${object.id}`)}	
-		}.get(name);
+		def object(name: str):
+			return {
+${getProjectObjects().map(object => `\t\t\t\t"${object.name}": var_${object.id}`)}	
+			}.get(name);
 
 ${animationLines}
 `;
