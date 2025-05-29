@@ -1,4 +1,13 @@
 import type { Component } from "svelte";
+import annulusDemo from "../../assets/images/annulus_demo.png";
+import circleDemo from "../../assets/images/circle_demo.png";
+import ellipseDemo from "../../assets/images/ellipse_demo.png";
+import rectangleDemo from "../../assets/images/rectangle_demo.png";
+import regularPolygonDemo from "../../assets/images/regular_polygon_demo.png";
+import regularPolygramDemo from "../../assets/images/regular_polygram_demo.png";
+import squareDemo from "../../assets/images/square_demo.png";
+import starDemo from "../../assets/images/star_demo.png";
+import triangleDemo from "../../assets/images/triangle_demo.png";
 import AnnulusIcon from "../../components/icons/AnnulusIcon.svelte";
 import ArcIcon from "../../components/icons/ArcIcon.svelte";
 import CircleIcon from "../../components/icons/CircleIcon.svelte";
@@ -11,6 +20,7 @@ import PlainTextIcon from "../../components/icons/PlainTextIcon.svelte";
 import RectangleIcon from "../../components/icons/RectangleIcon.svelte";
 import SquareIcon from "../../components/icons/SquareIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
+import StarOfDavidIcon from "../../components/icons/StarOfDavidIcon.svelte";
 import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import UpArrowIcon from "../../components/icons/UpArrowIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
@@ -24,7 +34,15 @@ export const objectCategories = {
 } as const satisfies { [key: string]: { color: string } };
 
 export type ObjectCategory = keyof typeof objectCategories;
-export type ManimObject = { name: string; internalName?: string; category: ObjectCategory; icon: Component<{ stroke: string }>; properties: Property[] };
+export type ManimObject = {
+	name: string;
+	internalName?: string;
+	category: ObjectCategory;
+	icon: Component<{ stroke: string }>;
+	demo: string;
+	description: string;
+	properties: Property[];
+};
 
 export function getObjectCategory(name: ObjectCategory) {
 	return objectCategories[name];
@@ -57,6 +75,8 @@ export const objects = [
 		name: "Annulus",
 		category: "Shape",
 		icon: AnnulusIcon,
+		demo: annulusDemo,
+		description: "A ring; The space between two concentric circles.",
 		properties: [],
 	},
 	{
@@ -84,6 +104,8 @@ export const objects = [
 		name: "Circle",
 		category: "Shape",
 		icon: CircleIcon,
+		demo: circleDemo,
+		description: "All points equidistant from a center point.",
 		properties: [
 			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, category: "size", prioritized: true },
 			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], category: "position", prioritized: true },
@@ -94,6 +116,8 @@ export const objects = [
 		name: "Ellipse",
 		category: "Shape",
 		icon: EllipseIcon,
+		demo: ellipseDemo,
+		description: "All points with an equal sum of distances from two focal points.",
 		properties: [],
 	},
 	{
@@ -146,9 +170,17 @@ export const objects = [
 		properties: [],
 	},
 	{
+		name: "Polygram",
+		category: "Shape",
+		icon: HexagonIcon,
+		properties: [],
+	},
+	{
 		name: "Rectangle",
 		category: "Shape",
 		icon: RectangleIcon,
+		demo: rectangleDemo,
+		description: "A quadrilateral with four right angles.",
 		properties: [
 			{ name: "Width", internalName: "width", type: property().number().nonnegative(), defaultValue: 4, category: "size", prioritized: true },
 			{ name: "Height", internalName: "height", type: property().number().nonnegative(), defaultValue: 2, category: "size", prioritized: true },
@@ -158,15 +190,37 @@ export const objects = [
 		],
 	},
 	{
+		name: "Regular Polygon",
+		internalName: "RegularPolygon",
+		category: "Shape",
+		icon: HexagonIcon,
+		demo: regularPolygonDemo,
+		description: "A polygon with any number of equal sides and angles.",
+		properties: [],
+	},
+	{
+		name: "Regular Polygram",
+		internalName: "RegularPolygram",
+		category: "Shape",
+		icon: StarOfDavidIcon,
+		demo: regularPolygramDemo,
+		description: "A polygram with any number of equal sides and angles.",
+		properties: [],
+	},
+	{
 		name: "Square",
 		category: "Shape",
 		icon: SquareIcon,
+		demo: squareDemo,
+		description: "A rectangle with equal side lengths.",
 		properties: [],
 	},
 	{
 		name: "Star",
 		category: "Shape",
 		icon: StarIcon,
+		demo: starDemo,
+		description: "A regular polygram without intersecting lines.",
 		properties: [
 			{ name: "Points", internalName: "n", type: property().number().integeric().positive(), defaultValue: 1, category: "size", prioritized: true },
 			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: 1, category: "size", prioritized: true },
@@ -186,6 +240,8 @@ export const objects = [
 		name: "Triangle",
 		category: "Shape",
 		icon: TriangleIcon,
+		demo: triangleDemo,
+		description: "A regular polygon with three sides.",
 		properties: [],
 	},
 ] as const satisfies ManimObject[];

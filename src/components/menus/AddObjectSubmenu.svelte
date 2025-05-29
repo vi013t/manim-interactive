@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getObjectCategory, objects, type ObjectCategory } from "../../api/manim/objects";
+	import { getHorizontalExpandDirection } from "../../api/client.svelte";
+	import { getObjectCategory, objects, type ManimObject, type ObjectCategory } from "../../api/manim/objects";
 	import type { Property } from "../../api/manim/property";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
@@ -50,16 +51,19 @@
 
 	export function hide() {
 		menu.hide();
+		currentObject = null;
 	}
 
 	const categoryData = getObjectCategory(category);
 	const useObjects = objects.filter(object => object.category === category);
+
+	let currentObject: ManimObject | null = $state(null);
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Add {category}</span>
 	{#each useObjects as object}
-		<button onclick={() => onSelect(object.name)}>
+		<button onclick={() => onSelect(object.name)} onmouseover={() => (currentObject = object)}>
 			<object.icon stroke={categoryData.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{object.name}
 		</button>
@@ -72,10 +76,60 @@
 	{/if}
 </ContextMenu>
 
+{#if currentObject}
+	<div class="info" style:top style:left={getHorizontalExpandDirection() === "left" ? "-35rem" : "30rem"}>
+		<h1>{currentObject.name}</h1>
+		<p>{currentObject.description}</p>
+		<img src={currentObject.demo} alt="{currentObject.name} demo" />
+	</div>
+{/if}
+
 <style>
 	:global(button) {
 		display: flex;
 		align-items: center;
+	}
+
+	.info {
+		position: absolute;
+		left: -35rem;
+		background-color: #1e1e2e;
+		width: fit-content;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		border-radius: 0.5rem;
+		padding: 0px;
+
+		&:hover {
+			background-color: #1e1e2e;
+		}
+
+		h1 {
+			background-color: #181825;
+			padding-left: 1rem;
+			padding-right: 1rem;
+			padding-top: 0.5rem;
+			padding-bottom: 0.5rem;
+			border-top-left-radius: 0.5rem;
+			border-top-right-radius: 0.5rem;
+		}
+
+		p {
+			color: #9399b2;
+			margin-top: -0.5rem;
+			font-size: 0.85rem;
+			padding-left: 1rem;
+			padding-right: 1rem;
+		}
+
+		img {
+			width: 16rem;
+			height: 9rem;
+			margin-left: 1rem;
+			margin-right: 1rem;
+			margin-bottom: 1rem;
+		}
 	}
 
 	span {
