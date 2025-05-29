@@ -2,7 +2,7 @@ export type Property = {
 	name: string;
 	type: PropertyType;
 	defaultValue: unknown;
-	category: PropertyCategory;
+	categories: PropertyCategory[];
 	internalName: string;
 	prioritized?: true;
 	required?: true;

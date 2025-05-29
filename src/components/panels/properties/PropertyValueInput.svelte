@@ -131,7 +131,7 @@
 	}
 
 	let Icon = $derived(objects.find(object => object.name === item.objectType)!.icon);
-	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === item.objectType)!.category).color);
+	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === item.objectType)!.categories[0]).color);
 </script>
 
 <!-- Animation -->

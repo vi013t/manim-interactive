@@ -54,7 +54,7 @@
 	}
 
 	const categoryData = getObjectCategory(category);
-	const useObjects = objects.filter(object => object.category === category);
+	const useObjects = objects.filter(object => (object.categories as ObjectCategory[]).includes(category)).toSorted((a, b) => a.name.localeCompare(b.name));
 
 	let currentObject: ManimObject | null = $state(null);
 </script>
@@ -62,6 +62,7 @@
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Add {category}</span>
 	{#each useObjects as object}
+		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<button onclick={() => onSelect(object.name)} onmouseover={() => (currentObject = object)}>
 			<object.icon stroke={categoryData.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{object.name}
