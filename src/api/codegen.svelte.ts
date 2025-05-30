@@ -23,8 +23,14 @@ export function generateCode(): string {
 			if (!("objectType" in object)) return;
 			let possibleProperties = getPossibleProperties(object.objectType);
 
+			let objectBase = objects.find(manimObject => manimObject.name === object.objectType)!;
+			if ("create" in objectBase) {
+				return objectBase.create(object.properties);
+			}
+
+			// Positional Arguments
 			let positionalArguments = Object.entries(object.properties)
-				.filter(([propertyName, propertyValue]) => {
+				.filter(([propertyName, _propertyValue]) => {
 					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
 					return position !== undefined;
 				})
@@ -39,6 +45,7 @@ export function generateCode(): string {
 				})
 				.join("");
 
+			// Keyword Arguments
 			let keywordArguments = Object.entries(object.properties)
 				.filter(([propertyName, propertyValue]) => {
 					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;

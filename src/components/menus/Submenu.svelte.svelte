@@ -1,9 +1,11 @@
 <script lang="ts">
 	import type { Component } from "svelte";
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
+	import { getPreferences } from "../../api/preferences.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
+	import ExternalLink from "../util/ExternalLink.svelte";
 
-	export type MenuOption = { name: string; description: string; demo: string; icon: Component<{ stroke: string; [key: string]: unknown }> };
+	export type MenuOption = { name: string; description: string; demo: string; icon: Component<{ stroke: string; [key: string]: unknown }>; documentation?: string[] };
 
 	let {
 		top,
@@ -71,7 +73,7 @@
 	{/each}
 </ContextMenu>
 
-{#if hoveringOption && demoType !== "none"}
+{#if getPreferences().previews && hoveringOption && demoType !== "none"}
 	<div
 		class="info"
 		style:left={horizontalExpand === "left" ? "-33rem" : "30rem"}
@@ -88,6 +90,10 @@
 		{:else}
 			<!-- svelte-ignore a11y_media_has_caption -->
 			<video src={hoveringOption.demo} autoplay loop></video>
+		{/if}
+
+		{#if hoveringOption.documentation}
+			<ExternalLink hrefs={hoveringOption.documentation} style="margin-left: 1rem; margin-top: -1rem; margin-bottom: 1rem;">Documentation</ExternalLink>
 		{/if}
 	</div>
 {/if}

@@ -10,7 +10,7 @@ export type Property = {
 	type: PropertyType;
 	defaultValue: unknown;
 	categories: PropertyCategory[];
-	internalName: string;
+	internalName?: string;
 	prioritized?: true;
 	required?: true;
 	position?: number;
@@ -42,6 +42,10 @@ export type SelectProperty = {
 	base: "string";
 	options: string[];
 	choices(...options: string[]): SelectProperty;
+};
+
+export type ObjectTypeProperty = {
+	base: "objectType";
 };
 
 export type ObjectProperty = {
@@ -112,7 +116,16 @@ export type BooleanProperty = {
 	base: "boolean";
 };
 
-export type PropertyType = NumberProperty | StringProperty | ColorProperty | CoordinateProperty | BooleanProperty | ObjectProperty | AnimationProperty | SelectProperty;
+export type PropertyType =
+	| NumberProperty
+	| StringProperty
+	| ColorProperty
+	| CoordinateProperty
+	| BooleanProperty
+	| ObjectTypeProperty
+	| AnimationProperty
+	| SelectProperty
+	| ObjectProperty;
 export type PropertyTypeBase = PropertyType["base"];
 
 export const property = (() => {
@@ -187,6 +200,11 @@ export const property = (() => {
 				base: "color",
 			};
 		},
+		objectType(): ObjectTypeProperty {
+			return {
+				base: "objectType",
+			};
+		},
 		object(): ObjectProperty {
 			return {
 				base: "object",
@@ -218,5 +236,7 @@ export const property = (() => {
 }) satisfies () => { [Key in PropertyTypeBase]: () => PropertyType };
 
 export function propertyValueToString(property: Property, value: unknown): string {
-	return `${["string", "color"].includes(property.type.base) ? `r"${value}"` : value}`;
+	if (["string", "color"].includes(property.type.base)) return `r"${value}"`;
+	if (property.type.base === "object") return `var_${value}`;
+	return `${value}`;
 }

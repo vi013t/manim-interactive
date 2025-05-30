@@ -53,7 +53,7 @@
 		icon: category.icon,
 		options: objects
 			.filter(object => (object.categories as any).includes(category.name))
-			.map(object => ({ name: object.name, icon: object.icon, description: object.description, demo: object.demo })),
+			.map(object => ({ name: object.name, icon: object.icon, description: object.description, demo: object.demo, documentation: (object as any).documentation })),
 		title: `Add ${category.name}`,
 		color: category.color,
 	}))}

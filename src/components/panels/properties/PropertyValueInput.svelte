@@ -4,7 +4,7 @@
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { type PropertyType } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { addError, getItemFromId, isNameTaken, removeError, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
+	import { addError, getItemFromId, getProjectObjects, isNameTaken, removeError, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
 	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
@@ -30,7 +30,7 @@
 	// svelte-ignore non_reactive_update
 	let addObjectMenu: AddObjectMenu;
 	// svelte-ignore non_reactive_update
-	let selectedOption = $state(defaultValue);
+	let selectedOption: any = $state(defaultValue as any);
 	// svelte-ignore non_reactive_update
 	let booleanValue: boolean;
 
@@ -87,6 +87,11 @@
 			return null;
 		}
 
+		if (required && (type.base === "object" || (type.base === "string" && "options" in type))) {
+			if (selectedOption === null || selectedOption === undefined) return "Selection cannot be empty";
+			return null;
+		}
+
 		if (type.base === "string" && !("options" in type)) {
 			if (!type.canBeEmpty && input.value === "") return "Value cannot be empty";
 			if (name === "name" && isNameTaken(input.value.trim(), selected()!)) return "Name is already taken";
@@ -102,7 +107,7 @@
 	let previousValue = defaultValue;
 
 	function hasValueChanged() {
-		return input && input.value !== previousValue;
+		return input ? input.value !== previousValue : true;
 	}
 
 	function setColorProperty(color: string) {
@@ -124,12 +129,14 @@
 			item.properties[name] = selectedOption;
 		} else if (type.base === "string") {
 			item.properties[name] = input.value;
+		} else if (type.base === "object") {
+			item.properties[name] = selectedOption;
 		} else if (type.base === "number") {
 			item.properties[name] = Number(input.value);
 		} else if (type.base === "boolean") {
 			item.properties[name] = booleanValue;
 		}
-		previousValue = input.value;
+		previousValue = input?.value;
 		runAction("Save Project");
 	}
 
@@ -162,16 +169,48 @@
 			{defaultValue}
 		</button>
 		<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} openers={[addButton]} />
-	{:else if type.base === "object"}
+
+		<!-- Object Type -->
+	{:else if type.base === "objectType"}
 		<button class="add-animation" bind:this={addButton} onclick={addObject}>
 			<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
 			{objectValueInput}
 		</button>
 		<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type" />
 
+		<!-- Object -->
+	{:else if type.base === "object"}
+		<Select
+			options={getProjectObjects()
+				.filter(object => object.id !== selected())
+				.map(object => {
+					const manimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
+					const category = getObjectCategory(manimObject.categories[0]);
+					return { name: object.name, icon: manimObject.icon, color: category.color };
+				})}
+			onSelect={name => {
+				selectedOption = getProjectObjects().find(manimObject => manimObject.name === name)!.id;
+				validate();
+				setProperty();
+			}}
+			value={(() => {
+				if (selectedOption) {
+					const object = getItemFromId(selectedOption)!;
+					const manimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
+					const category = getObjectCategory(manimObject.categories[0]);
+					return { name: object.name, icon: manimObject.icon, color: category.color };
+				} else {
+					return "";
+				}
+			})()}
+			style={`outline: 2px solid ${selectedOption ? "transparent" : "#f38ba8"}`}
+		/>
+
 		<!-- Color -->
 	{:else if type.base === "color"}
 		<ColorPicker onSelect={setColorProperty} />
+
+		<!-- Boolean -->
 	{:else if type.base === "boolean"}
 		<input oninput={setProperty} type="checkbox" bind:checked={booleanValue} />
 

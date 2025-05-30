@@ -14,17 +14,10 @@ Manim Interactive requires [Python 3](https://www.python.org/downloads/) to be i
 
 #### Manim
 
-Before installing Manim Interactive, you must have `manim` itself installed as a global tool. You can do so with `uv`. First, install `uv`:
+Before installing Manim Interactive, you must have `manim` itself installed as a global tool:
 
 ```bash
-powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex" # Windows
-curl -LsSf https://astral.sh/uv/install.sh | sh # Unix
-```
-
-Then, install `manim` globally with `uv`:
-
-```bash
-uv tool install manim
+pip install manim
 ```
 
 #### LaTeX

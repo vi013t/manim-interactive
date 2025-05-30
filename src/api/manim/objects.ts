@@ -4,6 +4,7 @@ import annulusDemo from "../../assets/images/annulus_demo.png";
 import barChartDemo from "../../assets/images/bar_chart_demo.png";
 import boundingPolygonDemo from "../../assets/images/bounding_polygon_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
+import combinatorDemo from "../../assets/images/combinator_demo.png";
 import coneDemo from "../../assets/images/cone_demo.png";
 import cubeDemo from "../../assets/images/cube_demo.png";
 import cylinderDemo from "../../assets/images/cylinder_demo.png";
@@ -68,7 +69,8 @@ import TorusIcon from "../../components/icons/TorusIcon.svelte";
 import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
-import { property, type Property } from "./property";
+import { getPossibleProperties } from "./properties";
+import { property, propertyValueToString, type Property } from "./property";
 
 export const objectCategories = [
 	{ color: "#fab387", icon: LineIcon, name: "Line" },
@@ -89,6 +91,8 @@ export type ManimObject = {
 	demo: string;
 	description: string;
 	properties: Property[];
+	documentation: string[];
+	create?: (properties: { [key: string]: unknown }) => string;
 };
 
 export function getObjectCategory(name: ObjectCategoryName) {
@@ -160,6 +164,7 @@ export const objects = [
 		categories: ["Line"],
 		icon: AngleIcon,
 		description: "A geometric angle.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.line.Angle.html"],
 		demo: circleDemo,
 		properties: [],
 	},
@@ -170,6 +175,7 @@ export const objects = [
 		icon: AnnularSectorIcon,
 		demo: annularSectorDemo,
 		description: "An angular slice of an annulus.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.AnnularSector.html"],
 		properties: [],
 	},
 	{
@@ -178,6 +184,7 @@ export const objects = [
 		icon: AnnulusIcon,
 		demo: annulusDemo,
 		description: "A ring; The space between two concentric circles.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Annulus.html"],
 		properties: [],
 	},
 	{
@@ -186,6 +193,7 @@ export const objects = [
 		icon: ArcIcon,
 		description: "Part of a circle.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Arc.html"],
 		properties: [
 			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["Size"], prioritized: true },
 			{ name: "Start Angle", internalName: "start_angle", type: property().number(), defaultValue: 0, categories: ["Size"], prioritized: true },
@@ -203,6 +211,7 @@ export const objects = [
 		icon: PlusIcon,
 		description: "Mathematical axis lines.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.graphing.coordinate_systems.Axes.html"],
 		properties: [],
 	},
 	{
@@ -212,6 +221,7 @@ export const objects = [
 		icon: BarChartIcon,
 		description: "A statistical bar graph.",
 		demo: barChartDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.graphing.probability.BarChart.html"],
 		properties: [],
 	},
 	{
@@ -221,6 +231,7 @@ export const objects = [
 		icon: BoundingPolygonIcon,
 		description: "A polygon that connects the outermost points in a group of points.",
 		demo: boundingPolygonDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.ConvexHull.html"],
 		properties: [],
 	},
 	{
@@ -230,6 +241,7 @@ export const objects = [
 		icon: BulletedListIcon,
 		description: "A list of text items with bullets.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.tex_mobject.BulletedList.html"],
 		properties: [],
 	},
 	{
@@ -238,6 +250,7 @@ export const objects = [
 		icon: CircleIcon,
 		demo: circleDemo,
 		description: "All points equidistant from a center point.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Circle.html"],
 		properties: [
 			{
 				name: "Radius",
@@ -257,7 +270,7 @@ export const objects = [
 		categories: ["Miscellaneous"],
 		icon: CombinatorIcon,
 		description: "Allows combining two objects in different ways.",
-		demo: circleDemo,
+		demo: combinatorDemo,
 		properties: [
 			{
 				name: "Method",
@@ -265,9 +278,68 @@ export const objects = [
 				defaultValue: "Difference",
 				categories: ["Special"],
 				required: true,
-				internalName: null!,
+			},
+			{
+				name: "First Object",
+				type: property().object(),
+				defaultValue: null!,
+				categories: ["Special"],
+				required: true,
+				position: 0,
+			},
+			{
+				name: "Second Object",
+				type: property().object(),
+				defaultValue: null!,
+				categories: ["Special"],
+				required: true,
+				position: 1,
 			},
 		],
+		documentation: [
+			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Exclusion.html",
+			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Difference.html",
+			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Intersection.html",
+			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Union.html",
+		],
+		create(properties: { [key: string]: unknown }) {
+			let name = properties.Method;
+			delete properties.Method;
+
+			let possibleProperties = getPossibleProperties("Combinator");
+
+			// Positional Arguments
+			let positionalArguments = Object.entries(properties)
+				.filter(([propertyName, _propertyValue]) => {
+					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
+					return position !== undefined;
+				})
+				.toSorted(([nameA, _valueA], [nameB, _valueB]) => {
+					let positionA = possibleProperties.find(possible => possible.name === nameA)!.position!;
+					let positionB = possibleProperties.find(possible => possible.name === nameB)!.position!;
+					return positionA - positionB;
+				})
+				.map(([propertyName, propertyValue]) => {
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					return `${propertyValueToString(propertyBase, propertyValue)}, `;
+				})
+				.join("");
+
+			// Keyword Arguments
+			let keywordArguments = Object.entries(properties)
+				.filter(([propertyName, propertyValue]) => {
+					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;
+					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
+					return position === undefined && propertyValue !== defaultValue;
+				})
+				.map(([propertyName, propertyValue]) => {
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase, propertyValue)}`;
+				})
+				.join(", ");
+
+			return `${name}(${positionalArguments}${keywordArguments})`;
+		},
 	},
 	{
 		name: "Code",
@@ -275,6 +347,7 @@ export const objects = [
 		icon: CodeIcon,
 		description: "A block of code or script.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.code_mobject.Code.html"],
 		properties: [],
 	},
 	{
@@ -283,6 +356,7 @@ export const objects = [
 		icon: ConeIcon,
 		description: "The set of all lines between a circle and a point on the axis normal to its center.",
 		demo: coneDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.three_dimensions.Cone.html"],
 		properties: [],
 	},
 	{
@@ -291,6 +365,7 @@ export const objects = [
 		icon: CubeIcon,
 		demo: cubeDemo,
 		description: "A square extruded into 3D space by its side length.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.three_dimensions.Cube.html"],
 		properties: [],
 	},
 	{
@@ -299,6 +374,7 @@ export const objects = [
 		icon: CylinderIcon,
 		description: "A circle extruded into 3D space.",
 		demo: cylinderDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.three_dimensions.Cylinder.html"],
 		properties: [],
 	},
 	{
@@ -307,6 +383,7 @@ export const objects = [
 		icon: DodecahedronIcon,
 		description: "A regular polyhedron with 12 sides.",
 		demo: dodecahedronDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.polyhedra.Dodecahedron.html"],
 		properties: [],
 	},
 	{
@@ -315,10 +392,13 @@ export const objects = [
 		icon: EllipseIcon,
 		demo: ellipseDemo,
 		description: "All points with an equal sum of distances from two focal points.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Ellipse.html"],
 		properties: [],
 	},
 	{
 		name: "Graph",
+		internalName: "NumberPlane",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.graphing.coordinate_systems.NumberPlane.html"],
 		categories: ["Math"],
 		icon: GridIcon,
 		demo: graphDemo,
@@ -327,9 +407,11 @@ export const objects = [
 	},
 	{
 		name: "Group",
+		internalName: "VGroup",
 		categories: ["Miscellaneous"],
 		icon: PackageIcon,
 		description: "A group of other objects, allowing animating them at the same time.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.types.vectorized_mobject.VGroup.html"],
 		demo: circleDemo,
 		properties: [],
 	},
@@ -339,14 +421,17 @@ export const objects = [
 		icon: IcosahedronIcon,
 		description: "A regular polyhedron with 20 sides.",
 		demo: icosahedronDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.polyhedra.Icosahedron.html"],
 		properties: [],
 	},
 	{
 		name: "Image",
+		internalName: "ImageMobject",
 		categories: ["Miscellaneous"],
 		icon: ImageIcon,
 		description: "An image loaded from a file.",
 		demo: imageDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.types.image_mobject.ImageMobject.html"],
 		properties: [
 			// Custom
 			{
@@ -362,6 +447,7 @@ export const objects = [
 	},
 	{
 		name: "Line",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.line.Line.html"],
 		categories: ["Line"],
 		icon: LineIcon,
 		description: "A customizeable line.",
@@ -375,6 +461,7 @@ export const objects = [
 		icon: VariableIcon,
 		description: "A mathematical equation formatted with LaTeX",
 		demo: mathTextDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.tex_mobject.MathTex.html"],
 		properties: [
 			{
 				name: "Text",
@@ -392,6 +479,7 @@ export const objects = [
 		name: "Network",
 		internalName: "Graph",
 		categories: ["Line"],
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.graph.Graph.html"],
 		icon: NetworkIcon,
 		description: "A connected graph of node points.",
 		demo: circleDemo,
@@ -403,6 +491,7 @@ export const objects = [
 		description: "A regular polyhedron with 8 sides.",
 		icon: OctahedronIcon,
 		demo: octahedronDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.polyhedra.Octahedron.html"],
 		properties: [],
 	},
 	{
@@ -411,6 +500,7 @@ export const objects = [
 		icon: ParagraphIcon,
 		description: "Text with multiple lines.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.Paragraph.html"],
 		properties: [],
 	},
 	{
@@ -420,6 +510,7 @@ export const objects = [
 		internalName: "Text",
 		description: "Plain text.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.Text.html"],
 		properties: [
 			{
 				name: "Text",
@@ -457,6 +548,7 @@ export const objects = [
 		icon: PolygonIcon,
 		demo: polygonDemo,
 		description: "A set of points connected by straight lines.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Polygon.html"],
 		properties: [],
 	},
 	{
@@ -465,6 +557,7 @@ export const objects = [
 		icon: NetworkIcon,
 		description: "A polygon with intersecting edges.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Polygram.html"],
 		properties: [],
 	},
 	{
@@ -473,6 +566,7 @@ export const objects = [
 		icon: RectangleIcon,
 		demo: rectangleDemo,
 		description: "A quadrilateral with four right angles.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Rectangle.html"],
 		properties: [
 			{
 				name: "Width",
@@ -504,6 +598,7 @@ export const objects = [
 		description: "A rectangle extruded into 3D space.",
 		icon: RectangularPrismIcon,
 		demo: rectangularPrismDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.three_dimensions.Prism.html"],
 		properties: [],
 	},
 	{
@@ -513,6 +608,7 @@ export const objects = [
 		icon: HexagonIcon,
 		demo: regularPolygonDemo,
 		description: "A polygon with any number of equal sides and angles.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.RegularPolygon.html"],
 		properties: [],
 	},
 	{
@@ -522,6 +618,7 @@ export const objects = [
 		icon: StarOfDavidIcon,
 		demo: regularPolygramDemo,
 		description: "A polygram with any number of equal sides and angles.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.RegularPolygram.html"],
 		properties: [],
 	},
 	{
@@ -530,6 +627,7 @@ export const objects = [
 		icon: CodeIcon,
 		description: "An object custom scripted in Python.",
 		demo: circleDemo,
+		documentation: ["https://github.com/vi013t/manim-interactive/docs/scripted-objects.md"],
 		properties: [],
 	},
 	{
@@ -538,6 +636,7 @@ export const objects = [
 		icon: SectorIcon,
 		demo: sectorDemo,
 		description: "All points equidistant from a center point.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Sector.html"],
 		properties: [],
 	},
 	{
@@ -546,6 +645,7 @@ export const objects = [
 		icon: SphereIcon,
 		description: "All three-dimensional points equidistant from a center point.",
 		demo: sphereDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.three_dimensions.Sphere.html"],
 		properties: [],
 	},
 	{
@@ -554,6 +654,7 @@ export const objects = [
 		icon: SquareIcon,
 		demo: squareDemo,
 		description: "A rectangle with equal side lengths.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Square.html"],
 		properties: [],
 	},
 	{
@@ -562,6 +663,7 @@ export const objects = [
 		icon: StarIcon,
 		demo: starDemo,
 		description: "A regular polygram without intersecting lines.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Star.html"],
 		properties: [
 			{
 				name: "Number of Points",
@@ -585,14 +687,17 @@ export const objects = [
 		icon: WaveIcon,
 		demo: streamLinesDemo,
 		description: "A visualization of flow in a vector field.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.vector_field.StreamLines.html"],
 		properties: [],
 	},
 	{
 		name: "Styled Text",
+		internalName: "MarkupText",
 		categories: ["Text"],
 		icon: ItalicIcon,
 		description: "Text with formatting and styling.",
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.MarkupText.html#manim.mobject.text.text_mobject.MarkupText"],
 		properties: [],
 	},
 	{
@@ -602,6 +707,7 @@ export const objects = [
 		categories: ["Line"],
 		icon: LineIcon,
 		demo: circleDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.line.TangentLine.html"],
 		properties: [],
 	},
 	{
@@ -610,6 +716,7 @@ export const objects = [
 		categories: ["Solid"],
 		icon: TetrahedronIcon,
 		demo: tetrahedronDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.polyhedra.Tetrahedron.html"],
 		properties: [],
 	},
 	{
@@ -618,6 +725,7 @@ export const objects = [
 		categories: ["Solid"],
 		icon: TorusIcon,
 		demo: torusDemo,
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.three_d.three_dimensions.Torus.html"],
 		properties: [],
 	},
 	{
@@ -626,6 +734,7 @@ export const objects = [
 		icon: TriangleIcon,
 		demo: triangleDemo,
 		description: "A regular polygon with three sides.",
+		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Triangle.html"],
 		properties: [],
 	},
 ] as const satisfies ManimObject[];

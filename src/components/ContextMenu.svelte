@@ -29,6 +29,10 @@
 		});
 	});
 
+	export function isVisible(): boolean {
+		return visible;
+	}
+
 	export function element(): HTMLElement {
 		return menu;
 	}

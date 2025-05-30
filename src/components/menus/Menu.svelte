@@ -42,19 +42,24 @@
 	}
 
 	export function toggle() {
-		menu.toggle();
+		if (menu.isVisible()) hide();
+		else show();
 	}
 
 	export function hide() {
+		hoveredSubmenu = null;
 		menu.hide();
 	}
 
 	function showMenu(submenuName: string) {
 		return function () {
+			hoveredSubmenu = submenuName;
 			submenus.forEach(menu => menu.menu.hide());
 			submenus.find(menu => menu.name === submenuName)!.menu.show();
 		};
 	}
+
+	let hoveredSubmenu: string | null = $state(null);
 
 	function closeOnSelect(choice: string) {
 		hide();
@@ -65,7 +70,7 @@
 <ContextMenu bind:this={menu} {top} {left} {openers}>
 	<span>{title}</span>
 	{#each submenus as submenu, index}
-		<button onmouseenter={showMenu(submenu.name)}>
+		<button style:background-color={hoveredSubmenu === submenu.name ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={showMenu(submenu.name)}>
 			<submenu.icon stroke={submenu.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{submenu.name}
 			<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
