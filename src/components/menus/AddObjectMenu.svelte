@@ -12,7 +12,7 @@
 	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
 		let properties: { [key: string]: unknown } = {};
-		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = null));
+		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = property.defaultValue));
 		menu.hide();
 
 		let name = type;

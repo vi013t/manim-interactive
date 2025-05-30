@@ -69,7 +69,7 @@
 			<img src={hoveringOption.demo} alt="{hoveringOption.name} demo" />
 		{:else}
 			<!-- svelte-ignore a11y_media_has_caption -->
-			<video src={hoveringOption.demo} autoplay></video>
+			<video src={hoveringOption.demo} autoplay loop></video>
 		{/if}
 	</div>
 {/if}

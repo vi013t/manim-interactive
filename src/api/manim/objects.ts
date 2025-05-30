@@ -1,14 +1,18 @@
 import type { Component } from "svelte";
 import annulusDemo from "../../assets/images/annulus_demo.png";
+import barChartDemo from "../../assets/images/bar_chart_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
 import ellipseDemo from "../../assets/images/ellipse_demo.png";
+import graphDemo from "../../assets/images/graph_demo.png";
 import imageDemo from "../../assets/images/image_demo.png";
+import mathTextDemo from "../../assets/images/math_text_demo.png";
 import polygonDemo from "../../assets/images/polygon_demo.png";
 import rectangleDemo from "../../assets/images/rectangle_demo.png";
 import regularPolygonDemo from "../../assets/images/regular_polygon_demo.png";
 import regularPolygramDemo from "../../assets/images/regular_polygram_demo.png";
 import squareDemo from "../../assets/images/square_demo.png";
 import starDemo from "../../assets/images/star_demo.png";
+import streamLinesDemo from "../../assets/images/stream_lines_demo.png";
 import triangleDemo from "../../assets/images/triangle_demo.png";
 import AngleIcon from "../../components/icons/AngleIcon.svelte";
 import AnnularSectorIcon from "../../components/icons/AnnularSectorIcon.svelte";
@@ -55,9 +59,9 @@ import { property, type Property } from "./property";
 
 export const objectCategories = [
 	{ color: "#fab387", icon: LineIcon, name: "Line" },
-	{ color: "#f38ba8", icon: VariableIcon, name: "Math" },
-	{ color: "#89b4fa", icon: CircleIcon, name: "Shape" },
-	{ color: "#cba6f7", icon: CubeIcon, name: "Solid" },
+	{ color: "#a6e3a1", icon: VariableIcon, name: "Math" },
+	{ color: "#f38ba8", icon: CircleIcon, name: "Shape" },
+	{ color: "#89b4fa", icon: CubeIcon, name: "Solid" },
 	{ color: "#f9e2af", icon: PlainTextIcon, name: "Text" },
 	{ color: "#b4befe", icon: AsteriskIcon, name: "Miscellaneous" },
 ] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
@@ -193,8 +197,8 @@ export const objects = [
 		internalName: "BarChart",
 		categories: ["Math"],
 		icon: BarChartIcon,
-		description: "A statistical bar chart.",
-		demo: circleDemo,
+		description: "A statistical bar graph.",
+		demo: barChartDemo,
 		properties: [],
 	},
 	{
@@ -304,7 +308,7 @@ export const objects = [
 		name: "Graph",
 		categories: ["Math"],
 		icon: GridIcon,
-		demo: annulusDemo,
+		demo: graphDemo,
 		description: "A mathematical graph.",
 		properties: [],
 	},
@@ -357,7 +361,7 @@ export const objects = [
 		categories: ["Text", "Math"],
 		icon: VariableIcon,
 		description: "A mathematical equation formatted with LaTeX",
-		demo: circleDemo,
+		demo: mathTextDemo,
 		properties: [
 			{
 				name: "Text",
@@ -566,8 +570,8 @@ export const objects = [
 		name: "Stream Lines",
 		categories: ["Math"],
 		icon: WaveIcon,
-		demo: triangleDemo,
-		description: "A regular polygon with three sides.",
+		demo: streamLinesDemo,
+		description: "A visualization of flow in a vector field.",
 		properties: [],
 	},
 	{

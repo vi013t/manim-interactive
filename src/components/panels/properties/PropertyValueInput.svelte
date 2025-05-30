@@ -11,6 +11,7 @@
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
+	import Select from "../../util/Select.svelte";
 	import ColorPicker from "./ColorPicker.svelte";
 	import LatexPreview from "./LatexPreview.svelte";
 
@@ -28,6 +29,10 @@
 	let addAnimationMenu: AddAnimationMenu;
 	// svelte-ignore non_reactive_update
 	let addObjectMenu: AddObjectMenu;
+	// svelte-ignore non_reactive_update
+	let selectedOption = $state(defaultValue);
+	// svelte-ignore non_reactive_update
+	let booleanValue: boolean;
 
 	let addButton: HTMLElement | null = $state(null);
 
@@ -60,6 +65,18 @@
 		else removeError({ objectId: selected()!, propertyName: name });
 	}
 
+	function stringInput(event: KeyboardEvent) {
+		if (event.key === "Enter") {
+			event.preventDefault();
+
+			validate();
+
+			if (!errorMessage) {
+				(event.target as HTMLElement).blur();
+			}
+		}
+	}
+
 	function getErrorMessage(): string | null {
 		if (type.base === "number") {
 			if (!/^-?\d+(\.\d+)?$/.test(input.value)) return "Value must be a number";
@@ -70,7 +87,7 @@
 			return null;
 		}
 
-		if (type.base === "string") {
+		if (type.base === "string" && !("options" in type)) {
 			if (!type.canBeEmpty && input.value === "") return "Value cannot be empty";
 			if (name === "name" && isNameTaken(input.value.trim(), selected()!)) return "Name is already taken";
 			return null;
@@ -103,10 +120,14 @@
 			(item as ProjectObject).objectType = input.value;
 		} else if (name === "name") {
 			item.name = input.value.trim();
+		} else if (type.base === "string" && "options" in type) {
+			item.properties[name] = selectedOption;
 		} else if (type.base === "string") {
 			item.properties[name] = input.value;
 		} else if (type.base === "number") {
 			item.properties[name] = Number(input.value);
+		} else if (type.base === "boolean") {
+			item.properties[name] = booleanValue;
 		}
 		previousValue = input.value;
 		runAction("Save Project");
@@ -140,7 +161,7 @@
 		<button class="add-animation" bind:this={addButton} onclick={addAnimation}>
 			{defaultValue}
 		</button>
-		<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} hideParent={() => {}} openers={[addButton]} />
+		<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} openers={[addButton]} />
 	{:else if type.base === "object"}
 		<button class="add-animation" bind:this={addButton} onclick={addObject}>
 			<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
@@ -151,6 +172,12 @@
 		<!-- Color -->
 	{:else if type.base === "color"}
 		<ColorPicker onSelect={setColorProperty} />
+	{:else if type.base === "boolean"}
+		<input oninput={setProperty} type="checkbox" bind:checked={booleanValue} />
+
+		<!-- Select -->
+	{:else if type.base === "string" && "options" in type}
+		<Select options={type.options} bind:value={selectedOption} />
 
 		<!-- string, number -->
 	{:else if type.base === "string" || type.base === "number"}
@@ -167,6 +194,7 @@
 				style:outline={errorMessage ? "2px solid #f38ba8" : "none"}
 				type="text"
 				oninput={validate}
+				onkeydown={stringInput}
 				autocomplete="off"
 				bind:value={inputValue}
 			/>
@@ -222,8 +250,12 @@
 		width: 10rem;
 	}
 
-	input {
+	input[type="text"] {
 		width: 20rem;
+	}
+
+	input[type="checkbox"] {
+		accent-color: #b4befe;
 	}
 
 	.error {
