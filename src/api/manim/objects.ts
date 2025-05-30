@@ -248,7 +248,7 @@ export const objects = [
 		properties: [
 			{
 				name: "Method",
-				type: property().select().choices("Difference", "Intersection", "Exclusion"),
+				type: property().select().choices("Difference", "Exclusion", "Intersection", "Union"),
 				defaultValue: "Difference",
 				categories: ["Special"],
 				required: true,

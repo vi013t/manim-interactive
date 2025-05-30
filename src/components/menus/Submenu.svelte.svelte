@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Component } from "svelte";
-	import { getHorizontalExpandDirection } from "../../api/client.svelte";
+	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 
 	export type MenuOption = { name: string; description: string; demo: string; icon: Component<{ stroke: string; [key: string]: unknown }> };
@@ -27,12 +27,13 @@
 
 	let menu: ContextMenu;
 
-	export function show() {
-		menu.show();
-	}
+	let horizontalExpand = $state("right");
+	let verticalExpand = $state("bottom");
 
-	export function toggle() {
-		menu.toggle();
+	export function show() {
+		horizontalExpand = getHorizontalExpandDirection();
+		verticalExpand = getVerticalExpandDirection();
+		menu.show();
 	}
 
 	export function hide() {
@@ -44,7 +45,16 @@
 	let hoveringIndex: number | null = $state(null);
 </script>
 
-<ContextMenu bind:this={menu} {top} {bottom} {left}>
+<ContextMenu
+	bind:this={menu}
+	{top}
+	{bottom}
+	{left}
+	onHide={() => {
+		hoveringOption = null;
+		hoveringIndex = null;
+	}}
+>
 	<span>{title}</span>
 	{#each options as option, index}
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -62,7 +72,12 @@
 </ContextMenu>
 
 {#if hoveringOption && demoType !== "none"}
-	<div class="info" style:left={getHorizontalExpandDirection() === "left" ? "-33rem" : "30rem"} style:top="calc(1.85rem + {top} + {hoveringIndex! * 1.72}rem)">
+	<div
+		class="info"
+		style:left={horizontalExpand === "left" ? "-33rem" : "30rem"}
+		style:top={verticalExpand === "bottom" ? `calc(${top} + ${1.85 + hoveringIndex! * 1.72}rem)` : undefined}
+		style:bottom={verticalExpand === "top" ? `calc(${bottom} + ${(options.length - 1 - hoveringIndex!) * 1.72}rem)` : undefined}
+	>
 		<h1>{hoveringOption.name}</h1>
 		<p>{hoveringOption.description}</p>
 		{#if demoType === "image"}

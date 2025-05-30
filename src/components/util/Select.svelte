@@ -30,7 +30,7 @@
 			<div onclick={select(option)}>{option}</div>
 		{/each}
 	</div>
-	<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.2s;" />
+	<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
 
 <style>
