@@ -78,7 +78,10 @@
 		style:top={verticalExpand === "bottom" ? `calc(${top} + ${1.85 + hoveringIndex! * 1.72}rem)` : undefined}
 		style:bottom={verticalExpand === "top" ? `calc(${bottom} + ${(options.length - 1 - hoveringIndex!) * 1.72}rem)` : undefined}
 	>
-		<h1>{hoveringOption.name}</h1>
+		<h1>
+			<hoveringOption.icon stroke={color} style="width: 1rem; height: 1rem;" />
+			{hoveringOption.name}
+		</h1>
 		<p>{hoveringOption.description}</p>
 		{#if demoType === "image"}
 			<img src={hoveringOption.demo} alt="{hoveringOption.name} demo" />
@@ -118,6 +121,9 @@
 			padding-bottom: 0.5rem;
 			border-top-left-radius: 0.5rem;
 			border-top-right-radius: 0.5rem;
+			display: flex;
+			gap: 0.5rem;
+			align-items: center;
 		}
 
 		p {

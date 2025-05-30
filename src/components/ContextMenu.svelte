@@ -64,5 +64,10 @@
 		:global(> span) {
 			cursor: default;
 		}
+
+		:global(> *:last-child) {
+			border-bottom-left-radius: 0.5em;
+			border-bottom-right-radius: 0.5em;
+		}
 	}
 </style>

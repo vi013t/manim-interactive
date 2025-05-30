@@ -16,6 +16,8 @@
 	let windowButton: HTMLElement;
 	let projectMenu: ContextMenu;
 	let windowMenu: ContextMenu;
+	let helpMenu: ContextMenu;
+	let helpButton: HTMLElement;
 
 	async function saveProject() {
 		projectMenu.hide();
@@ -88,6 +90,12 @@
 		<button onclick={preferences}>Preferences</button>
 	</ContextMenu>
 
+	<button bind:this={helpButton} onclick={helpMenu.toggle}>Help</button>
+	<ContextMenu bind:this={helpMenu} top="2rem" left="10rem" openers={[helpButton]}>
+		<a href="https://github.com/vi013t/manim-interactive" target="_blank">Manim Interactive Documentation</a>
+		<a href="https://docs.manim.community/en/stable/tutorials/quickstart.html" target="_blank">Manim Documentation</a>
+	</ContextMenu>
+
 	<div class="video-options">
 		<button
 			onclick={togglePreference("lowRes")}
@@ -158,15 +166,17 @@
 			width: 1.75rem;
 		}
 
-		> button {
-			font-size: inherit;
+		> button,
+		a {
+			font-size: 0.75rem;
 			color: inherit;
 			padding: 0.5rem;
 			padding-left: 1em;
 			padding-right: 1em;
+			text-decoration: none;
 
 			&:hover {
-				background: rgba(255, 255, 255, 8%);
+				background: rgba(180, 150, 255, 10%);
 			}
 		}
 	}
@@ -191,7 +201,7 @@
 			height: 100%;
 
 			&:hover {
-				background: rgba(255, 255, 255, 8%);
+				background: rgba(180, 150, 255, 10%);
 			}
 		}
 	}
