@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	let { children, top = "0px", left = "0px", background = "#181825", openers = [] } = $props();
+	let { children, top = undefined, left = "0px", background = "#181825", openers = [], bottom = undefined } = $props();
 
 	let visible = $state(false);
 
@@ -31,9 +31,11 @@
 	export function element(): HTMLElement {
 		return menu;
 	}
+
+	let styleString = $derived(top ? `top: ${top};` : `bottom: ${bottom};`);
 </script>
 
-<section bind:this={menu} style:background-color={background} style:display={visible ? "flex" : "none"} style:top style:left>
+<section bind:this={menu} style={styleString} style:background-color={background} style:display={visible ? "flex" : "none"} style:left>
 	{@render children()}
 </section>
 

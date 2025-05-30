@@ -2,6 +2,7 @@ import type { Component } from "svelte";
 import annulusDemo from "../../assets/images/annulus_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
 import ellipseDemo from "../../assets/images/ellipse_demo.png";
+import imageDemo from "../../assets/images/image_demo.png";
 import polygonDemo from "../../assets/images/polygon_demo.png";
 import rectangleDemo from "../../assets/images/rectangle_demo.png";
 import regularPolygonDemo from "../../assets/images/regular_polygon_demo.png";
@@ -13,6 +14,7 @@ import AngleIcon from "../../components/icons/AngleIcon.svelte";
 import AnnularSectorIcon from "../../components/icons/AnnularSectorIcon.svelte";
 import AnnulusIcon from "../../components/icons/AnnulusIcon.svelte";
 import ArcIcon from "../../components/icons/ArcIcon.svelte";
+import AsteriskIcon from "../../components/icons/AsteriskIcon.svelte";
 import BarChartIcon from "../../components/icons/BarChartIcon.svelte";
 import BoundingPolygonIcon from "../../components/icons/BoundingPolygonIcon.svelte";
 import BulletedListIcon from "../../components/icons/BulletedListIcon.svelte";
@@ -51,50 +53,88 @@ import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { property, type Property } from "./property";
 
-export const objectCategories = {
-	Line: { color: "#cba6f7" },
-	Math: { color: "#fab387" },
-	Shape: { color: "#f38ba8" },
-	Solid: { color: "#89b4fa" },
-	Text: { color: "#f9e2af" },
-	Miscellaneous: { color: "#9399b2" },
-} as const satisfies { [key: string]: { color: string } };
+export const objectCategories = [
+	{ color: "#fab387", icon: LineIcon, name: "Line" },
+	{ color: "#f38ba8", icon: VariableIcon, name: "Math" },
+	{ color: "#89b4fa", icon: CircleIcon, name: "Shape" },
+	{ color: "#cba6f7", icon: CubeIcon, name: "Solid" },
+	{ color: "#f9e2af", icon: PlainTextIcon, name: "Text" },
+	{ color: "#b4befe", icon: AsteriskIcon, name: "Miscellaneous" },
+] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
 
-export type ObjectCategory = keyof typeof objectCategories;
+export type ObjectCategoryName = typeof objectCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
+
 export type ManimObject = {
 	name: string;
 	internalName?: string;
-	categories: ObjectCategory[];
-	icon: Component<{ stroke: string }>;
+	categories: ObjectCategoryName[];
+	icon: Component<{ stroke: string; [key: string]: unknown }>;
 	demo: string;
 	description: string;
 	properties: Property[];
 };
 
-export function getObjectCategory(name: ObjectCategory) {
-	return objectCategories[name];
+export function getObjectCategory(name: ObjectCategoryName) {
+	return objectCategories.find(category => category.name === name)!;
 }
 
 const mobjectProperties = [
-	{ name: "Fill Color", internalName: "fill_color", type: property().color(), defaultValue: "#FFFFFF", categories: ["color"], prioritized: true },
-	{ name: "Fill Opacity", internalName: "fill_opacity", type: property().number(), defaultValue: 0, categories: ["color"] },
-	{ name: "Stroke Color", internalName: "stroke_color", type: property().color(), defaultValue: "#FFFFFF", categories: ["color"], prioritized: true },
-	{ name: "Stroke Opacity", internalName: "stroke_opacity", type: property().number(), defaultValue: 1, categories: ["color"] },
-	{ name: "Stroke Width", internalName: "stroke_width", type: property().number(), defaultValue: 4, categories: ["color"] },
-	{ name: "Background Stroke Color", internalName: "background_stroke_color", type: property().color(), defaultValue: "#000000", categories: ["color"] },
-	{ name: "Background Stroke Width", internalName: "background_stroke_width", type: property().number(), defaultValue: 0, categories: ["color"] },
-	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), defaultValue: 0, categories: ["color"] },
-	{ name: "Sheen Direction", internalName: "sheen_direction", type: property().coordinate(), defaultValue: [-1, 1, 0], categories: ["color"] },
-	{ name: "Background Image", internalName: "background_image", type: property().coordinate(), defaultValue: 0, categories: ["color"] },
+	{
+		name: "Fill Color",
+		internalName: "fill_color",
+		type: property().color(),
+		defaultValue: "#FFFFFF",
+		categories: ["Color"],
+		prioritized: true,
+		description: "The color that the object is filled in with.",
+	},
+	{
+		name: "Fill Opacity",
+		internalName: "fill_opacity",
+		type: property().number().percent(),
+		defaultValue: 0,
+		categories: ["Color"],
+		description: "The opacity of the fill for the object",
+	},
+	{
+		name: "Stroke Color",
+		internalName: "stroke_color",
+		type: property().color(),
+		defaultValue: "#FFFFFF",
+		categories: ["Color"],
+		prioritized: true,
+		description: "The color of the stroke used to draw this object.",
+	},
+	{
+		name: "Stroke Opacity",
+		internalName: "stroke_opacity",
+		type: property().number().percent(),
+		defaultValue: 1,
+		categories: ["Color"],
+		description: "The opacity of the stroke used to draw this object.",
+	},
+	{
+		name: "Stroke Width",
+		internalName: "stroke_width",
+		type: property().number(),
+		defaultValue: 4,
+		categories: ["Color"],
+		description: "The width of the stroke used to draw this object.",
+	},
+	{ name: "Background Stroke Color", internalName: "background_stroke_color", type: property().color(), defaultValue: "#000000", categories: ["Color"] },
+	{ name: "Background Stroke Width", internalName: "background_stroke_width", type: property().number(), defaultValue: 0, categories: ["Color"] },
+	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), defaultValue: 0, categories: ["Color"] },
+	{ name: "Sheen Direction", internalName: "sheen_direction", type: property().coordinate(), defaultValue: [-1, 1, 0], categories: ["Color"] },
+	{ name: "Background Image", internalName: "background_image", type: property().coordinate(), defaultValue: 0, categories: ["Color"] },
 
-	{ name: "Joint Type", internalName: "joint_type", type: property().number(), defaultValue: 0, categories: ["rendering"] },
-	{ name: "Close New Points", internalName: "close_new_points", type: property().boolean(), defaultValue: false, categories: ["rendering"] },
-	{ name: "Scale Function", internalName: "pre_function_handle_to_anchor_scale_factor", type: property().number(), defaultValue: 0.01, categories: ["rendering"] },
-	{ name: "Make Smooth", internalName: "make_smooth_after_applying_functions", type: property().boolean(), defaultValue: false, categories: ["rendering"] },
-	{ name: "Point Equality Tolerance", internalName: "tolerance_for_point_equality", type: property().number(), defaultValue: 1e-6, categories: ["rendering"] },
-	{ name: "Points Per Cubic Curve", internalName: "n_points_per_cubic_curve", type: property().number(), defaultValue: 4, categories: ["rendering"] },
-	{ name: "Cap Style", internalName: "cap_style", type: property().number(), defaultValue: 0, categories: ["rendering"] },
-	{ name: "Shade In 3D", internalName: "shade_in_3d", type: property().boolean(), defaultValue: false, categories: ["rendering"] },
+	{ name: "Joint Type", internalName: "joint_type", type: property().number(), defaultValue: 0, categories: ["Details"] },
+	{ name: "Close New Points", internalName: "close_new_points", type: property().boolean(), defaultValue: false, categories: ["Details"] },
+	{ name: "Scale Function", internalName: "pre_function_handle_to_anchor_scale_factor", type: property().number(), defaultValue: 0.01, categories: ["Details"] },
+	{ name: "Make Smooth", internalName: "make_smooth_after_applying_functions", type: property().boolean(), defaultValue: false, categories: ["Details"] },
+	{ name: "Point Equality Tolerance", internalName: "tolerance_for_point_equality", type: property().number(), defaultValue: 1e-6, categories: ["Details"] },
+	{ name: "Points Per Cubic Curve", internalName: "n_points_per_cubic_curve", type: property().number(), defaultValue: 4, categories: ["Details"] },
+	{ name: "Cap Style", internalName: "cap_style", type: property().number(), defaultValue: 0, categories: ["Details"] },
+	{ name: "Shade In 3D", internalName: "shade_in_3d", type: property().boolean(), defaultValue: false, categories: ["Details"] },
 ] as const satisfies Property[];
 
 export const objects = [
@@ -130,13 +170,13 @@ export const objects = [
 		description: "Part of a circle.",
 		demo: circleDemo,
 		properties: [
-			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["size"], prioritized: true },
-			{ name: "Start Angle", internalName: "start_angle", type: property().number(), defaultValue: 0, categories: ["size"], prioritized: true },
-			{ name: "Angle", internalName: "angle", type: property().number(), defaultValue: 1.57, categories: ["size"], prioritized: true },
-			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative(), defaultValue: 0.35, categories: ["rendering"] },
-			{ name: "Components", internalName: "num_components", type: property().number().integeric().nonnegative(), defaultValue: 9, categories: ["rendering"] },
-			{ name: "Normal Vector", internalName: "normal_vector", type: property().coordinate(), defaultValue: [0, 0, 1], categories: ["rendering"] },
-			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], categories: ["position"], prioritized: true },
+			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["Size"], prioritized: true },
+			{ name: "Start Angle", internalName: "start_angle", type: property().number(), defaultValue: 0, categories: ["Size"], prioritized: true },
+			{ name: "Angle", internalName: "angle", type: property().number(), defaultValue: 1.57, categories: ["Size"], prioritized: true },
+			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative(), defaultValue: 0.35, categories: ["Details"] },
+			{ name: "Components", internalName: "num_components", type: property().number().integeric().nonnegative(), defaultValue: 9, categories: ["Details"] },
+			{ name: "Normal Vector", internalName: "normal_vector", type: property().coordinate(), defaultValue: [0, 0, 1], categories: ["Details"] },
+			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], categories: ["Position"], prioritized: true },
 			...mobjectProperties,
 		],
 	},
@@ -182,8 +222,16 @@ export const objects = [
 		demo: circleDemo,
 		description: "All points equidistant from a center point.",
 		properties: [
-			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["size"], prioritized: true },
-			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], categories: ["position"], prioritized: true },
+			{
+				name: "Radius",
+				internalName: "radius",
+				type: property().number().nonnegative(),
+				defaultValue: 1,
+				categories: ["Size"],
+				prioritized: true,
+				description: "The distance between each point on the circle and the circle's center.",
+			},
+			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], categories: ["Position"], prioritized: true },
 			...mobjectProperties,
 		],
 	},
@@ -193,7 +241,16 @@ export const objects = [
 		icon: CombinatorIcon,
 		description: "Allows combining two objects in different ways.",
 		demo: circleDemo,
-		properties: [],
+		properties: [
+			{
+				name: "Method",
+				type: property().select().choices("Difference", "Intersection", "Exclusion"),
+				defaultValue: "Difference",
+				categories: ["Special"],
+				required: true,
+				internalName: null!,
+			},
+		],
 	},
 	{
 		name: "Code",
@@ -272,8 +329,19 @@ export const objects = [
 		categories: ["Miscellaneous"],
 		icon: ImageIcon,
 		description: "An image loaded from a file.",
-		demo: circleDemo,
-		properties: [],
+		demo: imageDemo,
+		properties: [
+			// Custom
+			{
+				name: "Dynamic",
+				type: property().boolean(),
+				defaultValue: false,
+				categories: ["Color"],
+				internalName: null!,
+				description:
+					"Whether to reference an image by path instead of saving the image data. If dynamic is on, changes to the image file will be reflected in the animation. If dynamic is off (default), the image data is saved when it's first loaded, and the image file can be modified or deleted without affecting the animation.",
+			},
+		],
 	},
 	{
 		name: "Line",
@@ -296,7 +364,7 @@ export const objects = [
 				internalName: "tex_strings",
 				type: property().string().notEmpty().math(),
 				defaultValue: null,
-				categories: ["size"],
+				categories: ["Size"],
 				prioritized: true,
 				required: true,
 				position: 0,
@@ -336,10 +404,33 @@ export const objects = [
 		description: "Plain text.",
 		demo: circleDemo,
 		properties: [
-			{ name: "Text", internalName: "text", type: property().string().notEmpty(), defaultValue: null, categories: ["size"], prioritized: true, required: true },
-			{ name: "Line Spacing", internalName: "line_spacing", type: property().number(), defaultValue: -1, categories: ["size"] },
-			{ name: "Tab Width", internalName: "tab_width", type: property().number().integeric().nonnegative(), defaultValue: 4, categories: ["rendering"] },
-			{ name: "Align To Center", internalName: "should_center", type: property().boolean(), defaultValue: true, categories: ["rendering"] },
+			{
+				name: "Text",
+				internalName: "text",
+				type: property().string().notEmpty(),
+				defaultValue: null,
+				categories: ["Size"],
+				prioritized: true,
+				required: true,
+				description: "The text to display",
+			},
+			{ name: "Line Spacing", internalName: "line_spacing", type: property().number(), defaultValue: -1, categories: ["Size"] },
+			{
+				name: "Tab Width",
+				internalName: "tab_width",
+				type: property().number().integeric().nonnegative(),
+				defaultValue: 4,
+				categories: ["Details"],
+				description: "The amount of spaces to render a tab character as.",
+			},
+			{
+				name: "Align To Center",
+				internalName: "should_center",
+				type: property().boolean(),
+				defaultValue: true,
+				categories: ["Details"],
+				description: "Whether to center-justify the text.",
+			},
 			...mobjectProperties,
 		],
 	},
@@ -366,10 +457,26 @@ export const objects = [
 		demo: rectangleDemo,
 		description: "A quadrilateral with four right angles.",
 		properties: [
-			{ name: "Width", internalName: "width", type: property().number().nonnegative(), defaultValue: 4, categories: ["size"], prioritized: true },
-			{ name: "Height", internalName: "height", type: property().number().nonnegative(), defaultValue: 2, categories: ["size"], prioritized: true },
-			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: property().number().nonnegative(), defaultValue: null, categories: ["rendering"] },
-			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: property().number().nonnegative(), defaultValue: null, categories: ["rendering"] },
+			{
+				name: "Width",
+				internalName: "width",
+				type: property().number().nonnegative(),
+				defaultValue: 4,
+				categories: ["Size"],
+				prioritized: true,
+				description: "The width of the rectangle.",
+			},
+			{
+				name: "Height",
+				internalName: "height",
+				type: property().number().nonnegative(),
+				defaultValue: 2,
+				categories: ["Size"],
+				prioritized: true,
+				description: "The height of the rectangle.",
+			},
+			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: property().number().nonnegative(), defaultValue: null, categories: ["Details"] },
+			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: property().number().nonnegative(), defaultValue: null, categories: ["Details"] },
 			...mobjectProperties,
 		],
 	},
@@ -439,11 +546,19 @@ export const objects = [
 		demo: starDemo,
 		description: "A regular polygram without intersecting lines.",
 		properties: [
-			{ name: "Points", internalName: "n", type: property().number().integeric().positive(), defaultValue: 1, categories: ["size"], prioritized: true },
-			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["size"], prioritized: true },
-			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: null, categories: ["size"] },
-			{ name: "Density", internalName: "density", type: property().number().integeric().positive(), defaultValue: 2, categories: ["rendering"] },
-			{ name: "Start Angle", internalName: "density", type: property().number(), defaultValue: 1.57, categories: ["rendering"] },
+			{
+				name: "Number of Points",
+				internalName: "n",
+				type: property().number().integeric().positive(),
+				defaultValue: 1,
+				categories: ["Size"],
+				prioritized: true,
+				description: "The number of points the star has.",
+			},
+			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["Size"], prioritized: true },
+			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: null, categories: ["Size"] },
+			{ name: "Density", internalName: "density", type: property().number().integeric().positive(), defaultValue: 2, categories: ["Details"] },
+			{ name: "Start Angle", internalName: "density", type: property().number(), defaultValue: 1.57, categories: ["Details"] },
 			...mobjectProperties,
 		],
 	},

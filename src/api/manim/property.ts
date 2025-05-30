@@ -1,3 +1,10 @@
+import type { Component } from "svelte";
+import AsteriskIcon from "../../components/icons/AsteriskIcon.svelte";
+import CameraIcon from "../../components/icons/CameraIcon.svelte";
+import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
+import ReticleIcon from "../../components/icons/ReticleIcon.svelte";
+import ScaleIcon from "../../components/icons/ScaleIcon.svelte";
+
 export type Property = {
 	name: string;
 	type: PropertyType;
@@ -7,9 +14,18 @@ export type Property = {
 	prioritized?: true;
 	required?: true;
 	position?: number;
+	description?: string;
 };
 
-export type PropertyCategory = "color" | "size" | "rendering" | "position";
+export const propertyCategories = [
+	{ color: "#f38ba8", icon: PaintRollerIcon, name: "Color" },
+	{ color: "#89b4fa", icon: ScaleIcon, name: "Size" },
+	{ color: "#cba6f7", icon: CameraIcon, name: "Details" },
+	{ color: "#f9e2af", icon: ReticleIcon, name: "Position" },
+	{ color: "#b4befe", icon: AsteriskIcon, name: "Special" },
+] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
+
+export type PropertyCategory = typeof propertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
 export type NumberPropertyType = {
 	base: "number";
@@ -20,6 +36,12 @@ export type NumberPropertyType = {
 
 export type ColorProperty = {
 	base: "color";
+};
+
+export type SelectProperty = {
+	base: "string";
+	options: string[];
+	choices(...options: string[]): SelectProperty;
 };
 
 export type ObjectProperty = {
@@ -43,11 +65,43 @@ export type NumberProperty = {
 	maximumValue: number;
 	minimumValue: number;
 	isIntegeric: boolean;
+
+	/**
+	 * Restricts a number property to be at most a certain maximum value. The new property is returned without modifying this one.
+	 *
+	 * @param value The maximum value
+	 */
 	max(value: number): NumberProperty;
+
+	/**
+	 * Restricts a number property to be at least a certain minimum value. The new property is returned without modifying this one.
+	 *
+	 * @param value The minimum value
+	 */
 	min(value: number): NumberProperty;
+
+	/**
+	 * Restricts a number property to be an integer.
+	 */
 	integeric(): NumberProperty;
+
+	/**
+	 * Restricts a number property to be greater than or equal to 0. To make a number property greater than *and not equal to* 0, use {positive()} instead.
+	 * The new property is returned without modifying this one.
+	 */
 	nonnegative(): NumberProperty;
+
+	/**
+	 * Restricts a number property to be greater than 0. To make a number property greater than *or equal to* 0, use {nonnegative()} instead.
+	 * The new property is returned without modifying this one.
+	 */
 	positive(): NumberProperty;
+
+	/**
+	 * Restricts a number property to be in `[0, 1]`.
+	 * The new property is returned without modifying this one.
+	 */
+	percent(): NumberProperty;
 };
 
 export type CoordinateProperty = {
@@ -58,7 +112,7 @@ export type BooleanProperty = {
 	base: "boolean";
 };
 
-export type PropertyType = NumberProperty | StringProperty | ColorProperty | CoordinateProperty | BooleanProperty | ObjectProperty | AnimationProperty;
+export type PropertyType = NumberProperty | StringProperty | ColorProperty | CoordinateProperty | BooleanProperty | ObjectProperty | AnimationProperty | SelectProperty;
 export type PropertyTypeBase = PropertyType["base"];
 
 export const property = (() => {
@@ -98,6 +152,9 @@ export const property = (() => {
 						...this,
 						minimumValue: 0.000001,
 					};
+				},
+				percent(): NumberProperty {
+					return this.min(0).max(1);
 				},
 			};
 		},
@@ -143,6 +200,18 @@ export const property = (() => {
 		coordinate(): CoordinateProperty {
 			return {
 				base: "coordinate",
+			};
+		},
+		select(): SelectProperty {
+			return {
+				base: "string",
+				options: [],
+				choices(...choices: string[]) {
+					return {
+						...this,
+						options: choices,
+					};
+				},
 			};
 		},
 	};

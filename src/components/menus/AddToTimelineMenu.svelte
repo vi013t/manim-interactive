@@ -107,7 +107,7 @@
 		Open Timeline Preferences
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="-100%" hideParent={hide} {onAdd} />
+	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="-100%" {onAdd} />
 </ContextMenu>
 
 <style>

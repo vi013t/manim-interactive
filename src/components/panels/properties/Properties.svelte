@@ -17,7 +17,7 @@
 	function clickPlusButton() {
 		top = "75%";
 		left = "73.5%";
-		propertiesMenu.toggle();
+		propertiesMenu.show();
 	}
 
 	function getPropertyType(propertyName: string): PropertyType {
@@ -40,7 +40,6 @@
 	function deleteProperty(name: string) {
 		return function () {
 			delete item!.properties[name];
-			console.log($state.snapshot(item!.properties));
 			runAction("Save Project");
 		};
 	}

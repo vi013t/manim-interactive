@@ -25,6 +25,7 @@ import typeDemo from "../../assets/videos/type_demo.mp4";
 import waveDemo from "../../assets/videos/wave_demo.mp4";
 import wiggleDemo from "../../assets/videos/wiggle_demo.mp4";
 import writeDemo from "../../assets/videos/write_demo.mp4";
+import AsteriskIcon from "../../components/icons/AsteriskIcon.svelte";
 import BlinkIcon from "../../components/icons/BlinkIcon.svelte";
 import BorderIcon from "../../components/icons/BorderIcon.svelte";
 import CircledLightningIcon from "../../components/icons/CircledLightningIcon.svelte";
@@ -49,13 +50,14 @@ import ShrinkIcon from "../../components/icons/ShrinkIcon.svelte";
 import SparkleIcon from "../../components/icons/SparkleIcon.svelte";
 import SpiralIcon from "../../components/icons/SpiralIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
+import TrashIcon from "../../components/icons/TrashIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
 import type { Property } from "./property";
 
 export type ManimAnimation = {
 	name: string;
-	category: AnimationCategory;
+	category: AnimationCategoryName;
 	icon: Component<{ stroke: string; [key: string]: unknown }>;
 	properties: Property[];
 	description?: string;
@@ -63,23 +65,23 @@ export type ManimAnimation = {
 	internalName?: string;
 };
 
-export const animationCategories = {
-	Create: { color: "#a6e3a1" },
-	Destroy: { color: "#f38ba8" },
-	Highlight: { color: "#f9e2af" },
-	Transform: { color: "#89b4fa" },
-	Miscellaneous: { color: "#9399b2" },
-} as const satisfies { [key: string]: { color: string } };
+export const animationCategories = [
+	{ color: "#a6e3a1", name: "Create", icon: PlusIcon },
+	{ color: "#f38ba8", name: "Destroy", icon: TrashIcon },
+	{ color: "#f9e2af", name: "Highlight", icon: SparkleIcon },
+	{ color: "#89b4fa", name: "Transform", icon: TransformIcon },
+	{ color: "#9399b2", name: "Miscellaneous", icon: AsteriskIcon },
+] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
 
-export function getAnimationCategory(name: AnimationCategory) {
-	return animationCategories[name];
+export function getAnimationCategory(name: AnimationCategoryName) {
+	return animationCategories.find(category => category.name === name)!;
 }
 
 export function getManimAnimationByName(name: string): ManimAnimation | null {
 	return animations.find(animation => animation.name === name) ?? null;
 }
 
-export type AnimationCategory = keyof typeof animationCategories;
+export type AnimationCategoryName = typeof animationCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
 export const animations = [
 	{

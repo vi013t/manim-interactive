@@ -14,7 +14,7 @@
 
 	let menu: ContextMenu;
 	let addAnimationMenu: AddAnimationMenu;
-	let addPropertyMenu: AddAnimationMenu;
+	let addPropertyMenu: AddPropertyMenu;
 
 	export function show() {
 		menu.show();
@@ -79,8 +79,8 @@
 		Delete Object
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" hideParent={hide} {id} />
-	<AddPropertyMenu bind:this={addPropertyMenu} top="5.25rem" left="100%" background="#181825" />
+	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" {id} />
+	<AddPropertyMenu bind:this={addPropertyMenu} top="5.25rem" left="100%" />
 </ContextMenu>
 
 <ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />

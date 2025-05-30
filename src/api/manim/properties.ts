@@ -4,7 +4,6 @@ import { objects } from "./objects";
 import type { Property } from "./property";
 
 export function getPossibleProperties(type: string): Property[] {
-	console.log(type);
 	return (objects.find(object => object.name === type) ?? animations.find(animation => animation.name === type))!.properties;
 }
 

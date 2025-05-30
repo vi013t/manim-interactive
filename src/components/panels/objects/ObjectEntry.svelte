@@ -106,7 +106,7 @@
 			bind:this={topElement}
 			oncontextmenu={rightClickObject}
 		>
-			<data.icon stroke={getObjectCategory(data.category).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
+			<data.icon stroke={getObjectCategory(data.categories[0]).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
 			<span onkeydown={typeName} contenteditable autocapitalize="off" spellcheck="false">
 				{entry.name}
 			</span>
