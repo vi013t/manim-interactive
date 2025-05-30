@@ -1,18 +1,31 @@
 import type { Component } from "svelte";
+import annularSectorDemo from "../../assets/images/annular_sector_demo.png";
 import annulusDemo from "../../assets/images/annulus_demo.png";
 import barChartDemo from "../../assets/images/bar_chart_demo.png";
+import boundingPolygonDemo from "../../assets/images/bounding_polygon_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
+import coneDemo from "../../assets/images/cone_demo.png";
+import cubeDemo from "../../assets/images/cube_demo.png";
+import cylinderDemo from "../../assets/images/cylinder_demo.png";
+import dodecahedronDemo from "../../assets/images/dodecahedron_demo.png";
 import ellipseDemo from "../../assets/images/ellipse_demo.png";
 import graphDemo from "../../assets/images/graph_demo.png";
+import icosahedronDemo from "../../assets/images/icosahedron_demo.png";
 import imageDemo from "../../assets/images/image_demo.png";
 import mathTextDemo from "../../assets/images/math_text_demo.png";
+import octahedronDemo from "../../assets/images/octahedron_demo.png";
 import polygonDemo from "../../assets/images/polygon_demo.png";
 import rectangleDemo from "../../assets/images/rectangle_demo.png";
+import rectangularPrismDemo from "../../assets/images/rectangular_prism_demo.png";
 import regularPolygonDemo from "../../assets/images/regular_polygon_demo.png";
 import regularPolygramDemo from "../../assets/images/regular_polygram_demo.png";
+import sectorDemo from "../../assets/images/sector_demo.png";
+import sphereDemo from "../../assets/images/sphere_demo.png";
 import squareDemo from "../../assets/images/square_demo.png";
 import starDemo from "../../assets/images/star_demo.png";
 import streamLinesDemo from "../../assets/images/stream_lines_demo.png";
+import tetrahedronDemo from "../../assets/images/tetrahedron_demo.png";
+import torusDemo from "../../assets/images/torus_demo.png";
 import triangleDemo from "../../assets/images/triangle_demo.png";
 import AngleIcon from "../../components/icons/AngleIcon.svelte";
 import AnnularSectorIcon from "../../components/icons/AnnularSectorIcon.svelte";
@@ -155,7 +168,7 @@ export const objects = [
 		internalName: "AnnularSector",
 		categories: ["Shape"],
 		icon: AnnularSectorIcon,
-		demo: circleDemo,
+		demo: annularSectorDemo,
 		description: "An angular slice of an annulus.",
 		properties: [],
 	},
@@ -207,7 +220,7 @@ export const objects = [
 		categories: ["Shape"],
 		icon: BoundingPolygonIcon,
 		description: "A polygon that connects the outermost points in a group of points.",
-		demo: circleDemo,
+		demo: boundingPolygonDemo,
 		properties: [],
 	},
 	{
@@ -269,15 +282,15 @@ export const objects = [
 		categories: ["Solid"],
 		icon: ConeIcon,
 		description: "The set of all lines between a circle and a point on the axis normal to its center.",
-		demo: circleDemo,
+		demo: coneDemo,
 		properties: [],
 	},
 	{
 		name: "Cube",
 		categories: ["Solid"],
 		icon: CubeIcon,
-		demo: circleDemo,
-		description: "All points equidistant from a center point.",
+		demo: cubeDemo,
+		description: "A square extruded into 3D space by its side length.",
 		properties: [],
 	},
 	{
@@ -285,7 +298,7 @@ export const objects = [
 		categories: ["Solid"],
 		icon: CylinderIcon,
 		description: "A circle extruded into 3D space.",
-		demo: circleDemo,
+		demo: cylinderDemo,
 		properties: [],
 	},
 	{
@@ -293,7 +306,7 @@ export const objects = [
 		categories: ["Solid"],
 		icon: DodecahedronIcon,
 		description: "A regular polyhedron with 12 sides.",
-		demo: circleDemo,
+		demo: dodecahedronDemo,
 		properties: [],
 	},
 	{
@@ -325,7 +338,7 @@ export const objects = [
 		categories: ["Solid"],
 		icon: IcosahedronIcon,
 		description: "A regular polyhedron with 20 sides.",
-		demo: circleDemo,
+		demo: icosahedronDemo,
 		properties: [],
 	},
 	{
@@ -389,7 +402,7 @@ export const objects = [
 		categories: ["Solid"],
 		description: "A regular polyhedron with 8 sides.",
 		icon: OctahedronIcon,
-		demo: circleDemo,
+		demo: octahedronDemo,
 		properties: [],
 	},
 	{
@@ -490,7 +503,7 @@ export const objects = [
 		categories: ["Solid"],
 		description: "A rectangle extruded into 3D space.",
 		icon: RectangularPrismIcon,
-		demo: circleDemo,
+		demo: rectangularPrismDemo,
 		properties: [],
 	},
 	{
@@ -523,7 +536,7 @@ export const objects = [
 		name: "Sector",
 		categories: ["Shape"],
 		icon: SectorIcon,
-		demo: circleDemo,
+		demo: sectorDemo,
 		description: "All points equidistant from a center point.",
 		properties: [],
 	},
@@ -532,7 +545,7 @@ export const objects = [
 		categories: ["Solid"],
 		icon: SphereIcon,
 		description: "All three-dimensional points equidistant from a center point.",
-		demo: circleDemo,
+		demo: sphereDemo,
 		properties: [],
 	},
 	{
@@ -596,7 +609,7 @@ export const objects = [
 		description: "A regular polyhedron with 4 sides.",
 		categories: ["Solid"],
 		icon: TetrahedronIcon,
-		demo: circleDemo,
+		demo: tetrahedronDemo,
 		properties: [],
 	},
 	{
@@ -604,7 +617,7 @@ export const objects = [
 		description: "A circle revolved around a coplanar axis.",
 		categories: ["Solid"],
 		icon: TorusIcon,
-		demo: circleDemo,
+		demo: torusDemo,
 		properties: [],
 	},
 	{

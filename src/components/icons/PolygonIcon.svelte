@@ -2,11 +2,23 @@
 	let { stroke, ...rest } = $props();
 </script>
 
-<svg {...rest} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill={stroke}>
+<svg
+	{...rest}
+	viewBox="0 0 100 100"
+	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	aria-hidden="true"
+	role="img"
+	class="iconify iconify--gis"
+	preserveAspectRatio="xMidYMid meet"
+	fill={stroke}
+>
 	<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
 	<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
 	<g id="SVGRepo_iconCarrier">
-		<path d="M2 4.8V22h20V2l-11.538 8.4zm19-.835V21H3V6.661l7.489 4.956z" stroke-width="5"></path>
-		<path fill="none" d="M0 0h24v24H0z"></path>
+		<path
+			d="M33.162 19.463a3.5 3.5 0 0 0-3.111 1.974L9.34 64.239a3.5 3.5 0 0 0 2.632 4.985l75.015 11.275a3.5 3.5 0 0 0 3.846-4.55L76.566 32.456a3.5 3.5 0 0 0-2.431-2.293l-40.04-10.586a3.5 3.5 0 0 0-.933-.115zm1.934 7.621l35.412 9.361l11.904 36.287l-64.7-9.724l17.384-35.924z"
+			fill={stroke}
+		></path>
 	</g>
 </svg>
