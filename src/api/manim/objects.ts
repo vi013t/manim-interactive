@@ -303,6 +303,7 @@ export const objects = [
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Union.html",
 		],
 		create(properties: { [key: string]: unknown }) {
+			properties = { ...properties };
 			let name = properties.Method;
 			delete properties.Method;
 

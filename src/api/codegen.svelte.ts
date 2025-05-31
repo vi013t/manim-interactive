@@ -25,7 +25,7 @@ export function generateCode(): string {
 
 			let objectBase = objects.find(manimObject => manimObject.name === object.objectType)!;
 			if ("create" in objectBase) {
-				return objectBase.create(object.properties);
+				return `\t\tvar_${object.id} = ${objectBase.create(object.properties)}`;
 			}
 
 			// Positional Arguments
@@ -78,8 +78,7 @@ class Main(Scene):
 ${objectLines}
 
 		def object(name: str):
-			return {
-${getProjectObjects().map(object => `\t\t\t\t"${object.name}": var_${object.id}`)}	
+			return {${getProjectObjects().map(object => `\n\t\t\t\t"${object.name}": var_${object.id}`)}	
 			}.get(name);
 
 ${animationLines}

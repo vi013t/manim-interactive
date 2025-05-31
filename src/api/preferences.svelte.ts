@@ -37,7 +37,6 @@ const actions = {
 	"Save Project": {
 		name: "Save Project",
 		async run() {
-			console.log("Saving");
 			videoLoaded = false;
 			let projectData = getProjectSaveData();
 			let location = getExplicitProjectLocation();

@@ -43,6 +43,12 @@
 			runAction("Save Project");
 		};
 	}
+
+	$effect(() => {
+		if (item) {
+			console.log($state.snapshot(item?.properties));
+		}
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
