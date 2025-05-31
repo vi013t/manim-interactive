@@ -30,14 +30,13 @@
 	let element: HTMLElement;
 
 	function onSelectClick(event: MouseEvent) {
-		if (event.target === element) {
-			optionsVisible = !optionsVisible;
-		}
+		optionsVisible = !optionsVisible;
 	}
 </script>
 
-<button bind:this={element} class="select" {...rest} onclick={onSelectClick} onblur={() => (optionsVisible = false)}>
-	<span class="header">
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<div tabindex="0" bind:this={element} class="select" {...rest} onblur={() => (optionsVisible = false)}>
+	<button onclick={onSelectClick} class="header">
 		{#if value}
 			{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as IconOption | undefined}
 			{#if option}
@@ -47,7 +46,8 @@
 				{JSON.stringify(options) + JSON.stringify(value)}
 			{/if}
 		{/if}
-	</span>
+		<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
+	</button>
 	<div class="options" style:display={optionsVisible ? "flex" : "none"}>
 		{#each options as option}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -62,8 +62,7 @@
 			</div>
 		{/each}
 	</div>
-	<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
-</button>
+</div>
 
 <style>
 	.select {
@@ -73,14 +72,17 @@
 		position: relative;
 		width: 20rem;
 		background-color: #11111b;
+	}
 
-		span {
-			color: #cdd6f4;
-		}
+	div,
+	button {
+		color: #cdd6f4;
 	}
 
 	.header {
 		align-items: center;
+		display: flex;
+		width: 100%;
 		gap: 0.5rem;
 	}
 
@@ -90,7 +92,7 @@
 		border-radius: 0.5rem;
 		position: absolute;
 		left: 0px;
-		top: 100%;
+		top: calc(100% + 0.25rem);
 		background: #11111b;
 		border: 1px solid #313244;
 		overflow: hidden;

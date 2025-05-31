@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { property, type PropertyType } from "../../../api/manim/property";
-	import { runAction } from "../../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
@@ -40,7 +40,7 @@
 	function deleteProperty(name: string) {
 		return function () {
 			delete item!.properties[name];
-			runAction("Save Project");
+			if (getPreferences().autosave) runAction("Save Project");
 		};
 	}
 
@@ -119,7 +119,8 @@
 		background-color: #181825;
 		height: 100%;
 		padding: 1rem;
-		overflow-y: auto;
+		width: 50%;
+		border-right: 1px solid #313244;
 	}
 
 	.property {
@@ -133,7 +134,7 @@
 	}
 
 	.property-name {
-		width: 8rem;
+		width: 12rem;
 		display: flex;
 		flex-direction: row-reverse;
 	}
@@ -153,8 +154,10 @@
 	}
 
 	.items {
+		height: 70%;
 		display: flex;
 		flex-direction: column;
+		overflow-y: auto;
 
 		span {
 			display: flex;

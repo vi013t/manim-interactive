@@ -60,7 +60,7 @@
 	function togglePreference(preferenceName: Preference) {
 		return function (_event: Event) {
 			getPreferences()[preferenceName] = !(getPreferences()[preferenceName] as boolean) as any;
-			if (preferenceName === "lowRes") runAction("Save Project");
+			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save Project");
 			savePreferences();
 		};
 	}
@@ -83,11 +83,22 @@
 			<span>Save Project</span>
 			<span>Ctrl+S</span>
 		</button>
+		<button onclick={saveProject}>
+			<span>Save Project</span>
+			<span>Ctrl+S</span>
+		</button>
+		<button onclick={saveProject}>
+			<span>Project Settings</span>
+			<span>Ctrl+,</span>
+		</button>
 	</ContextMenu>
 
 	<button bind:this={windowButton} onclick={windowMenu.toggle}>Window</button>
 	<ContextMenu bind:this={windowMenu} top="2rem" left="6rem" openers={[windowButton]}>
-		<button onclick={preferences}>Preferences</button>
+		<button onclick={preferences}>
+			<span>Preferences</span>
+			<span>Ctrl+.</span>
+		</button>
 	</ContextMenu>
 
 	<button bind:this={helpButton} onclick={helpMenu.toggle}>Help</button>

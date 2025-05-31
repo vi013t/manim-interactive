@@ -12,11 +12,13 @@
 		openers = [],
 		onSelect,
 		submenus,
+		background = "#181825",
 		demoType = "image",
 	}: {
 		top: string;
 		left: string;
-		title: string;
+		title: string | false;
+		background?: string;
 		onSelect: (choice: string) => void;
 		demoType?: "image" | "video" | "none";
 		submenus: {
@@ -51,6 +53,10 @@
 		menu.hide();
 	}
 
+	export function isVisible() {
+		return menu.isVisible();
+	}
+
 	function showMenu(submenuName: string) {
 		return function () {
 			hoveredSubmenu = submenuName;
@@ -67,8 +73,8 @@
 	}
 </script>
 
-<ContextMenu bind:this={menu} {top} {left} {openers}>
-	<span>{title}</span>
+<ContextMenu {background} bind:this={menu} {top} {left} {openers}>
+	{#if title}<span>{title}</span>{/if}
 	{#each submenus as submenu, index}
 		<button style:background-color={hoveredSubmenu === submenu.name ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={showMenu(submenu.name)}>
 			<submenu.icon stroke={submenu.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
@@ -78,6 +84,7 @@
 
 		<Submenu
 			{title}
+			{background}
 			{demoType}
 			top={verticalExpand === "bottom" ? `${1.85 + index * 1.73}rem` : undefined}
 			bottom={verticalExpand === "top" ? `${8.5 - index * 1.73}rem` : undefined}

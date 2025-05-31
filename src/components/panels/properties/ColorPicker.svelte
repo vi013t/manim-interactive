@@ -67,11 +67,12 @@
 		border-radius: 0.5rem;
 		flex-direction: column;
 		position: absolute;
+		z-index: 9999;
 	}
 
 	.picker {
-		width: 5rem;
-		height: 1rem;
+		width: 20rem;
+		height: 1.25rem;
 		border-radius: 0.25rem;
 	}
 

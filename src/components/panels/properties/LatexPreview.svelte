@@ -27,6 +27,7 @@
 		left: 50%;
 		transform: translateX(-50%);
 		position: absolute;
+		z-index: 9999;
 	}
 
 	:global(.latex) {
@@ -40,7 +41,7 @@
 		border: 2px solid #1e1e2e;
 
 		:global(&, *) {
-			font-family: "CMU Serif"
+			font-family: "CMU Serif";
 		}
 
 		:global(.katex-html) {

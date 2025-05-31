@@ -3,11 +3,12 @@
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { type PropertyType } from "../../../api/manim/property";
-	import { runAction } from "../../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { addError, getItemFromId, getProjectObjects, isNameTaken, removeError, selected, type ProjectAnimation, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
 	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
+	import RightArrow from "../../icons/RightArrow.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
@@ -28,26 +29,17 @@
 	// svelte-ignore non_reactive_update
 	let addAnimationMenu: AddAnimationMenu;
 	// svelte-ignore non_reactive_update
-	let addObjectMenu: AddObjectMenu;
+	let addObjectMenu: AddObjectMenu = null!;
 	// svelte-ignore non_reactive_update
 	let selectedOption: any = $state(defaultValue as any);
-	// svelte-ignore non_reactive_update
-	let booleanValue: boolean;
 
 	let addButton: HTMLElement | null = $state(null);
 
-	let top = $state("0px");
-	let left = $state("0px");
-
 	function addAnimation(event: MouseEvent) {
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
 		addAnimationMenu.show();
 	}
 
 	function addObject(event: MouseEvent) {
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
 		addObjectMenu.show();
 	}
 
@@ -112,7 +104,7 @@
 
 	function setColorProperty(color: string) {
 		item.properties[name] = color;
-		runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save Project");
 	}
 
 	function setProperty() {
@@ -138,7 +130,7 @@
 			item.properties[name] = booleanValue;
 		}
 		previousValue = input?.value;
-		runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save Project");
 	}
 
 	onMount(() => {
@@ -157,10 +149,27 @@
 		propertiesToDelete.forEach(property => {
 			delete item.properties[property];
 		});
+
+		item.objectType = type;
+
+		possibleProperties.forEach(property => {
+			if (property.required) {
+				item.properties[property.name] = property.defaultValue;
+			}
+		});
+
+		if (getPreferences().autosave) runAction("Save Project");
 	}
 
 	let Icon = $derived(objects.find(object => object.name === item.objectType)!.icon);
 	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === item.objectType)!.categories[0]).color);
+
+	let top = $state("100px");
+	let left = $state("100px");
+
+	let menuVisible = $derived(addObjectMenu?.isVisible());
+
+	let booleanValue: boolean = $state(defaultValue as boolean);
 </script>
 
 <!-- Animation -->
@@ -173,11 +182,20 @@
 
 		<!-- Object Type -->
 	{:else if type.base === "objectType"}
-		<button class="add-animation" bind:this={addButton} onclick={addObject}>
+		<button
+			class="add-animation"
+			{@attach element => {
+				top = `calc(${element.getBoundingClientRect().top}px + 1.5rem)`;
+				left = `${element.getBoundingClientRect().left}px`;
+			}}
+			bind:this={addButton}
+			onclick={addObject}
+		>
 			<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
 			{objectValueInput}
+			<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 		</button>
-		<AddObjectMenu onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title="Set Object Type" />
+		<AddObjectMenu background="#1e1e2e" onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[addButton]} title={false} />
 
 		<!-- Object -->
 	{:else if type.base === "object"}
@@ -213,7 +231,9 @@
 
 		<!-- Boolean -->
 	{:else if type.base === "boolean"}
-		<input oninput={setProperty} type="checkbox" bind:checked={booleanValue} />
+		<button style:background-color={booleanValue ? "#a6e3a1" : "#f38ba8"} onclick={() => (booleanValue = !booleanValue)} class="boolean-button">
+			{booleanValue ? "Yes" : "No"}
+		</button>
 
 		<!-- Select -->
 	{:else if type.base === "string" && "options" in type}
@@ -250,7 +270,7 @@
 				<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
 					<QuestionMarkIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" />
 				</a>
-				<LatexIcon stroke="#cdd6f4" style="width: 3rem; position: relative; left: -5rem;" />
+				<LatexIcon stroke="#cdd6f4" style="width: 3rem; position: absolute; left: 17rem;" />
 				<LatexPreview latex={inputValue} show={inputHover || inputFocus} />
 			{/if}
 		</div>
@@ -294,7 +314,7 @@
 	}
 
 	.add-animation {
-		width: 10rem;
+		width: 20rem;
 	}
 
 	input[type="text"] {
@@ -311,5 +331,16 @@
 		span {
 			color: #f38ba8;
 		}
+	}
+
+	.boolean-button {
+		width: 20rem;
+		border-radius: 0.5rem;
+		color: #11111b;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 500;
+		padding: 0.2rem;
 	}
 </style>

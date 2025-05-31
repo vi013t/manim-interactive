@@ -1,11 +1,18 @@
 <script lang="ts">
 	import { objectCategories, objects } from "../../api/manim/objects";
 	import type { Property } from "../../api/manim/property";
-	import { runAction } from "../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
 	import Menu from "./Menu.svelte";
 
-	let { top, left, openers = [], title = "Add Object", onSelect = addObject } = $props();
+	let {
+		top,
+		left,
+		openers = [],
+		title = "Add Object",
+		background,
+		onSelect = addObject,
+	}: { top: string; background?: string; left: string; openers?: HTMLElement[]; title: string | false; onSelect?: (type: string) => void } = $props();
 
 	let menu: Menu;
 
@@ -29,7 +36,7 @@
 		};
 		addProjectObject(object);
 		select(object);
-		runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save Project");
 	}
 
 	export function show() {
@@ -38,6 +45,10 @@
 
 	export function hide() {
 		menu.hide();
+	}
+
+	export function isVisible() {
+		return menu.isVisible();
 	}
 </script>
 
@@ -48,6 +59,7 @@
 	{openers}
 	{title}
 	{onSelect}
+	{background}
 	submenus={objectCategories.map(category => ({
 		name: category.name,
 		icon: category.icon,

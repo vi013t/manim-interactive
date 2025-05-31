@@ -1,5 +1,5 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
-import { runAction } from "./preferences.svelte";
+import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
@@ -139,7 +139,7 @@ export function removeProjectObject(id: number) {
 	projectAnimations = projectAnimations.filter(animation => !animation.objects.includes(id));
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
-	runAction("Save Project");
+	if (getPreferences().autosave) runAction("Save Project");
 }
 
 type Selectable = ProjectObject | ProjectAnimation;

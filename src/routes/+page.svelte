@@ -10,6 +10,7 @@
 	import Objects from "../components/panels/objects/Objects.svelte";
 	import Properties from "../components/panels/properties/Properties.svelte";
 	import Timeline from "../components/panels/timeline/Timeline.svelte";
+	import VariablesPanel from "../components/panels/variables/VariablesPanel.svelte";
 	import VideoPanel from "../components/panels/video/VideoPanel.svelte";
 
 	let mouseX: number;
@@ -55,7 +56,7 @@
 		<Objects />
 		<div class="inner">
 			<VideoPanel />
-			<Properties />
+			<div class="bottom"><Properties /><VariablesPanel /></div>
 		</div>
 		<Timeline />
 	</div>
@@ -71,6 +72,13 @@
 		flex-direction: column;
 	}
 
+	.bottom {
+		display: flex;
+		height: 100%;
+		width: 100%;
+		outline: 3px solid red;
+	}
+
 	.container {
 		display: grid;
 		width: 100%;
@@ -82,5 +90,6 @@
 	.inner {
 		display: flex;
 		flex-direction: column;
+		height: 100%;
 	}
 </style>

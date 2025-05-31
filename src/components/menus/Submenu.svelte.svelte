@@ -16,10 +16,12 @@
 		color,
 		title,
 		demoType,
+		background,
 	}: {
 		options: MenuOption[];
-		title: string;
+		title: string | false;
 		color: string;
+		background: string;
 		top?: string;
 		bottom?: string;
 		left: string;
@@ -52,12 +54,13 @@
 	{top}
 	{bottom}
 	{left}
+	{background}
 	onHide={() => {
 		hoveringOption = null;
 		hoveringIndex = null;
 	}}
 >
-	<span>{title}</span>
+	{#if title}<span>{title}</span>{/if}
 	{#each options as option, index}
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<button

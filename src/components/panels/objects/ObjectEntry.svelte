@@ -68,7 +68,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="object" onclick={clickObject}>
 	<!-- Group -->
-	{#if entry.objects}
+	{#if entry.objectType === "Group"}
 		<!-- Group name & Icon -->
 		<button bind:this={topElement} class="top" onclick={() => (expanded = !expanded)} oncontextmenu={rightClickGroup}>
 			{#if expanded}

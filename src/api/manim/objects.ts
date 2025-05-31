@@ -425,7 +425,15 @@ export const objects = [
 		description: "A group of other objects, allowing animating them at the same time.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.types.vectorized_mobject.VGroup.html"],
 		demo: circleDemo,
-		properties: [],
+		properties: [
+			{
+				name: "Group in Hierarchy",
+				defaultValue: true,
+				type: property().boolean(),
+				categories: ["Special"],
+				description: "Whether to visually group objects in the hierarchy under this group. Objects can only be grouped in one such group.",
+			},
+		],
 	},
 	{
 		name: "Icosahedron",

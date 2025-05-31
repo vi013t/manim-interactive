@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
-	import { runAction } from "../../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { type ProjectAnimation, animationEndTime, getItemFromId, getProjectAnimations, select, selected } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
 
@@ -84,7 +84,7 @@
 				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "pointer";
 				if (draggingAnimation) draggingAnimation.startTime = newTop / cellHeight;
-				runAction("Save Project");
+				if (getPreferences().autosave) runAction("Save Project");
 			}
 			draggingElement = null;
 			draggingAnimation = null;

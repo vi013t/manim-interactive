@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { animationCategories, animations } from "../../api/manim/animations";
-	import { runAction } from "../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectAnimation, nextId, select, type ProjectAnimation } from "../../api/project.svelte";
 	import Menu from "./Menu.svelte";
 
@@ -35,7 +35,7 @@
 		onAdd(animation);
 		addProjectAnimation(animation);
 		select(animation);
-		runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save Project");
 	}
 
 	let menu: Menu;
