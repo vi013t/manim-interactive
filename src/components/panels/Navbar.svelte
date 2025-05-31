@@ -84,10 +84,6 @@
 			<span>Ctrl+S</span>
 		</button>
 		<button onclick={saveProject}>
-			<span>Save Project</span>
-			<span>Ctrl+S</span>
-		</button>
-		<button onclick={saveProject}>
 			<span>Project Settings</span>
 			<span>Ctrl+,</span>
 		</button>

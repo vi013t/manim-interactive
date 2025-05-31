@@ -3,6 +3,7 @@ use std::{path::Path, process::Command};
 //mod audio;
 
 use base64::Engine;
+use reqwest::StatusCode;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -18,7 +19,8 @@ pub fn run() {
             save_project_data,
             get_project_data,
             is_new_project_valid,
-            path_exists
+            path_exists,
+            python_package_exists,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -100,4 +102,19 @@ fn is_new_project_valid(path: &str, name: &str) -> bool {
 #[tauri::command]
 fn path_exists(path: &str) -> bool {
     Path::new(path).exists()
+}
+
+#[tauri::command]
+async fn python_package_exists(package_name: String) -> String {
+    let url = format!("https://pypi.org/pypi/{package_name}/json");
+
+    let Ok(resp) = reqwest::get(&url).await else {
+        return "Error".to_owned();
+    };
+
+    match resp.status() {
+        StatusCode::OK => "true".to_owned(),
+        StatusCode::NOT_FOUND => "false".to_owned(),
+        _ => "Error".to_owned(),
+    }
 }

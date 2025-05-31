@@ -321,10 +321,6 @@
 		width: 20rem;
 	}
 
-	input[type="checkbox"] {
-		accent-color: #b4befe;
-	}
-
 	.error {
 		gap: 0.5rem;
 		margin-left: 0.5rem;
