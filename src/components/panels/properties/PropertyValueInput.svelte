@@ -117,6 +117,7 @@
 
 	function setProperty() {
 		if (errorMessage || !hasValueChanged()) return;
+		console.log("stting");
 
 		if (name === "startTime") {
 			(item as unknown as ProjectAnimation).startTime = Number(input.value);
@@ -216,7 +217,14 @@
 
 		<!-- Select -->
 	{:else if type.base === "string" && "options" in type}
-		<Select options={type.options} bind:value={selectedOption} />
+		<Select
+			onSelect={() => {
+				validate();
+				setProperty();
+			}}
+			options={type.options}
+			bind:value={selectedOption}
+		/>
 
 		<!-- string, number -->
 	{:else if type.base === "string" || type.base === "number"}

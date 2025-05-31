@@ -42,12 +42,14 @@ import CombinatorIcon from "../../components/icons/CombinatorIcon.svelte";
 import ConeIcon from "../../components/icons/ConeIcon.svelte";
 import CubeIcon from "../../components/icons/CubeIcon.svelte";
 import CylinderIcon from "../../components/icons/CylinderIcon.svelte";
+import DifferenceIcon from "../../components/icons/DifferenceIcon.svelte";
 import DodecahedronIcon from "../../components/icons/DodecahedronIcon.svelte";
 import EllipseIcon from "../../components/icons/EllipseIcon.svelte";
 import GridIcon from "../../components/icons/GridIcon.svelte";
 import HexagonIcon from "../../components/icons/HexagonIcon.svelte";
 import IcosahedronIcon from "../../components/icons/IcosahedronIcon.svelte";
 import ImageIcon from "../../components/icons/ImageIcon.svelte";
+import IntersectionIcon from "../../components/icons/IntersectionIcon.svelte";
 import ItalicIcon from "../../components/icons/ItalicIcon.svelte";
 import LineIcon from "../../components/icons/LineIcon.svelte";
 import NetworkIcon from "../../components/icons/NetworkIcon.svelte";
@@ -67,6 +69,7 @@ import StarOfDavidIcon from "../../components/icons/StarOfDavidIcon.svelte";
 import TetrahedronIcon from "../../components/icons/TetrahedronIcon.svelte";
 import TorusIcon from "../../components/icons/TorusIcon.svelte";
 import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
+import UnionIcon from "../../components/icons/UnionIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getPossibleProperties } from "./properties";
@@ -274,7 +277,14 @@ export const objects = [
 		properties: [
 			{
 				name: "Method",
-				type: property().select().choices("Difference", "Exclusion", "Intersection", "Union"),
+				type: property()
+					.select()
+					.choices(
+						{ name: "Difference", icon: DifferenceIcon, color: "#b4befe" },
+						{ name: "Exclusion", icon: IntersectionIcon, color: "#b4befe" },
+						{ name: "Intersection", icon: IntersectionIcon, color: "#b4befe" },
+						{ name: "Union", icon: UnionIcon, color: "#b4befe" }
+					),
 				defaultValue: "Difference",
 				categories: ["Special"],
 				required: true,
@@ -295,6 +305,7 @@ export const objects = [
 				required: true,
 				position: 1,
 			},
+			...mobjectProperties,
 		],
 		documentation: [
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Exclusion.html",

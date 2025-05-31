@@ -86,7 +86,22 @@
 				{/if}
 
 				<!-- Properties -->
-				{#each Object.entries(item.properties).toSorted( ([firstName, _firstValue], [secondName, _secondValue]) => firstName.localeCompare(secondName), ) as [name, value] (`${item.id}-${name}`)}
+				{#each Object.entries(item.properties).toSorted(([firstName, _firstValue], [secondName, _secondValue]) => {
+					let firstBase = getPossibleProperties(item.objectType).find(property => property.name === firstName)!;
+					let secondBase = getPossibleProperties(item.objectType).find(property => property.name === secondName)!;
+
+					if (firstBase.position !== undefined) {
+						if (secondBase.position !== undefined) {
+							return firstBase.position - secondBase.position;
+						}
+
+						return -1;
+					}
+
+					if (secondBase.position !== undefined) return 1;
+
+					return firstName.localeCompare(secondName);
+				}) as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
 						<span class="property-name">{name}:</span>
 						<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} {deleteProperty} required={getPropertyRequired(name)} />
@@ -104,6 +119,7 @@
 		background-color: #181825;
 		height: 100%;
 		padding: 1rem;
+		overflow-y: auto;
 	}
 
 	.property {

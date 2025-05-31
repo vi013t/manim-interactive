@@ -2,27 +2,28 @@
 	import type { Component } from "svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 
-	type Option = string | { name: string; icon: Component<{ stroke: string; [key: string]: unknown }>; color: string };
+	export type IconOption = { name: string; icon: Component<{ stroke: string; [key: string]: unknown }>; color: string };
+	export type SelectOption = string | IconOption;
 
 	let {
 		options,
-		onSelect = () => {},
+		onSelect,
 		value = $bindable(),
 		...rest
 	}: {
-		value?: Option;
-		onSelect?: (value: string) => void;
-		options: Option[];
+		value?: SelectOption;
+		onSelect: (value: string) => void;
+		options: SelectOption[];
 		[key: string]: unknown;
 	} = $props();
 
 	let optionsVisible = $state(false);
 
-	function select(option: Option) {
+	function select(option: string) {
 		return function () {
 			optionsVisible = false;
 			value = option;
-			onSelect(typeof option === "string" ? option : option.name);
+			onSelect(option);
 		};
 	}
 
@@ -36,7 +37,17 @@
 </script>
 
 <button bind:this={element} class="select" {...rest} onclick={onSelectClick} onblur={() => (optionsVisible = false)}>
-	<span>{value ? (typeof value === "string" ? value : value.name) : ""}</span>
+	<span class="header">
+		{#if value}
+			{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as IconOption | undefined}
+			{#if option}
+				<option.icon stroke={option.color} style="width: 1rem; height: 1rem;" />
+				{option.name}
+			{:else}
+				{JSON.stringify(options) + JSON.stringify(value)}
+			{/if}
+		{/if}
+	</span>
 	<div class="options" style:display={optionsVisible ? "flex" : "none"}>
 		{#each options as option}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -66,6 +77,11 @@
 		span {
 			color: #cdd6f4;
 		}
+	}
+
+	.header {
+		align-items: center;
+		gap: 0.5rem;
 	}
 
 	.options {

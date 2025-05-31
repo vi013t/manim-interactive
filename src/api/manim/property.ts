@@ -4,6 +4,7 @@ import CameraIcon from "../../components/icons/CameraIcon.svelte";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
 import ReticleIcon from "../../components/icons/ReticleIcon.svelte";
 import ScaleIcon from "../../components/icons/ScaleIcon.svelte";
+import type { SelectOption } from "../../components/util/Select.svelte";
 
 export type Property = {
 	name: string;
@@ -41,7 +42,7 @@ export type ColorProperty = {
 export type SelectProperty = {
 	base: "string";
 	options: string[];
-	choices(...options: string[]): SelectProperty;
+	choices(...options: SelectOption[]): SelectProperty;
 };
 
 export type ObjectTypeProperty = {
