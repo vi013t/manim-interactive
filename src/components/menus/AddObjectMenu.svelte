@@ -12,14 +12,14 @@
 		title = "Add Object",
 		background,
 		onSelect = addObject,
-	}: { top: string; background?: string; left: string; openers?: HTMLElement[]; title: string | false; onSelect?: (type: string) => void } = $props();
+	}: { top: string; background?: string; left: string; openers?: HTMLElement[]; title?: string | false; onSelect?: (type: string) => void } = $props();
 
 	let menu: Menu;
 
 	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
 		let properties: { [key: string]: unknown } = {};
-		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = property.defaultValue));
+		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
 		menu.hide();
 
 		let name = type;

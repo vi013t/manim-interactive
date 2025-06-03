@@ -1,30 +1,42 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getMouseX, getMouseY } from "../../../api/client.svelte";
+	import { cursorIsIn, getMouseX, getMouseY } from "../../../api/client.svelte";
 	import { getPreferences } from "../../../api/preferences.svelte";
 
-	let x = $derived(-(-((getMouseX() - screen.width / 2) / 120)).toFixed(1));
-	let y = $derived(-((getMouseY() + 210 - 0.28125 * screen.width) / 123).toFixed(1));
+	let videoWidth = screen.availWidth * (2 / 3);
+	let videoHeight = (videoWidth * 9) / 16;
+	1;
+	let boxSize = videoWidth / 14;
+	let centerX = screen.availWidth / 2;
+	let centerY = videoHeight / 2 + 30; // navbar is 30px
 
-	let visible = $state(false);
+	let x = $derived(((getMouseX() - centerX) / boxSize).toFixed(2));
+	let y = $derived((-(getMouseY() - centerY) / boxSize).toFixed(2));
+
+	let div: HTMLDivElement | null = $state(null);
+	let altHeld = $state(false);
+	let visible = $derived.by(() => {
+		let rect = document.getElementById("video-source")?.getBoundingClientRect();
+		return altHeld && (rect ? cursorIsIn(rect) : false);
+	});
 
 	onMount(() => {
 		document.addEventListener("keydown", event => {
-			visible = event.altKey;
-			getPreferences().grid = event.altKey;
+			altHeld = event.altKey;
+			getPreferences().grid = visible;
 		});
 		document.addEventListener("keyup", event => {
-			visible = event.altKey;
-			getPreferences().grid = event.altKey;
+			altHeld = event.altKey;
+			getPreferences().grid = visible;
 		});
 		document.addEventListener("mousemove", event => {
-			visible = event.altKey;
-			getPreferences().grid = event.altKey;
+			altHeld = event.altKey;
+			getPreferences().grid = visible;
 		});
 	});
 </script>
 
-<div style:display={visible ? "block" : "none"} style:top="{getMouseY()}px" style:left="{getMouseX()}px">
+<div bind:this={div} style:display={visible ? "block" : "none"} style:top="{getMouseY()}px" style:left="{getMouseX()}px">
 	({x}, {y})
 </div>
 

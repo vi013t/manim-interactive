@@ -2,16 +2,18 @@
 	import type { Component } from "svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 
-	export type IconOption = { name: string; icon: Component<{ stroke: string; [key: string]: unknown }>; color: string };
-	export type SelectOption = string | IconOption;
+	export type ComplexOption = { name: string; icon?: Component<{ stroke: string; [key: string]: unknown }>; color?: string; style?: string };
+	export type SelectOption = string | ComplexOption;
 
 	let {
 		options,
 		onSelect,
+		itemOverride,
 		value = $bindable(),
 		...rest
 	}: {
 		value?: SelectOption;
+		itemOverride?: string;
 		onSelect: (value: string) => void;
 		options: SelectOption[];
 		[key: string]: unknown;
@@ -36,28 +38,39 @@
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div tabindex="0" bind:this={element} class="select" {...rest} onblur={() => (optionsVisible = false)}>
+	<!-- Select Button -->
 	<button onclick={onSelectClick} class="header">
 		{#if value}
-			{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as IconOption | undefined}
+			{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as ComplexOption | undefined}
 			{#if option}
-				<option.icon stroke={option.color} style="width: 1rem; height: 1rem;" />
-				{option.name}
+				{#if option.icon}
+					<option.icon stroke={option.color ?? "#FFFFFF"} style="width: 1rem; height: 1rem;" />
+				{/if}
+				<span style={option.style ?? ""}>{option.name}</span>
 			{:else}
 				{JSON.stringify(options) + JSON.stringify(value)}
 			{/if}
 		{/if}
 		<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 	</button>
+
+	<!-- Options -->
 	<div class="options" style:display={optionsVisible ? "flex" : "none"}>
 		{#each options as option}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
-			<div onclick={select(typeof option === "string" ? option : option.name)}>
+			<div onclick={select(typeof option === "string" ? option : option.name)} style={typeof option !== "string" && option.style ? option.style : ""}>
 				{#if typeof option === "string"}
 					{option}
 				{:else}
-					<option.icon stroke={option.color} style="width: 1rem; height: 1rem;" />
-					{option.name}
+					{#if option.icon}
+						<option.icon stroke={option.color ?? "#FFFFFF"} style="width: 1rem; height: 1rem;" />
+					{/if}
+					{#if itemOverride}
+						{itemOverride}
+					{:else}
+						{option.name}
+					{/if}
 				{/if}
 			</div>
 		{/each}
@@ -98,6 +111,8 @@
 		overflow: hidden;
 		box-shadow: 0px 0px 0.5rem black;
 		z-index: 99;
+		max-height: 10rem;
+		overflow-y: auto;
 
 		> * {
 			padding: 0.5rem;

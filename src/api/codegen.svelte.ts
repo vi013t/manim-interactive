@@ -41,20 +41,21 @@ export function generateCode(): string {
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyValueToString(propertyBase, propertyValue)}, `;
+					return `${propertyValueToString(propertyBase.type, propertyValue)}, `;
 				})
 				.join("");
 
 			// Keyword Arguments
 			let keywordArguments = Object.entries(object.properties)
 				.filter(([propertyName, propertyValue]) => {
-					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!.type;
+					let defaultValue = "defaultValue" in propertyBase ? propertyBase.defaultValue : null;
 					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
 					return position === undefined && propertyValue !== defaultValue;
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase, propertyValue)}`;
+					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase.type, propertyValue)}`;
 				})
 				.join(", ");
 

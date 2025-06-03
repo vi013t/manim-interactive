@@ -12,7 +12,7 @@
 </script>
 
 <div class="notifications">
-	{#each getNotifications() as notification}
+	{#each getNotifications() as notification (notification.id)}
 		<div transition:slide style:outline-color={notification.severity === "error" ? "#f38ba8" : "transparent"} class="notification">
 			<h1 style:color={notification.severity === "error" ? "#f38ba8" : "inherit"}>
 				{#if notification.severity === "error"}

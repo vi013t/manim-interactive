@@ -11,6 +11,7 @@
 	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
 	import NewProjectWindow from "../windows/NewProjectWindow.svelte";
 	import PreferencesWindow from "../windows/PreferencesWindow.svelte";
+	import ProjectSettingsWindow from "../windows/ProjectSettingsWindow.svelte";
 
 	let projectButton: HTMLElement;
 	let windowButton: HTMLElement;
@@ -46,6 +47,7 @@
 
 	let newProjectWindow: NewProjectWindow;
 	let preferencesWindow: PreferencesWindow;
+	let projectSettingsWindow: ProjectSettingsWindow;
 
 	function newProject() {
 		newProjectWindow.openWindow();
@@ -55,6 +57,11 @@
 	function preferences() {
 		preferencesWindow.openWindow();
 		windowMenu.hide();
+	}
+
+	function projectSettings() {
+		projectSettingsWindow.openWindow();
+		projectMenu.hide();
 	}
 
 	function togglePreference(preferenceName: Preference) {
@@ -83,7 +90,7 @@
 			<span>Save Project</span>
 			<span>Ctrl+S</span>
 		</button>
-		<button onclick={saveProject}>
+		<button onclick={projectSettings}>
 			<span>Project Settings</span>
 			<span>Ctrl+,</span>
 		</button>
@@ -133,6 +140,7 @@
 
 <NewProjectWindow bind:this={newProjectWindow} />
 <PreferencesWindow bind:this={preferencesWindow} />
+<ProjectSettingsWindow bind:this={projectSettingsWindow} />
 
 <style>
 	button:has(> span) {

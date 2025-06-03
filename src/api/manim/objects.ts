@@ -1,9 +1,13 @@
 import type { Component } from "svelte";
+import angleDemo from "../../assets/images/angle_demo.png";
 import annularSectorDemo from "../../assets/images/annular_sector_demo.png";
 import annulusDemo from "../../assets/images/annulus_demo.png";
+import arcDemo from "../../assets/images/arc_demo.png";
+import axesDemo from "../../assets/images/axes_demo.png";
 import barChartDemo from "../../assets/images/bar_chart_demo.png";
 import boundingPolygonDemo from "../../assets/images/bounding_polygon_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
+import codeDemo from "../../assets/images/code_demo.png";
 import combinatorDemo from "../../assets/images/combinator_demo.png";
 import coneDemo from "../../assets/images/cone_demo.png";
 import cubeDemo from "../../assets/images/cube_demo.png";
@@ -13,8 +17,11 @@ import ellipseDemo from "../../assets/images/ellipse_demo.png";
 import graphDemo from "../../assets/images/graph_demo.png";
 import icosahedronDemo from "../../assets/images/icosahedron_demo.png";
 import imageDemo from "../../assets/images/image_demo.png";
+import lineDemo from "../../assets/images/line_demo.png";
 import mathTextDemo from "../../assets/images/math_text_demo.png";
+import networkDemo from "../../assets/images/network_demo.png";
 import octahedronDemo from "../../assets/images/octahedron_demo.png";
+import plainTextDemo from "../../assets/images/plain_text_demo.png";
 import polygonDemo from "../../assets/images/polygon_demo.png";
 import rectangleDemo from "../../assets/images/rectangle_demo.png";
 import rectangularPrismDemo from "../../assets/images/rectangular_prism_demo.png";
@@ -25,6 +32,7 @@ import sphereDemo from "../../assets/images/sphere_demo.png";
 import squareDemo from "../../assets/images/square_demo.png";
 import starDemo from "../../assets/images/star_demo.png";
 import streamLinesDemo from "../../assets/images/stream_lines_demo.png";
+import tangentLineDemo from "../../assets/images/tangent_line_demo.png";
 import tetrahedronDemo from "../../assets/images/tetrahedron_demo.png";
 import torusDemo from "../../assets/images/torus_demo.png";
 import triangleDemo from "../../assets/images/triangle_demo.png";
@@ -50,7 +58,6 @@ import HexagonIcon from "../../components/icons/HexagonIcon.svelte";
 import IcosahedronIcon from "../../components/icons/IcosahedronIcon.svelte";
 import ImageIcon from "../../components/icons/ImageIcon.svelte";
 import IntersectionIcon from "../../components/icons/IntersectionIcon.svelte";
-import ItalicIcon from "../../components/icons/ItalicIcon.svelte";
 import LineIcon from "../../components/icons/LineIcon.svelte";
 import NetworkIcon from "../../components/icons/NetworkIcon.svelte";
 import OctahedronIcon from "../../components/icons/OctahedronIcon.svelte";
@@ -72,6 +79,7 @@ import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import UnionIcon from "../../components/icons/UnionIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
+import { get_fonts } from "../system.svelte";
 import { getPossibleProperties } from "./properties";
 import { property, propertyValueToString, type Property } from "./property";
 
@@ -107,7 +115,6 @@ const mobjectProperties = [
 		name: "Fill Color",
 		internalName: "fill_color",
 		type: property().color(),
-		defaultValue: "#FFFFFF",
 		categories: ["Color"],
 		prioritized: true,
 		description: "The color that the object is filled in with.",
@@ -116,7 +123,6 @@ const mobjectProperties = [
 		name: "Fill Opacity",
 		internalName: "fill_opacity",
 		type: property().number().percent(),
-		defaultValue: 0,
 		categories: ["Color"],
 		description: "The opacity of the fill for the object",
 	},
@@ -124,7 +130,6 @@ const mobjectProperties = [
 		name: "Stroke Color",
 		internalName: "stroke_color",
 		type: property().color(),
-		defaultValue: "#FFFFFF",
 		categories: ["Color"],
 		prioritized: true,
 		description: "The color of the stroke used to draw this object.",
@@ -132,33 +137,31 @@ const mobjectProperties = [
 	{
 		name: "Stroke Opacity",
 		internalName: "stroke_opacity",
-		type: property().number().percent(),
-		defaultValue: 1,
+		type: property().number().percent().default(1),
 		categories: ["Color"],
 		description: "The opacity of the stroke used to draw this object.",
 	},
 	{
 		name: "Stroke Width",
 		internalName: "stroke_width",
-		type: property().number(),
-		defaultValue: 4,
+		type: property().number().default(4),
 		categories: ["Color"],
 		description: "The width of the stroke used to draw this object.",
 	},
-	{ name: "Background Stroke Color", internalName: "background_stroke_color", type: property().color(), defaultValue: "#000000", categories: ["Color"] },
-	{ name: "Background Stroke Width", internalName: "background_stroke_width", type: property().number(), defaultValue: 0, categories: ["Color"] },
-	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), defaultValue: 0, categories: ["Color"] },
-	{ name: "Sheen Direction", internalName: "sheen_direction", type: property().coordinate(), defaultValue: [-1, 1, 0], categories: ["Color"] },
-	{ name: "Background Image", internalName: "background_image", type: property().coordinate(), defaultValue: 0, categories: ["Color"] },
+	{ name: "Background Stroke Color", internalName: "background_stroke_color", type: property().color().default("#000000"), categories: ["Color"] },
+	{ name: "Background Stroke Width", internalName: "background_stroke_width", type: property().number(), categories: ["Color"] },
+	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), categories: ["Color"] },
+	{ name: "Sheen Direction", internalName: "sheen_direction", type: property().coordinate().default([-1, 1, 0]), categories: ["Color"] },
+	{ name: "Background Image", internalName: "background_image", type: property().string().notEmpty(), categories: ["Color"] },
 
-	{ name: "Joint Type", internalName: "joint_type", type: property().number(), defaultValue: 0, categories: ["Details"] },
-	{ name: "Close New Points", internalName: "close_new_points", type: property().boolean(), defaultValue: false, categories: ["Details"] },
-	{ name: "Scale Function", internalName: "pre_function_handle_to_anchor_scale_factor", type: property().number(), defaultValue: 0.01, categories: ["Details"] },
-	{ name: "Make Smooth", internalName: "make_smooth_after_applying_functions", type: property().boolean(), defaultValue: false, categories: ["Details"] },
-	{ name: "Point Equality Tolerance", internalName: "tolerance_for_point_equality", type: property().number(), defaultValue: 1e-6, categories: ["Details"] },
-	{ name: "Points Per Cubic Curve", internalName: "n_points_per_cubic_curve", type: property().number(), defaultValue: 4, categories: ["Details"] },
-	{ name: "Cap Style", internalName: "cap_style", type: property().number(), defaultValue: 0, categories: ["Details"] },
-	{ name: "Shade In 3D", internalName: "shade_in_3d", type: property().boolean(), defaultValue: false, categories: ["Details"] },
+	{ name: "Joint Type", internalName: "joint_type", type: property().number(), categories: ["Details"] },
+	{ name: "Close New Points", internalName: "close_new_points", type: property().boolean(), categories: ["Details"] },
+	{ name: "Scale Function", internalName: "pre_function_handle_to_anchor_scale_factor", type: property().number().default(0.01), categories: ["Details"] },
+	{ name: "Make Smooth", internalName: "make_smooth_after_applying_functions", type: property().boolean(), categories: ["Details"] },
+	{ name: "Point Equality Tolerance", internalName: "tolerance_for_point_equality", type: property().number().default(1e-6), categories: ["Details"] },
+	{ name: "Points Per Cubic Curve", internalName: "n_points_per_cubic_curve", type: property().number().default(4), categories: ["Details"] },
+	{ name: "Cap Style", internalName: "cap_style", type: property().number(), categories: ["Details"] },
+	{ name: "Shade In 3D", internalName: "shade_in_3d", type: property().boolean(), categories: ["Details"] },
 ] as const satisfies Property[];
 
 export const objects = [
@@ -168,7 +171,7 @@ export const objects = [
 		icon: AngleIcon,
 		description: "A geometric angle.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.line.Angle.html"],
-		demo: circleDemo,
+		demo: angleDemo,
 		properties: [],
 	},
 	{
@@ -195,16 +198,16 @@ export const objects = [
 		categories: ["Line"],
 		icon: ArcIcon,
 		description: "Part of a circle.",
-		demo: circleDemo,
+		demo: arcDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Arc.html"],
 		properties: [
-			{ name: "Radius", internalName: "radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["Size"], prioritized: true },
-			{ name: "Start Angle", internalName: "start_angle", type: property().number(), defaultValue: 0, categories: ["Size"], prioritized: true },
-			{ name: "Angle", internalName: "angle", type: property().number(), defaultValue: 1.57, categories: ["Size"], prioritized: true },
-			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative(), defaultValue: 0.35, categories: ["Details"] },
-			{ name: "Components", internalName: "num_components", type: property().number().integeric().nonnegative(), defaultValue: 9, categories: ["Details"] },
-			{ name: "Normal Vector", internalName: "normal_vector", type: property().coordinate(), defaultValue: [0, 0, 1], categories: ["Details"] },
-			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], categories: ["Position"], prioritized: true },
+			{ name: "Radius", internalName: "radius", type: property().number().nonnegative().default(1), categories: ["Size"], prioritized: true },
+			{ name: "Start Angle", internalName: "start_angle", type: property().number(), categories: ["Size"], prioritized: true },
+			{ name: "Angle", internalName: "angle", type: property().number().default(1.57), categories: ["Size"], prioritized: true },
+			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative().default(0.35), categories: ["Details"] },
+			{ name: "Components", internalName: "num_components", type: property().number().integeric().nonnegative().default(9), categories: ["Details"] },
+			{ name: "Normal Vector", internalName: "normal_vector", type: property().coordinate().default([0, 0, 1]), categories: ["Details"] },
+			{ name: "Center", internalName: "center", type: property().coordinate(), categories: ["Position"], prioritized: true },
 			...mobjectProperties,
 		],
 	},
@@ -213,7 +216,7 @@ export const objects = [
 		categories: ["Math"],
 		icon: PlusIcon,
 		description: "Mathematical axis lines.",
-		demo: circleDemo,
+		demo: axesDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.graphing.coordinate_systems.Axes.html"],
 		properties: [],
 	},
@@ -245,7 +248,14 @@ export const objects = [
 		description: "A list of text items with bullets.",
 		demo: circleDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.tex_mobject.BulletedList.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Items",
+				type: property().list(property().string()).spread(),
+				position: 0,
+				categories: ["Special"],
+			},
+		],
 	},
 	{
 		name: "Circle",
@@ -258,13 +268,12 @@ export const objects = [
 			{
 				name: "Radius",
 				internalName: "radius",
-				type: property().number().nonnegative(),
-				defaultValue: 1,
+				type: property().number().nonnegative().default(1),
 				categories: ["Size"],
 				prioritized: true,
 				description: "The distance between each point on the circle and the circle's center.",
 			},
-			{ name: "Center", internalName: "center", type: property().coordinate(), defaultValue: [0, 0, 0], categories: ["Position"], prioritized: true },
+			{ name: "Center", internalName: "center", type: property().coordinate(), categories: ["Position"], prioritized: true },
 			...mobjectProperties,
 		],
 	},
@@ -285,14 +294,12 @@ export const objects = [
 						{ name: "Intersection", icon: IntersectionIcon, color: "#b4befe" },
 						{ name: "Union", icon: UnionIcon, color: "#b4befe" }
 					),
-				defaultValue: "Difference",
 				categories: ["Special"],
 				required: true,
 			},
 			{
 				name: "First Object",
 				type: property().object(),
-				defaultValue: null!,
 				categories: ["Special"],
 				required: true,
 				position: 0,
@@ -300,7 +307,6 @@ export const objects = [
 			{
 				name: "Second Object",
 				type: property().object(),
-				defaultValue: null!,
 				categories: ["Special"],
 				required: true,
 				position: 1,
@@ -333,20 +339,21 @@ export const objects = [
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyValueToString(propertyBase, propertyValue)}, `;
+					return `${propertyValueToString(propertyBase.type, propertyValue)}, `;
 				})
 				.join("");
 
 			// Keyword Arguments
 			let keywordArguments = Object.entries(properties)
 				.filter(([propertyName, propertyValue]) => {
-					let defaultValue = possibleProperties.find(possible => possible.name === propertyName)!.defaultValue;
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!.type;
+					let defaultValue = "defaultValue" in propertyBase ? propertyBase.defaultValue : null;
 					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
 					return position === undefined && propertyValue !== defaultValue;
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase, propertyValue)}`;
+					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase.type, propertyValue)}`;
 				})
 				.join(", ");
 
@@ -358,7 +365,7 @@ export const objects = [
 		categories: ["Text"],
 		icon: CodeIcon,
 		description: "A block of code or script.",
-		demo: circleDemo,
+		demo: codeDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.code_mobject.Code.html"],
 		properties: [],
 	},
@@ -428,8 +435,7 @@ export const objects = [
 		properties: [
 			{
 				name: "Group in Hierarchy",
-				defaultValue: true,
-				type: property().boolean(),
+				type: property().boolean().default(true),
 				categories: ["Special"],
 				description: "Whether to visually group objects in the hierarchy under this group. Objects can only be grouped in one such group.",
 			},
@@ -457,7 +463,6 @@ export const objects = [
 			{
 				name: "Dynamic",
 				type: property().boolean(),
-				defaultValue: false,
 				categories: ["Color"],
 				internalName: null!,
 				description:
@@ -471,7 +476,7 @@ export const objects = [
 		categories: ["Line"],
 		icon: LineIcon,
 		description: "A customizeable line.",
-		demo: circleDemo,
+		demo: lineDemo,
 		properties: [],
 	},
 	{
@@ -487,7 +492,6 @@ export const objects = [
 				name: "Text",
 				internalName: "tex_strings",
 				type: property().string().notEmpty().math(),
-				defaultValue: null,
 				categories: ["Size"],
 				prioritized: true,
 				required: true,
@@ -502,7 +506,7 @@ export const objects = [
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.graph.Graph.html"],
 		icon: NetworkIcon,
 		description: "A connected graph of node points.",
-		demo: circleDemo,
+		demo: networkDemo,
 		properties: [],
 	},
 	{
@@ -524,30 +528,47 @@ export const objects = [
 		properties: [],
 	},
 	{
-		name: "Plain Text",
+		name: "Text",
 		categories: ["Text"],
 		icon: PlainTextIcon,
 		internalName: "Text",
 		description: "Plain text.",
-		demo: circleDemo,
+		demo: plainTextDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.Text.html"],
 		properties: [
 			{
 				name: "Text",
 				internalName: "text",
 				type: property().string().notEmpty(),
-				defaultValue: null,
 				categories: ["Size"],
 				prioritized: true,
 				required: true,
 				description: "The text to display",
 			},
-			{ name: "Line Spacing", internalName: "line_spacing", type: property().number(), defaultValue: -1, categories: ["Size"] },
+			{
+				name: "Parts",
+				type: property().list(
+					property()
+						.compound()
+						.property("text", property().string().notEmpty())
+						.property(
+							"style",
+							property()
+								.compound()
+								.property("bold", property().boolean())
+								.property("italic", property().boolean())
+								.property("underline", property().boolean())
+								.property("strikethrough", property().boolean())
+								.property("color", property().color())
+						)
+				),
+				categories: ["Special"],
+			},
+			{ name: "Line Spacing", internalName: "line_spacing", type: property().number().default(-1), categories: ["Size"] },
 			{
 				name: "Tab Width",
 				internalName: "tab_width",
-				type: property().number().integeric().nonnegative(),
-				defaultValue: 4,
+				type: property().number().integeric().nonnegative().default(4),
 				categories: ["Details"],
 				description: "The amount of spaces to render a tab character as.",
 			},
@@ -555,9 +576,16 @@ export const objects = [
 				name: "Align To Center",
 				internalName: "should_center",
 				type: property().boolean(),
-				defaultValue: true,
 				categories: ["Details"],
 				description: "Whether to center-justify the text.",
+			},
+			{
+				name: "Font",
+				type: property()
+					.select()
+					.choices(...(await get_fonts()).map(font => ({ name: font, style: `font-family: "${font}"` }))),
+				categories: ["Special"],
+				internalName: "font",
 			},
 			...mobjectProperties,
 		],
@@ -591,8 +619,7 @@ export const objects = [
 			{
 				name: "Width",
 				internalName: "width",
-				type: property().number().nonnegative(),
-				defaultValue: 4,
+				type: property().number().nonnegative().default(4),
 				categories: ["Size"],
 				prioritized: true,
 				description: "The width of the rectangle.",
@@ -600,14 +627,13 @@ export const objects = [
 			{
 				name: "Height",
 				internalName: "height",
-				type: property().number().nonnegative(),
-				defaultValue: 2,
+				type: property().number().nonnegative().default(2),
 				categories: ["Size"],
 				prioritized: true,
 				description: "The height of the rectangle.",
 			},
-			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: property().number().nonnegative(), defaultValue: null, categories: ["Details"] },
-			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: property().number().nonnegative(), defaultValue: null, categories: ["Details"] },
+			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: property().number().nonnegative(), categories: ["Details"] },
+			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: property().number().nonnegative(), categories: ["Details"] },
 			...mobjectProperties,
 		],
 	},
@@ -689,15 +715,14 @@ export const objects = [
 				name: "Number of Points",
 				internalName: "n",
 				type: property().number().integeric().positive(),
-				defaultValue: 1,
 				categories: ["Size"],
 				prioritized: true,
 				description: "The number of points the star has.",
 			},
-			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: 1, categories: ["Size"], prioritized: true },
-			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), defaultValue: null, categories: ["Size"] },
-			{ name: "Density", internalName: "density", type: property().number().integeric().positive(), defaultValue: 2, categories: ["Details"] },
-			{ name: "Start Angle", internalName: "density", type: property().number(), defaultValue: 1.57, categories: ["Details"] },
+			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative().default(1), categories: ["Size"], prioritized: true },
+			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), categories: ["Size"] },
+			{ name: "Density", internalName: "density", type: property().number().integeric().positive().default(2), categories: ["Details"] },
+			{ name: "Start Angle", internalName: "density", type: property().number().default(1.57), categories: ["Details"] },
 			...mobjectProperties,
 		],
 	},
@@ -711,22 +736,12 @@ export const objects = [
 		properties: [],
 	},
 	{
-		name: "Styled Text",
-		internalName: "MarkupText",
-		categories: ["Text"],
-		icon: ItalicIcon,
-		description: "Text with formatting and styling.",
-		demo: circleDemo,
-		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.MarkupText.html#manim.mobject.text.text_mobject.MarkupText"],
-		properties: [],
-	},
-	{
 		name: "Tangent Line",
 		internalName: "TangentLine",
 		description: "A line tangent to an object at some point.",
 		categories: ["Line"],
 		icon: LineIcon,
-		demo: circleDemo,
+		demo: tangentLineDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.line.TangentLine.html"],
 		properties: [],
 	},

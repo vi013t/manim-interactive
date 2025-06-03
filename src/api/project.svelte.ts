@@ -8,6 +8,7 @@ let id = 0;
 let projectObjects: ProjectObject[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
 let projectAudios: ProjectAudio[] = $state([]);
+let projectLibraries: Set<string> = $state(new Set(["manim"]));
 let projectMarkers: { id: number; name: string; time: number }[] = $state([]);
 
 export type ProjectAudio = {
@@ -35,6 +36,18 @@ export async function addProjectAudio(name: string, data: string) {
 
 export function getProjectAudios() {
 	return projectAudios;
+}
+
+export function getProjectLibraries() {
+	return projectLibraries;
+}
+
+export function addProjectLibrary(library: string) {
+	projectLibraries.add(library);
+}
+
+export function removeProjectLibrary(name: string) {
+	projectLibraries.delete(name);
 }
 
 export function addProjectMarker(name: string, time: number) {

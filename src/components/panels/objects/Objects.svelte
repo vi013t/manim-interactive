@@ -36,13 +36,14 @@
 		</button>
 	</div>
 
-	{#each getProjectObjects().filter(object => !("objectType" in object)) as object}
+	{#each getProjectObjects().filter(object => object.objectType === "Group") as object (object.id)}
 		<ObjectEntry entry={object} />
 	{/each}
 
-	{#each getProjectObjects().filter(object => "objectType" in object) as object}
+	{#each getProjectObjects().filter(object => object.objectType !== "Group") as object (object.id)}
 		<ObjectEntry entry={object} />
 	{/each}
+
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<div style:height="100%;" oncontextmenu={addObject}></div>

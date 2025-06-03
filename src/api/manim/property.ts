@@ -9,7 +9,6 @@ import type { SelectOption } from "../../components/util/Select.svelte";
 export type Property = {
 	name: string;
 	type: PropertyType;
-	defaultValue: unknown;
 	categories: PropertyCategory[];
 	internalName?: string;
 	prioritized?: true;
@@ -28,21 +27,26 @@ export const propertyCategories = [
 
 export type PropertyCategory = typeof propertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
-export type NumberPropertyType = {
-	base: "number";
-	maximum: number;
-	minimum: number;
-	integeric: boolean;
-};
-
 export type ColorProperty = {
 	base: "color";
+	defaultValue: string;
+	default(value: string): ColorProperty;
 };
 
 export type SelectProperty = {
 	base: "string";
 	options: string[];
 	choices(...options: SelectOption[]): SelectProperty;
+	defaultValue: string | null;
+};
+
+export type ListProperty = {
+	base: "list";
+	type: PropertyType;
+	shouldSpread: boolean;
+	defaultValue: unknown[];
+	default(value: unknown[]): ListProperty;
+	spread(): ListProperty;
 };
 
 export type ObjectTypeProperty = {
@@ -61,8 +65,10 @@ export type StringProperty = {
 	base: "string";
 	canBeEmpty: boolean;
 	isMath: boolean;
+	defaultValue: string;
 	notEmpty(): StringProperty;
 	math(): StringProperty;
+	default(value: string): StringProperty;
 };
 
 export type NumberProperty = {
@@ -70,6 +76,7 @@ export type NumberProperty = {
 	maximumValue: number;
 	minimumValue: number;
 	isIntegeric: boolean;
+	defaultValue: number;
 
 	/**
 	 * Restricts a number property to be at most a certain maximum value. The new property is returned without modifying this one.
@@ -77,6 +84,8 @@ export type NumberProperty = {
 	 * @param value The maximum value
 	 */
 	max(value: number): NumberProperty;
+
+	default(value: number): NumberProperty;
 
 	/**
 	 * Restricts a number property to be at least a certain minimum value. The new property is returned without modifying this one.
@@ -111,10 +120,22 @@ export type NumberProperty = {
 
 export type CoordinateProperty = {
 	base: "coordinate";
+	defaultValue: [number, number, number];
+	default(value: [number, number, number]): CoordinateProperty;
 };
 
 export type BooleanProperty = {
 	base: "boolean";
+	defaultValue: boolean;
+	default(value: boolean): BooleanProperty;
+};
+
+export type CompoundProperty = {
+	base: "compound";
+	subProperties: { [key: string]: PropertyType };
+	property(name: string, type: PropertyType): CompoundProperty;
+	defaultValue: unknown;
+	default(value: unknown): CompoundProperty;
 };
 
 export type PropertyType =
@@ -126,7 +147,9 @@ export type PropertyType =
 	| ObjectTypeProperty
 	| AnimationProperty
 	| SelectProperty
-	| ObjectProperty;
+	| ObjectProperty
+	| ListProperty
+	| CompoundProperty;
 export type PropertyTypeBase = PropertyType["base"];
 
 export const property = (() => {
@@ -137,6 +160,7 @@ export const property = (() => {
 				maximumValue: Infinity,
 				minimumValue: -Infinity,
 				isIntegeric: false,
+				defaultValue: 0,
 				max(value: number): NumberProperty {
 					return {
 						...this,
@@ -147,6 +171,12 @@ export const property = (() => {
 					return {
 						...this,
 						minimumValue: value,
+					};
+				},
+				default(value: number) {
+					return {
+						...this,
+						defaultValue: value,
 					};
 				},
 				integeric(): NumberProperty {
@@ -177,6 +207,13 @@ export const property = (() => {
 				base: "string",
 				canBeEmpty: true,
 				isMath: false,
+				defaultValue: "",
+				default(value: string) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
 				notEmpty() {
 					return {
 						...this,
@@ -194,11 +231,45 @@ export const property = (() => {
 		boolean(): BooleanProperty {
 			return {
 				base: "boolean",
+				defaultValue: false,
+				default(value: boolean) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
 			};
 		},
 		color(): ColorProperty {
 			return {
+				defaultValue: "#FFFFFF",
 				base: "color",
+				default(value: string) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
+			};
+		},
+		list(type: PropertyType): ListProperty {
+			return {
+				base: "list",
+				type,
+				defaultValue: [],
+				shouldSpread: false,
+				default(value: unknown[]) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
+				spread() {
+					return {
+						...this,
+						shouldSpread: true,
+					};
+				},
 			};
 		},
 		objectType(): ObjectTypeProperty {
@@ -211,6 +282,25 @@ export const property = (() => {
 				base: "object",
 			};
 		},
+		compound(): CompoundProperty {
+			return {
+				base: "compound",
+				subProperties: {},
+				defaultValue: {},
+				default(value: unknown) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
+				property(name: string, type: PropertyType): CompoundProperty {
+					return {
+						...this,
+						subProperties: { ...this.subProperties, [name]: type },
+					};
+				},
+			};
+		},
 		animation(): AnimationProperty {
 			return {
 				base: "animation",
@@ -219,12 +309,20 @@ export const property = (() => {
 		coordinate(): CoordinateProperty {
 			return {
 				base: "coordinate",
+				defaultValue: [0, 0, 0],
+				default(value: [number, number, number]) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
 			};
 		},
 		select(): SelectProperty {
 			return {
 				base: "string",
 				options: [],
+				defaultValue: null,
 				choices(...choices: string[]) {
 					return {
 						...this,
@@ -234,10 +332,30 @@ export const property = (() => {
 			};
 		},
 	};
-}) satisfies () => { [Key in PropertyTypeBase]: () => PropertyType };
+}) satisfies () => { [Key in PropertyTypeBase]: (() => PropertyType) | ((type: PropertyType) => PropertyType) };
 
-export function propertyValueToString(property: Property, value: unknown): string {
-	if (["string", "color"].includes(property.type.base)) return `r"${value}"`;
-	if (property.type.base === "object") return `var_${value}`;
+export function propertyValueToString(type: PropertyType, value: unknown): string {
+	if (type.base === "list") {
+		let result = (value as unknown[]).map(element => propertyValueToString(type.type, element)).join(", ");
+		if (!type.shouldSpread) result = `[${result}]`;
+		return result;
+	}
+
+	if (["string", "color"].includes(type.base)) return `r"${value}"`;
+	if (type.base === "object") return `var_${value}`;
 	return `${value}`;
 }
+
+export type PropertyValue<T extends PropertyType> = T extends ListProperty
+	? unknown[]
+	: T extends StringProperty
+	? string
+	: T extends ColorProperty
+	? string
+	: T extends NumberProperty
+	? number
+	: T extends SelectProperty
+	? string
+	: T extends BooleanProperty
+	? boolean
+	: never;

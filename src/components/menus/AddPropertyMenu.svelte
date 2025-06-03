@@ -14,7 +14,7 @@
 
 	function onSelect(name: string) {
 		hide();
-		let defaultValue = getPossibleProperties(item.objectType).find(property => property.name === name)!.defaultValue;
+		let defaultValue = (getPossibleProperties(item.objectType).find(property => property.name === name)!.type as any).defaultValue ?? null;
 		addProperty(getItemFromId(selected()!)!.id, name, defaultValue);
 	}
 

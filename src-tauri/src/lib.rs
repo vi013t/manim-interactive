@@ -21,6 +21,7 @@ pub fn run() {
             is_new_project_valid,
             path_exists,
             python_package_exists,
+            get_fonts,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -67,6 +68,8 @@ fn load_audio(path: String) -> Result<String, String> {
 fn new_project(path: String, name: String) -> Result<String, String> {
     let path = Path::new(&path).join(&name);
     std::fs::create_dir_all(&path).map_err(|_| "Error creating directory".to_owned())?;
+    std::fs::create_dir_all(path.join("scripts"))
+        .map_err(|_| "Error creating scripts directory".to_owned())?;
     std::fs::write(path.join("main.py"), "").map_err(|_| "Error creating script".to_owned())?;
     Ok(format!("{}", path.display()))
 }
@@ -117,4 +120,16 @@ async fn python_package_exists(package_name: String) -> String {
         StatusCode::NOT_FOUND => "false".to_owned(),
         _ => "Error".to_owned(),
     }
+}
+
+#[tauri::command]
+fn get_fonts() -> Vec<String> {
+    let mut fonts = font_enumeration::Collection::new()
+        .unwrap()
+        .all()
+        .map(|font| font.family_name.clone())
+        .collect::<Vec<String>>();
+    fonts.dedup();
+    fonts.sort();
+    fonts
 }

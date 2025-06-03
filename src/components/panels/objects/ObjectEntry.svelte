@@ -83,10 +83,10 @@
 		<!-- Group Contents -->
 		{#if expanded}
 			<div class="bottom">
-				{#each entry.groups as item}
+				{#each entry.groups as item (item.id)}
 					<ObjectEntry entry={item} />
 				{/each}
-				{#each entry.objects as item}
+				{#each entry.objects as item (item.id)}
 					<ObjectEntry entry={item} />
 				{/each}
 			</div>

@@ -4,6 +4,7 @@
 	import { updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
 	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
+	import { load_fonts } from "../api/system.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
 	import Notifications from "../components/Notifications.svelte";
 	import Navbar from "../components/panels/Navbar.svelte";
@@ -47,6 +48,8 @@
 				menu.show();
 			}
 		});
+
+		load_fonts();
 	});
 </script>
 

@@ -81,17 +81,17 @@
 	<div bind:this={timelineElement} id="timeline-wrapper">
 		<div id="timeline-content">
 			<!-- Animations -->
-			{#each getProjectAnimations() as animation}
+			{#each getProjectAnimations() as animation (animation.id)}
 				<Animation {animation} {timelineElement} />
 			{/each}
 
 			<!-- Audios -->
-			{#each getProjectAudios() as audio}
+			{#each getProjectAudios() as audio (audio.id)}
 				<Audio {audio} menu={audioActionsMenu} />
 			{/each}
 
 			<!-- Markers -->
-			{#each getProjectMarkers() as marker}
+			{#each getProjectMarkers() as marker (marker.id)}
 				<div class="marker" style:top="{marker.time * 4}rem"></div>
 			{/each}
 

@@ -52,3 +52,7 @@ export function setPreferencesView(view: string) {
 export function getPreferencesView(): string {
 	return preferencesView;
 }
+
+export function cursorIsIn(rect: DOMRect): boolean {
+	return mouseX >= rect.x && mouseX <= rect.x + rect.width && mouseY >= rect.y && mouseY <= rect.y + rect.height;
+}

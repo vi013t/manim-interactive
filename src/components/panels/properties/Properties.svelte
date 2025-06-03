@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { property, type PropertyType } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected } from "../../../api/project.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
@@ -37,16 +36,9 @@
 		propertiesMenu.show();
 	}
 
-	function deleteProperty(name: string) {
-		return function () {
-			delete item!.properties[name];
-			if (getPreferences().autosave) runAction("Save Project");
-		};
-	}
-
 	$effect(() => {
 		if (item) {
-			console.log($state.snapshot(item?.properties));
+			console.log($state.snapshot(Object.entries(item?.properties)));
 		}
 	});
 </script>
@@ -64,24 +56,22 @@
 		{#key selected()}
 			{#if item}
 				<span class="property">
-					<span class="property-name">Name:</span>
-					<PropertyValueInput type={property().string().notEmpty()} name="name" defaultValue={item.name} {deleteProperty} required />
+					<PropertyValueInput type={property().string().notEmpty()} name="name" value={item.name} required />
 				</span>
 
 				<!-- Animation -->
 				{#if "startTime" in item}
 					<span>
-						Animation: <PropertyValueInput name="animation" type={property().animation()} defaultValue={item.name} {deleteProperty} required />
+						Animation: <PropertyValueInput name="animation" type={property().animation()} value={item.name} required />
 					</span>
 					<span>
-						Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} defaultValue={item.startTime} {deleteProperty} required />
+						Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} value={item.startTime} required />
 					</span>
 
 					<!-- Object -->
 				{:else}
 					<span class="property">
-						<span class="property-name">Type:</span>
-						<PropertyValueInput name="objectType" type={property().objectType()} defaultValue={item.objectType} required {deleteProperty} />
+						<PropertyValueInput name="objectType" type={property().objectType()} value={item.objectType} required />
 					</span>
 				{/if}
 
@@ -103,8 +93,7 @@
 					return firstName.localeCompare(secondName);
 				}) as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
-						<span class="property-name">{name}:</span>
-						<PropertyValueInput {name} type={getPropertyType(name)} defaultValue={value} {deleteProperty} required={getPropertyRequired(name)} />
+						<PropertyValueInput {name} type={getPropertyType(name)} {value} required={getPropertyRequired(name)} />
 					</span>
 				{/each}
 
@@ -133,12 +122,6 @@
 		}
 	}
 
-	.property-name {
-		width: 12rem;
-		display: flex;
-		flex-direction: row-reverse;
-	}
-
 	h1 {
 		text-transform: uppercase;
 		font-size: 0.75rem;
@@ -154,7 +137,7 @@
 	}
 
 	.items {
-		height: 70%;
+		height: 80%;
 		display: flex;
 		flex-direction: column;
 		overflow-y: auto;
