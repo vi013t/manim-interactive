@@ -1,9 +1,8 @@
 import type { Component } from "svelte";
-import AsteriskIcon from "../../components/icons/AsteriskIcon.svelte";
 import CameraIcon from "../../components/icons/CameraIcon.svelte";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
 import ReticleIcon from "../../components/icons/ReticleIcon.svelte";
-import ScaleIcon from "../../components/icons/ScaleIcon.svelte";
+import StarIcon from "../../components/icons/StarIcon.svelte";
 import type { SelectOption } from "../../components/util/Select.svelte";
 
 export type Property = {
@@ -18,11 +17,10 @@ export type Property = {
 };
 
 export const propertyCategories = [
+	{ color: "#f9e2af", icon: StarIcon, name: "Special" },
 	{ color: "#f38ba8", icon: PaintRollerIcon, name: "Color" },
-	{ color: "#89b4fa", icon: ScaleIcon, name: "Size" },
+	{ color: "#89b4fa", icon: ReticleIcon, name: "Position" },
 	{ color: "#cba6f7", icon: CameraIcon, name: "Details" },
-	{ color: "#f9e2af", icon: ReticleIcon, name: "Position" },
-	{ color: "#b4befe", icon: AsteriskIcon, name: "Special" },
 ] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
 
 export type PropertyCategory = typeof propertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
@@ -30,14 +28,19 @@ export type PropertyCategory = typeof propertyCategories extends (infer Category
 export type ColorProperty = {
 	base: "color";
 	defaultValue: string;
+	requiredProperties: string[];
 	default(value: string): ColorProperty;
+	requires(...name: string[]): ColorProperty;
 };
 
 export type SelectProperty = {
 	base: "string";
 	options: string[];
+	requiredProperties: string[];
 	choices(...options: SelectOption[]): SelectProperty;
 	defaultValue: string | null;
+	default(value: string): SelectProperty;
+	requires(...name: string[]): SelectProperty;
 };
 
 export type ListProperty = {
@@ -45,20 +48,30 @@ export type ListProperty = {
 	type: PropertyType;
 	shouldSpread: boolean;
 	defaultValue: unknown[];
+	requiredProperties: string[];
 	default(value: unknown[]): ListProperty;
 	spread(): ListProperty;
+	requires(...name: string[]): ListProperty;
 };
 
 export type ObjectTypeProperty = {
 	base: "objectType";
+	requiredProperties: string[];
+	requires(...name: string[]): ObjectTypeProperty;
 };
 
 export type ObjectProperty = {
 	base: "object";
+	allowedTypes: string[];
+	requiredProperties: string[];
+	only(...allowedTypes: string[]): ObjectProperty;
+	requires(...name: string[]): ObjectProperty;
 };
 
 export type AnimationProperty = {
 	base: "animation";
+	requiredProperties: string[];
+	requires(...name: string[]): AnimationProperty;
 };
 
 export type StringProperty = {
@@ -66,9 +79,11 @@ export type StringProperty = {
 	canBeEmpty: boolean;
 	isMath: boolean;
 	defaultValue: string;
+	requiredProperties: string[];
 	notEmpty(): StringProperty;
 	math(): StringProperty;
 	default(value: string): StringProperty;
+	requires(...name: string[]): StringProperty;
 };
 
 export type NumberProperty = {
@@ -77,6 +92,8 @@ export type NumberProperty = {
 	minimumValue: number;
 	isIntegeric: boolean;
 	defaultValue: number;
+	requiredProperties: string[];
+	requires(...name: string[]): NumberProperty;
 
 	/**
 	 * Restricts a number property to be at most a certain maximum value. The new property is returned without modifying this one.
@@ -121,21 +138,27 @@ export type NumberProperty = {
 export type CoordinateProperty = {
 	base: "coordinate";
 	defaultValue: [number, number, number];
+	requiredProperties: string[];
 	default(value: [number, number, number]): CoordinateProperty;
+	requires(...name: string[]): CoordinateProperty;
 };
 
 export type BooleanProperty = {
 	base: "boolean";
 	defaultValue: boolean;
+	requiredProperties: string[];
 	default(value: boolean): BooleanProperty;
+	requires(...name: string[]): BooleanProperty;
 };
 
 export type CompoundProperty = {
 	base: "compound";
 	subProperties: { [key: string]: PropertyType };
-	property(name: string, type: PropertyType): CompoundProperty;
 	defaultValue: unknown;
+	requiredProperties: string[];
+	property(name: string, type: PropertyType): CompoundProperty;
 	default(value: unknown): CompoundProperty;
+	requires(...name: string[]): CompoundProperty;
 };
 
 export type PropertyType =
@@ -161,6 +184,7 @@ export const property = (() => {
 				minimumValue: -Infinity,
 				isIntegeric: false,
 				defaultValue: 0,
+				requiredProperties: [],
 				max(value: number): NumberProperty {
 					return {
 						...this,
@@ -200,6 +224,9 @@ export const property = (() => {
 				percent(): NumberProperty {
 					return this.min(0).max(1);
 				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		string(): StringProperty {
@@ -208,6 +235,7 @@ export const property = (() => {
 				canBeEmpty: true,
 				isMath: false,
 				defaultValue: "",
+				requiredProperties: [],
 				default(value: string) {
 					return {
 						...this,
@@ -226,17 +254,24 @@ export const property = (() => {
 						isMath: true,
 					};
 				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		boolean(): BooleanProperty {
 			return {
 				base: "boolean",
 				defaultValue: false,
+				requiredProperties: [],
 				default(value: boolean) {
 					return {
 						...this,
 						defaultValue: value,
 					};
+				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
 				},
 			};
 		},
@@ -244,11 +279,15 @@ export const property = (() => {
 			return {
 				defaultValue: "#FFFFFF",
 				base: "color",
+				requiredProperties: [],
 				default(value: string) {
 					return {
 						...this,
 						defaultValue: value,
 					};
+				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
 				},
 			};
 		},
@@ -258,6 +297,7 @@ export const property = (() => {
 				type,
 				defaultValue: [],
 				shouldSpread: false,
+				requiredProperties: [],
 				default(value: unknown[]) {
 					return {
 						...this,
@@ -270,22 +310,41 @@ export const property = (() => {
 						shouldSpread: true,
 					};
 				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		objectType(): ObjectTypeProperty {
 			return {
 				base: "objectType",
+				requiredProperties: [],
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		object(): ObjectProperty {
 			return {
 				base: "object",
+				allowedTypes: [],
+				requiredProperties: [],
+				only(...allowedTypes: string[]) {
+					return {
+						...this,
+						allowedTypes,
+					};
+				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		compound(): CompoundProperty {
 			return {
 				base: "compound",
 				subProperties: {},
+				requiredProperties: [],
 				defaultValue: {},
 				default(value: unknown) {
 					return {
@@ -299,28 +358,40 @@ export const property = (() => {
 						subProperties: { ...this.subProperties, [name]: type },
 					};
 				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		animation(): AnimationProperty {
 			return {
+				requiredProperties: [],
 				base: "animation",
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		coordinate(): CoordinateProperty {
 			return {
 				base: "coordinate",
 				defaultValue: [0, 0, 0],
+				requiredProperties: [],
 				default(value: [number, number, number]) {
 					return {
 						...this,
 						defaultValue: value,
 					};
 				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
+				},
 			};
 		},
 		select(): SelectProperty {
 			return {
 				base: "string",
+				requiredProperties: [],
 				options: [],
 				defaultValue: null,
 				choices(...choices: string[]) {
@@ -328,6 +399,15 @@ export const property = (() => {
 						...this,
 						options: choices,
 					};
+				},
+				default(value: string) {
+					return {
+						...this,
+						defaultValue: value,
+					};
+				},
+				requires(...name: string[]) {
+					return { ...this, requiredProperties: name };
 				},
 			};
 		},

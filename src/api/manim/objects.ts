@@ -110,7 +110,7 @@ export function getObjectCategory(name: ObjectCategoryName) {
 	return objectCategories.find(category => category.name === name)!;
 }
 
-const mobjectProperties = [
+const VMobjectProperties = [
 	{
 		name: "Fill Color",
 		internalName: "fill_color",
@@ -172,7 +172,71 @@ export const objects = [
 		description: "A geometric angle.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.line.Angle.html"],
 		demo: angleDemo,
-		properties: [],
+		properties: [
+			{
+				name: "Line 1",
+				internalName: "line1",
+				type: property().object().only("Line"),
+				categories: ["Special"],
+				required: true,
+			},
+			{
+				name: "Line 2",
+				internalName: "line2",
+				type: property().object().only("Line"),
+				categories: ["Special"],
+				required: true,
+			},
+			{
+				name: "Radius",
+				internalName: "radius",
+				type: property().number().positive(),
+				categories: ["Special"],
+			},
+			{
+				name: "Quadrant",
+				internalName: "quadrant",
+				type: property().select().choices("1", "2", "3", "4").default("1"),
+				categories: ["Special"],
+			},
+			{
+				name: "Direction",
+				internalName: "other_angle",
+				type: property().select().choices("Clockwise", "Counterclockwise").default("Counterclockwise"),
+				categories: ["Special"],
+			},
+			{
+				name: "Dot",
+				internalName: "dot",
+				type: property().boolean(),
+				categories: ["Special"],
+			},
+			{
+				name: "Dot Radius",
+				internalName: "dot_radius",
+				type: property().number().positive().requires("Dot"),
+				categories: ["Special"],
+			},
+			{
+				name: "Dot Distance",
+				internalName: "dot_distance",
+				type: property().number().percent().requires("Dot"),
+				categories: ["Special"],
+			},
+			{
+				name: "Dot Color",
+				internalName: "dot_color",
+				type: property().color().requires("Dot"),
+				categories: ["Special"],
+			},
+			{
+				name: "Elbow",
+				internalName: "elbow",
+				type: property().boolean(),
+				categories: ["Special"],
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Annular Sector",
@@ -201,14 +265,14 @@ export const objects = [
 		demo: arcDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Arc.html"],
 		properties: [
-			{ name: "Radius", internalName: "radius", type: property().number().nonnegative().default(1), categories: ["Size"], prioritized: true },
-			{ name: "Start Angle", internalName: "start_angle", type: property().number(), categories: ["Size"], prioritized: true },
-			{ name: "Angle", internalName: "angle", type: property().number().default(1.57), categories: ["Size"], prioritized: true },
+			{ name: "Radius", internalName: "radius", type: property().number().nonnegative().default(1), categories: ["Special"], prioritized: true },
+			{ name: "Start Angle", internalName: "start_angle", type: property().number(), categories: ["Special"], prioritized: true },
+			{ name: "Angle", internalName: "angle", type: property().number().default(1.57), categories: ["Special"], prioritized: true },
 			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative().default(0.35), categories: ["Details"] },
 			{ name: "Components", internalName: "num_components", type: property().number().integeric().nonnegative().default(9), categories: ["Details"] },
 			{ name: "Normal Vector", internalName: "normal_vector", type: property().coordinate().default([0, 0, 1]), categories: ["Details"] },
 			{ name: "Center", internalName: "center", type: property().coordinate(), categories: ["Position"], prioritized: true },
-			...mobjectProperties,
+			...VMobjectProperties,
 		],
 	},
 	{
@@ -269,12 +333,12 @@ export const objects = [
 				name: "Radius",
 				internalName: "radius",
 				type: property().number().nonnegative().default(1),
-				categories: ["Size"],
+				categories: ["Special"],
 				prioritized: true,
 				description: "The distance between each point on the circle and the circle's center.",
 			},
 			{ name: "Center", internalName: "center", type: property().coordinate(), categories: ["Position"], prioritized: true },
-			...mobjectProperties,
+			...VMobjectProperties,
 		],
 	},
 	{
@@ -311,7 +375,7 @@ export const objects = [
 				required: true,
 				position: 1,
 			},
-			...mobjectProperties,
+			...VMobjectProperties,
 		],
 		documentation: [
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Exclusion.html",
@@ -492,7 +556,7 @@ export const objects = [
 				name: "Text",
 				internalName: "tex_strings",
 				type: property().string().notEmpty().math(),
-				categories: ["Size"],
+				categories: ["Special"],
 				prioritized: true,
 				required: true,
 				position: 0,
@@ -540,7 +604,7 @@ export const objects = [
 				name: "Text",
 				internalName: "text",
 				type: property().string().notEmpty(),
-				categories: ["Size"],
+				categories: ["Special"],
 				prioritized: true,
 				required: true,
 				description: "The text to display",
@@ -550,21 +614,21 @@ export const objects = [
 				type: property().list(
 					property()
 						.compound()
-						.property("text", property().string().notEmpty())
+						.property("Text", property().string().notEmpty())
 						.property(
-							"style",
+							"Style",
 							property()
 								.compound()
-								.property("bold", property().boolean())
-								.property("italic", property().boolean())
-								.property("underline", property().boolean())
-								.property("strikethrough", property().boolean())
-								.property("color", property().color())
+								.property("Bold", property().boolean())
+								.property("Italic", property().boolean())
+								.property("Underline", property().boolean())
+								.property("Strikethrough", property().boolean())
+								.property("Color", property().color())
 						)
 				),
 				categories: ["Special"],
 			},
-			{ name: "Line Spacing", internalName: "line_spacing", type: property().number().default(-1), categories: ["Size"] },
+			{ name: "Line Spacing", internalName: "line_spacing", type: property().number().default(-1), categories: ["Special"] },
 			{
 				name: "Tab Width",
 				internalName: "tab_width",
@@ -587,7 +651,7 @@ export const objects = [
 				categories: ["Special"],
 				internalName: "font",
 			},
-			...mobjectProperties,
+			...VMobjectProperties,
 		],
 	},
 	{
@@ -620,7 +684,7 @@ export const objects = [
 				name: "Width",
 				internalName: "width",
 				type: property().number().nonnegative().default(4),
-				categories: ["Size"],
+				categories: ["Special"],
 				prioritized: true,
 				description: "The width of the rectangle.",
 			},
@@ -628,13 +692,13 @@ export const objects = [
 				name: "Height",
 				internalName: "height",
 				type: property().number().nonnegative().default(2),
-				categories: ["Size"],
+				categories: ["Special"],
 				prioritized: true,
 				description: "The height of the rectangle.",
 			},
 			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: property().number().nonnegative(), categories: ["Details"] },
 			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: property().number().nonnegative(), categories: ["Details"] },
-			...mobjectProperties,
+			...VMobjectProperties,
 		],
 	},
 	{
@@ -715,15 +779,15 @@ export const objects = [
 				name: "Number of Points",
 				internalName: "n",
 				type: property().number().integeric().positive(),
-				categories: ["Size"],
+				categories: ["Special"],
 				prioritized: true,
 				description: "The number of points the star has.",
 			},
-			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative().default(1), categories: ["Size"], prioritized: true },
-			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), categories: ["Size"] },
+			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative().default(1), categories: ["Special"], prioritized: true },
+			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), categories: ["Special"] },
 			{ name: "Density", internalName: "density", type: property().number().integeric().positive().default(2), categories: ["Details"] },
 			{ name: "Start Angle", internalName: "density", type: property().number().default(1.57), categories: ["Details"] },
-			...mobjectProperties,
+			...VMobjectProperties,
 		],
 	},
 	{

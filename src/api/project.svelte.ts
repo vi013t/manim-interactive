@@ -1,4 +1,5 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
+import { getPossibleProperties } from "./manim/properties";
 import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
@@ -134,6 +135,38 @@ export type ProjectAnimation = {
 	properties: { [key: string]: unknown };
 };
 
+export function getObjectDependencies(id: number): number[] {
+	const object = getItemFromId(id)!;
+	const possibleProperties = getPossibleProperties(object.objectType);
+	return Object.entries(object.properties)
+		.map(([propertyName, propertyValue]) => {
+			const propertyBase = possibleProperties.find(property => (property.name = propertyName))!;
+			if (propertyBase.type.base === "object") return [propertyValue as number];
+			return [];
+		})
+		.flat();
+}
+
+export function checkForObjectDependencyCycles(): boolean {
+	const visited = new Set();
+	const recStack = new Set();
+
+	function dfs(id: number) {
+		if (recStack.has(id)) return true;
+		if (visited.has(id)) return false;
+
+		visited.add(id);
+		recStack.add(id);
+
+		if (getObjectDependencies(id).some(dependency => dfs(dependency))) return true;
+		recStack.delete(id);
+
+		return false;
+	}
+
+	return projectObjects.some(object => dfs(object.id));
+}
+
 export function animationEndTime(animation: ProjectAnimation): number {
 	return animation.startTime + animation.duration;
 }
@@ -237,4 +270,29 @@ export function isNameTaken(name: string, exclude?: number): boolean {
 		projectObjects.some(object => object.name === name && (exclude === undefined || object.id !== exclude)) ||
 		projectAnimations.some(animation => animation.name === name && (exclude === undefined || animation.id !== exclude))
 	);
+}
+
+export function topologicalProjectObjects(): ProjectObject[] {
+	if (checkForObjectDependencyCycles()) {
+		throw "Cycle Detected";
+	}
+
+	const visited = new Set<number>();
+	const sorted: ProjectObject[] = [];
+
+	function visit(node: ProjectObject) {
+		if (!visited.has(node.id)) {
+			getObjectDependencies(node.id).forEach(dep => visit(getItemFromId(dep)!));
+			visited.add(node.id);
+			sorted.push(node);
+		}
+	}
+
+	projectObjects.forEach(obj => {
+		if (!visited.has(obj.id)) {
+			visit(obj);
+		}
+	});
+
+	return sorted.reverse();
 }

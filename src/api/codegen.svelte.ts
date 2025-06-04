@@ -2,7 +2,7 @@ import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
 import { getPossibleProperties } from "./manim/properties";
 import { propertyValueToString } from "./manim/property";
-import { animationEndTime, getProjectAnimations, getProjectObjects, type ProjectAnimation } from "./project.svelte";
+import { animationEndTime, getProjectAnimations, getProjectObjects, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
 	let animations = getProjectAnimations().toSorted((first, other) => first.startTime - other.startTime);
@@ -18,7 +18,7 @@ export function generateCode(): string {
 		animationsWithWaits.unshift({ wait: (animationsWithWaits[0] as ProjectAnimation).startTime });
 	}
 
-	const objectLines = getProjectObjects()
+	const objectLines = topologicalProjectObjects()
 		.map(object => {
 			if (!("objectType" in object)) return;
 			let possibleProperties = getPossibleProperties(object.objectType);
@@ -31,6 +31,8 @@ export function generateCode(): string {
 			// Positional Arguments
 			let positionalArguments = Object.entries(object.properties)
 				.filter(([propertyName, _propertyValue]) => {
+					console.log(possibleProperties);
+					console.log(propertyName);
 					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
 					return position !== undefined;
 				})

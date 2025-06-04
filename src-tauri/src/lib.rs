@@ -66,12 +66,32 @@ fn load_audio(path: String) -> Result<String, String> {
 
 #[tauri::command]
 fn new_project(path: String, name: String) -> Result<String, String> {
-    let path = Path::new(&path).join(&name);
-    std::fs::create_dir_all(&path).map_err(|_| "Error creating directory".to_owned())?;
-    std::fs::create_dir_all(path.join("scripts"))
+    // Create the project
+    Command::new("uv")
+        .arg("init")
+        .arg(&name)
+        .current_dir(&path)
+        .spawn()
+        .map_err(|_| "Error spawning UV".to_owned())?
+        .wait()
+        .map_err(|_| "Error Waiting for UV".to_owned())?;
+
+    // Add Manim
+    Command::new("uv")
+        .arg("add")
+        .arg("manim")
+        .current_dir(Path::new(&path).join(&name))
+        .spawn()
+        .map_err(|_| "Error spawning UV".to_owned())?
+        .wait()
+        .map_err(|_| "Error Waiting for UV".to_owned())?;
+
+    // Create scripts folder
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("scripts"))
         .map_err(|_| "Error creating scripts directory".to_owned())?;
-    std::fs::write(path.join("main.py"), "").map_err(|_| "Error creating script".to_owned())?;
-    Ok(format!("{}", path.display()))
+
+    // Return project location
+    Ok(format!("{}", Path::new(&path).join(name).display()))
 }
 
 #[tauri::command]

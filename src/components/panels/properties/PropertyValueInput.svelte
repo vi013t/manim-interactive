@@ -58,9 +58,12 @@
 		name: string;
 		value: PropertyValue<T>;
 		required: boolean;
+		subProperty?: boolean;
 	};
 
-	let { type, name, value, deleteProperty = deleteRegularProperty, setProperty = setRegularProperty, required }: Props = $props();
+	let { subProperty = false, type, name, value, deleteProperty = deleteRegularProperty, setProperty = setRegularProperty, required }: Props = $props();
+
+	let width = $derived(subProperty ? "5rem" : "20rem");
 
 	let objectValueInput = $state(value);
 
@@ -228,13 +231,13 @@
 <!-- Animation -->
 <span class="property" style:align-items={type.base === "list" && (value.length || !listCollapsed) ? "start" : "center"}>
 	{#if name}
-		<span class="property-name">
+		<span class="property-name" style:width={subProperty ? "fit-content" : "12rem"}>
 			{name === "name" ? "Name" : name === "objectType" ? "Type" : name}:
 		</span>
 	{/if}
 	{#key getItemFromId(selected()!)}
 		{#if type.base === "animation"}
-			<button class="add-animation" bind:this={addButton} onclick={addAnimation}>
+			<button class="add-animation" style:width bind:this={addButton} onclick={addAnimation}>
 				{value}
 			</button>
 			<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} openers={[addButton]} />
@@ -290,7 +293,7 @@
 
 			<!-- Boolean -->
 		{:else if type.base === "boolean"}
-			<button style:background-color={booleanValue ? "#a6e3a1" : "#f38ba8"} onclick={() => (booleanValue = !booleanValue)} class="boolean-button">
+			<button style:width="20rem" style:background-color={booleanValue ? "#a6e3a1" : "#f38ba8"} onclick={() => (booleanValue = !booleanValue)} class="boolean-button">
 				{booleanValue ? "Yes" : "No"}
 			</button>
 
@@ -307,12 +310,22 @@
 			/>
 
 			<!-- List -->
+		{:else if type.base === "compound"}
+			<div class="compound">
+				{#each Object.entries(type.subProperties) as [propertyName, propertyValue]}
+					<PropertyValueInput type={propertyValue} name={propertyName} required value={propertyValue.defaultValue} subProperty />
+				{/each}
+			</div>
+
+			<!-- List -->
 		{:else if type.base === "list"}
 			<div class="list">
 				{#if !(value as any[]).length || listCollapsed}
 					<span style:align-items="center">
-						<button class="list-items-header" onclick={() => (listCollapsed = false)}>
-							[{value.length === 0 ? "No" : value.length} Items] (Click to Expand)
+						<button class="list-items-header" style:width onclick={() => (listCollapsed = false)}>
+							[{value.length === 0 ? "No" : value.length} Items] {#if value.length !== 0}
+								(Click to Expand)
+							{/if}
 						</button>
 						{#if !listCollapsed && value.length !== 0}
 							<button
@@ -394,6 +407,7 @@
 					bind:this={input}
 					style:outline={errorMessage ? "2px solid #f38ba8" : "none"}
 					type="text"
+					style:width
 					oninput={validate}
 					onkeydown={stringInput}
 					autocomplete="off"
@@ -449,14 +463,6 @@
 		}
 	}
 
-	.add-animation {
-		width: 20rem;
-	}
-
-	input[type="text"] {
-		width: 20rem;
-	}
-
 	.error {
 		gap: 0.5rem;
 		margin-left: 0.5rem;
@@ -466,7 +472,6 @@
 	}
 
 	.boolean-button {
-		width: 20rem;
 		border-radius: 0.5rem;
 		color: #11111b;
 		display: flex;
@@ -511,7 +516,6 @@
 	}
 
 	.property-name {
-		width: 12rem;
 		justify-content: right;
 	}
 
@@ -520,7 +524,6 @@
 		gap: 0.5rem;
 		border-radius: 0.5rem;
 		background-color: #11111b;
-		width: 20rem;
 		padding: 0.25rem;
 	}
 
@@ -533,5 +536,11 @@
 		> * {
 			margin-left: 0px !important;
 		}
+	}
+
+	.compound {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
 	}
 </style>

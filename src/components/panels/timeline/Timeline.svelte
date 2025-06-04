@@ -22,8 +22,6 @@
 
 	let seconds = 1;
 
-	function audioActions(id: number) {}
-
 	function formatTime(seconds: number): string {
 		if (seconds < 60) return `${seconds}s`;
 		if (seconds / 60 < 60) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;

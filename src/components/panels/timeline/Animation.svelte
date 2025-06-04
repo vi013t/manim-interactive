@@ -89,6 +89,8 @@
 			draggingElement = null;
 			draggingAnimation = null;
 		});
+
+		console.log($state.snapshot(animation));
 	});
 </script>
 
