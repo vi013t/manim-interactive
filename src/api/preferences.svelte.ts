@@ -59,7 +59,9 @@ const actions = {
 			});
 
 			if (projectHasErrors()) {
-				addNotification("Error Reloading Video", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", "error");
+				addNotification("Error Reloading Video", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", {
+					severity: "error",
+				});
 				videoLoaded = true;
 				return;
 			}

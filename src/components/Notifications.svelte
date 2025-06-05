@@ -21,7 +21,7 @@
 				{notification.header}
 				<button class="close" onclick={hideNotification(notification.id)}><CloseIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
 			</h1>
-			<p>{notification.message}</p>
+			<p>{@html notification.message}</p>
 		</div>
 	{/each}
 </div>
@@ -55,6 +55,11 @@
 		p {
 			color: #bac2de;
 			font-size: 0.85rem;
+
+			:global(a) {
+				color: #89b4fa;
+				text-decoration: none;
+			}
 		}
 	}
 

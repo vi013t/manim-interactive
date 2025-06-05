@@ -2,9 +2,10 @@ import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
 import { getPossibleProperties } from "./manim/properties";
 import { propertyValueToString } from "./manim/property";
-import { animationEndTime, getProjectAnimations, getProjectObjects, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
+import { animationEndTime, getProjectAnimations, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
+	console.log(getProjectAnimations());
 	let animations = getProjectAnimations().toSorted((first, other) => first.startTime - other.startTime);
 	let animationsWithWaits: (ProjectAnimation | { wait: number })[] = [];
 	animations.forEach((animation, index) => {
@@ -79,10 +80,6 @@ export function generateCode(): string {
 class Main(Scene):
 	def construct(self):
 ${objectLines}
-
-		def object(name: str):
-			return {${getProjectObjects().map(object => `\n\t\t\t\t"${object.name}": var_${object.id}`)}	
-			}.get(name);
 
 ${animationLines}
 `;

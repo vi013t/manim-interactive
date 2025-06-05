@@ -243,18 +243,23 @@ export type NotificationData = {
 	id: number;
 };
 
-export function addNotification(header: string, message: string, severity: "normal" | "error" | "warning" = "normal") {
+export function addNotification(header: string, message: string, options: { severity?: "normal" | "error" | "warning"; autohide?: false }) {
+	options.severity = options.severity ?? "normal";
+	(options as any).autohide = options.autohide ?? true;
+
 	let id = notificationId++;
 	notifications.push({
 		header,
 		message,
-		severity,
+		severity: options.severity,
 		id,
 	});
 
-	setTimeout(() => {
-		notifications = notifications.filter(notification => notification.id !== id);
-	}, 5000);
+	if (options.autohide) {
+		setTimeout(() => {
+			notifications = notifications.filter(notification => notification.id !== id);
+		}, 5000);
+	}
 }
 
 export function getNotifications(): NotificationData[] {
@@ -273,26 +278,18 @@ export function isNameTaken(name: string, exclude?: number): boolean {
 }
 
 export function topologicalProjectObjects(): ProjectObject[] {
-	if (checkForObjectDependencyCycles()) {
-		throw "Cycle Detected";
-	}
-
-	const visited = new Set<number>();
 	const sorted: ProjectObject[] = [];
 
 	function visit(node: ProjectObject) {
-		if (!visited.has(node.id)) {
-			getObjectDependencies(node.id).forEach(dep => visit(getItemFromId(dep)!));
-			visited.add(node.id);
+		if (!sorted.includes(node)) {
+			getObjectDependencies(node.id).forEach(dependency => visit(getItemFromId(dependency)!));
 			sorted.push(node);
 		}
 	}
 
 	projectObjects.forEach(obj => {
-		if (!visited.has(obj.id)) {
-			visit(obj);
-		}
+		visit(obj);
 	});
 
-	return sorted.reverse();
+	return sorted;
 }

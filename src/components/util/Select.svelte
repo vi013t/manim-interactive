@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Component } from "svelte";
+	import { onMount, type Component } from "svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 
 	export type ComplexOption = { name: string; icon?: Component<{ stroke: string; [key: string]: unknown }>; color?: string; style?: string };
@@ -34,10 +34,18 @@
 	function onSelectClick(event: MouseEvent) {
 		optionsVisible = !optionsVisible;
 	}
+
+	onMount(() => {
+		document.addEventListener("click", event => {
+			if (!event.composedPath().includes(element)) {
+				optionsVisible = false;
+			}
+		});
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<div tabindex="0" bind:this={element} class="select" {...rest} onblur={() => (optionsVisible = false)}>
+<div bind:this={element} class="select" {...rest}>
 	<!-- Select Button -->
 	<button onclick={onSelectClick} class="header">
 		{#if value}

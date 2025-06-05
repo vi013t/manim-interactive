@@ -22,6 +22,7 @@ pub fn run() {
             path_exists,
             python_package_exists,
             get_fonts,
+            command_exists,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -128,17 +129,22 @@ fn path_exists(path: &str) -> bool {
 }
 
 #[tauri::command]
-async fn python_package_exists(package_name: String) -> String {
+fn command_exists(command: &str) -> bool {
+    which::which(command).is_ok()
+}
+
+#[tauri::command]
+async fn python_package_exists(package_name: String) -> Result<bool, String> {
     let url = format!("https://pypi.org/pypi/{package_name}/json");
 
     let Ok(resp) = reqwest::get(&url).await else {
-        return "Error".to_owned();
+        return Err("Error".to_owned());
     };
 
     match resp.status() {
-        StatusCode::OK => "true".to_owned(),
-        StatusCode::NOT_FOUND => "false".to_owned(),
-        _ => "Error".to_owned(),
+        StatusCode::OK => Ok(true),
+        StatusCode::NOT_FOUND => Ok(false),
+        _ => Err("Error".to_owned()),
     }
 }
 
@@ -149,7 +155,7 @@ fn get_fonts() -> Vec<String> {
         .all()
         .map(|font| font.family_name.clone())
         .collect::<Vec<String>>();
-    fonts.dedup();
     fonts.sort();
+    fonts.dedup();
     fonts
 }

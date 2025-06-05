@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { itemHasErrors, select, selected } from "../../../api/project.svelte";
+	import { itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import PackageIcon from "../../icons/PackageIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
@@ -10,7 +10,7 @@
 	import ObjectMenu from "../../menus/ObjectMenu.svelte";
 	import ObjectEntry from "./ObjectEntry.svelte";
 
-	let { entry } = $props();
+	let { entry }: { entry: ProjectObject } = $props();
 
 	let expanded = $state(false);
 
@@ -42,6 +42,7 @@
 	let isHovered = $state(false);
 
 	function clickObject(event: MouseEvent) {
+		console.log(entry);
 		select(entry);
 	}
 

@@ -79,7 +79,7 @@ import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import UnionIcon from "../../components/icons/UnionIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
-import { get_fonts } from "../system.svelte";
+import { getFonts } from "../system.svelte";
 import { getPossibleProperties } from "./properties";
 import { property, propertyValueToString, type Property } from "./property";
 
@@ -647,7 +647,7 @@ export const objects = [
 				name: "Font",
 				type: property()
 					.select()
-					.choices(...(await get_fonts()).map(font => ({ name: font, style: `font-family: "${font}"` }))),
+					.choices(...(await getFonts()).map(font => ({ name: font, style: `font-family: "${font}"` }))),
 				categories: ["Special"],
 				internalName: "font",
 			},

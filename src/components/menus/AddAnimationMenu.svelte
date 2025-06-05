@@ -30,7 +30,7 @@
 			properties: {},
 			startTime: 0,
 			duration: 1,
-			objects: id ? [id] : [],
+			objects: id !== undefined ? [id] : [],
 		};
 		onAdd(animation);
 		addProjectAnimation(animation);

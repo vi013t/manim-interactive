@@ -68,10 +68,10 @@ export type ObjectProperty = {
 	requires(...name: string[]): ObjectProperty;
 };
 
-export type AnimationProperty = {
+export type AnimationTypeProperty = {
 	base: "animation";
 	requiredProperties: string[];
-	requires(...name: string[]): AnimationProperty;
+	requires(...name: string[]): AnimationTypeProperty;
 };
 
 export type StringProperty = {
@@ -168,7 +168,7 @@ export type PropertyType =
 	| CoordinateProperty
 	| BooleanProperty
 	| ObjectTypeProperty
-	| AnimationProperty
+	| AnimationTypeProperty
 	| SelectProperty
 	| ObjectProperty
 	| ListProperty
@@ -363,7 +363,7 @@ export const property = (() => {
 				},
 			};
 		},
-		animation(): AnimationProperty {
+		animation(): AnimationTypeProperty {
 			return {
 				requiredProperties: [],
 				base: "animation",
@@ -431,6 +431,10 @@ export type PropertyValue<T extends PropertyType> = T extends ListProperty
 	: T extends StringProperty
 	? string
 	: T extends ColorProperty
+	? string
+	: T extends AnimationTypeProperty
+	? string
+	: T extends ObjectTypeProperty
 	? string
 	: T extends NumberProperty
 	? number

@@ -139,6 +139,7 @@ export const animations = [
 		name: "Destroy",
 		category: "Destroy",
 		description: "Incrementally remove an object.",
+		internalName: "Uncreate",
 		demo: destroyDemo,
 		icon: MinimizeIcon,
 		properties: [],

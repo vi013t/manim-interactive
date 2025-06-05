@@ -6,7 +6,7 @@
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
-	let item = $derived(selected() ? getItemFromId(selected()!)! : null);
+	let item = $derived(selected() !== null ? getItemFromId(selected()!)! : null);
 
 	let top = $state("100%");
 	let left = $state("94%");
@@ -24,7 +24,7 @@
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
-	function getPropertyRequired(propertyName: string): boolean {
+	function isPropertyRequired(propertyName: string): boolean {
 		let properties = getPossibleProperties(item!.objectType);
 		return !!properties.find(property => property.name === propertyName)!.required;
 	}
@@ -35,12 +35,6 @@
 		left = `${event.clientX}px`;
 		propertiesMenu.show();
 	}
-
-	$effect(() => {
-		if (item) {
-			console.log($state.snapshot(Object.entries(item?.properties)));
-		}
-	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -62,10 +56,10 @@
 				<!-- Animation -->
 				{#if "startTime" in item}
 					<span>
-						Animation: <PropertyValueInput name="animation" type={property().animation()} value={item.name} required />
+						Animation: <PropertyValueInput name="animation" type={property().animation()} value={item.name as string} required />
 					</span>
 					<span>
-						Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} value={item.startTime} required />
+						Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} value={item.startTime as number} required />
 					</span>
 
 					<!-- Object -->
@@ -93,7 +87,7 @@
 					return firstName.localeCompare(secondName);
 				}) as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
-						<PropertyValueInput {name} type={getPropertyType(name)} {value} required={getPropertyRequired(name)} />
+						<PropertyValueInput {name} type={getPropertyType(name)} value={value as any} required={isPropertyRequired(name)} />
 					</span>
 				{/each}
 
