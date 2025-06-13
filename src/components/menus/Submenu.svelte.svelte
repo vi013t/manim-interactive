@@ -3,8 +3,8 @@
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
 	import { getPreferences } from "../../api/preferences.svelte";
 	import { translate } from "../../api/translate.svelte";
-	import ContextMenu from "../ContextMenu.svelte";
 	import ExternalLink from "../util/ExternalLink.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	export type MenuOption = { name: string; description: string; demo: string; icon: Component<{ stroke: string; [key: string]: unknown }>; documentation?: string[] };
 
@@ -61,7 +61,7 @@
 		hoveringIndex = null;
 	}}
 >
-	{#if title}<span>{title}</span>{/if}
+	{#if title}<span>{translate(title)}</span>{/if}
 	{#each options as option, index}
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<button

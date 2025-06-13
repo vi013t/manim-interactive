@@ -1,6 +1,6 @@
 <script lang="ts">
-	import ContextMenu from "../ContextMenu.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 

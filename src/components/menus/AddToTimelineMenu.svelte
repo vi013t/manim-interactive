@@ -4,13 +4,14 @@
 	import { open } from "@tauri-apps/plugin-dialog";
 	import { openPreferencesWindow, setPreferencesView } from "../../api/client.svelte";
 	import { addProjectAudio, addProjectMarker, type ProjectAnimation } from "../../api/project.svelte";
-	import ContextMenu from "../ContextMenu.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
 	import BookmarkIcon from "../icons/BookmarkIcon.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 
@@ -88,23 +89,23 @@
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
-	<span>Timeline Actions</span>
+	<span>{translate("Timeline Actions")}</span>
 	<button onclick={addAudio} onmouseenter={selectMenu(null)}>
 		<AudioIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Audio
+		{translate("Add Audio")}
 	</button>
 	<button style:background={selectedMenu === "animation" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("animation")}>
 		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Animation
+		{translate("Add Animation")}
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onclick={addMarker} style:background={selectedMenu === "marker" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("marker")}>
 		<BookmarkIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Marker
+		{translate("Add Marker")}
 	</button>
 	<button onmouseenter={selectMenu(null)} onclick={openTimelinePreferences}>
 		<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Open Timeline Preferences
+		{translate("Open Timeline Preferences")}
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="-100%" {onAdd} />

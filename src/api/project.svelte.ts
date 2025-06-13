@@ -129,6 +129,7 @@ export type ProjectObject = {
 export type ProjectAnimation = {
 	id: number;
 	name: string;
+	animationType: string;
 	objects: number[];
 	startTime: number;
 	duration: number;
@@ -137,7 +138,7 @@ export type ProjectAnimation = {
 
 export function getObjectDependencies(id: number): number[] {
 	const object = getItemFromId(id)!;
-	const possibleProperties = getPossibleProperties(object.objectType);
+	const possibleProperties = getPossibleProperties(object);
 	return Object.entries(object.properties)
 		.map(([propertyName, propertyValue]) => {
 			const propertyBase = possibleProperties.find(property => (property.name = propertyName))!;
@@ -200,8 +201,8 @@ export function select(object: Selectable | null) {
 	selectedThing = object?.id ?? null;
 }
 
-export function getItemFromId(id: number): ProjectObject | null {
-	return getProjectObjects().find(object => object.id === id) ?? null;
+export function getItemFromId(id: number): ProjectObject | ProjectAnimation | null {
+	return getProjectObjects().find(object => object.id === id) ?? getProjectAnimations().find(animation => animation.id === id) ?? null;
 }
 
 type Error = PropertyError;
@@ -284,7 +285,7 @@ export function topologicalProjectObjects(): ProjectObject[] {
 
 	function visit(node: ProjectObject) {
 		if (!sorted.includes(node)) {
-			getObjectDependencies(node.id).forEach(dependency => visit(getItemFromId(dependency)!));
+			getObjectDependencies(node.id).forEach(dependency => visit(getItemFromId(dependency)! as ProjectObject));
 			sorted.push(node);
 		}
 	}

@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { removeProjectObject } from "../../api/project.svelte";
-	import ContextMenu from "../ContextMenu.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	let { top, left, id }: { top: string; left: string; id: number } = $props();
 
@@ -32,16 +33,16 @@
 	<span>Group Actions</span>
 	<button onclick={deleteGroup}>
 		<PlusIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Object
+		{translate("Add Object")}
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onclick={deleteGroup}>
 		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Rename Group
+		{translate("Rename Group")}
 	</button>
 	<button onclick={deleteGroup}>
 		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Delete Group
+		{translate("Delete Group")}
 	</button>
 </ContextMenu>
 

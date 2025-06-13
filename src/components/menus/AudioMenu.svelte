@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { removeProjectObject } from "../../api/project.svelte";
-	import ContextMenu from "../ContextMenu.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	let menu: ContextMenu;
 	let id = $state(0);

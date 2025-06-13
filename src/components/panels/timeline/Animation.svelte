@@ -11,7 +11,7 @@
 	let draggingElement: HTMLElement | null = $state(null);
 	let draggingAnimation: ProjectAnimation | null = $state(null);
 
-	const Icon = getManimAnimationByName(animation.name)!.icon;
+	const Icon = getManimAnimationByName(animation.animationType)!.icon;
 
 	let top = $state("");
 	let left = $state("");
@@ -60,12 +60,12 @@
 	}
 
 	function animationColor(animation: ProjectAnimation): string {
-		return getAnimationCategory(animations.find(manimation => manimation.name === animation.name)!.category).color;
+		return getAnimationCategory(animations.find(manimation => manimation.name === animation.animationType)!.category).color;
 	}
 
 	onMount(() => {
 		document.addEventListener("mousemove", event => {
-			if (draggingElement) {
+			if (draggingElement && timelineElement) {
 				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
 				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "grabbing";
@@ -89,8 +89,6 @@
 			draggingElement = null;
 			draggingAnimation = null;
 		});
-
-		console.log($state.snapshot(animation));
 	});
 </script>
 
@@ -102,11 +100,10 @@
 	{@attach onAnimationMount(animation)}
 	style:background-color={animationColor(animation)}
 	style:outline={selected() && animation.objects.includes(selected()!) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
-	style:opacity={!selected() || animation.objects.includes(selected()!) ? "100%" : "30%"}
+	style:opacity={!selected() || "animationType" in getItemFromId(selected()!)! || animation.objects.includes(selected()!) ? "100%" : "30%"}
 >
 	<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
 	{animation.name}
-	{animation.objects.length ? getItemFromId(animation.objects[0])!.name : ""}
 </button>
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
 

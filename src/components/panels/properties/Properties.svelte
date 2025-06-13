@@ -9,6 +9,10 @@
 
 	let item = $derived(selected() !== null ? getItemFromId(selected()!)! : null);
 
+	$effect(() => {
+		console.log($state.snapshot(item));
+	});
+
 	let top = $state("100%");
 	let left = $state("94%");
 	// svelte-ignore non_reactive_update
@@ -21,12 +25,12 @@
 	}
 
 	function getPropertyType(propertyName: string): PropertyType {
-		let properties = getPossibleProperties(item!.objectType);
+		let properties = getPossibleProperties(item!);
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
 	function isPropertyRequired(propertyName: string): boolean {
-		let properties = getPossibleProperties(item!.objectType);
+		let properties = getPossibleProperties(item!);
 		return !!properties.find(property => property.name === propertyName)!.required;
 	}
 
@@ -56,11 +60,17 @@
 
 				<!-- Animation -->
 				{#if "startTime" in item}
-					<span>
-						Animation: <PropertyValueInput name="animation" type={property().animation()} value={item.name as string} required />
+					<span class="property">
+						<PropertyValueInput name="Animation" type={property().animation()} value={item.animationType as string} required />
 					</span>
-					<span>
-						Start Time: <PropertyValueInput name="startTime" type={property().number().nonnegative()} value={item.startTime as number} required />
+					<span class="property">
+						<PropertyValueInput name="Object" type={property().object()} value={item.objects.length ? (item.objects[0] as number) : null!} required />
+					</span>
+					<span class="property">
+						<PropertyValueInput name="Start Time" type={property().number().nonnegative()} value={item.startTime as number} required />
+					</span>
+					<span class="duration">
+						<PropertyValueInput name="Duration" type={property().number().nonnegative()} value={item.duration as number} required />
 					</span>
 
 					<!-- Object -->
@@ -72,8 +82,9 @@
 
 				<!-- Properties -->
 				{#each Object.entries(item.properties).toSorted(([firstName, _firstValue], [secondName, _secondValue]) => {
-					let firstBase = getPossibleProperties(item.objectType).find(property => property.name === firstName)!;
-					let secondBase = getPossibleProperties(item.objectType).find(property => property.name === secondName)!;
+					console.log(item);
+					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
+					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
 
 					if (firstBase.position !== undefined) {
 						if (secondBase.position !== undefined) {

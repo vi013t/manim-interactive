@@ -3,6 +3,7 @@
 	import type { Property } from "../../api/manim/property";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import Menu from "./Menu.svelte";
 
 	let {
@@ -23,7 +24,7 @@
 		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
 		menu.hide();
 
-		let name = type;
+		let name = translate(type);
 		let number = 2;
 		while (isNameTaken(name)) {
 			name = `${type} ${number++}`;

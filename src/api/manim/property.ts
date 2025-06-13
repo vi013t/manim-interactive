@@ -51,7 +51,17 @@ export type ListProperty = {
 	shouldSpread: boolean;
 	defaultValue: unknown[];
 	requiredProperties: string[];
+	allowDuplicates: boolean;
 	default(value: unknown[]): ListProperty;
+
+	/**
+	 * Indicates that this list cannot have duplicate elements.
+	 *
+	 * In the case of lists of complex objects such as project objects or animations, duplicates are considered by referential
+	 * equality; i.e. if two objects are identical but have different internal IDs, they are allowed to be in the same list,
+	 * even if it is `.unique()`.
+	 */
+	unique(): ListProperty;
 
 	/**
 	 * Indicates that this property should be spread into separate arguments when generating
@@ -336,6 +346,13 @@ export const property = (() => {
 				defaultValue: [],
 				shouldSpread: false,
 				requiredProperties: [],
+				allowDuplicates: true,
+				unique(): ListProperty {
+					return {
+						...this,
+						allowDuplicates: false,
+					};
+				},
 				default(value: unknown[]) {
 					return {
 						...this,
@@ -480,6 +497,8 @@ export type PropertyValue<T extends PropertyType> = T extends ListProperty
 	? string
 	: T extends ObjectTypeProperty
 	? string
+	: T extends ObjectProperty
+	? number
 	: T extends NumberProperty
 	? number
 	: T extends SelectProperty

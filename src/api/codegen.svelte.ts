@@ -5,7 +5,6 @@ import { propertyValueToString } from "./manim/property";
 import { animationEndTime, getProjectAnimations, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
-	console.log(getProjectAnimations());
 	let animations = getProjectAnimations().toSorted((first, other) => first.startTime - other.startTime);
 	let animationsWithWaits: (ProjectAnimation | { wait: number })[] = [];
 	animations.forEach((animation, index) => {
@@ -22,7 +21,7 @@ export function generateCode(): string {
 	const objectLines = topologicalProjectObjects()
 		.map(object => {
 			if (!("objectType" in object)) return;
-			let possibleProperties = getPossibleProperties(object.objectType);
+			let possibleProperties = getPossibleProperties(object);
 
 			let objectBase = objects.find(manimObject => manimObject.name === object.objectType)!;
 			if ("create" in objectBase) {
@@ -63,7 +62,6 @@ export function generateCode(): string {
 			let functions = Object.entries(object.properties)
 				.filter(([propertyName, _propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					console.log("fn", propertyBase);
 					return propertyBase.function !== undefined;
 				})
 				.map(([propertyName, propertyValue]) => {
@@ -71,8 +69,6 @@ export function generateCode(): string {
 					return `.${propertyBase.function}(${propertyValueToString(propertyBase.type, propertyValue)})`;
 				})
 				.join("");
-
-			console.log(functions);
 
 			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
 
@@ -83,7 +79,7 @@ export function generateCode(): string {
 	const animationLines = animationsWithWaits
 		.map(animation => {
 			if ("wait" in animation) return `\t\tself.wait(${animation.wait})`;
-			let manimAnimation = getManimAnimationByName(animation.name)!;
+			let manimAnimation = getManimAnimationByName(animation.animationType)!;
 			return `\t\tself.play(${manimAnimation.internalName ?? manimAnimation.name}(${animation.objects.map(id => `var_${id}`).join(",")}, run_time=${animation.duration}))`;
 		})
 		.join("\n");

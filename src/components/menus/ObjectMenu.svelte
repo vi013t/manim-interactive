@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getProjectAnimations, removeProjectObject } from "../../api/project.svelte";
-	import ContextMenu from "../ContextMenu.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import PropertiesIcon from "../icons/PropertiesIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -9,6 +9,7 @@
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
 	import AddPropertyMenu from "./AddPropertyMenu.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	let { top, left, id }: { top: string; left: string; id: number } = $props();
 
@@ -50,7 +51,7 @@
 	<span>Object Actions</span>
 	<button onclick={deleteObject} onmouseover={hideSubmenus}>
 		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Rename Object
+		{translate("Rename Object")}
 	</button>
 
 	<button
@@ -60,7 +61,7 @@
 		}}
 	>
 		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Animation
+		{translate("Add Animation")}
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button
@@ -70,13 +71,13 @@
 		}}
 	>
 		<PropertiesIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Add Property
+		{translate("Add Property")}
 		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 
 	<button onclick={deleteObject} onmouseover={hideSubmenus}>
 		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		Delete Object
+		{translate("Delete Object")}
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" {id} />

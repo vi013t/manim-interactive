@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { animationCategories, animations } from "../../api/manim/animations";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import { addProjectAnimation, nextId, select, type ProjectAnimation } from "../../api/project.svelte";
+	import { addProjectAnimation, getItemFromId, nextId, select, type ProjectAnimation } from "../../api/project.svelte";
 	import Menu from "./Menu.svelte";
 
 	let {
@@ -25,11 +25,12 @@
 	function addAnimation(type: string): void {
 		menu.hide();
 		let animation = {
-			name: type,
+			name: `${type}${id !== undefined ? " " + getItemFromId(id)!.name : ""}`,
 			id: nextId(),
 			properties: {},
 			startTime: 0,
 			duration: 1,
+			animationType: type,
 			objects: id !== undefined ? [id] : [],
 		};
 		onAdd(animation);

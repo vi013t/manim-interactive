@@ -2,7 +2,7 @@
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, selected } from "../../../api/project.svelte";
+	import { getItemFromId, selected, type ProjectObject } from "../../../api/project.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
 
@@ -10,8 +10,8 @@
 	let left = $state("");
 	let item = $state(getItemFromId(selected()!)!);
 
-	let Icon = $derived(objects.find(object => object.name === item.objectType)!.icon);
-	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === item.objectType)!.categories[0]).color);
+	let Icon = $derived(objects.find(object => object.name === (item as ProjectObject).objectType)!.icon);
+	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === (item as ProjectObject).objectType)!.categories[0]).color);
 	// svelte-ignore non_reactive_update
 	let addButton: HTMLButtonElement;
 	let addObjectMenu: AddObjectMenu;
@@ -43,7 +43,7 @@
 			delete item.properties[property];
 		});
 
-		item.objectType = type;
+		(item as ProjectObject).objectType = type;
 
 		possibleProperties.forEach(property => {
 			if (property.required) {

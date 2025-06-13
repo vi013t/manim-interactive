@@ -3,15 +3,20 @@ import enUs from "../assets/languages/en-us.json";
 import es from "../assets/languages/es.json";
 
 const languages = [
-	{ name: "English (US)", translations: enUs },
-	{ name: "English (UK)", translations: enGb },
-	{ name: "Espa&ntilde;ol", translations: es },
-] as const satisfies { translations: { [key: string]: string }; name: string }[];
+	{ code: "en-us", name: "English (US)", translations: enUs },
+	{ code: "en-gb", name: "English (UK)", translations: enGb },
+	{ code: "es", name: "Espa&ntilde;ol", translations: es },
+] as const satisfies { code: string; translations: { [key: string]: string }; name: string }[];
 
 export type LanguageName = typeof languages extends (infer L)[] ? (L extends { name: unknown } ? L["name"] : never) : never;
 export type TranslationKey = keyof (typeof languages extends (infer L)[] ? (L extends { translations: unknown } ? L["translations"] : never) : never);
 
-let language: LanguageName = $state("English (US)");
+let language: LanguageName = $state(
+	(() => {
+		const code = localStorage.getItem("language");
+		return languages.find(language => language.code === code)?.name ?? "English (US)";
+	})()
+);
 
 export function getLanguage(): LanguageName {
 	return language;
@@ -19,6 +24,7 @@ export function getLanguage(): LanguageName {
 
 export function setLanguage(name: LanguageName) {
 	language = name;
+	localStorage.setItem("language", languages.find(supportedLanguage => supportedLanguage.name === name)!.code);
 }
 
 export function translate(translationKey: string): string {

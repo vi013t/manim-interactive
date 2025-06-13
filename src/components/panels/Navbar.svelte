@@ -4,12 +4,12 @@
 	import { getProjectName } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
-	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 	import GridIcon from "../icons/GridIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
 	import ResolutionIcon from "../icons/ResolutionIcon.svelte";
 	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
+	import ContextMenu from "../menus/ContextMenu.svelte";
 	import NewProjectWindow from "../windows/NewProjectWindow.svelte";
 	import PreferencesWindow from "../windows/PreferencesWindow.svelte";
 	import ProjectSettingsWindow from "../windows/ProjectSettingsWindow.svelte";

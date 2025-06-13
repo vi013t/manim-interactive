@@ -10,11 +10,11 @@
 	let menu: Menu;
 
 	let item = $derived(getItemFromId(selected()!)!);
-	let options = $derived(item ? getPossibleProperties(item.objectType) : []);
+	let options = $derived(item ? getPossibleProperties(item) : []);
 
 	function onSelect(name: string) {
 		hide();
-		let defaultValue = (getPossibleProperties(item.objectType).find(property => property.name === name)!.type as any).defaultValue ?? null;
+		let defaultValue = (getPossibleProperties(item).find(property => property.name === name)!.type as any).defaultValue ?? null;
 		addProperty(getItemFromId(selected()!)!.id, name, defaultValue);
 	}
 
@@ -39,7 +39,7 @@
 		name: category.name,
 		icon: category.icon,
 		options: item
-			? getPossibleProperties(item.objectType)
+			? getPossibleProperties(item)
 					.filter(property => property.categories.includes(category.name))
 					.map(property => ({ name: property.name, icon: EmptyIcon, description: "", demo: "" }))
 			: [],

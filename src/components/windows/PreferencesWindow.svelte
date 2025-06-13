@@ -15,7 +15,7 @@
 		type Preference,
 	} from "../../api/preferences.svelte";
 	import { getThemes, setTheme } from "../../api/theme.svelte";
-	import { getLanguage, getLanguageNames, setLanguage, type LanguageName } from "../../api/translate.svelte";
+	import { getLanguage, getLanguageNames, setLanguage, translate, type LanguageName } from "../../api/translate.svelte";
 	import BeakerIcon from "../icons/BeakerIcon.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
@@ -133,7 +133,7 @@
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("general")} onmouseover={() => (hoverView = "general")} style:background={backgroundColor("general")} onclick={() => (view = "general")}>
 				<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
-				General
+				{translate("General")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button
@@ -143,41 +143,41 @@
 				onclick={() => (view = "appearance")}
 			>
 				<PaintRollerIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
-				Appearance
+				{translate("Appearance")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("timeline")} onmouseover={() => (hoverView = "timeline")} style:background={backgroundColor("timeline")} onclick={() => (view = "timeline")}>
 				<ClockIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
-				Timeline
+				{translate("Timeline")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("project")} onmouseover={() => (hoverView = "project")} style:background={backgroundColor("project")} onclick={() => (view = "project")}>
 				<CubeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
-				Project Settings
+				{translate("Project Settings")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("keybinds")} onmouseover={() => (hoverView = "keybinds")} style:background={backgroundColor("keybinds")} onclick={() => (view = "keybinds")}>
 				<KeyIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
-				Keybindings
+				{translate("Keybindings")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("developer")} onmouseover={() => (hoverView = "developer")} style:background={backgroundColor("developer")} onclick={() => (view = "developer")}>
 				<CodeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
-				Developer Settings
+				{translate("Developer Settings")}
 			</button>
 		</div>
 		<div class="content">
 			{#if view === "general"}
-				<h1>General</h1>
-				<span>
-					Language: <Select options={getLanguageNames()} value={getLanguage()} onSelect={value => setLanguage(value as LanguageName)} />
+				<h1>{translate("General")}</h1>
+				<span class="gap">
+					{translate("Language")}: <Select options={getLanguageNames()} value={getLanguage()} onSelect={value => setLanguage(value as LanguageName)} />
 				</span>
 			{:else if view === "appearance"}
-				<h1>Appearance</h1>
-				<span>Themes</span>
+				<h1>{translate("Appearance")}</h1>
+				<span>{translate("Themes")}</span>
 				<div class="themes">
 					<span class="selected">
-						<button class="theme-button">Catppuccin Mocha (Default)</button>
+						<button class="theme-button">Catppuccin Mocha ({translate("Default")})</button>
 					</span>
 					{#each getThemes() as theme}
 						<span>
@@ -186,71 +186,72 @@
 							<button class="icon"><TrashIcon stroke="#f38ba8" style="width: 1.25rem; height: 1.25rem;" /></button>
 						</span>
 					{/each}
-					<button class="create">Create New Theme</button>
+					<button class="create">{translate("Create New Theme")}</button>
 				</div>
 				<label for="preview-videos">
 					<span>
-						Object &amp; Animation Previews
+						{translate("Object & Animation Previews")}
 						<input oninput={updateBooleanPreference("previews")} id="preview-videos" type="checkbox" checked={getPreferences().previews} />
 					</span>
-					<p>Show preview images and videos when adding new objects or animations.</p>
+					<p>{translate("Show preview images and videos when adding new objects or animations")}.</p>
 				</label>
 				<label for="latex-preview">
 					<span>
-						Show LaTeX Previews
+						{translate("Show LaTeX Previews")}
 						<input oninput={updateBooleanPreference("latexPreviews")} id="latex-preview" type="checkbox" checked={getPreferences().latexPreviews} />
 					</span>
-					<p>Show previews for LaTeX math equations as you type them.</p>
+					<p>{translate("Show previews for LaTeX math equations as you type them")}.</p>
 				</label>
 			{:else if view === "timeline"}
-				<h1>Timeline Settings</h1>
+				<h1>{translate("Timeline Settings")}</h1>
 				<label for="collapse-wait-times">
 					<span>
-						Automatically Collapse Wait Times
+						{translate("Automatically Collapse Wait Times")}
 						<input checked={getPreferences().collapseWaitTimes} oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
 					</span>
-					<p>Automatically collapse blank space on the timeline. The space will open up when dragging an animation.</p>
+					<p>{translate("Automatically collapse blank space on the timeline. The space will open up when dragging an animation.")}</p>
 				</label>
 				<label for="relative-timestamps">
 					<span>
-						Relative Timestamps
+						{translate("Relative Timestamps")}
 						<input checked={getPreferences().relativeTimestamps} oninput={updateBooleanPreference("relativeTimestamps")} id="relative-timestamps" type="checkbox" />
 					</span>
-					<p>Show timestamps relative to the last animation instead of relative to the start of the video.</p>
+					<p>{translate("Show timestamps relative to the last animation instead of relative to the start of the video")}.</p>
 				</label>
 				<label for="dim-inactive-animations">
 					<span>
-						Dim Unselected Animations
+						{translate("Dim Unselected Animations")}
 						<input oninput={updateBooleanPreference("dimUnselectedAnimations")} id="dim-inactive-animations" checked={getPreferences().dimUnselectedAnimations} type="checkbox" />
 					</span>
-					<p>When an object is selected, dim animations for other objects, and highlight animations for the selected object.</p>
+					<p>{translate("When an object is selected, dim animations for other objects, and highlight animations for the selected object")}.</p>
 				</label>
 			{:else if view === "project"}
-				<h1>Project Settings</h1>
+				<h1>{translate("Project Settings")}</h1>
 				<label for="autosave">
 					<span>
-						Autosave
+						{translate("Autosave")}
 						<input oninput={updateBooleanPreference("autosave")} id="autosave" checked={getPreferences().autosave} type="checkbox" />
 					</span>
-					<p>Automatically save the project when making changes, such as adding or deleting objects or animations, moving animations, changing properties, etc.</p>
+					<p>{translate("Automatically save the project when making changes, such as adding or deleting objects or animations, moving animations, changing properties, etc")}.</p>
 				</label>
 				<label for="auto-open-last">
 					<span>
-						Automatically Open Last Project
+						{translate("Automatically Open Last Project")}
 						<input oninput={updateBooleanPreference("autoOpenLastProject")} id="auto-open-last" checked={getPreferences().autoOpenLastProject} type="checkbox" />
 					</span>
-					<p>When first opening Manim Interactive, automatically open the last project that was open last time Manim Interactive was open.</p>
+					<p>{translate("When first opening Manim Interactive, automatically open the last project that was open last time Manim Interactive was open")}.</p>
 				</label>
 			{:else if view === "keybinds"}
-				<h1>Keybindings</h1>
+				<h1>{translate("Keybindings")}</h1>
 				<label for="vim-mode">
 					<span>
 						<span>
-							Vim Mode <div title="This feature is currently experimental"><BeakerIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem;" /></div>
+							{translate("Vim Mode")}
+							<div title="This feature is currently experimental"><BeakerIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem;" /></div>
 						</span>
 						<input oninput={updateBooleanPreference("vimMode")} id="vim-mode" checked={getPreferences().vimMode} type="checkbox" />
 					</span>
-					<p>Enable keyboard navigation with Vim-style bindings.</p>
+					<p>{translate("Enable keyboard navigation with Vim-style bindings")}.</p>
 				</label>
 				<span>
 					<button class="add-keybinding"><PlusIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" /></button>
@@ -258,14 +259,16 @@
 				{#each getKeybindings() as keybinding, index}
 					<span class="keybinding-entry">
 						<span>
-							Action: <select>
+							{translate("Action")}:
+							<select>
 								{#each getActions() as action}
-									<option selected={action.name === keybinding.action.name}>{action.name}</option>
+									<option selected={action.name === keybinding.action.name}>{translate(action.name)}</option>
 								{/each}
 							</select>
 						</span>
 						<span class="binding">
-							Keybind: <button class="key">{displayKey(recordingIndex === index ? binding : keybinding.key)}</button>
+							{translate("Keybind")}:
+							<button class="key">{displayKey(recordingIndex === index ? binding : keybinding.key)}</button>
 						</span>
 						<button class="revert" onclick={() => record(index)}>
 							{#if recordingIndex === index}
@@ -282,13 +285,13 @@
 					</span>
 				{/each}
 			{:else if view === "developer"}
-				<h1>Developer Settings</h1>
+				<h1>{translate("Developer Settings")}</h1>
 				<label for="developer-mode">
 					<span>
-						Developer Mode
+						{translate("Developer Mode")}
 						<input checked={getPreferences().developerMode} id="developer-mode" type="checkbox" oninput={updateBooleanPreference("developerMode")} />
 					</span>
-					<p>Enabling Developer mode allows adding custom Python scripts for animations or objects with access to the Manim library.</p>
+					<p>{translate("Enabling Developer mode allows adding custom Python scripts for animations or objects with access to the Manim library")}.</p>
 				</label>
 			{/if}
 		</div>
@@ -310,6 +313,10 @@
 			margin-left: 2rem;
 			padding-bottom: 0.5rem;
 		}
+	}
+
+	.gap {
+		gap: 0.5rem;
 	}
 
 	.add-keybinding {

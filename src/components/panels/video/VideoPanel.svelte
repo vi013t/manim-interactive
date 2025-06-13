@@ -49,11 +49,15 @@
 	});
 
 	function onPlay() {
-		(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).play();
+		if (getProjectAudios().length) {
+			(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).play();
+		}
 	}
 
 	function onPause() {
-		(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).pause();
+		if (getProjectAudios().length) {
+			(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).pause();
+		}
 	}
 </script>
 

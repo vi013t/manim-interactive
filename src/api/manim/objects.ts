@@ -582,6 +582,14 @@ export const objects = [
 				categories: ["Special"],
 				description: "Whether to visually group objects in the hierarchy under this group. Objects can only be grouped in one such group.",
 			},
+			{
+				name: "Items",
+				type: property().list(property().object()).unique().spread(),
+				required: true,
+				categories: ["Special"],
+				description: "The items in this group.",
+				position: 0,
+			},
 		],
 	},
 	{

@@ -78,7 +78,7 @@ export function getAnimationCategory(name: AnimationCategoryName) {
 }
 
 export function getManimAnimationByName(name: string): ManimAnimation | null {
-	return animations.find(animation => animation.name === name) ?? null;
+	return animations.find(manimAnimation => manimAnimation.name === name) ?? null;
 }
 
 export type AnimationCategoryName = typeof animationCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;

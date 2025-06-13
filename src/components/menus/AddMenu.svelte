@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
-	import ContextMenu from "../ContextMenu.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
 	import CircleIcon from "../icons/CircleIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
 	import AddObjectMenu from "./AddObjectMenu.svelte";
+	import ContextMenu from "./ContextMenu.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 

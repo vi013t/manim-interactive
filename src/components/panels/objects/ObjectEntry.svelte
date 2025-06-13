@@ -2,7 +2,8 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
+	import { runAction } from "../../../api/preferences.svelte";
+	import { getItemFromId, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import PackageIcon from "../../icons/PackageIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
@@ -16,6 +17,11 @@
 
 	function typeName(event: KeyboardEvent) {
 		if (event.key === "Enter") (event.target as HTMLElement).blur();
+	}
+
+	function setName() {
+		entry.name = name.textContent!;
+		runAction("Save Project");
 	}
 
 	let groupMenu: GroupMenu;
@@ -42,7 +48,6 @@
 	let isHovered = $state(false);
 
 	function clickObject(event: MouseEvent) {
-		console.log(entry);
 		select(entry);
 	}
 
@@ -63,6 +68,9 @@
 		if (isHovered) return `rgba(180, 150, 255, 10%)`;
 		return "transparent";
 	}
+
+	// svelte-ignore non_reactive_update
+	let name: HTMLElement;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -83,11 +91,12 @@
 
 		<!-- Group Contents -->
 		{#if expanded}
+			{@const contents = (entry.properties["Items"] as number[]).map(id => getItemFromId(id) as ProjectObject)}
 			<div class="bottom">
-				{#each entry.groups as item (item.id)}
+				{#each contents.filter(object => object.objectType === "Group") as item (item.id)}
 					<ObjectEntry entry={item} />
 				{/each}
-				{#each entry.objects as item (item.id)}
+				{#each contents.filter(object => object.objectType !== "Group") as item (item.id)}
 					<ObjectEntry entry={item} />
 				{/each}
 			</div>
@@ -108,7 +117,7 @@
 			oncontextmenu={rightClickObject}
 		>
 			<data.icon stroke={getObjectCategory(data.categories[0]).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			<span onkeydown={typeName} contenteditable autocapitalize="off" spellcheck="false">
+			<span onkeydown={typeName} onblur={setName} bind:this={name} contenteditable autocapitalize="off" spellcheck="false">
 				{entry.name}
 			</span>
 			{#if itemHasErrors(entry.id)}

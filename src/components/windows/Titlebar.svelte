@@ -1,11 +1,12 @@
 <script>
+	import { translate } from "../../api/translate.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 
 	let { close, title } = $props();
 </script>
 
 <nav>
-	<span class="title">{title}</span>
+	<span class="title">{translate(title)}</span>
 	<div class="window-buttons">
 		<button onclick={close}>
 			<CloseIcon stroke="#cdd6f4" style="height: 1rem; width: 1rem;" />
