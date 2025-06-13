@@ -14,16 +14,21 @@
 		type KeyModifier,
 		type Preference,
 	} from "../../api/preferences.svelte";
+	import { getThemes, setTheme } from "../../api/theme.svelte";
+	import { getLanguage, getLanguageNames, setLanguage, type LanguageName } from "../../api/translate.svelte";
 	import BeakerIcon from "../icons/BeakerIcon.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 	import CubeIcon from "../icons/CubeIcon.svelte";
 	import FilledCircleIcon from "../icons/FilledCircleIcon.svelte";
 	import FilledSquareIcon from "../icons/FilledSquareIcon.svelte";
+	import GearIcon from "../icons/GearIcon.svelte";
 	import KeyIcon from "../icons/KeyIcon.svelte";
 	import PaintRollerIcon from "../icons/PaintRollerIcon.svelte";
+	import PencilIcon from "../icons/PencilIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
+	import Select from "../util/Select.svelte";
 	import Window from "./Window.svelte";
 
 	let windowComponent: Window;
@@ -41,7 +46,7 @@
 	});
 
 	let view = $derived(getPreferencesView());
-	let hoverView: string | null = $state("appearance");
+	let hoverView: string | null = $state("general");
 
 	let recordingIndex: number | null = $state(null);
 
@@ -126,6 +131,11 @@
 	<div class="container">
 		<div class="sidebar">
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+			<button onmouseout={unHover("general")} onmouseover={() => (hoverView = "general")} style:background={backgroundColor("general")} onclick={() => (view = "general")}>
+				<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				General
+			</button>
+			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button
 				onmouseout={unHover("appearance")}
 				onmouseover={() => (hoverView = "appearance")}
@@ -157,8 +167,27 @@
 			</button>
 		</div>
 		<div class="content">
-			{#if view === "appearance"}
+			{#if view === "general"}
+				<h1>General</h1>
+				<span>
+					Language: <Select options={getLanguageNames()} value={getLanguage()} onSelect={value => setLanguage(value as LanguageName)} />
+				</span>
+			{:else if view === "appearance"}
 				<h1>Appearance</h1>
+				<span>Themes</span>
+				<div class="themes">
+					<span class="selected">
+						<button class="theme-button">Catppuccin Mocha (Default)</button>
+					</span>
+					{#each getThemes() as theme}
+						<span>
+							<button class="theme-button" onclick={() => setTheme(theme)}>{theme.name}</button>
+							<button class="icon"><PencilIcon stroke="#cdd6f4" style="width: 1.25rem; height: 1.25rem;" /></button>
+							<button class="icon"><TrashIcon stroke="#f38ba8" style="width: 1.25rem; height: 1.25rem;" /></button>
+						</span>
+					{/each}
+					<button class="create">Create New Theme</button>
+				</div>
 				<label for="preview-videos">
 					<span>
 						Object &amp; Animation Previews
@@ -276,6 +305,11 @@
 
 	.content {
 		width: 100%;
+
+		> span {
+			margin-left: 2rem;
+			padding-bottom: 0.5rem;
+		}
 	}
 
 	.add-keybinding {
@@ -400,5 +434,41 @@
 	input[type="checkbox"] {
 		margin-left: auto;
 		accent-color: #b4befe;
+	}
+
+	.themes {
+		display: flex;
+		flex-direction: column;
+		margin-left: 2rem;
+		gap: 0.25rem;
+
+		.theme-button {
+			background-color: #11111b;
+			border-radius: 0.5rem;
+			padding: 0.5rem;
+			width: 20rem;
+		}
+
+		span {
+			&.selected button {
+				color: #a6e3a1;
+			}
+		}
+
+		.create {
+			background-color: #b4befe;
+			color: #11111b;
+			border-radius: 0.5rem;
+			width: fit-content;
+			padding: 0.5rem;
+			margin-top: 0.25rem;
+		}
+
+		.icon {
+			width: fit-content;
+			height: fit-content;
+			padding: 0.5rem;
+			border-radius: 0.25rem;
+		}
 	}
 </style>

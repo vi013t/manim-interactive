@@ -37,9 +37,8 @@ const actions = {
 	"Save Project": {
 		name: "Save Project",
 		async run() {
-			videoLoaded = false;
-			let projectData = getProjectSaveData();
-			let location = getExplicitProjectLocation();
+			const projectData = getProjectSaveData();
+			const location = getExplicitProjectLocation();
 
 			if (!location) {
 				let selected = await open({
@@ -53,7 +52,32 @@ const actions = {
 				setProjectLocation(selected);
 			}
 
-			let save_data = invoke("save_project_data", {
+			await invoke("save_project_data", {
+				path: await getProjectLocation(),
+				data: projectData,
+			});
+		},
+	},
+	"Save And Recompile Project": {
+		name: "Save Project",
+		async run() {
+			videoLoaded = false;
+			const projectData = getProjectSaveData();
+			const location = getExplicitProjectLocation();
+
+			if (!location) {
+				let selected = await open({
+					directory: true,
+					multiple: false,
+					title: "Save Project To",
+				});
+
+				if (typeof selected !== "string") return;
+
+				setProjectLocation(selected);
+			}
+
+			const saveData = invoke("save_project_data", {
 				path: await getProjectLocation(),
 				data: projectData,
 			});
@@ -72,17 +96,17 @@ const actions = {
 				code: generateCode(),
 			});
 
-			const videoData = (await invoke("load_video", {
+			const videoData = await invoke<string>("load_video", {
 				path: await getProjectLocation(),
 				lowRes: getPreferences().lowRes,
-			})) as string;
+			});
 
 			document.getElementById("video-source")?.setAttribute("src", videoData);
 			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
 			videoLoaded = true;
 			videoGenerated = true;
 
-			await save_data;
+			await saveData;
 		},
 	},
 	"Open Project": {
@@ -149,7 +173,7 @@ let preferences = $state({
 	vimMode: false,
 	latexPreviews: true,
 	keybindings: [
-		keybinding(action("Save Project"), key("s", "ctrl")),
+		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),
 		keybinding(action("Add New"), key("a", "shift")),
 		keybinding(action("Deselect"), key("Escape")),

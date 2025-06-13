@@ -1,0 +1,28 @@
+{
+	"Project": "Proyecto",
+	"Project Settings": "Configuración del Proyecto",
+	"New Project": "Nuevo Proyecto",
+	"Open Project": "Abrir Proyecto",
+	"Save Project": "Guardar proyecto",
+	"Window": "Ventana",
+	"Preferences": "Preferencias",
+	"Manim Documentation": "Manim Documentación",
+	"Manim Interactive Documentation": "Manim Interactiva Documentación",
+	"Manim Interactive": "Manim Interactiva",
+	"Help": "Ayuda",
+
+	"Shape": "Forma",
+
+	"Annulus": "Anillo",
+	"Bounding Polygon": "Polígono Delimitador",
+	"Polygon": "Polígono",
+	"Annular Sector": "Sector Anular",
+	"Arc": "Arco",
+	"Circle": "Círculo",
+	"Ellipse": "Elipse",
+	"Rectangle": "Rectángulo",
+
+	"Timeline": "Línea de Tiempo",
+	"Objects": "Objetos",
+	"Properties": "Propiedades"
+}

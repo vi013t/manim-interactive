@@ -7,6 +7,7 @@
 	import BooleanProperty from "./BooleanProperty.svelte";
 	import ColorProperty from "./ColorProperty.svelte";
 	import CompoundProperty from "./CompoundProperty.svelte";
+	import CoordinateProperty from "./CoordinateProperty.svelte";
 	import ListProperty from "./ListProperty.svelte";
 	import NumberProperty from "./NumberProperty.svelte";
 	import ObjectProperty from "./ObjectProperty.svelte";
@@ -34,14 +35,15 @@
 	let listCollapsed = $state(false);
 </script>
 
-<!-- Animation -->
 <span class="property" style:align-items={property.base === "list" && ((value as unknown[]).length || !listCollapsed) ? "start" : "center"}>
+	<!-- Property Name -->
 	{#if name}
 		<span class="property-name" style:width={subProperty ? "fit-content" : "12rem"}>
 			{name === "name" ? "Name" : name === "objectType" ? "Type" : name}:
 		</span>
 	{/if}
 
+	<!-- Property Value -->
 	{#key getItemFromId(selected()!)}
 		{#if property.base === "animation"}
 			<AnimationProperty value={value as number} {name} {property} />
@@ -55,6 +57,8 @@
 			<BooleanProperty value={value as boolean} />
 		{:else if property.base === "string" && "options" in property}
 			<SelectProperty {property} value={value as string} {name} />
+		{:else if property.base === "coordinate"}
+			<CoordinateProperty value={value as unknown} {name} />
 		{:else if property.base === "compound"}
 			<CompoundProperty value={value as unknown} {name} {property} />
 		{:else if property.base === "list"}

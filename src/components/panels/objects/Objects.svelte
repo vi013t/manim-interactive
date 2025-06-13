@@ -3,6 +3,7 @@
 
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../../api/client.svelte";
 	import { getProjectObjects } from "../../../api/project.svelte";
+	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
 
@@ -30,7 +31,7 @@
 
 <section id="object-panel">
 	<div class="header">
-		<h1>Objects</h1>
+		<h1>{translate("Objects")}</h1>
 		<button bind:this={plusButton} onclick={clickPlusButton}>
 			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 		</button>
@@ -56,6 +57,7 @@
 		background-color: #1e1e2e;
 		padding: 1em;
 		position: relative;
+		color: #cdd6f4;
 
 		&::after {
 			content: "";

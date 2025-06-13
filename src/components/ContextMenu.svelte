@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	let { children, top = undefined, left = "0px", background = "#181825", openers = [], bottom = undefined, onHide = () => {} } = $props();
+	let { children, top = undefined, left = "0px", width = "15rem", background = "#181825", openers = [], bottom = undefined, onHide = () => {} } = $props();
 
 	let visible = $state(false);
 
@@ -40,7 +40,7 @@
 	let styleString = $derived(top ? `top: ${top};` : `bottom: ${bottom};`);
 </script>
 
-<section bind:this={menu} style={styleString} style:background-color={background} style:display={visible ? "flex" : "none"} style:left>
+<section style:min-width={width} bind:this={menu} style={styleString} style:background-color={background} style:display={visible ? "flex" : "none"} style:left>
 	{@render children()}
 </section>
 
@@ -58,7 +58,7 @@
 			padding: 0.4em;
 			padding-left: 2em;
 			padding-right: 2em;
-			min-width: 15rem;
+			width: 100%;
 		}
 
 		:global(> *:not(span):hover) {

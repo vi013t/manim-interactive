@@ -1,0 +1,34 @@
+* {
+	--base: #eff1f5;
+	--mantle: #e6e9ef;
+	--crust: #dce0e8;
+	--text: #4c4f69;
+	--surface-0: #ccd0da;
+	--red: #d20f39;
+}
+
+#navbar {
+	background-color: var(--crust);
+	color: var(--text);
+}
+
+#properties-panel {
+	background-color: var(--mantle);
+	color: var(--text);
+	border-right: 1px solid var(--surface-0);
+}
+
+#variables-panel {
+	background-color: var(--mantle);
+	color: var(--text);
+}
+
+#object-panel {
+	background-color: var(--base);
+	color: var(--text);
+}
+
+#timeline {
+	background-color: var(--base);
+	color: var(--text);
+}

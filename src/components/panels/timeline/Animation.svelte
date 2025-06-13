@@ -84,7 +84,7 @@
 				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "pointer";
 				if (draggingAnimation) draggingAnimation.startTime = newTop / cellHeight;
-				if (getPreferences().autosave) runAction("Save Project");
+				if (getPreferences().autosave) runAction("Save And Recompile Project");
 			}
 			draggingElement = null;
 			draggingAnimation = null;

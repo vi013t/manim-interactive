@@ -3,6 +3,7 @@
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getProjectAnimations, getProjectAudios, getProjectMarkers } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
+	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
 	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
@@ -64,9 +65,9 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section>
+<section id="timeline">
 	<div class="header">
-		<h1>Timeline</h1>
+		<h1>{translate("Timeline")}</h1>
 		<button onclick={togglePlaying}>
 			{#if isPlaying()}
 				<SquareIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
@@ -170,10 +171,14 @@
 		position: relative;
 		overflow: auto;
 		height: 95vh;
+		background-color: inherit;
 	}
 
 	#timeline-content {
+		background-color: inherit;
+
 		:global(> div:not(.time, .marker)) {
+			background-color: inherit;
 			height: 4rem;
 			border-bottom: 1px solid #313244;
 			display: flex;
@@ -189,7 +194,7 @@
 		position: relative;
 		top: -1.6em;
 		padding: 0.75em;
-		background-color: #1e1e2e;
+		background-color: inherit;
 		color: #585b70;
 		font-size: 0.75rem;
 		left: 0px;

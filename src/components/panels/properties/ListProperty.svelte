@@ -28,7 +28,7 @@
 	function deleteProperty(name: string) {
 		return function () {
 			delete item!.properties[name];
-			if (getPreferences().autosave) runAction("Save Project");
+			if (getPreferences().autosave) runAction("Save And Recompile Project");
 		};
 	}
 
@@ -44,7 +44,7 @@
 					let temp = list[grabbingIndex];
 					list[grabbingIndex] = list[grabbingIndex + 1];
 					list[grabbingIndex + 1] = temp;
-					runAction("Save Project");
+					runAction("Save And Recompile Project");
 				}
 			}
 		});

@@ -11,8 +11,9 @@
 		openers = [],
 		title = "Add Object",
 		background,
+		width = undefined,
 		onSelect = addObject,
-	}: { top: string; background?: string; left: string; openers?: HTMLElement[]; title?: string | false; onSelect?: (type: string) => void } = $props();
+	}: { top: string; width?: string; background?: string; left: string; openers?: HTMLElement[]; title?: string | false; onSelect?: (type: string) => void } = $props();
 
 	let menu: Menu;
 
@@ -60,6 +61,7 @@
 	{title}
 	{onSelect}
 	{background}
+	{width}
 	submenus={objectCategories.map(category => ({
 		name: category.name,
 		icon: category.icon,

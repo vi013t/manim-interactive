@@ -21,11 +21,16 @@
 	let menuVisible = $state(false);
 
 	function addObject() {
-		if (addObjectMenu.isVisible()) addObjectMenu.hide();
-		else addObjectMenu.show();
+		if (addObjectMenu.isVisible()) {
+			menuVisible = false;
+			addObjectMenu.hide();
+		} else {
+			addObjectMenu.show();
+			menuVisible = true;
+		}
 	}
 
-	function selectObject(type: string) {
+	function changeObjectType(type: string) {
 		addObjectMenu.hide();
 		value = type;
 		const possibleProperties = getPossibleProperties(type);
@@ -46,7 +51,7 @@
 			}
 		});
 
-		if (getPreferences().autosave) runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 </script>
 
@@ -63,7 +68,7 @@
 	{value}
 	<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
-<AddObjectMenu background="#1e1e2e" onSelect={selectObject} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />
+<AddObjectMenu width="20rem" background="#1e1e2e" onSelect={changeObjectType} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />
 
 <style>
 	button {

@@ -1,7 +1,5 @@
 <script lang="ts">
 	import type { AnimationTypeProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, selected } from "../../../api/project.svelte";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 
 	let {
@@ -13,11 +11,6 @@
 		name: string;
 		property: AnimationTypeProperty;
 	} = $props();
-
-	function setProperty() {
-		getItemFromId(selected()!)!.properties[name] = value;
-		if (getPreferences().autosave) runAction("Save Project");
-	}
 
 	// svelte-ignore non_reactive_update
 	let addButton: HTMLElement;

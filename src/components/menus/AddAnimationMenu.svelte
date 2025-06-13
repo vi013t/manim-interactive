@@ -35,7 +35,7 @@
 		onAdd(animation);
 		addProjectAnimation(animation);
 		select(animation);
-		if (getPreferences().autosave) runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
 	let menu: Menu;

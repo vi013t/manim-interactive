@@ -1,8 +1,8 @@
 import type { Component } from "svelte";
 import CameraIcon from "../../components/icons/CameraIcon.svelte";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
-import ReticleIcon from "../../components/icons/ReticleIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
+import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import type { SelectOption } from "../../components/util/Select.svelte";
 
 export type Property = {
@@ -14,12 +14,13 @@ export type Property = {
 	required?: true;
 	position?: number;
 	description?: string;
+	function?: string;
 };
 
 export const propertyCategories = [
 	{ color: "#f9e2af", icon: StarIcon, name: "Special" },
 	{ color: "#f38ba8", icon: PaintRollerIcon, name: "Color" },
-	{ color: "#89b4fa", icon: ReticleIcon, name: "Position" },
+	{ color: "#89b4fa", icon: TransformIcon, name: "Transform" },
 	{ color: "#cba6f7", icon: CameraIcon, name: "Details" },
 ] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
 
@@ -46,11 +47,37 @@ export type SelectProperty = {
 export type ListProperty = {
 	base: "list";
 	type: PropertyType;
+	requiredLength: NumberProperty;
 	shouldSpread: boolean;
 	defaultValue: unknown[];
 	requiredProperties: string[];
 	default(value: unknown[]): ListProperty;
+
+	/**
+	 * Indicates that this property should be spread into separate arguments when generating
+	 * Python code. For example, consider passing the property `[1, 2, 3]` to a constructor
+	 * `Shape`. Without `.spread()`, the generated code would be:
+	 *
+	 * ```python
+	 * Shape([1, 2, 3])
+	 * ```
+	 *
+	 * With spread, the generated code would instead be:
+	 *
+	 * ```python
+	 * Shape(1, 2, 3)
+	 * ```
+	 */
 	spread(): ListProperty;
+
+	/**
+	 * Indicates that this list must have the specified number of elements. If `.length()` is
+	 * not used, the user can set any amount of elements.
+	 *
+	 * @param length The required amount of elements
+	 */
+	length(length: NumberProperty): ListProperty;
+
 	requires(...name: string[]): ListProperty;
 };
 
@@ -93,7 +120,10 @@ export type NumberProperty = {
 	isIntegeric: boolean;
 	defaultValue: number;
 	requiredProperties: string[];
+
 	requires(...name: string[]): NumberProperty;
+
+	equal(value: number): NumberProperty;
 
 	/**
 	 * Restricts a number property to be at most a certain maximum value. The new property is returned without modifying this one.
@@ -197,6 +227,13 @@ export const property = (() => {
 						minimumValue: value,
 					};
 				},
+				equal(value: number): NumberProperty {
+					return {
+						...this,
+						minimumValue: value,
+						maximumValue: value,
+					};
+				},
 				default(value: number) {
 					return {
 						...this,
@@ -295,6 +332,7 @@ export const property = (() => {
 			return {
 				base: "list",
 				type,
+				requiredLength: property().number().integeric().nonnegative(),
 				defaultValue: [],
 				shouldSpread: false,
 				requiredProperties: [],
@@ -308,6 +346,12 @@ export const property = (() => {
 					return {
 						...this,
 						shouldSpread: true,
+					};
+				},
+				length(length: NumberProperty) {
+					return {
+						...this,
+						requiredLength: length,
 					};
 				},
 				requires(...name: string[]) {

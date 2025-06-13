@@ -32,8 +32,6 @@ export function generateCode(): string {
 			// Positional Arguments
 			let positionalArguments = Object.entries(object.properties)
 				.filter(([propertyName, _propertyValue]) => {
-					console.log(possibleProperties);
-					console.log(propertyName);
 					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
 					return position !== undefined;
 				})
@@ -51,10 +49,9 @@ export function generateCode(): string {
 			// Keyword Arguments
 			let keywordArguments = Object.entries(object.properties)
 				.filter(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!.type;
-					let defaultValue = "defaultValue" in propertyBase ? propertyBase.defaultValue : null;
-					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
-					return position === undefined && propertyValue !== defaultValue;
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					let defaultValue = "defaultValue" in propertyBase.type ? propertyBase.type.defaultValue : null;
+					return propertyBase.position === undefined && propertyBase.function === undefined && propertyValue !== defaultValue;
 				})
 				.map(([propertyName, propertyValue]) => {
 					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
@@ -62,8 +59,24 @@ export function generateCode(): string {
 				})
 				.join(", ");
 
+			// Functions
+			let functions = Object.entries(object.properties)
+				.filter(([propertyName, _propertyValue]) => {
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					console.log("fn", propertyBase);
+					return propertyBase.function !== undefined;
+				})
+				.map(([propertyName, propertyValue]) => {
+					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
+					return `.${propertyBase.function}(${propertyValueToString(propertyBase.type, propertyValue)})`;
+				})
+				.join("");
+
+			console.log(functions);
+
 			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
-			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${keywordArguments})`;
+
+			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${keywordArguments})${functions}`;
 		})
 		.join("\n");
 

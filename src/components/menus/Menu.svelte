@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { Component } from "svelte";
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import Submenu, { type MenuOption } from "./Submenu.svelte.svelte";
@@ -12,6 +13,7 @@
 		openers = [],
 		onSelect,
 		submenus,
+		width = undefined,
 		background = "#181825",
 		demoType = "image",
 	}: {
@@ -21,6 +23,7 @@
 		background?: string;
 		onSelect: (choice: string) => void;
 		demoType?: "image" | "video" | "none";
+		width?: string;
 		submenus: {
 			title: string;
 			name: string;
@@ -73,12 +76,12 @@
 	}
 </script>
 
-<ContextMenu {background} bind:this={menu} {top} {left} {openers}>
+<ContextMenu {width} {background} bind:this={menu} {top} {left} {openers}>
 	{#if title}<span>{title}</span>{/if}
 	{#each submenus as submenu, index}
 		<button style:background-color={hoveredSubmenu === submenu.name ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={showMenu(submenu.name)}>
 			<submenu.icon stroke={submenu.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-			{submenu.name}
+			{translate(submenu.name)}
 			<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 		</button>
 

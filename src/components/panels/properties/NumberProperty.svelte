@@ -35,7 +35,7 @@
 
 	function setProperty() {
 		getItemFromId(selected()!)!.properties[name] = value;
-		if (getPreferences().autosave) runAction("Save Project");
+		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
 	function onInput(event: KeyboardEvent) {

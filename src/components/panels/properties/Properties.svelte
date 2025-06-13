@@ -2,6 +2,7 @@
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { property, type PropertyType } from "../../../api/manim/property";
 	import { getItemFromId, selected } from "../../../api/project.svelte";
+	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
@@ -38,9 +39,9 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section oncontextmenu={addProperty}>
+<section id="properties-panel" oncontextmenu={addProperty}>
 	<div class="header">
-		<h1>Properties</h1>
+		<h1>{translate("Properties")}</h1>
 		<button onclick={clickPlusButton}>
 			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 		</button>

@@ -51,7 +51,7 @@
 
 	onMount(() => {
 		document.getElementById("object-panel")!.addEventListener("click", event => {
-			if (!event.composedPath().includes(topElement) && selected() === entry) {
+			if (!event.composedPath().includes(topElement) && selected() === entry.id) {
 				//select(null);
 			}
 		});
@@ -132,7 +132,6 @@
 		align-items: center;
 		border-radius: 0.3rem;
 		padding: 0.2rem;
-		color: #cdd4f6;
 		width: 100%;
 
 		&:hover {

@@ -56,7 +56,7 @@
 				{/if}
 				<span style={option.style ?? ""}>{option.name}</span>
 			{:else}
-				{JSON.stringify(options) + JSON.stringify(value)}
+				{@html value}
 			{/if}
 		{/if}
 		<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
@@ -69,7 +69,7 @@
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div onclick={select(typeof option === "string" ? option : option.name)} style={typeof option !== "string" && option.style ? option.style : ""}>
 				{#if typeof option === "string"}
-					{option}
+					{@html option}
 				{:else}
 					{#if option.icon}
 						<option.icon stroke={option.color ?? "#FFFFFF"} style="width: 1rem; height: 1rem;" />
@@ -105,6 +105,7 @@
 		display: flex;
 		width: 100%;
 		gap: 0.5rem;
+		padding-left: 0.25rem;
 	}
 
 	.options {

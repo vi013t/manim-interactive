@@ -185,7 +185,7 @@ export function removeProjectObject(id: number) {
 	projectAnimations = projectAnimations.filter(animation => !animation.objects.includes(id));
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
-	if (getPreferences().autosave) runAction("Save Project");
+	if (getPreferences().autosave) runAction("Save And Recompile Project");
 }
 
 type Selectable = ProjectObject | ProjectAnimation;
@@ -242,6 +242,8 @@ export type NotificationData = {
 	severity: "normal" | "error" | "warning";
 	id: number;
 };
+
+export type NotificationPart = string | {};
 
 export function addNotification(header: string, message: string, options: { severity?: "normal" | "error" | "warning"; autohide?: false }) {
 	options.severity = options.severity ?? "normal";

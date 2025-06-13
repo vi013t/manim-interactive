@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section>
+<section id="variables-panel">
 	<div class="header">
-		<h1>Variables</h1>
+		<h1>{translate("Variables")}</h1>
 		<button>
 			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
 		</button>

@@ -2,6 +2,7 @@
 	import type { Component } from "svelte";
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
 	import { getPreferences } from "../../api/preferences.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import ContextMenu from "../ContextMenu.svelte";
 	import ExternalLink from "../util/ExternalLink.svelte";
 
@@ -71,7 +72,7 @@
 			}}
 		>
 			<option.icon stroke={color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-			{option.name}
+			{translate(option.name)}
 		</button>
 	{/each}
 </ContextMenu>
@@ -85,7 +86,7 @@
 	>
 		<h1>
 			<hoveringOption.icon stroke={color} style="width: 1rem; height: 1rem;" />
-			{hoveringOption.name}
+			{translate(hoveringOption.name)}
 		</h1>
 		<p>{hoveringOption.description}</p>
 		{#if demoType === "image"}

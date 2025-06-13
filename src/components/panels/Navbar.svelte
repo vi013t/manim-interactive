@@ -2,6 +2,7 @@
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { getPreferences, runAction, savePreferences, type Preference } from "../../api/preferences.svelte";
 	import { getProjectName } from "../../api/project.svelte";
+	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
 	import ContextMenu from "../ContextMenu.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
@@ -22,7 +23,7 @@
 
 	async function saveProject() {
 		projectMenu.hide();
-		runAction("Save Project");
+		runAction("Save And Recompile Project");
 	}
 
 	async function openProject() {
@@ -67,47 +68,47 @@
 	function togglePreference(preferenceName: Preference) {
 		return function (_event: Event) {
 			getPreferences()[preferenceName] = !(getPreferences()[preferenceName] as boolean) as any;
-			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save Project");
+			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save And Recompile Project");
 			savePreferences();
 		};
 	}
 </script>
 
-<nav oncontextmenu={event => event.preventDefault()}>
+<nav id="navbar" oncontextmenu={event => event.preventDefault()}>
 	<img src={icon} alt="Manim Interactive" />
 
-	<button bind:this={projectButton} onclick={projectMenu.toggle}>Project</button>
+	<button bind:this={projectButton} onclick={projectMenu.toggle}>{translate("Project")}</button>
 	<ContextMenu bind:this={projectMenu} top="2rem" left="2rem" openers={[projectButton]}>
 		<button onclick={newProject}>
-			<span>New Project</span>
+			<span>{translate("New Project")}</span>
 			<span>Ctrl+N</span>
 		</button>
 		<button onclick={openProject}>
-			<span>Open Project</span>
+			<span>{translate("Open Project")}</span>
 			<span>Ctrl+O</span>
 		</button>
 		<button onclick={saveProject}>
-			<span>Save Project</span>
+			<span>{translate("Save Project")}</span>
 			<span>Ctrl+S</span>
 		</button>
 		<button onclick={projectSettings}>
-			<span>Project Settings</span>
+			<span>{translate("Project Settings")}</span>
 			<span>Ctrl+,</span>
 		</button>
 	</ContextMenu>
 
-	<button bind:this={windowButton} onclick={windowMenu.toggle}>Window</button>
+	<button bind:this={windowButton} onclick={windowMenu.toggle}>{translate("Window")}</button>
 	<ContextMenu bind:this={windowMenu} top="2rem" left="6rem" openers={[windowButton]}>
 		<button onclick={preferences}>
-			<span>Preferences</span>
+			<span>{translate("Preferences")}</span>
 			<span>Ctrl+.</span>
 		</button>
 	</ContextMenu>
 
-	<button bind:this={helpButton} onclick={helpMenu.toggle}>Help</button>
+	<button bind:this={helpButton} onclick={helpMenu.toggle}>{translate("Help")}</button>
 	<ContextMenu bind:this={helpMenu} top="2rem" left="10rem" openers={[helpButton]}>
-		<a href="https://github.com/vi013t/manim-interactive" target="_blank">Manim Interactive Documentation</a>
-		<a href="https://docs.manim.community/en/stable/tutorials/quickstart.html" target="_blank">Manim Documentation</a>
+		<a href="https://github.com/vi013t/manim-interactive" target="_blank">{translate("Manim Interactive Documentation")}</a>
+		<a href="https://docs.manim.community/en/stable/tutorials/quickstart.html" target="_blank">{translate("Manim Documentation")}</a>
 	</ContextMenu>
 
 	<div class="video-options">
@@ -123,7 +124,7 @@
 		</button>
 	</div>
 
-	<span class="title">{getProjectName() ?? "Untitled Project"} - Manim Interactive</span>
+	<span class="title">{getProjectName() ?? "Untitled Project"} - {translate("Manim Interactive")}</span>
 
 	<div class="window-buttons">
 		<button onclick={minimize}>
@@ -168,7 +169,7 @@
 		}
 	}
 
-	nav {
+	#navbar {
 		font-size: 0.75rem;
 		display: flex;
 		background-color: #11111b;
