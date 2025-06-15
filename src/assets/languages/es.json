@@ -105,5 +105,12 @@
 	"Keybindings": "Combinaciones De Teclas",
 	"Developer Settings": "Configuración Del Desarrollador",
 	"Object & Animation Previews": "Vistas Previas De Objetos Y Animaciones",
-	"Show LaTeX Previews": "Mostrar Avances De LaTeX"
+	"Show LaTeX Previews": "Mostrar Avances De LaTeX",
+
+	"Name": "Nombre",
+	"Object Type": "Tipo De Objeto",
+	"Duration": "Duración",
+	"Animation Type": "Tipo De Animación",
+	"Start Time": "Hora De Inicio",
+	"Object": "Objeto"
 }

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { getPreferences } from "../../../api/preferences.svelte";
 	import { getProjectAnimations, getProjectAudios, getProjectMarkers } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
@@ -52,6 +53,16 @@
 				checkForNewDiv();
 			}
 		}
+
+		document.addEventListener("keydown", event => {
+			getPreferences().timelineSnapping = !event.ctrlKey;
+		});
+		document.addEventListener("keyup", event => {
+			getPreferences().timelineSnapping = !event.ctrlKey;
+		});
+		document.addEventListener("mousemove", event => {
+			getPreferences().timelineSnapping = !event.ctrlKey;
+		});
 
 		checkForNewDiv();
 	});

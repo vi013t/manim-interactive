@@ -1,4 +1,5 @@
 import CameraIcon from "../../components/icons/CameraIcon.svelte";
+import ClockIcon from "../../components/icons/ClockIcon.svelte";
 import type { Icon } from "../../components/icons/Icon";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
@@ -7,6 +8,7 @@ import type { SelectOption } from "../../components/util/Select.svelte";
 
 export type Max = 9_007_199_254_740_991; // Number.MAX_VALUE
 export type Min = -9_007_199_254_740_991; // Number.MIN_VALUE
+export type Epsilon = 0.0000000000000002220446049250313080847263336181640625; // Number.EPSILON
 
 type PositionalPropertyPart = {
 	/**
@@ -46,7 +48,7 @@ type SpecialPropertyPart = {
 export type BaseProperty = {
 	name: string;
 	type: PropertyType;
-	categories: PropertyCategory[];
+	categories: readonly ObjectPropertyCategory[] | readonly AnimationPropertyCategory[];
 	description: string;
 
 	/**
@@ -62,11 +64,16 @@ export type SpecialProperty = BaseProperty & SpecialPropertyPart;
 
 export type Property = PositionalProperty | KeywordProperty | FunctionProperty | SpecialProperty;
 
-export const propertyCategories = [
-	{ color: "#f9e2af", icon: StarIcon, name: "Special" },
-	{ color: "#f38ba8", icon: PaintRollerIcon, name: "Color" },
-	{ color: "#89b4fa", icon: TransformIcon, name: "Transform" },
-	{ color: "#cba6f7", icon: CameraIcon, name: "Details" },
+export const objectPropertyCategories = [
+	{ color: "var(--yellow)", icon: StarIcon, name: "Special" },
+	{ color: "var(--red)", icon: PaintRollerIcon, name: "Color" },
+	{ color: "var(--blue)", icon: TransformIcon, name: "Transform" },
+	{ color: "var(--mauve)", icon: CameraIcon, name: "Details" },
+] as const satisfies { name: string; color: string; icon: Icon }[];
+
+export const animationPropertyCategories = [
+	{ color: "var(--yellow)", icon: StarIcon, name: "Special" },
+	{ color: "var(--blue)", icon: ClockIcon, name: "Timing" },
 ] as const satisfies { name: string; color: string; icon: Icon }[];
 
 /**
@@ -88,9 +95,10 @@ export const propertyCategories = [
  * type Narrowed = { value: true }
  * ```
  */
-export type Narrow<Base extends { [key: string | number | symbol]: unknown }, Key extends keyof Base, Value extends Base[Key]> = Omit<Base, Key> & { [K in Key]: Value };
+export type Narrow<Base extends { [key: keyof any]: unknown }, Key extends keyof any, Value extends Base[Key]> = Omit<Base, Key> & { [K in Key]: Value };
 
-export type PropertyCategory = typeof propertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
+export type ObjectPropertyCategory = typeof objectPropertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
+export type AnimationPropertyCategory = typeof animationPropertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
 export type ColorProperty = {
 	base: "color";
@@ -105,9 +113,11 @@ export type SelectProperty = {
 	options: string[];
 	requiredProperties: string[];
 	defaultValue: string | null;
+	codegenOverride?: (value: string) => string;
 	default(value: string): SelectProperty;
 	choices(...options: SelectOption[]): SelectProperty;
 	requires<const This extends SelectProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names>;
+	codegen(value: (value: string) => string): SelectProperty;
 };
 
 export type ListProperty = {
@@ -173,7 +183,7 @@ export type ObjectProperty = {
 };
 
 export type AnimationTypeProperty = {
-	base: "animation";
+	base: "animationType";
 	requiredProperties: string[];
 	requires(...name: string[]): AnimationTypeProperty;
 };
@@ -498,7 +508,7 @@ export const property = (() => {
 		animationType(): AnimationTypeProperty {
 			return {
 				requiredProperties: [],
-				base: "animation",
+				base: "animationType",
 				requires(...name: string[]) {
 					return { ...this, requiredProperties: name };
 				},
@@ -541,6 +551,12 @@ export const property = (() => {
 				requires<const This extends SelectProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names> {
 					return { ...this, requiredProperties: name };
 				},
+				codegen(value: (value: string) => string): SelectProperty {
+					return {
+						...this,
+						codegenOverride: value,
+					};
+				},
 			};
 		},
 	};
@@ -553,8 +569,12 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 		return result;
 	}
 
+	if (type.base === "string" && "codegenOverride" in type && type.codegenOverride !== undefined) {
+		return type.codegenOverride(value as string);
+	}
+
 	if (["string", "color"].includes(type.base)) return `r"${value}"`;
-	if (type.base === "object") return `var_${value}`;
+	if (type.base === "object") return `object_${value}`;
 	return `${value}`;
 }
 

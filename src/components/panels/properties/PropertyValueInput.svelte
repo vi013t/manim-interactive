@@ -1,6 +1,8 @@
 <script lang="ts" generics="T extends PropertyType">
 	import type { PropertyType, PropertyValue } from "../../../api/manim/property";
+	import { runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected } from "../../../api/project.svelte";
+	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import AnimationProperty from "./AnimationProperty.svelte";
@@ -27,6 +29,7 @@
 
 	function deleteRegularProperty() {
 		delete (getItemFromId(selected()!)!.properties as any)[name];
+		runAction("Save And Recompile Project");
 	}
 
 	let { subProperty = false, type: property, name, value, required, deleteProperty = deleteRegularProperty }: Props = $props();
@@ -39,13 +42,13 @@
 	<!-- Property Name -->
 	{#if name}
 		<span class="property-name" style:width={subProperty ? "fit-content" : "12rem"}>
-			{name}:
+			{translate(name)}:
 		</span>
 	{/if}
 
 	<!-- Property Value -->
 	{#key getItemFromId(selected()!)}
-		{#if property.base === "animation"}
+		{#if property.base === "animationType"}
 			<AnimationProperty value={value as string} {name} {property} />
 		{:else if property.base === "objectType"}
 			<ObjectTypeProperty value={value as string} />
@@ -66,7 +69,7 @@
 		{:else if property.base === "string"}
 			<StringProperty bind:errorMessage value={value as string} {name} {property} />
 		{:else if property.base === "number"}
-			<NumberProperty bind:errorMessage value={value as number} {name} {property} />
+			<NumberProperty bind:errorMessage value={value as number} {name} {property} id={selected()!} />
 		{/if}
 
 		<!-- Error Message -->

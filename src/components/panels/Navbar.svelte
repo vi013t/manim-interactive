@@ -6,6 +6,7 @@
 	import icon from "../../assets/icon.png";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 	import GridIcon from "../icons/GridIcon.svelte";
+	import MagnetIcon from "../icons/MagnetIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
 	import ResolutionIcon from "../icons/ResolutionIcon.svelte";
 	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
@@ -124,6 +125,16 @@
 		</button>
 	</div>
 
+	<div class="timeline-options">
+		<button
+			title="Toggle Timeline Snapping"
+			onclick={togglePreference("timelineSnapping")}
+			style:background-color={getPreferences().timelineSnapping ? "rgba(180, 150, 255, 20%)" : "transparent"}
+		>
+			<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+		</button>
+	</div>
+
 	<span class="title">{getProjectName() ?? "Untitled Project"} - {translate("Manim Interactive")}</span>
 
 	<div class="window-buttons">
@@ -153,12 +164,12 @@
 		}
 	}
 
-	.video-options {
+	.video-options,
+	.timeline-options {
 		display: flex;
 		height: 100%;
 		align-items: center;
 		position: absolute;
-		left: 16.67vw;
 
 		> * {
 			height: 100%;
@@ -167,6 +178,14 @@
 			justify-content: center;
 			aspect-ratio: 1;
 		}
+	}
+
+	.video-options {
+		left: 16.67%;
+	}
+
+	.timeline-options {
+		left: 83.33%;
 	}
 
 	#navbar {

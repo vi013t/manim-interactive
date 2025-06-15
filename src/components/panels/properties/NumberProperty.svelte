@@ -8,11 +8,13 @@
 		errorMessage = $bindable(),
 		name,
 		property,
+		id,
 	}: {
 		value: number;
 		errorMessage: string | null;
 		name: string;
 		property: NumberProperty;
+		id: number;
 	} = $props();
 
 	let inputHover = $state(false);
@@ -34,7 +36,7 @@
 	}
 
 	function setProperty() {
-		(getItemFromId(selected()!)!.properties as any)[name] = value;
+		(getItemFromId(selected()!)!.properties as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -57,6 +59,10 @@
 	}
 
 	let inputValue = $state(`${value}`);
+
+	$effect(() => {
+		inputValue = (getItemFromId(id)!.properties as any)[name];
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

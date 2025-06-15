@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { ObjectPropertyName } from "../../api/manim/objects";
-	import { addObjectProperty, getPossibleProperties } from "../../api/manim/properties";
-	import { propertyCategories } from "../../api/manim/property";
+	import { addProperty, getPossibleProperties } from "../../api/manim/properties";
+	import { animationPropertyCategories, objectPropertyCategories } from "../../api/manim/property";
 	import { getItemFromId, selected } from "../../api/project.svelte";
 	import EmptyIcon from "../icons/EmptyIcon.svelte";
 	import Menu from "./Menu.svelte";
@@ -15,7 +15,7 @@
 	function onSelect(name: string) {
 		hide();
 		let defaultValue = (getPossibleProperties(item).find(property => property.name === name)!.type as any).defaultValue ?? null;
-		addObjectProperty(getItemFromId(selected()!)!.id, name as ObjectPropertyName, defaultValue);
+		addProperty(getItemFromId(selected()!)!.id, name as ObjectPropertyName, defaultValue);
 	}
 
 	export function show() {
@@ -35,13 +35,13 @@
 	title="Add Property"
 	demoType="none"
 	{onSelect}
-	submenus={propertyCategories.map(category => ({
+	submenus={(item?.type === "object" ? objectPropertyCategories : animationPropertyCategories).map(category => ({
 		name: category.name,
 		icon: category.icon,
 		options: item
 			? getPossibleProperties(item)
-					.filter(property => property.categories.includes(category.name))
-					.map(property => ({ name: property.name, icon: EmptyIcon, description: property.description ?? "", demo: "" }))
+					.filter(property => property.categories.includes(category.name as any))
+					.map(property => ({ name: property.name, icon: EmptyIcon, description: property.description ?? "", demo: "", disabled: property.name in item.properties }))
 			: [],
 		title: `Add ${category.name} Property`,
 		color: category.color,

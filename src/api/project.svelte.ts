@@ -273,8 +273,8 @@ export function removeNotification(id: number): void {
 
 export function isNameTaken(name: string, exclude?: number): boolean {
 	return (
-		projectObjects.some(object => object.name === name && (exclude === undefined || object.id !== exclude)) ||
-		projectAnimations.some(animation => animation.name === name && (exclude === undefined || animation.id !== exclude))
+		projectObjects.some(object => getProperty(object, "Name") === name && (exclude === undefined || object.id !== exclude)) ||
+		projectAnimations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude))
 	);
 }
 

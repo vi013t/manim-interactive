@@ -172,6 +172,7 @@ let preferences = $state({
 	lowRes: false,
 	vimMode: false,
 	latexPreviews: true,
+	timelineSnapping: true,
 	keybindings: [
 		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),

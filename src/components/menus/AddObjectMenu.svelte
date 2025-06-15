@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { objectCategories, objects, type ObjectProperty, type ObjectPropertyName } from "../../api/manim/objects";
+	import { objectCategories, objects, type ObjectPropertyName } from "../../api/manim/objects";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, isNameTaken, nextId, select, type ProjectObject } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
@@ -30,7 +30,12 @@
 			"Object Type": type,
 			Name: name,
 		};
-		manimObject.properties.filter((property: ObjectProperty) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
+
+		manimObject.properties
+			.filter(property => "required" in property && property.required)
+			.forEach(property => {
+				properties[property.name] = (property.type as any).defaultValue ?? null;
+			});
 		menu.hide();
 
 		let object: ProjectObject = {

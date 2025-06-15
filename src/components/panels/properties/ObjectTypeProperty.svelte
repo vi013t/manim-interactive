@@ -3,6 +3,7 @@
 	import { getPossibleProperties, getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected, type ProjectObject } from "../../../api/project.svelte";
+	import { translate } from "../../../api/translate.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
 
@@ -48,7 +49,7 @@
 
 		possibleProperties.forEach(property => {
 			if (property.required) {
-				item.properties[property.name] = (property.type as any).defaultValue ?? null;
+				(item.properties as any)[property.name] = (property.type as any).defaultValue ?? null;
 			}
 		});
 
@@ -66,7 +67,7 @@
 	onclick={addObject}
 >
 	<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
-	{value}
+	{translate(value)}
 	<RightArrow stroke="var(--lavender)" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
 <AddObjectMenu width="20rem" background="var(--base)" onSelect={changeObjectType} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />

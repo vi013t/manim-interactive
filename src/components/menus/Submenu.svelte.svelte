@@ -1,12 +1,19 @@
 <script lang="ts">
-	import type { Component } from "svelte";
+	import { type Component } from "svelte";
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../api/client.svelte";
 	import { getPreferences } from "../../api/preferences.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import ExternalLink from "../util/ExternalLink.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
 
-	export type MenuOption = { name: string; description: string; demo: string; icon: Component<{ stroke: string; [key: string]: unknown }>; documentation?: string[] };
+	export type MenuOption = {
+		name: string;
+		description: string;
+		demo: string;
+		icon: Component<{ stroke: string; [key: string]: unknown }>;
+		documentation?: string[];
+		disabled?: boolean;
+	};
 
 	let {
 		top,
@@ -62,7 +69,7 @@
 	}}
 >
 	{#if title}<span>{translate(title)}</span>{/if}
-	{#each options as option, index}
+	{#each options.filter(option => !option.disabled) as option, index}
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<button
 			onclick={() => onSelect(option.name)}
@@ -71,6 +78,13 @@
 				hoveringIndex = index;
 			}}
 		>
+			<option.icon stroke={color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			{translate(option.name)}
+		</button>
+	{/each}
+	{#each options.filter(option => option.disabled) as option, index}
+		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+		<button class="disabled" class:disabled-first={index === 0} title="The property '{translate(option.name)}' is already applied">
 			<option.icon stroke={color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{translate(option.name)}
 		</button>
@@ -157,5 +171,18 @@
 	span {
 		font-size: 0.85rem;
 		border-bottom: 1px solid var(--surface-0);
+	}
+
+	.disabled {
+		color: var(--overlay-0);
+		cursor: default;
+
+		&:hover {
+			background: transparent;
+		}
+	}
+
+	.disabled-first:not(:nth-child(2)) {
+		border-top: 1px solid var(--surface-0);
 	}
 </style>

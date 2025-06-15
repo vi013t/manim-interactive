@@ -4,12 +4,13 @@
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { getAnimationObjects, getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { type ProjectAnimation, animationEndTime, getItemFromId, getProjectAnimations, select, selected } from "../../../api/project.svelte";
+	import { type ProjectAnimation, animationEndTime, getProjectAnimations, select, selected } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
 
 	let { animation, timelineElement }: { animation: ProjectAnimation; timelineElement: HTMLElement } = $props();
 
 	let draggingElement: HTMLElement | null = $state(null);
+	let expandingElement: HTMLElement | null = $state(null);
 	let draggingAnimation: ProjectAnimation | null = $state(null);
 
 	const Icon = $derived(getManimAnimationByName(getProperty(animation, "Animation Type")!)!.icon);
@@ -26,19 +27,11 @@
 	}
 
 	const BORDER_SIZE = 4;
-	let height: number;
-
-	function resize(element: HTMLElement) {
-		return function (event: MouseEvent) {
-			element.style.height = `${event.y - element.clientTop}px`;
-		};
-	}
 
 	function animationMouseDown(animation: ProjectAnimation) {
 		return function (event: MouseEvent) {
 			if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
-				height = event.offsetY;
-				document.addEventListener("mousemove", resize(event.target as HTMLElement), false);
+				expandingElement = event.target as HTMLElement;
 			} else {
 				draggingElement = event.target as HTMLElement;
 				draggingAnimation = animation;
@@ -66,18 +59,29 @@
 
 	onMount(() => {
 		document.addEventListener("mousemove", event => {
-			if (draggingElement && timelineElement) {
-				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
-				draggingElement.style.top = `${newTop}px`;
-				draggingElement.style.cursor = "grabbing";
+			const cellHeight = 64;
+			if (timelineElement) {
+				if (expandingElement) {
+					let snapping = getPreferences().timelineSnapping;
+					let newHeight = event.y - expandingElement.getBoundingClientRect().top;
+					if (snapping) {
+						if (newHeight % cellHeight < cellHeight / 2) newHeight = newHeight - (newHeight % cellHeight);
+						else newHeight = newHeight + (cellHeight - (newHeight % cellHeight));
+					}
+					expandingElement.style.height = `${newHeight}px`;
+				} else if (draggingElement) {
+					let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
+					draggingElement.style.top = `${newTop}px`;
+					draggingElement.style.cursor = "grabbing";
+				}
 			}
 		});
 
 		document.addEventListener("mouseup", event => {
+			const cellHeight = 64;
 			if (draggingElement) {
-				let snapping = !(event.ctrlKey || event.shiftKey);
+				let snapping = getPreferences().timelineSnapping;
 				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
-				let cellHeight = 64;
 				if (snapping) {
 					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
 					else newTop = newTop + (cellHeight - (newTop % cellHeight));
@@ -87,9 +91,22 @@
 				if (draggingAnimation) draggingAnimation.properties["Start Time"] = newTop / cellHeight;
 				if (getPreferences().autosave) runAction("Save And Recompile Project");
 			}
+
+			if (expandingElement) {
+				animation.properties["Duration"] = expandingElement.getBoundingClientRect().height / cellHeight;
+				runAction("Save And Recompile Project");
+			}
+
 			draggingElement = null;
 			draggingAnimation = null;
+			expandingElement = null;
 		});
+	});
+
+	let element: HTMLElement;
+
+	$effect(() => {
+		element.style.height = `${getProperty<number>(animation, "Duration")! * 64}px`;
 	});
 </script>
 
@@ -100,10 +117,11 @@
 	onclick={() => select(animation)}
 	{@attach onAnimationMount(animation)}
 	style:background-color={animationColor(animation)}
-	style:outline={selected() && getAnimationObjects(animation).includes(selected()!) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
-	style:opacity={!selected() || "animationType" in getItemFromId(selected()!)! || getAnimationObjects(animation).includes(selected()!) ? "100%" : "30%"}
+	style:outline={selected() === animation.id || (selected() !== null && getAnimationObjects(animation).includes(selected()!)) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
+	style:opacity={selected() === null || selected() === animation.id || getAnimationObjects(animation).includes(selected()!) ? "100%" : "30%"}
+	bind:this={element}
 >
-	<Icon stroke="var(--mantle)" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
+	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />
 	{getProperty(animation, "Name")}
 </button>
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />

@@ -1,4 +1,3 @@
-import type { Component } from "svelte";
 import angleDemo from "../../assets/images/angle_demo.png";
 import annularSectorDemo from "../../assets/images/annular_sector_demo.png";
 import annulusDemo from "../../assets/images/annulus_demo.png";
@@ -55,6 +54,7 @@ import DodecahedronIcon from "../../components/icons/DodecahedronIcon.svelte";
 import EllipseIcon from "../../components/icons/EllipseIcon.svelte";
 import GridIcon from "../../components/icons/GridIcon.svelte";
 import HexagonIcon from "../../components/icons/HexagonIcon.svelte";
+import type { Icon } from "../../components/icons/Icon";
 import IcosahedronIcon from "../../components/icons/IcosahedronIcon.svelte";
 import ImageIcon from "../../components/icons/ImageIcon.svelte";
 import IntersectionIcon from "../../components/icons/IntersectionIcon.svelte";
@@ -81,7 +81,7 @@ import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getFonts } from "../system.svelte";
 import { getPossibleProperties } from "./properties";
-import { property, propertyValueToString, type KeywordProperty, type PositionalProperty, type Property } from "./property";
+import { property, propertyValueToString, type Property } from "./property";
 
 export const objectCategories = [
 	{ color: "var(--peach)", icon: LineIcon, name: "Line" },
@@ -90,21 +90,21 @@ export const objectCategories = [
 	{ color: "var(--blue)", icon: CubeIcon, name: "Solid" },
 	{ color: "var(--yellow)", icon: PlainTextIcon, name: "Text" },
 	{ color: "var(--lavender)", icon: AsteriskIcon, name: "Miscellaneous" },
-] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
+] as const satisfies { name: string; color: string; icon: Icon }[];
 
 export type ObjectCategoryName = typeof objectCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
-export type ManimObject = {
+export type ManimObject = Readonly<{
 	name: string;
 	internalName?: string;
-	categories: ObjectCategoryName[];
-	icon: Component<{ stroke: string; [key: string]: unknown }>;
+	categories: readonly ObjectCategoryName[];
+	icon: Icon;
 	demo: string;
 	description: string;
-	properties: Property[];
+	properties: readonly Property[];
 	documentation: string[];
 	create?: (properties: { [key: string]: unknown }) => string;
-};
+}>;
 
 export function getObjectCategory(name: ObjectCategoryName) {
 	return objectCategories.find(category => category.name === name)!;
@@ -412,11 +412,29 @@ export const objects = [
 				description: "The radius of the circle that the arc is cut from.",
 				categories: ["Special"],
 			},
-			{ name: "Start Angle", internalName: "start_angle", type: property().number(), categories: ["Special"] },
-			{ name: "Angle", internalName: "angle", type: property().number().default(1.57), categories: ["Special"] },
-			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative().default(0.35), categories: ["Details"] },
-			{ name: "Components", internalName: "num_components", type: property().number().integeric().nonnegative().default(9), categories: ["Details"] },
-			{ name: "Normal Vector", internalName: "normal_vector", type: property().coordinate().default([0, 0, 1]), categories: ["Details"] },
+			{ name: "Start Angle", internalName: "start_angle", type: property().number(), description: "The angle that the arc starts at", categories: ["Special"] },
+			{ name: "Angle", internalName: "angle", type: property().number().default(1.57), description: "The angle that the arc elapses.", categories: ["Special"] },
+			{
+				name: "Tip Length",
+				internalName: "tip_length",
+				type: property().number().nonnegative().default(0.35),
+				description: "The length of the tips of the angle.",
+				categories: ["Details"],
+			},
+			{
+				name: "Components",
+				internalName: "num_components",
+				type: property().number().integeric().nonnegative().default(9),
+				description: "The number of components in the arc.",
+				categories: ["Details"],
+			},
+			{
+				name: "Normal Vector",
+				internalName: "normal_vector",
+				type: property().coordinate().default([0, 0, 1]),
+				description: "The direction of the normal vector of the arc",
+				categories: ["Details"],
+			},
 			...VMobjectProperties,
 		],
 	},
@@ -566,7 +584,7 @@ export const objects = [
 			delete properties.Method;
 
 			let possibleProperties = getPossibleProperties("Combinator");
-			const propertyEntries = Object.entries(properties).map(([propertyName, propertyValue]): [unknown, Property] => [
+			const propertyEntries = Object.entries(properties).map(([propertyName, propertyValue]): [unknown, ObjectProperty] => [
 				propertyValue,
 				possibleProperties.find(possible => possible.name === propertyName)!,
 			]);
@@ -725,10 +743,10 @@ export const objects = [
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.tex_mobject.MathTex.html"],
 		properties: [
 			{
-				name: "Text",
-				internalName: "tex_strings",
+				name: "Equation",
 				type: property().string().notEmpty().math(),
 				categories: ["Special"],
+				description: "The equation itself.",
 				required: true,
 				position: 0,
 			},
@@ -819,6 +837,7 @@ export const objects = [
 				type: property()
 					.select()
 					.choices(...(await getFonts()).map(font => ({ name: font, style: `font-family: "${font}"` }))),
+				description: "The font of the text.",
 				categories: ["Special"],
 				internalName: "font",
 			},

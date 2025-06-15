@@ -25,7 +25,7 @@ export function generateCode(): string {
 
 			// Custom Codegen
 			if ("create" in objectBase) {
-				return `\t\tvar_${object.id} = ${objectBase.create(object.properties)}`;
+				return `\t\tobject_${object.id} = ${objectBase.create(object.properties)}`;
 			}
 
 			// Properties
@@ -57,7 +57,7 @@ export function generateCode(): string {
 
 			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 
-			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${comma}${keywordArguments})${functions}`;
+			return `\t\tobject_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${comma}${keywordArguments})${functions}`;
 		})
 		.join("\n");
 

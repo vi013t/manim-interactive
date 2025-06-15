@@ -35,7 +35,7 @@
 	}
 
 	function setProperty() {
-		(getItemFromId(selected()!)!.properties as any)[name] = value;
+		(getItemFromId(selected()!)!.properties as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -59,6 +59,8 @@
 	onMount(() => {
 		validate();
 	});
+
+	let inputValue = $state(`${value}`);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -72,7 +74,7 @@
 		oninput={validate}
 		onkeydown={onInput}
 		autocomplete="off"
-		bind:value
+		bind:value={inputValue}
 	/>
 
 	{#if property.isMath}
