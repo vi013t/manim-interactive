@@ -1026,6 +1026,7 @@ export const objects = [
 
 export type ObjectPropertyName =
 	| "Object Type"
+	| "Name"
 	| (typeof objects extends (infer O)[] ? (O extends { properties: (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
 
 export type ObjectProperty = Omit<Property, "name"> & { name: ObjectPropertyName };

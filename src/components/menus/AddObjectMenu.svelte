@@ -19,11 +19,6 @@
 
 	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
-		let properties: { [key in ObjectPropertyName]?: unknown } = {
-			"Object Type": type,
-		};
-		manimObject.properties.filter((property: ObjectProperty) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
-		menu.hide();
 
 		let name = translate(type);
 		let number = 2;
@@ -31,8 +26,14 @@
 			name = `${type} ${number++}`;
 		}
 
+		let properties: { [key in ObjectPropertyName]?: unknown } = {
+			"Object Type": type,
+			Name: name,
+		};
+		manimObject.properties.filter((property: ObjectProperty) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
+		menu.hide();
+
 		let object: ProjectObject = {
-			name,
 			type: "object",
 			id: nextId(),
 			properties,

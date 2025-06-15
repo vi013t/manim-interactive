@@ -21,6 +21,7 @@
 	}
 
 	function getPropertyType(propertyName: string): PropertyType {
+		if (propertyName === "Name") return property().string().notEmpty();
 		if (propertyName === "Object Type") return property().objectType();
 		if (propertyName === "Animation Type") return property().animationType();
 
@@ -29,7 +30,7 @@
 	}
 
 	function isPropertyRequired(propertyName: string): boolean {
-		if (propertyName === "Object Type" || propertyName === "Animation Type") return true;
+		if (["Animation Type", "Object Type", "Name"].includes(propertyName)) return true;
 
 		let properties = getPossibleProperties(item!);
 		return !!properties.find(property => property.name === propertyName)!.required;
@@ -45,8 +46,11 @@
 	let properties = $derived(
 		item
 			? Object.entries(item.properties).toSorted(([firstName, _firstValue], [secondName, _secondValue]) => {
-					if (firstName === "Object Type" || firstName === "Animation Type") return 1;
-					if (secondName === "Object Type" || secondName === "Animation Type") return -1;
+					if (firstName === "Name") return -1;
+					if (secondName === "Name") return 1;
+
+					if (firstName === "Object Type" || firstName === "Animation Type") return -1;
+					if (secondName === "Object Type" || secondName === "Animation Type") return 1;
 
 					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
 					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
@@ -83,17 +87,11 @@
 	<div class="items">
 		{#key selected()}
 			{#if item}
-				<span class="property">
-					<PropertyValueInput type={property().string().notEmpty()} name="name" value={item.name} required />
-				</span>
-
-				<!-- Properties -->
 				{#each properties! as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
 						<PropertyValueInput {name} type={getPropertyType(name)} value={value as any} required={isPropertyRequired(name)} />
 					</span>
 				{/each}
-
 				<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
 			{/if}
 		{/key}

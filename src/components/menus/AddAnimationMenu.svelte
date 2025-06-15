@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { animationCategories, animations } from "../../api/manim/animations";
+	import { getProperty } from "../../api/manim/properties";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectAnimation, getItemFromId, nextId, select, type ProjectAnimation } from "../../api/project.svelte";
 	import Menu from "./Menu.svelte";
@@ -11,14 +12,18 @@
 		title = "Add Animation",
 		onSelect = addAnimation,
 		onAdd = animation => {},
+		width = undefined,
+		background = undefined,
 		id,
 	}: {
 		onAdd?: (animation: ProjectAnimation) => void;
-		title?: string;
+		title?: string | false;
 		top: string;
 		left: string;
 		openers?: HTMLElement[];
 		onSelect?: (name: string) => void;
+		width?: string;
+		background?: string;
 		id?: number;
 	} = $props();
 
@@ -26,7 +31,6 @@
 		menu.hide();
 
 		let animation: ProjectAnimation = {
-			name: `${type}${id !== undefined ? " " + getItemFromId(id)!.name : ""}`,
 			id: nextId(),
 			type: "animation",
 			properties: {
@@ -34,6 +38,7 @@
 				Duration: 1,
 				"Animation Type": type,
 				Object: id,
+				Name: `${type}${id !== undefined ? " " + getProperty(getItemFromId(id)! as any, "Name") : ""}`,
 			},
 		};
 
@@ -52,6 +57,10 @@
 	export function hide() {
 		menu.hide();
 	}
+
+	export function isVisible() {
+		return menu.isVisible();
+	}
 </script>
 
 <Menu
@@ -60,6 +69,8 @@
 	{left}
 	{openers}
 	{title}
+	{width}
+	{background}
 	{onSelect}
 	demoType="video"
 	submenus={animationCategories.map(category => ({

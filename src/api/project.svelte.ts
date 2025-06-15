@@ -122,14 +122,12 @@ export function addProjectAnimation(animation: ProjectAnimation) {
 }
 
 export type ProjectObject = {
-	name: string;
 	id: number;
 	type: "object";
 	properties: { [Key in ObjectPropertyName]?: unknown };
 };
 
 export type ProjectAnimation = {
-	name: string;
 	id: number;
 	type: "animation";
 	properties: { [Key in AnimationPropertyName]?: unknown };
@@ -140,7 +138,7 @@ export function getObjectDependencies(id: number): number[] {
 	const possibleProperties = getPossibleProperties(object);
 	return Object.entries(object.properties)
 		.map(([propertyName, propertyValue]) => {
-			if (propertyName === "Object Type") return [];
+			if (propertyName === "Object Type" || propertyName === "Name") return [];
 			const propertyBase = possibleProperties.find(property => property.name === propertyName)!;
 			if (propertyBase.type.base === "object") return [propertyValue as number];
 			return [];

@@ -20,7 +20,7 @@
 	}
 
 	function setName() {
-		entry.name = name.textContent!;
+		entry.properties["Name"] = name.textContent!;
 		runAction("Save Project");
 	}
 
@@ -101,7 +101,7 @@
 			style="width: 1rem; height: 1rem; margin-left: {getProperty(entry, 'Object Type') === 'Group' ? 0.2 : 1.2}rem; margin-right: 0.25rem;"
 		/>
 		<span onkeydown={typeName} onblur={setName} bind:this={name} contenteditable autocapitalize="off" spellcheck="false">
-			{entry.name}
+			{getProperty(entry, "Name")}
 		</span>
 		{#if itemHasErrors(entry.id)}
 			<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />

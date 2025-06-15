@@ -92,8 +92,22 @@ const singleObjectProperties = [
 		type: property().number().nonnegative().default(1),
 		required: true,
 	},
-	{ name: "Object", categories: ["Special"], description: "The object to animate", position: 0, type: property().object() },
-	{ name: "Start Time", categories: ["Special"], description: "The starting time of the animation", special: true, type: property().number().nonnegative() },
+	{
+		name: "Object",
+		categories: ["Special"],
+		description: "The object to animate",
+		position: 0,
+		type: property().object(),
+		required: true,
+	},
+	{
+		name: "Start Time",
+		categories: ["Special"],
+		description: "The starting time of the animation",
+		special: true,
+		type: property().number().nonnegative(),
+		required: true,
+	},
 ] as const satisfies Property[];
 
 export const animations = [
@@ -361,6 +375,7 @@ export const animations = [
 
 export type AnimationPropertyName =
 	| "Animation Type"
+	| "Name"
 	| (typeof animations extends (infer A)[] ? (A extends { properties: (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
 
 export type AnimationProperty = Omit<Property, "name"> & { name: AnimationPropertyName };

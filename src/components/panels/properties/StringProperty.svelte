@@ -24,7 +24,7 @@
 
 	function getErrorMessage(): string | null {
 		if (!property.canBeEmpty && value === "") return "Value cannot be empty";
-		if (name === "name" && isNameTaken(value.trim(), selected()!)) return "Name is already taken";
+		if (name === "Name" && isNameTaken(value.trim(), selected()!)) return "Name is already taken";
 		return null;
 	}
 

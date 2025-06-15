@@ -30,7 +30,7 @@ export function generateCode(): string {
 
 			// Properties
 			const properties = Object.entries(object.properties)
-				.filter(([propertyName, _propertyValue]) => propertyName !== "Object Type")
+				.filter(([propertyName, _propertyValue]) => !["Object Type", "Name"].includes(propertyName))
 				.map(([propertyName, propertyValue]): [unknown, Property] => [propertyValue, possibleProperties.find(possible => possible.name === propertyName)! as Property]);
 
 			// Positional Arguments
@@ -47,7 +47,7 @@ export function generateCode(): string {
 				.join(", ");
 
 			// Separating comma
-			const comma = positionalArguments && keywordArguments ? "," : "";
+			const comma = positionalArguments && keywordArguments ? ", " : "";
 
 			// Functions
 			const functions = properties
@@ -71,7 +71,7 @@ export function generateCode(): string {
 
 			// Properties
 			const properties = Object.entries(animation.properties)
-				.filter(([propertyName, _propertyValue]) => propertyName !== "Animation Type")
+				.filter(([propertyName, _propertyValue]) => !["Animation Type", "Name"].includes(propertyName))
 				.map(([propertyName, propertyValue]): [unknown, Property] => [propertyValue, possibleProperties.find(possible => possible.name === propertyName)! as Property]);
 
 			// Positional Arguments
@@ -88,7 +88,7 @@ export function generateCode(): string {
 				.join(", ");
 
 			// Separating comma
-			const comma = positionalArguments && keywordArguments ? "," : "";
+			const comma = positionalArguments && keywordArguments ? ", " : "";
 
 			// Return Out
 			return `\t\tself.play(${manimAnimation.internalName ?? manimAnimation.name}(${positionalArguments}${comma}${keywordArguments}))`;

@@ -39,14 +39,14 @@
 	<!-- Property Name -->
 	{#if name}
 		<span class="property-name" style:width={subProperty ? "fit-content" : "12rem"}>
-			{name === "name" ? "Name" : name === "objectType" ? "Type" : name}:
+			{name}:
 		</span>
 	{/if}
 
 	<!-- Property Value -->
 	{#key getItemFromId(selected()!)}
 		{#if property.base === "animation"}
-			<AnimationProperty value={value as number} {name} {property} />
+			<AnimationProperty value={value as string} {name} {property} />
 		{:else if property.base === "objectType"}
 			<ObjectTypeProperty value={value as string} />
 		{:else if property.base === "object"}

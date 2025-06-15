@@ -104,7 +104,7 @@
 	style:opacity={!selected() || "animationType" in getItemFromId(selected()!)! || getAnimationObjects(animation).includes(selected()!) ? "100%" : "30%"}
 >
 	<Icon stroke="var(--mantle)" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
-	{animation.name}
+	{getProperty(animation, "Name")}
 </button>
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
 

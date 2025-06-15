@@ -40,10 +40,10 @@
 		.map(object => {
 			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 			const category = getObjectCategory(manimObject.categories[0]);
-			return { name: object.name, icon: manimObject.icon, color: category.color };
+			return { name: getProperty(object, "Name")!, icon: manimObject.icon, color: category.color };
 		})}
 	onSelect={name => {
-		selectedOption = getProjectObjects().find(manimObject => manimObject.name === name)!.id;
+		selectedOption = getProjectObjects().find(projectObject => getProperty(projectObject, "Name") === name)!.id;
 		setProperty();
 	}}
 	value={(() => {
@@ -51,7 +51,7 @@
 			const object = getItemFromId(selectedOption)! as ProjectObject;
 			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 			const category = getObjectCategory(manimObject.categories[0]);
-			return { name: object.name, icon: manimObject.icon, color: category.color };
+			return { name: getProperty(object, "Name")!, icon: manimObject.icon, color: category.color };
 		} else {
 			return undefined;
 		}

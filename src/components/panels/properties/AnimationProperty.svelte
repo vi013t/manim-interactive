@@ -1,41 +1,59 @@
 <script lang="ts">
+	import { animations, getAnimationCategory } from "../../../api/manim/animations";
+	import { getProperty } from "../../../api/manim/properties";
 	import type { AnimationTypeProperty } from "../../../api/manim/property";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
+	import { getItemFromId, selected, type ProjectAnimation } from "../../../api/project.svelte";
+	import RightArrow from "../../icons/RightArrow.svelte";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
-
-	let {
-		value = $bindable(),
-		name,
-		property,
-	}: {
-		value: number;
-		name: string;
-		property: AnimationTypeProperty;
-	} = $props();
-
-	// svelte-ignore non_reactive_update
-	let addButton: HTMLElement;
-	let addAnimationMenu: AddAnimationMenu;
 
 	let top = $state("");
 	let left = $state("");
+	let item = $state(getItemFromId(selected()!)! as ProjectAnimation);
 
-	function addAnimation() {
-		addAnimationMenu.show();
+	let Icon = $derived(animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type"))!.icon);
+	let iconColor = $derived(getAnimationCategory(animations.find(object => object.name === getProperty(item, "Animation Type"))!.category).color);
+
+	// svelte-ignore non_reactive_update
+	let addButton: HTMLButtonElement;
+	let animationMenu: AddAnimationMenu;
+
+	let { value = $bindable(), name, property }: { value: string; name: string; property: AnimationTypeProperty } = $props();
+
+	let menuVisible = $state(false);
+
+	function addObject() {
+		if (animationMenu.isVisible()) {
+			menuVisible = false;
+			animationMenu.hide();
+		} else {
+			animationMenu.show();
+			menuVisible = true;
+		}
+	}
+
+	function changeAnimationType(type: string) {
+		menuVisible = false;
+		animationMenu.hide();
+		item.properties["Animation Type"] = type;
+		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 </script>
 
 <button
+	class="add-animation"
 	{@attach element => {
 		top = `calc(${element.getBoundingClientRect().top}px + 1.5rem)`;
 		left = `${element.getBoundingClientRect().left}px`;
 	}}
-	class="add-animation"
 	bind:this={addButton}
-	onclick={addAnimation}
+	onclick={addObject}
 >
+	<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
 	{value}
+	<RightArrow stroke="var(--lavender)" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
-<AddAnimationMenu bind:this={addAnimationMenu} {top} {left} openers={[addButton]} />
+<AddAnimationMenu width="20rem" background="var(--base)" onSelect={changeAnimationType} bind:this={animationMenu} {top} {left} openers={[document as any]} title={false} />
 
 <style>
 	button {
