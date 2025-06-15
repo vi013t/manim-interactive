@@ -14,7 +14,7 @@
 		type KeyModifier,
 		type Preference,
 	} from "../../api/preferences.svelte";
-	import { getThemes, setTheme } from "../../api/theme.svelte";
+	import { getTheme, getThemes, setTheme } from "../../api/theme.svelte";
 	import { getLanguage, getLanguageNames, setLanguage, translate, type LanguageName } from "../../api/translate.svelte";
 	import BeakerIcon from "../icons/BeakerIcon.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
@@ -24,9 +24,10 @@
 	import FilledSquareIcon from "../icons/FilledSquareIcon.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import KeyIcon from "../icons/KeyIcon.svelte";
+	import MoonIcon from "../icons/MoonIcon.svelte";
 	import PaintRollerIcon from "../icons/PaintRollerIcon.svelte";
-	import PencilIcon from "../icons/PencilIcon.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
+	import SunIcon from "../icons/SunIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import Select from "../util/Select.svelte";
 	import Window from "./Window.svelte";
@@ -132,7 +133,7 @@
 		<div class="sidebar">
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("general")} onmouseover={() => (hoverView = "general")} style:background={backgroundColor("general")} onclick={() => (view = "general")}>
-				<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<GearIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				{translate("General")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -142,27 +143,27 @@
 				style:background={backgroundColor("appearance")}
 				onclick={() => (view = "appearance")}
 			>
-				<PaintRollerIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<PaintRollerIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				{translate("Appearance")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("timeline")} onmouseover={() => (hoverView = "timeline")} style:background={backgroundColor("timeline")} onclick={() => (view = "timeline")}>
-				<ClockIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<ClockIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				{translate("Timeline")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("project")} onmouseover={() => (hoverView = "project")} style:background={backgroundColor("project")} onclick={() => (view = "project")}>
-				<CubeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<CubeIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				{translate("Project Settings")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("keybinds")} onmouseover={() => (hoverView = "keybinds")} style:background={backgroundColor("keybinds")} onclick={() => (view = "keybinds")}>
-				<KeyIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<KeyIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				{translate("Keybindings")}
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("developer")} onmouseover={() => (hoverView = "developer")} style:background={backgroundColor("developer")} onclick={() => (view = "developer")}>
-				<CodeIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<CodeIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				{translate("Developer Settings")}
 			</button>
 		</div>
@@ -174,18 +175,12 @@
 				</span>
 			{:else if view === "appearance"}
 				<h1>{translate("Appearance")}</h1>
-				<span>{translate("Themes")}</span>
 				<div class="themes">
-					<span class="selected">
-						<button class="theme-button">Catppuccin Mocha ({translate("Default")})</button>
-					</span>
-					{#each getThemes() as theme}
-						<span>
-							<button class="theme-button" onclick={() => setTheme(theme)}>{theme.name}</button>
-							<button class="icon"><PencilIcon stroke="#cdd6f4" style="width: 1.25rem; height: 1.25rem;" /></button>
-							<button class="icon"><TrashIcon stroke="#f38ba8" style="width: 1.25rem; height: 1.25rem;" /></button>
-						</span>
-					{/each}
+					{translate("Theme")}: <Select
+						options={getThemes().map(theme => ({ name: theme.name, icon: theme.isDark ? MoonIcon : SunIcon, color: "var(--text)" }))}
+						value={getTheme()}
+						onSelect={value => setTheme(value)}
+					/>
 					<button class="create">{translate("Create New Theme")}</button>
 				</div>
 				<label for="preview-videos">
@@ -254,7 +249,7 @@
 					<p>{translate("Enable keyboard navigation with Vim-style bindings")}.</p>
 				</label>
 				<span>
-					<button class="add-keybinding"><PlusIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" /></button>
+					<button class="add-keybinding"><PlusIcon stroke="var(--text)" style="width: 1rem; height: 1rem;" /></button>
 				</span>
 				{#each getKeybindings() as keybinding, index}
 					<span class="keybinding-entry">
@@ -272,15 +267,15 @@
 						</span>
 						<button class="revert" onclick={() => record(index)}>
 							{#if recordingIndex === index}
-								<FilledSquareIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+								<FilledSquareIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 							{:else if recordingIndex === null}
-								<FilledCircleIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+								<FilledCircleIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 							{:else}
-								<FilledCircleIcon stroke="#585b70" style="width: 1rem; height: 1rem;" />
+								<FilledCircleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
 							{/if}
 						</button>
 						<button class="revert" onclick={() => deleteKeybinding(index)}>
-							<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+							<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 						</button>
 					</span>
 				{/each}
@@ -303,7 +298,7 @@
 	button,
 	label,
 	span {
-		color: #cdd6f4;
+		color: var(--text);
 	}
 
 	.content {
@@ -342,7 +337,7 @@
 		}
 
 		.key {
-			background: #181825;
+			background: var(--mantle);
 			width: fit-content;
 			margin-left: 1rem;
 			border-radius: 0.5rem;
@@ -363,8 +358,8 @@
 	}
 
 	select {
-		color: #cdd6f4;
-		background: #181825;
+		color: var(--text);
+		background: var(--mantle);
 		padding: 0.5rem;
 		margin-left: 0.5rem;
 		margin-right: 0.5rem;
@@ -379,7 +374,7 @@
 	}
 
 	p {
-		color: #6c7086;
+		color: var(--overlay-0);
 		font-size: 0.85rem;
 	}
 
@@ -389,7 +384,7 @@
 	}
 
 	.sidebar {
-		background-color: #181825;
+		background-color: var(--mantle);
 		height: 100%;
 
 		> button {
@@ -440,42 +435,22 @@
 
 	input[type="checkbox"] {
 		margin-left: auto;
-		accent-color: #b4befe;
+		accent-color: var(--lavender);
 	}
 
 	.themes {
 		display: flex;
-		flex-direction: column;
 		margin-left: 2rem;
-		gap: 0.25rem;
-
-		.theme-button {
-			background-color: #11111b;
-			border-radius: 0.5rem;
-			padding: 0.5rem;
-			width: 20rem;
-		}
-
-		span {
-			&.selected button {
-				color: #a6e3a1;
-			}
-		}
+		gap: 0.5rem;
+		color: var(--text);
+		align-items: center;
 
 		.create {
-			background-color: #b4befe;
-			color: #11111b;
+			background-color: var(--lavender);
+			color: var(--crust);
 			border-radius: 0.5rem;
 			width: fit-content;
 			padding: 0.5rem;
-			margin-top: 0.25rem;
-		}
-
-		.icon {
-			width: fit-content;
-			height: fit-content;
-			padding: 0.5rem;
-			border-radius: 0.25rem;
 		}
 	}
 </style>

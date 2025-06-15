@@ -117,10 +117,10 @@
 			title="Toggle Low Resolution (faster reload times)"
 			style:background-color={getPreferences().lowRes ? "rgba(180, 150, 255, 20%)" : "transparent"}
 		>
-			<ResolutionIcon stroke="#9399b2" style="width: 1.25rem; height: 1.25rem;" />
+			<ResolutionIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 		<button onclick={togglePreference("grid")} title="Toggle Grid" style:background-color={getPreferences().grid ? "rgba(180, 150, 255, 20%)" : "transparent"}>
-			<GridIcon stroke="#9399b2" style="width: 1.25rem; height: 1.25rem;" />
+			<GridIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 	</div>
 
@@ -128,13 +128,13 @@
 
 	<div class="window-buttons">
 		<button onclick={minimize}>
-			<MinimizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
+			<MinimizeIcon stroke="var(--text)" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 		<button onclick={maximize}>
-			<UnmaximizeIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
+			<UnmaximizeIcon stroke="var(--text)" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 		<button onclick={close}>
-			<CloseIcon stroke="#cdd6f4" style="height: 0.7rem; width: 0.7rem;" />
+			<CloseIcon stroke="var(--text)" style="height: 0.7rem; width: 0.7rem;" />
 		</button>
 	</div>
 </nav>
@@ -149,7 +149,7 @@
 
 		> *:last-child {
 			margin-left: auto;
-			color: #9399b2;
+			color: var(--overlay-2);
 		}
 	}
 
@@ -172,8 +172,8 @@
 	#navbar {
 		font-size: 0.75rem;
 		display: flex;
-		background-color: #11111b;
-		color: #cdd6f4;
+		background-color: var(--crust);
+		color: var(--text);
 		padding-left: 0.5em;
 		position: relative;
 

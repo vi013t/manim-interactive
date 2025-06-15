@@ -31,7 +31,7 @@ export function getVerticalExpandDirectionFromPosition(position: number): "top" 
 }
 
 let isPreferencesOpen = $state(false);
-let preferencesView = $state("appearance");
+let preferencesView = $state("general");
 
 export function openPreferencesWindow() {
 	isPreferencesOpen = true;
@@ -55,4 +55,24 @@ export function getPreferencesView(): string {
 
 export function cursorIsIn(rect: DOMRect): boolean {
 	return mouseX >= rect.x && mouseX <= rect.x + rect.width && mouseY >= rect.y && mouseY <= rect.y + rect.height;
+}
+
+let openContextMenu: number | null = $state(null);
+
+export function openMenu(id: number) {
+	openContextMenu = id;
+}
+
+export function closeMenu() {
+	openContextMenu = null;
+}
+
+export function isMenuOpen(id: number): boolean {
+	return openContextMenu === id;
+}
+
+let nextMenuId = 0;
+
+export function getNextMenuId() {
+	return nextMenuId++;
 }

@@ -1,5 +1,7 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
-import { getPossibleProperties } from "./manim/properties";
+import type { AnimationPropertyName } from "./manim/animations";
+import type { ObjectPropertyName } from "./manim/objects";
+import { getPossibleProperties, getProperty } from "./manim/properties";
 import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
@@ -122,26 +124,23 @@ export function addProjectAnimation(animation: ProjectAnimation) {
 export type ProjectObject = {
 	name: string;
 	id: number;
-	objectType: string;
-	properties: { [key: string]: unknown };
+	type: "object";
+	properties: { [Key in ObjectPropertyName]?: unknown };
 };
 
 export type ProjectAnimation = {
-	id: number;
 	name: string;
-	animationType: string;
-	objects: number[];
-	startTime: number;
-	duration: number;
-	properties: { [key: string]: unknown };
+	id: number;
+	type: "animation";
+	properties: { [Key in AnimationPropertyName]?: unknown };
 };
 
 export function getObjectDependencies(id: number): number[] {
-	const object = getItemFromId(id)!;
+	const object = getItemFromId(id)! as ProjectObject;
 	const possibleProperties = getPossibleProperties(object);
 	return Object.entries(object.properties)
 		.map(([propertyName, propertyValue]) => {
-			const propertyBase = possibleProperties.find(property => (property.name = propertyName))!;
+			const propertyBase = possibleProperties.find(property => property.name === propertyName)!;
 			if (propertyBase.type.base === "object") return [propertyValue as number];
 			return [];
 		})
@@ -169,7 +168,7 @@ export function checkForObjectDependencyCycles(): boolean {
 }
 
 export function animationEndTime(animation: ProjectAnimation): number {
-	return animation.startTime + animation.duration;
+	return getProperty<number>(animation, "Start Time")! + getProperty<number>(animation, "Duration")!;
 }
 
 export function nextId() {
@@ -183,7 +182,7 @@ export function addProjectObject(object: ProjectObject) {
 export function removeProjectObject(id: number) {
 	if (selected() === id) select(null);
 	projectObjects = projectObjects.filter(object => object.id !== id);
-	projectAnimations = projectAnimations.filter(animation => !animation.objects.includes(id));
+	projectAnimations = projectAnimations.filter(animation => getProperty<number>(animation, "Object") !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
 	if (getPreferences().autosave) runAction("Save And Recompile Project");

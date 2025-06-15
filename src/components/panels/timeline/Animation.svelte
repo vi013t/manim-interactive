@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
+	import { getAnimationObjects, getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { type ProjectAnimation, animationEndTime, getItemFromId, getProjectAnimations, select, selected } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
@@ -11,7 +12,7 @@
 	let draggingElement: HTMLElement | null = $state(null);
 	let draggingAnimation: ProjectAnimation | null = $state(null);
 
-	const Icon = getManimAnimationByName(animation.animationType)!.icon;
+	const Icon = $derived(getManimAnimationByName(getProperty(animation, "Animation Type")!)!.icon);
 
 	let top = $state("");
 	let left = $state("");
@@ -52,7 +53,7 @@
 			if (!ids.includes(animation.id)) {
 				const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
 				let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
-				animation.startTime = startTime;
+				animation.properties["Start Time"] = startTime;
 				element.style.top = `${startTime * 4}rem`;
 				ids.push(animation.id);
 			}
@@ -60,7 +61,7 @@
 	}
 
 	function animationColor(animation: ProjectAnimation): string {
-		return getAnimationCategory(animations.find(manimation => manimation.name === animation.animationType)!.category).color;
+		return getAnimationCategory(animations.find(manimation => manimation.name === getProperty(animation, "Animation Type"))!.category).color;
 	}
 
 	onMount(() => {
@@ -83,7 +84,7 @@
 				}
 				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "pointer";
-				if (draggingAnimation) draggingAnimation.startTime = newTop / cellHeight;
+				if (draggingAnimation) draggingAnimation.properties["Start Time"] = newTop / cellHeight;
 				if (getPreferences().autosave) runAction("Save And Recompile Project");
 			}
 			draggingElement = null;
@@ -99,10 +100,10 @@
 	onclick={() => select(animation)}
 	{@attach onAnimationMount(animation)}
 	style:background-color={animationColor(animation)}
-	style:outline={selected() && animation.objects.includes(selected()!) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
-	style:opacity={!selected() || "animationType" in getItemFromId(selected()!)! || animation.objects.includes(selected()!) ? "100%" : "30%"}
+	style:outline={selected() && getAnimationObjects(animation).includes(selected()!) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
+	style:opacity={!selected() || "animationType" in getItemFromId(selected()!)! || getAnimationObjects(animation).includes(selected()!) ? "100%" : "30%"}
 >
-	<Icon stroke="#181825" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
+	<Icon stroke="var(--mantle)" style="height: max(1.5rem, 50%); aspect-ratio: 1;" />
 	{animation.name}
 </button>
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />

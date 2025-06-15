@@ -1,34 +1,19 @@
 * {
+	--mauve: #8839ef;
+	--red: #d20f39;
+	--peach: #fe640b;
+	--yellow: #df8e1d;
+	--green: #40a02b;
+	--teal: #179299;
+	--blue: #1e66f5;
+	--lavender: #7287fd;
+	--text: #4c4f69;
+	--subtext-0: #6c6f85;
+	--overlay-2: #7c7f93;
+	--overlay-0: #9ca0b0;
+	--surface-2: #acb0be;
+	--surface-0: #ccd0da;
 	--base: #eff1f5;
 	--mantle: #e6e9ef;
 	--crust: #dce0e8;
-	--text: #4c4f69;
-	--surface-0: #ccd0da;
-	--red: #d20f39;
-}
-
-#navbar {
-	background-color: var(--crust);
-	color: var(--text);
-}
-
-#properties-panel {
-	background-color: var(--mantle);
-	color: var(--text);
-	border-right: 1px solid var(--surface-0);
-}
-
-#variables-panel {
-	background-color: var(--mantle);
-	color: var(--text);
-}
-
-#object-panel {
-	background-color: var(--base);
-	color: var(--text);
-}
-
-#timeline {
-	background-color: var(--base);
-	color: var(--text);
 }

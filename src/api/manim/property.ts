@@ -1,28 +1,94 @@
-import type { Component } from "svelte";
 import CameraIcon from "../../components/icons/CameraIcon.svelte";
+import type { Icon } from "../../components/icons/Icon";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import type { SelectOption } from "../../components/util/Select.svelte";
 
-export type Property = {
+export type Max = 9_007_199_254_740_991; // Number.MAX_VALUE
+export type Min = -9_007_199_254_740_991; // Number.MIN_VALUE
+
+type PositionalPropertyPart = {
+	/**
+	 * Indicates that this property is positional, with the given position. This relates to Python code generation.
+	 * Positional properties are passed as positional arguments to their Python constructor. For example, a property
+	 * `radius = 5` with position `0` may generate the code:
+	 *
+	 * ```python
+	 * Circle(5)
+	 * ```
+	 *
+	 * as opposed to a keyword property, which would instead convert to:
+	 *
+	 * ```python
+	 * Circle(radius = 5)
+	 * ```
+	 */
+	position: number;
+};
+
+type KeywordPropertyPart = {
+	internalName: string;
+};
+
+type FunctionPropertyPart = {
+	function: string;
+};
+
+type SpecialPropertyPart = {
+	/**
+	 * Indicates that this property has it's own special handling when code generation occurs. It's not a keyword argument,
+	 * nor a positional argument, or anything like that; It gets its own unique handling during codegen.
+	 */
+	special: true;
+};
+
+export type BaseProperty = {
 	name: string;
 	type: PropertyType;
 	categories: PropertyCategory[];
-	internalName?: string;
-	prioritized?: true;
+	description: string;
+
+	/**
+	 * Whether this property is required for the user to set explicitly.
+	 */
 	required?: true;
-	position?: number;
-	description?: string;
-	function?: string;
 };
+
+export type PositionalProperty = BaseProperty & PositionalPropertyPart;
+export type KeywordProperty = BaseProperty & KeywordPropertyPart;
+export type FunctionProperty = BaseProperty & FunctionPropertyPart;
+export type SpecialProperty = BaseProperty & SpecialPropertyPart;
+
+export type Property = PositionalProperty | KeywordProperty | FunctionProperty | SpecialProperty;
 
 export const propertyCategories = [
 	{ color: "#f9e2af", icon: StarIcon, name: "Special" },
 	{ color: "#f38ba8", icon: PaintRollerIcon, name: "Color" },
 	{ color: "#89b4fa", icon: TransformIcon, name: "Transform" },
 	{ color: "#cba6f7", icon: CameraIcon, name: "Details" },
-] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
+] as const satisfies { name: string; color: string; icon: Icon }[];
+
+/**
+ * Narrows the value associated with a specific key in an object type. For example, if we take the type:
+ *
+ * ```ts
+ * type Base = { value: boolean }
+ * ```
+ *
+ * We can pass it to `Narrow`, like so:
+ *
+ * ```ts
+ * type Narrowed = Narrow<Base, "value", true>
+ * ```
+ *
+ * Then the new type, `Narrowed`, is equal to:
+ *
+ * ```ts
+ * type Narrowed = { value: true }
+ * ```
+ */
+export type Narrow<Base extends { [key: string | number | symbol]: unknown }, Key extends keyof Base, Value extends Base[Key]> = Omit<Base, Key> & { [K in Key]: Value };
 
 export type PropertyCategory = typeof propertyCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
@@ -38,10 +104,10 @@ export type SelectProperty = {
 	base: "string";
 	options: string[];
 	requiredProperties: string[];
-	choices(...options: SelectOption[]): SelectProperty;
 	defaultValue: string | null;
 	default(value: string): SelectProperty;
-	requires(...name: string[]): SelectProperty;
+	choices(...options: SelectOption[]): SelectProperty;
+	requires<const This extends SelectProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names>;
 };
 
 export type ListProperty = {
@@ -52,6 +118,7 @@ export type ListProperty = {
 	defaultValue: unknown[];
 	requiredProperties: string[];
 	allowDuplicates: boolean;
+
 	default(value: unknown[]): ListProperty;
 
 	/**
@@ -84,11 +151,11 @@ export type ListProperty = {
 	 * Indicates that this list must have the specified number of elements. If `.length()` is
 	 * not used, the user can set any amount of elements.
 	 *
-	 * @param length The required amount of elements
+	 * @param length The required amount of elements as a `NumberProperty`.
 	 */
-	length(length: NumberProperty): ListProperty;
+	length(length: Narrow<NumberProperty, "isIntegeric", true>): ListProperty;
 
-	requires(...name: string[]): ListProperty;
+	requires<const This extends ListProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names>;
 };
 
 export type ObjectTypeProperty = {
@@ -133,46 +200,46 @@ export type NumberProperty = {
 
 	requires(...name: string[]): NumberProperty;
 
-	equal(value: number): NumberProperty;
+	equal<This extends NumberProperty>(this: This, value: number): This;
+
+	default(value: number): NumberProperty;
 
 	/**
 	 * Restricts a number property to be at most a certain maximum value. The new property is returned without modifying this one.
 	 *
 	 * @param value The maximum value
 	 */
-	max(value: number): NumberProperty;
-
-	default(value: number): NumberProperty;
+	max<This extends NumberProperty, Value extends number>(this: This, value: Value): Narrow<This, "maximumValue", Value>;
 
 	/**
 	 * Restricts a number property to be at least a certain minimum value. The new property is returned without modifying this one.
 	 *
 	 * @param value The minimum value
 	 */
-	min(value: number): NumberProperty;
+	min<This extends NumberProperty, Value extends number>(this: This, value: Value): Narrow<This, "minimumValue", Value>;
 
 	/**
 	 * Restricts a number property to be an integer.
 	 */
-	integeric(): NumberProperty;
+	integeric<This extends NumberProperty>(this: This): Narrow<This, "isIntegeric", true>;
 
 	/**
 	 * Restricts a number property to be greater than or equal to 0. To make a number property greater than *and not equal to* 0, use {positive()} instead.
 	 * The new property is returned without modifying this one.
 	 */
-	nonnegative(): NumberProperty;
+	nonnegative<This extends NumberProperty>(this: This): Narrow<This, "minimumValue", 0>;
 
 	/**
 	 * Restricts a number property to be greater than 0. To make a number property greater than *or equal to* 0, use {nonnegative()} instead.
 	 * The new property is returned without modifying this one.
 	 */
-	positive(): NumberProperty;
+	positive<This extends NumberProperty>(this: This): Narrow<This, "minimumValue", 0.000001>;
 
 	/**
 	 * Restricts a number property to be in `[0, 1]`.
 	 * The new property is returned without modifying this one.
 	 */
-	percent(): NumberProperty;
+	percent<This extends NumberProperty, Return extends This>(this: This): Narrow<Narrow<This, "minimumValue", 0>, "maximumValue", 1>;
 };
 
 export type CoordinateProperty = {
@@ -215,29 +282,33 @@ export type PropertyType =
 	| CompoundProperty;
 export type PropertyTypeBase = PropertyType["base"];
 
+/**
+ * Returns a factory for creating properties.
+ */
 export const property = (() => {
 	return {
 		number(): NumberProperty {
 			return {
 				base: "number",
-				maximumValue: Infinity,
-				minimumValue: -Infinity,
+				maximumValue: Number.MAX_VALUE,
+				minimumValue: Number.MIN_VALUE,
 				isIntegeric: false,
 				defaultValue: 0,
 				requiredProperties: [],
-				max(value: number): NumberProperty {
+
+				max<This extends NumberProperty, Value extends number>(this: This, value: Value): Narrow<This, "maximumValue", Value> {
 					return {
 						...this,
 						maximumValue: value,
 					};
 				},
-				min(value: number): NumberProperty {
+				min<This extends NumberProperty, Value extends number>(this: This, value: Value): Narrow<This, "minimumValue", Value> {
 					return {
 						...this,
 						minimumValue: value,
 					};
 				},
-				equal(value: number): NumberProperty {
+				equal<This extends NumberProperty>(this: This, value: number): This {
 					return {
 						...this,
 						minimumValue: value,
@@ -250,25 +321,25 @@ export const property = (() => {
 						defaultValue: value,
 					};
 				},
-				integeric(): NumberProperty {
+				integeric<This extends NumberProperty>(this: This): Narrow<This, "isIntegeric", true> {
 					return {
 						...this,
 						isIntegeric: true,
 					};
 				},
-				nonnegative(): NumberProperty {
+				nonnegative<This extends NumberProperty>(this: This): Narrow<This, "minimumValue", 0> {
 					return {
 						...this,
 						minimumValue: 0,
 					};
 				},
-				positive(): NumberProperty {
+				positive<This extends NumberProperty>(this: This): Narrow<This, "minimumValue", 0.000001> {
 					return {
 						...this,
 						minimumValue: 0.000001,
 					};
 				},
-				percent(): NumberProperty {
+				percent<This extends NumberProperty>(this: This): Narrow<Narrow<This, "minimumValue", 0>, "maximumValue", 1> {
 					return this.min(0).max(1);
 				},
 				requires(...name: string[]) {
@@ -365,13 +436,13 @@ export const property = (() => {
 						shouldSpread: true,
 					};
 				},
-				length(length: NumberProperty) {
+				length(length: Narrow<NumberProperty, "isIntegeric", true>) {
 					return {
 						...this,
 						requiredLength: length,
 					};
 				},
-				requires(...name: string[]) {
+				requires<const This extends ListProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names> {
 					return { ...this, requiredProperties: name };
 				},
 			};
@@ -467,7 +538,7 @@ export const property = (() => {
 						defaultValue: value,
 					};
 				},
-				requires(...name: string[]) {
+				requires<const This extends SelectProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names> {
 					return { ...this, requiredProperties: name };
 				},
 			};
@@ -487,22 +558,16 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 	return `${value}`;
 }
 
-export type PropertyValue<T extends PropertyType> = T extends ListProperty
-	? unknown[]
-	: T extends StringProperty
-	? string
-	: T extends ColorProperty
-	? string
-	: T extends AnimationTypeProperty
-	? string
-	: T extends ObjectTypeProperty
-	? string
-	: T extends ObjectProperty
-	? number
-	: T extends NumberProperty
-	? number
-	: T extends SelectProperty
-	? string
-	: T extends BooleanProperty
-	? boolean
-	: never;
+export type PropertyValue<T extends PropertyType> = T extends { defaultValue: unknown } ? T["defaultValue"] : never;
+
+export function getPropertyObjects(properties: Map<PropertyType, unknown>): number[] {
+	return properties
+		.entries()
+		.map(([property, value]) => {
+			if (property.base === "object") return [value as number];
+			if (property.base === "list") return (value as unknown[]).map(element => getPropertyObjects(new Map([[property.type, element]]))).flat();
+			return [];
+		})
+		.toArray()
+		.flat();
+}

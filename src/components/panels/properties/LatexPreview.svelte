@@ -31,14 +31,14 @@
 	}
 
 	:global(.latex) {
-		background-color: #11111b;
+		background-color: var(--crust);
 		width: fit-content;
 		height: fit-content;
 		padding: 1rem;
 		border-radius: 0.5rem;
 		font-size: 1.5rem;
 		box-shadow: 0px 0px 1rem black;
-		border: 2px solid #1e1e2e;
+		border: 2px solid var(--base);
 
 		:global(&, *) {
 			font-family: "CMU Serif";
@@ -53,14 +53,14 @@
 			display: block;
 			width: 1rem;
 			height: 1rem;
-			background: #11111b;
+			background: var(--crust);
 			position: absolute;
 			top: 100%;
 			left: 50%;
 			transform: translate(-50%, -3px);
 			rotate: 45deg;
-			border-bottom: 2px solid #1e1e2e;
-			border-right: 2px solid #1e1e2e;
+			border-bottom: 2px solid var(--base);
+			border-right: 2px solid var(--base);
 		}
 	}
 </style>

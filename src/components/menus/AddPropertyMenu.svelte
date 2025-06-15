@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { addProperty, getPossibleProperties } from "../../api/manim/properties";
+	import type { ObjectPropertyName } from "../../api/manim/objects";
+	import { addObjectProperty, getPossibleProperties } from "../../api/manim/properties";
 	import { propertyCategories } from "../../api/manim/property";
 	import { getItemFromId, selected } from "../../api/project.svelte";
 	import EmptyIcon from "../icons/EmptyIcon.svelte";
@@ -10,12 +11,11 @@
 	let menu: Menu;
 
 	let item = $derived(getItemFromId(selected()!)!);
-	let options = $derived(item ? getPossibleProperties(item) : []);
 
 	function onSelect(name: string) {
 		hide();
 		let defaultValue = (getPossibleProperties(item).find(property => property.name === name)!.type as any).defaultValue ?? null;
-		addProperty(getItemFromId(selected()!)!.id, name, defaultValue);
+		addObjectProperty(getItemFromId(selected()!)!.id, name as ObjectPropertyName, defaultValue);
 	}
 
 	export function show() {
@@ -41,7 +41,7 @@
 		options: item
 			? getPossibleProperties(item)
 					.filter(property => property.categories.includes(category.name))
-					.map(property => ({ name: property.name, icon: EmptyIcon, description: "", demo: "" }))
+					.map(property => ({ name: property.name, icon: EmptyIcon, description: property.description ?? "", demo: "" }))
 			: [],
 		title: `Add ${category.name} Property`,
 		color: category.color,

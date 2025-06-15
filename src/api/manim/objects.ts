@@ -81,15 +81,15 @@ import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getFonts } from "../system.svelte";
 import { getPossibleProperties } from "./properties";
-import { property, propertyValueToString, type Property } from "./property";
+import { property, propertyValueToString, type KeywordProperty, type PositionalProperty, type Property } from "./property";
 
 export const objectCategories = [
-	{ color: "#fab387", icon: LineIcon, name: "Line" },
-	{ color: "#a6e3a1", icon: VariableIcon, name: "Math" },
-	{ color: "#f38ba8", icon: CircleIcon, name: "Shape" },
-	{ color: "#89b4fa", icon: CubeIcon, name: "Solid" },
-	{ color: "#f9e2af", icon: PlainTextIcon, name: "Text" },
-	{ color: "#b4befe", icon: AsteriskIcon, name: "Miscellaneous" },
+	{ color: "var(--peach)", icon: LineIcon, name: "Line" },
+	{ color: "var(--green)", icon: VariableIcon, name: "Math" },
+	{ color: "var(--red)", icon: CircleIcon, name: "Shape" },
+	{ color: "var(--blue)", icon: CubeIcon, name: "Solid" },
+	{ color: "var(--yellow)", icon: PlainTextIcon, name: "Text" },
+	{ color: "var(--lavender)", icon: AsteriskIcon, name: "Miscellaneous" },
 ] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
 
 export type ObjectCategoryName = typeof objectCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
@@ -146,25 +146,106 @@ const VMobjectProperties = [
 		categories: ["Color"],
 		description: "The width of the stroke used to draw this object.",
 	},
-
-	{ name: "Position", function: "move_to", type: property().coordinate(), categories: ["Transform"] },
-	{ name: "Rotation", function: "rotate", type: property().coordinate(), categories: ["Transform"] },
-	{ name: "Scale", function: "scale", type: property().number().positive().default(1), categories: ["Transform"] },
-
-	{ name: "Background Stroke Color", internalName: "background_stroke_color", type: property().color().default("#000000"), categories: ["Color"] },
-	{ name: "Background Stroke Width", internalName: "background_stroke_width", type: property().number(), categories: ["Color"] },
-	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), categories: ["Color"] },
-	{ name: "Sheen Direction", internalName: "sheen_direction", type: property().coordinate().default([-1, 1, 0]), categories: ["Color"] },
-	{ name: "Background Image", internalName: "background_image", type: property().string().notEmpty(), categories: ["Color"] },
-
-	{ name: "Joint Type", internalName: "joint_type", type: property().number(), categories: ["Details"] },
-	{ name: "Close New Points", internalName: "close_new_points", type: property().boolean(), categories: ["Details"] },
-	{ name: "Scale Function", internalName: "pre_function_handle_to_anchor_scale_factor", type: property().number().default(0.01), categories: ["Details"] },
-	{ name: "Make Smooth", internalName: "make_smooth_after_applying_functions", type: property().boolean(), categories: ["Details"] },
-	{ name: "Point Equality Tolerance", internalName: "tolerance_for_point_equality", type: property().number().default(1e-6), categories: ["Details"] },
-	{ name: "Points Per Cubic Curve", internalName: "n_points_per_cubic_curve", type: property().number().default(4), categories: ["Details"] },
-	{ name: "Cap Style", internalName: "cap_style", type: property().number(), categories: ["Details"] },
-	{ name: "Shade In 3D", internalName: "shade_in_3d", type: property().boolean(), categories: ["Details"] },
+	{
+		name: "Position",
+		function: "move_to",
+		type: property().coordinate(),
+		description: "The position of where the object is placed.",
+		categories: ["Transform"],
+	},
+	{
+		name: "Rotation",
+		function: "rotate",
+		type: property().number().nonnegative(),
+		description: "The counterclockwise rotation of the object.",
+		categories: ["Transform"],
+	},
+	{
+		name: "Scale",
+		function: "scale",
+		type: property().number().positive().default(1),
+		description: "The size of the object.",
+		categories: ["Transform"],
+	},
+	{
+		name: "Background Stroke Color",
+		internalName: "background_stroke_color",
+		type: property().color().default("#000000"),
+		description: "The color of the object's background stroke.",
+		categories: ["Color"],
+	},
+	{
+		name: "Background Stroke Width",
+		internalName: "background_stroke_width",
+		type: property().number(),
+		description: "The thickness of the object's background stroke.",
+		categories: ["Color"],
+	},
+	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), description: "The sheen factor of the object.", categories: ["Color"] },
+	{
+		name: "Sheen Direction",
+		internalName: "sheen_direction",
+		type: property().coordinate().default([-1, 1, 0]),
+		description: "The direction of the object's sheen.",
+		categories: ["Color"],
+	},
+	{
+		name: "Background Image",
+		internalName: "background_image",
+		type: property().string().notEmpty(),
+		description: "The image of the object's background.",
+		categories: ["Color"],
+	},
+	{ name: "Joint Type", internalName: "joint_type", type: property().number(), description: "The type of joint used to connect lines on the object.", categories: ["Details"] },
+	{
+		name: "Close New Points",
+		internalName: "close_new_points",
+		type: property().boolean(),
+		description: "Whether to close new points on the object.",
+		categories: ["Details"],
+	},
+	{
+		name: "Scale Function",
+		internalName: "pre_function_handle_to_anchor_scale_factor",
+		type: property().number().default(0.01),
+		description: "The scale function used on the object.",
+		categories: ["Details"],
+	},
+	{
+		name: "Make Smooth",
+		internalName: "make_smooth_after_applying_functions",
+		type: property().boolean(),
+		description: "Whether to make the object smooth after applying functions.",
+		categories: ["Details"],
+	},
+	{
+		name: "Point Equality Tolerance",
+		internalName: "tolerance_for_point_equality",
+		type: property().number().default(1e-6),
+		description: "The maximum distance apart two points can be and considered equal.",
+		categories: ["Details"],
+	},
+	{
+		name: "Points Per Cubic Curve",
+		internalName: "n_points_per_cubic_curve",
+		type: property().number().default(4),
+		description: "The number of points per cubic curve.",
+		categories: ["Details"],
+	},
+	{
+		name: "Cap Style",
+		internalName: "cap_style",
+		type: property().number(),
+		description: "The cap style of the object.",
+		categories: ["Details"],
+	},
+	{
+		name: "Shade In 3D",
+		internalName: "shade_in_3d",
+		type: property().boolean(),
+		description: "Whether to shade the object in 3D.",
+		categories: ["Details"],
+	},
 ] as const satisfies Property[];
 
 export const objects = [
@@ -180,6 +261,7 @@ export const objects = [
 				name: "Line 1",
 				internalName: "line1",
 				type: property().object().only("Line"),
+				description: "The first line of the angle.",
 				categories: ["Special"],
 				required: true,
 			},
@@ -187,6 +269,7 @@ export const objects = [
 				name: "Line 2",
 				internalName: "line2",
 				type: property().object().only("Line"),
+				description: "The second line of the angle.",
 				categories: ["Special"],
 				required: true,
 			},
@@ -194,48 +277,56 @@ export const objects = [
 				name: "Radius",
 				internalName: "radius",
 				type: property().number().positive(),
+				description: "The radius of the angle arc.",
 				categories: ["Special"],
 			},
 			{
 				name: "Quadrant",
 				internalName: "quadrant",
 				type: property().select().choices("1", "2", "3", "4").default("1"),
+				description: "The quadrant to draw the angle in",
 				categories: ["Special"],
 			},
 			{
 				name: "Direction",
 				internalName: "other_angle",
 				type: property().select().choices("Clockwise", "Counterclockwise").default("Counterclockwise"),
+				description: "Which side of the angle to draw.",
 				categories: ["Special"],
 			},
 			{
 				name: "Dot",
 				internalName: "dot",
 				type: property().boolean(),
+				description: "Whether to draw a dot inside of the angle.",
 				categories: ["Special"],
 			},
 			{
 				name: "Dot Radius",
 				internalName: "dot_radius",
 				type: property().number().positive().requires("Dot"),
+				description: "The radius of the dot inside the angle.",
 				categories: ["Special"],
 			},
 			{
 				name: "Dot Distance",
 				internalName: "dot_distance",
 				type: property().number().percent().requires("Dot"),
+				description: "The distance between the dot and the angle.",
 				categories: ["Special"],
 			},
 			{
 				name: "Dot Color",
 				internalName: "dot_color",
 				type: property().color().requires("Dot"),
+				description: "The color of the dot drawn.",
 				categories: ["Special"],
 			},
 			{
 				name: "Elbow",
 				internalName: "elbow",
 				type: property().boolean(),
+				description: "Whether to drawn an elbow in the angle.",
 				categories: ["Special"],
 			},
 			...VMobjectProperties,
@@ -314,7 +405,13 @@ export const objects = [
 		demo: arcDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Arc.html"],
 		properties: [
-			{ name: "Radius", internalName: "radius", type: property().number().nonnegative().default(1), categories: ["Special"] },
+			{
+				name: "Radius",
+				internalName: "radius",
+				type: property().number().nonnegative().default(1),
+				description: "The radius of the circle that the arc is cut from.",
+				categories: ["Special"],
+			},
 			{ name: "Start Angle", internalName: "start_angle", type: property().number(), categories: ["Special"] },
 			{ name: "Angle", internalName: "angle", type: property().number().default(1.57), categories: ["Special"] },
 			{ name: "Tip Length", internalName: "tip_length", type: property().number().nonnegative().default(0.35), categories: ["Details"] },
@@ -439,6 +536,7 @@ export const objects = [
 					),
 				categories: ["Special"],
 				required: true,
+				special: true,
 			},
 			{
 				name: "First Object",
@@ -468,36 +566,22 @@ export const objects = [
 			delete properties.Method;
 
 			let possibleProperties = getPossibleProperties("Combinator");
+			const propertyEntries = Object.entries(properties).map(([propertyName, propertyValue]): [unknown, Property] => [
+				propertyValue,
+				possibleProperties.find(possible => possible.name === propertyName)!,
+			]);
 
 			// Positional Arguments
-			let positionalArguments = Object.entries(properties)
-				.filter(([propertyName, _propertyValue]) => {
-					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
-					return position !== undefined;
-				})
-				.toSorted(([nameA, _valueA], [nameB, _valueB]) => {
-					let positionA = possibleProperties.find(possible => possible.name === nameA)!.position!;
-					let positionB = possibleProperties.find(possible => possible.name === nameB)!.position!;
-					return positionA - positionB;
-				})
-				.map(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyValueToString(propertyBase.type, propertyValue)}, `;
-				})
+			let positionalArguments = propertyEntries
+				.filter<[unknown, PositionalProperty]>((propertyData): propertyData is [unknown, PositionalProperty] => "position" in propertyData[1])
+				.toSorted(([_valueA, baseA], [_valueB, baseB]) => baseA.position - baseB.position)
+				.map(([propertyValue, propertyBase]) => `${propertyValueToString(propertyBase.type, propertyValue)}, `)
 				.join("");
 
 			// Keyword Arguments
-			let keywordArguments = Object.entries(properties)
-				.filter(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!.type;
-					let defaultValue = "defaultValue" in propertyBase ? propertyBase.defaultValue : null;
-					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
-					return position === undefined && propertyValue !== defaultValue;
-				})
-				.map(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase.type, propertyValue)}`;
-				})
+			let keywordArguments = propertyEntries
+				.filter<[unknown, KeywordProperty]>((propertyData): propertyData is [unknown, KeywordProperty] => "internalName" in propertyData[1])
+				.map(([propertyValue, propertyBase]) => `${propertyValueToString(propertyBase.type, propertyValue)}, `)
 				.join(", ");
 
 			return `${name}(${positionalArguments}${keywordArguments})`;
@@ -581,13 +665,14 @@ export const objects = [
 				type: property().boolean().default(true),
 				categories: ["Special"],
 				description: "Whether to visually group objects in the hierarchy under this group. Objects can only be grouped in one such group.",
+				special: true,
 			},
 			{
-				name: "Items",
+				name: "Objects",
 				type: property().list(property().object()).unique().spread(),
 				required: true,
 				categories: ["Special"],
-				description: "The items in this group.",
+				description: "The objects in this group.",
 				position: 0,
 			},
 		],
@@ -711,6 +796,7 @@ export const objects = [
 								.property("Color", property().color())
 						)
 				),
+				special: true,
 				categories: ["Special"],
 			},
 			{ name: "Line Spacing", internalName: "line_spacing", type: property().number().default(-1), categories: ["Special"] },
@@ -865,10 +951,28 @@ export const objects = [
 				categories: ["Special"],
 				description: "The number of points the star has.",
 			},
-			{ name: "Outer Radius", internalName: "outer_radius", type: property().number().nonnegative().default(1), categories: ["Special"] },
-			{ name: "Inner Radius", internalName: "outer_radius", type: property().number().nonnegative(), categories: ["Special"] },
-			{ name: "Density", internalName: "density", type: property().number().integeric().positive().default(2), categories: ["Details"] },
-			{ name: "Start Angle", internalName: "density", type: property().number().default(1.57), categories: ["Details"] },
+			{
+				name: "Outer Radius",
+				internalName: "outer_radius",
+				type: property().number().nonnegative().default(1),
+				description: "The outer radius of the star.",
+				categories: ["Special"],
+			},
+			{
+				name: "Inner Radius",
+				internalName: "outer_radius",
+				type: property().number().nonnegative(),
+				description: "The inner radius of the star.",
+				categories: ["Special"],
+			},
+			{
+				name: "Density",
+				internalName: "density",
+				type: property().number().integeric().positive().default(2),
+				description: "The point density of the star.",
+				categories: ["Details"],
+			},
+			{ name: "Start Angle", internalName: "start_angle", type: property().number().default(1.57), description: "The starting angle of the star.", categories: ["Details"] },
 			...VMobjectProperties,
 		],
 	},
@@ -919,3 +1023,9 @@ export const objects = [
 		properties: [],
 	},
 ] as const satisfies ManimObject[];
+
+export type ObjectPropertyName =
+	| "Object Type"
+	| (typeof objects extends (infer O)[] ? (O extends { properties: (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
+
+export type ObjectProperty = Omit<Property, "name"> & { name: ObjectPropertyName };

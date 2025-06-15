@@ -42,8 +42,8 @@
 
 <style>
 	div {
-		color: #cdd6f4;
-		background-color: #181825;
+		color: var(--text);
+		background-color: var(--mantle);
 		padding: 1rem;
 		position: absolute;
 		z-index: 999;

@@ -9,10 +9,6 @@
 
 	let item = $derived(selected() !== null ? getItemFromId(selected()!)! : null);
 
-	$effect(() => {
-		console.log($state.snapshot(item));
-	});
-
 	let top = $state("100%");
 	let left = $state("94%");
 	// svelte-ignore non_reactive_update
@@ -25,11 +21,15 @@
 	}
 
 	function getPropertyType(propertyName: string): PropertyType {
+		if (propertyName === "Object Type") return property().objectType();
+
 		let properties = getPossibleProperties(item!);
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
 	function isPropertyRequired(propertyName: string): boolean {
+		if (propertyName === "Object Type") return true;
+
 		let properties = getPossibleProperties(item!);
 		return !!properties.find(property => property.name === propertyName)!.required;
 	}
@@ -40,6 +40,27 @@
 		left = `${event.clientX}px`;
 		propertiesMenu.show();
 	}
+
+	let properties = $derived(
+		item
+			? Object.entries(item.properties).toSorted(([firstName, _firstValue], [secondName, _secondValue]) => {
+					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
+					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
+
+					if ("position" in firstBase) {
+						if ("position" in secondBase) {
+							return (firstBase.position as number) - (secondBase.position as number);
+						}
+
+						return -1;
+					}
+
+					if ("position" in secondBase) return 1;
+
+					return firstName.localeCompare(secondName);
+				})
+			: null,
+	);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -47,7 +68,7 @@
 	<div class="header">
 		<h1>{translate("Properties")}</h1>
 		<button onclick={clickPlusButton}>
-			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+			<PlusIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 		</button>
 	</div>
 
@@ -58,46 +79,8 @@
 					<PropertyValueInput type={property().string().notEmpty()} name="name" value={item.name} required />
 				</span>
 
-				<!-- Animation -->
-				{#if "startTime" in item}
-					<span class="property">
-						<PropertyValueInput name="Animation" type={property().animation()} value={item.animationType as string} required />
-					</span>
-					<span class="property">
-						<PropertyValueInput name="Object" type={property().object()} value={item.objects.length ? (item.objects[0] as number) : null!} required />
-					</span>
-					<span class="property">
-						<PropertyValueInput name="Start Time" type={property().number().nonnegative()} value={item.startTime as number} required />
-					</span>
-					<span class="duration">
-						<PropertyValueInput name="Duration" type={property().number().nonnegative()} value={item.duration as number} required />
-					</span>
-
-					<!-- Object -->
-				{:else}
-					<span class="property">
-						<PropertyValueInput name="objectType" type={property().objectType()} value={item.objectType} required />
-					</span>
-				{/if}
-
 				<!-- Properties -->
-				{#each Object.entries(item.properties).toSorted(([firstName, _firstValue], [secondName, _secondValue]) => {
-					console.log(item);
-					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
-					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
-
-					if (firstBase.position !== undefined) {
-						if (secondBase.position !== undefined) {
-							return firstBase.position - secondBase.position;
-						}
-
-						return -1;
-					}
-
-					if (secondBase.position !== undefined) return 1;
-
-					return firstName.localeCompare(secondName);
-				}) as [name, value] (`${item.id}-${name}`)}
+				{#each properties! as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
 						<PropertyValueInput {name} type={getPropertyType(name)} value={value as any} required={isPropertyRequired(name)} />
 					</span>
@@ -111,11 +94,11 @@
 
 <style>
 	section {
-		background-color: #181825;
+		background-color: var(--mantle);
 		height: 100%;
 		padding: 1rem;
 		width: 50%;
-		border-right: 1px solid #313244;
+		border-right: 1px solid var(--surface-0);
 	}
 
 	.property {
@@ -131,14 +114,14 @@
 	h1 {
 		text-transform: uppercase;
 		font-size: 0.75rem;
-		color: #9399b2;
+		color: var(--overlay-2);
 		margin-bottom: 1rem;
 	}
 
 	.items {
 		&,
 		* {
-			color: #cdd6f4;
+			color: var(--text);
 		}
 	}
 

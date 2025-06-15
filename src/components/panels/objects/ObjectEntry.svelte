@@ -2,10 +2,10 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
+	import { getProperty } from "../../../api/manim/properties";
 	import { runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
-	import PackageIcon from "../../icons/PackageIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import GroupMenu from "../../menus/GroupMenu.svelte";
 	import ObjectMenu from "../../menus/ObjectMenu.svelte";
@@ -71,58 +71,53 @@
 
 	// svelte-ignore non_reactive_update
 	let name: HTMLElement;
+
+	const data = objects.find(object => object.name === getProperty(entry, "Object Type"))!;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="object" onclick={clickObject}>
-	<!-- Group -->
-	{#if entry.objectType === "Group"}
-		<!-- Group name & Icon -->
-		<button bind:this={topElement} class="top" onclick={() => (expanded = !expanded)} oncontextmenu={rightClickGroup}>
+	<!-- Object name & icon -->
+	<!-- svelte-ignore a11y_mouse_events_have_key_events -->
+	<div
+		onmouseover={() => (isHovered = true)}
+		onmouseout={() => (isHovered = false)}
+		onclick={() => (expanded = !expanded)}
+		style:background={getBackgroundColor()}
+		class="top"
+		bind:this={topElement}
+		oncontextmenu={rightClickObject}
+	>
+		{#if getProperty(entry, "Object Type") === "Group"}
 			{#if expanded}
-				<RightArrow stroke="#89b4fa" style="width: 1rem; height: 1rem; rotate: 90deg; margin-right: 0.2rem;" />
+				<RightArrow stroke="var(--blue)" style="width: 1rem; height: 1rem; rotate: 90deg;" />
 			{:else}
-				<RightArrow stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.2rem;" />
+				<RightArrow stroke="var(--blue)" style="width: 1rem; height: 1rem;" />
 			{/if}
-			<PackageIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-			{entry.name}
-		</button>
-
-		<!-- Group Contents -->
-		{#if expanded}
-			{@const contents = (entry.properties["Items"] as number[]).map(id => getItemFromId(id) as ProjectObject)}
-			<div class="bottom">
-				{#each contents.filter(object => object.objectType === "Group") as item (item.id)}
-					<ObjectEntry entry={item} />
-				{/each}
-				{#each contents.filter(object => object.objectType !== "Group") as item (item.id)}
-					<ObjectEntry entry={item} />
-				{/each}
-			</div>
 		{/if}
+		<data.icon
+			stroke={getObjectCategory(data.categories[0]).color}
+			style="width: 1rem; height: 1rem; margin-left: {getProperty(entry, 'Object Type') === 'Group' ? 0.2 : 1.2}rem; margin-right: 0.25rem;"
+		/>
+		<span onkeydown={typeName} onblur={setName} bind:this={name} contenteditable autocapitalize="off" spellcheck="false">
+			{entry.name}
+		</span>
+		{#if itemHasErrors(entry.id)}
+			<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
+		{/if}
+	</div>
 
-		<!-- Object -->
-	{:else}
-		{@const data = objects.find(object => object.name === entry.objectType)!}
-
-		<!-- Object name & icon -->
-		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
-		<div
-			onmouseover={() => (isHovered = true)}
-			onmouseout={() => (isHovered = false)}
-			style:background={getBackgroundColor()}
-			class="top"
-			bind:this={topElement}
-			oncontextmenu={rightClickObject}
-		>
-			<data.icon stroke={getObjectCategory(data.categories[0]).color} style="width: 1rem; height: 1rem; margin-left: 1.2rem; margin-right: 0.5rem;" />
-			<span onkeydown={typeName} onblur={setName} bind:this={name} contenteditable autocapitalize="off" spellcheck="false">
-				{entry.name}
-			</span>
-			{#if itemHasErrors(entry.id)}
-				<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
-			{/if}
+	<!-- Group Contents -->
+	{#if getProperty(entry, "Object Type") === "Group" && expanded}
+		{@const contents = (entry.properties["Items"] as number[]).map(id => getItemFromId(id) as ProjectObject)}
+		<div class="bottom">
+			{#each contents.filter(object => getProperty(object, "Object Type") === "Group") as item (item.id)}
+				<ObjectEntry entry={item} />
+			{/each}
+			{#each contents.filter(object => getProperty(object, "Object Type") !== "Group") as item (item.id)}
+				<ObjectEntry entry={item} />
+			{/each}
 		</div>
 	{/if}
 </div>
@@ -156,7 +151,7 @@
 			border-radius: 0.25em;
 
 			&:focus {
-				background-color: #11111b;
+				background-color: var(--crust);
 			}
 		}
 	}

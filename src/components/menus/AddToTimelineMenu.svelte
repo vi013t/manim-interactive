@@ -41,7 +41,7 @@
 	}
 
 	function onAdd(animation: ProjectAnimation) {
-		animation.startTime = startTime;
+		animation.properties["Start Time"] = startTime;
 	}
 
 	type Submenu = "animation" | "marker";
@@ -91,20 +91,20 @@
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>{translate("Timeline Actions")}</span>
 	<button onclick={addAudio} onmouseenter={selectMenu(null)}>
-		<AudioIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<AudioIcon stroke="var(--mauve)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Audio")}
 	</button>
 	<button style:background={selectedMenu === "animation" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("animation")}>
-		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<AnimationIcon stroke="var(--teal)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Animation")}
-		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onclick={addMarker} style:background={selectedMenu === "marker" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("marker")}>
-		<BookmarkIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<BookmarkIcon stroke="var(--yellow)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Marker")}
 	</button>
 	<button onmouseenter={selectMenu(null)} onclick={openTimelinePreferences}>
-		<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<GearIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Open Timeline Preferences")}
 	</button>
 
@@ -119,6 +119,6 @@
 
 	span {
 		font-size: 0.85rem;
-		border-bottom: 1px solid #313244;
+		border-bottom: 1px solid var(--surface-0);
 	}
 </style>

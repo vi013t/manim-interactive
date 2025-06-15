@@ -70,14 +70,14 @@
 				<input
 					oninput={() => (nameErrorMessage = null)}
 					onblur={async () => (nameErrorMessage = await generateNameErrorMessage())}
-					style:outline-color={nameErrorMessage ? "#f38ba8" : "transparent"}
+					style:outline-color={nameErrorMessage ? "var(--red)" : "transparent"}
 					type="text"
 					bind:value={name}
 				/>
 			</span>
 			{#if nameErrorMessage}
 				<span class="error">
-					<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem" />
+					<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem" />
 					{nameErrorMessage}
 				</span>
 			{/if}
@@ -88,15 +88,15 @@
 				<input
 					oninput={() => (pathErrorMessage = null)}
 					onblur={async () => (pathErrorMessage = await generatePathErrorMessage())}
-					style:outline-color={pathErrorMessage ? "#f38ba8" : "transparent"}
+					style:outline-color={pathErrorMessage ? "var(--red)" : "transparent"}
 					type="text"
 					bind:value={path}
 				/>
-				<button bind:this={fileInput}><FolderIcon stroke="#a6adc8" style="width: 2rem; height: 2rem;" /></button>
+				<button bind:this={fileInput}><FolderIcon stroke="var(--subtext-0)" style="width: 2rem; height: 2rem;" /></button>
 			</span>
 			{#if pathErrorMessage}
 				<span class="error">
-					<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem" />
+					<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem" />
 					{pathErrorMessage}
 				</span>
 			{/if}
@@ -137,7 +137,7 @@
 	}
 
 	input {
-		background: #181825;
+		background: var(--mantle);
 		border-radius: 0.5rem;
 		width: 18rem;
 		padding: 0.5rem;
@@ -152,7 +152,7 @@
 
 	input,
 	span {
-		color: #cdd6f4;
+		color: var(--text);
 	}
 
 	.confirm {
@@ -165,14 +165,14 @@
 		margin-top: 1rem;
 
 		&.enabled {
-			background-image: linear-gradient(#b4befe, #89b4fa);
+			background-image: linear-gradient(var(--lavender), var(--blue));
 			color: black;
 			box-shadow: 0px 0px 1rem black;
 		}
 
 		&:not(.enabled) {
-			background-image: linear-gradient(#181825, #11111b);
-			color: #6c7086;
+			background-image: linear-gradient(var(--mantle), var(--crust));
+			color: var(--overlay-0);
 			cursor: not-allowed;
 		}
 	}
@@ -183,7 +183,7 @@
 	}
 
 	.error {
-		color: #f38ba8;
+		color: var(--red);
 		font-size: 0.85rem;
 		display: flex;
 		align-items: center;

@@ -8,14 +8,14 @@
 	<div class="header">
 		<h1>{translate("Variables")}</h1>
 		<button>
-			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+			<PlusIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 		</button>
 	</div>
 </section>
 
 <style>
 	section {
-		background-color: #181825;
+		background-color: var(--mantle);
 		height: 100%;
 		padding: 1rem;
 		overflow-y: auto;
@@ -31,7 +31,7 @@
 		h1 {
 			text-transform: uppercase;
 			font-size: 0.75rem;
-			color: #9399b2;
+			color: var(--overlay-2);
 			margin-bottom: 1rem;
 		}
 

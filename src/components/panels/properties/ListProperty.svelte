@@ -27,7 +27,7 @@
 
 	function deleteProperty(name: string) {
 		return function () {
-			delete item!.properties[name];
+			delete (item!.properties as any)[name];
 			if (getPreferences().autosave) runAction("Save And Recompile Project");
 		};
 	}
@@ -38,9 +38,7 @@
 				grabElement = null;
 				console.log(event.clientY - grabY);
 				if (event.clientY - grabY > 50) {
-					console.log(`swapping ${grabbingIndex} with ${grabbingIndex + 1}`);
-					console.log($state.snapshot(item.properties[name]));
-					let list: any[] = item.properties[name] as any[];
+					let list: any[] = (item.properties as any)[name] as any[];
 					let temp = list[grabbingIndex];
 					list[grabbingIndex] = list[grabbingIndex + 1];
 					list[grabbingIndex + 1] = temp;
@@ -67,13 +65,13 @@
 			{#if !listCollapsed && value.length !== 0}
 				<button
 					onclick={() => {
-						(item.properties[name] as unknown[]).push((property.type as any).defaultValue);
+						((item.properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
 					}}
 				>
 					Add Another
 				</button>
 			{:else}
-				<button onclick={deleteProperty(name)}><TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
+				<button onclick={deleteProperty(name)}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
 			{/if}
 		</span>
 	{/if}
@@ -88,7 +86,7 @@
 						value={element as any}
 						required={false}
 						deleteProperty={() => {
-							(item.properties[name] as any[]).splice(index, 1);
+							((item.properties as any)[name] as any[]).splice(index, 1);
 						}}
 					/>
 					<button
@@ -100,7 +98,7 @@
 						}}
 						style:cursor={grabElement === listElements[index] ? "grabbing" : "grab"}
 					>
-						<HandleIcon stroke="#585b70" style="width: 1rem; height: 1rem;" />
+						<HandleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
 					</button>
 					{#if index === 0}
 						<button onclick={() => (listCollapsed = !listCollapsed)}>Collapse</button>
@@ -114,12 +112,12 @@
 		<span class="list-bottom">
 			<button
 				onclick={() => {
-					(item.properties[name] as unknown[]).push((property.type as any).defaultValue);
+					((item.properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
 				}}
 			>
 				Add Another
 			</button>
-			<button onclick={deleteProperty(name)} style="color: #f38ba8;">Delete All</button>
+			<button onclick={deleteProperty(name)} style="color: var(--red);">Delete All</button>
 		</span>
 	{/if}
 </div>
@@ -150,8 +148,8 @@
 			width: 0.5rem;
 			bottom: 3rem;
 			left: -1rem;
-			border-left: 1px solid #313244;
-			border-bottom: 1px solid #313244;
+			border-left: 1px solid var(--surface-0);
+			border-bottom: 1px solid var(--surface-0);
 		}
 	}
 
@@ -159,7 +157,7 @@
 		align-items: center;
 		gap: 0.5rem;
 		border-radius: 0.5rem;
-		background-color: #11111b;
+		background-color: var(--crust);
 		padding: 0.25rem;
 	}
 

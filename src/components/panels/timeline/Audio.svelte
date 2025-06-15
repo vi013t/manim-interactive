@@ -61,7 +61,7 @@
 				ctx.lineTo(x + amplitude / 2, y);
 			}
 
-			ctx.strokeStyle = "#11111b";
+			ctx.strokeStyle = "var(--crust)";
 			ctx.lineWidth = 1;
 			ctx.stroke();
 		}
@@ -102,7 +102,7 @@
 		width: 20%;
 		height: 3rem;
 		border-radius: 0.5rem;
-		background: #cba6f7;
+		background: var(--mauve);
 		border: 4px solid rgba(255, 255, 255, 50%);
 
 		canvas {

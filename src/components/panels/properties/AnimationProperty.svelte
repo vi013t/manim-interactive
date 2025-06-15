@@ -40,8 +40,8 @@
 <style>
 	button {
 		width: 20rem;
-		color: #cdd6f4;
-		background: #11111b;
+		color: var(--text);
+		background: var(--crust);
 		padding: 0.3em;
 		border-radius: 0.5em;
 		outline-offset: -2px;

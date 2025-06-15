@@ -25,7 +25,7 @@
 		}
 
 		ctx.lineWidth = 1;
-		ctx.strokeStyle = "#585b70";
+		ctx.strokeStyle = "var(--surface-2)";
 		ctx.stroke();
 
 		// Draw center axis lines
@@ -64,12 +64,12 @@
 <div class="container">
 	{#if getProjectAnimations().length > 0}
 		{#if !isVideoLoaded()}
-			<div class="novideo">
+			<div id="novideo">
 				<h1>Reloading...</h1>
 				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
 			</div>
 		{:else if projectHasErrors() && !hasEverGeneratedVideo()}
-			<div class="novideo">
+			<div id="novideo">
 				<h1>Project Has Errors</h1>
 				<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
 			</div>
@@ -88,7 +88,7 @@
 			id="video-source"
 		></video>
 	{:else}
-		<div class="novideo">
+		<div id="novideo">
 			<h1>No Animations Yet</h1>
 			<p>When you add an animation, the video will appear here.</p>
 		</div>
@@ -104,10 +104,10 @@
 		position: relative;
 	}
 
-	.novideo {
+	#novideo {
 		width: 100%;
 		height: 100%;
-		background-color: #11111b;
+		background-color: var(--crust);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -115,12 +115,12 @@
 		gap: 1rem;
 
 		h1 {
-			color: #cdd6f4;
+			color: var(--text);
 			font-size: 2rem;
 		}
 
 		p {
-			color: #9399b2;
+			color: var(--overlay-2);
 			font-size: 1rem;
 		}
 	}

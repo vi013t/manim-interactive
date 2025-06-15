@@ -56,7 +56,7 @@
 	<button style:background={selectedMenu === "animation" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("animation")}>
 		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Animation
-		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onmouseenter={hideSubmenus}>
 		<AudioIcon stroke="#cba6f7" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
@@ -65,7 +65,7 @@
 	<button style:background={selectedMenu === "object" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("object")}>
 		<CircleIcon stroke="#fab387" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Object
-		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top={verticalExpand === "bottom" ? "1.9rem" : "-5.25rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
@@ -80,6 +80,6 @@
 
 	span {
 		font-size: 0.85rem;
-		border-bottom: 1px solid #313244;
+		border-bottom: 1px solid var(--surface-0);
 	}
 </style>

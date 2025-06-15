@@ -13,13 +13,13 @@
 
 <div class="notifications">
 	{#each getNotifications() as notification (notification.id)}
-		<div transition:slide style:outline-color={notification.severity === "error" ? "#f38ba8" : "transparent"} class="notification">
-			<h1 style:color={notification.severity === "error" ? "#f38ba8" : "inherit"}>
+		<div transition:slide style:outline-color={notification.severity === "error" ? "var(--red)" : "transparent"} class="notification">
+			<h1 style:color={notification.severity === "error" ? "var(--red)" : "inherit"}>
 				{#if notification.severity === "error"}
-					<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+					<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 				{/if}
 				{notification.header}
-				<button class="close" onclick={hideNotification(notification.id)}><CloseIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
+				<button class="close" onclick={hideNotification(notification.id)}><CloseIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
 			</h1>
 			<p>{@html notification.message}</p>
 		</div>
@@ -32,8 +32,8 @@
 		min-height: 3rem;
 		display: flex;
 		flex-direction: column;
-		background-color: #11111b;
-		color: #cdd6f4;
+		background-color: var(--crust);
+		color: var(--text);
 		border-radius: 0.5rem;
 		padding: 1rem;
 		outline-width: 2px;
@@ -53,11 +53,11 @@
 		}
 
 		p {
-			color: #bac2de;
+			color: var(--subtext-1);
 			font-size: 0.85rem;
 
 			:global(a) {
-				color: #89b4fa;
+				color: var(--blue);
 				text-decoration: none;
 			}
 		}

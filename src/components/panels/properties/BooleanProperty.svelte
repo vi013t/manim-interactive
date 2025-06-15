@@ -2,14 +2,14 @@
 	let { value = $bindable() }: { value: boolean } = $props();
 </script>
 
-<button style:width="20rem" style:background-color={value ? "#a6e3a1" : "#f38ba8"} onclick={() => (value = !value)} class="boolean-button">
+<button style:width="20rem" style:background-color={value ? "#a6e3a1" : "var(--red)"} onclick={() => (value = !value)} class="boolean-button">
 	{value ? "Yes" : "No"}
 </button>
 
 <style>
 	.boolean-button {
 		border-radius: 0.5rem;
-		color: #11111b;
+		color: var(--crust);
 		display: flex;
 		align-items: center;
 		justify-content: center;

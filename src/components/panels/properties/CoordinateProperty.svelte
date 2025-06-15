@@ -25,8 +25,8 @@
 <style>
 	input,
 	button {
-		color: #cdd6f4;
-		background: #11111b;
+		color: var(--text);
+		background: var(--crust);
 		padding: 0.3em;
 		border-radius: 0.5em;
 		outline-offset: -2px;
@@ -37,8 +37,8 @@
 	}
 
 	button {
-		background-image: linear-gradient(to bottom, #b4befe, #89b4fa);
-		color: #11111b;
+		background-image: linear-gradient(to bottom, var(--lavender), var(--blue));
+		color: var(--crust);
 	}
 
 	.coordinate:has(> .three-d) input {

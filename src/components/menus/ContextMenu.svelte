@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 
-	let { children, top = undefined, left = "0px", width = "15rem", background = "#181825", openers = [], bottom = undefined, onHide = () => {} } = $props();
+	let { children, top = undefined, left = "0px", width = "15rem", background = "var(--mantle)", openers = [], bottom = undefined, onHide = () => {} } = $props();
 
 	let visible = $state(false);
 
@@ -53,7 +53,7 @@
 		font-size: 1rem;
 
 		:global(> *:not(section)) {
-			color: #cdd6f4;
+			color: var(--text);
 			text-align: left;
 			padding: 0.4em;
 			padding-left: 2em;

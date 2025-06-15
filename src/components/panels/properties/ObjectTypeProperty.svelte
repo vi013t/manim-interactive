@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { getPossibleProperties } from "../../../api/manim/properties";
+	import { getPossibleProperties, getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected, type ProjectObject } from "../../../api/project.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
@@ -8,10 +8,11 @@
 
 	let top = $state("");
 	let left = $state("");
-	let item = $state(getItemFromId(selected()!)!);
+	let item = $state(getItemFromId(selected()!)! as ProjectObject);
 
-	let Icon = $derived(objects.find(object => object.name === (item as ProjectObject).objectType)!.icon);
-	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === (item as ProjectObject).objectType)!.categories[0]).color);
+	let Icon = $derived(objects.find(object => object.name === getProperty(item, "Object Type"))!.icon);
+	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === getProperty(item, "Object Type"))!.categories[0]).color);
+
 	// svelte-ignore non_reactive_update
 	let addButton: HTMLButtonElement;
 	let addObjectMenu: AddObjectMenu;
@@ -40,10 +41,10 @@
 			if (!propertyBase) propertiesToDelete.push(propertyName);
 		});
 		propertiesToDelete.forEach(property => {
-			delete item.properties[property];
+			delete (item.properties as any)[property];
 		});
 
-		(item as ProjectObject).objectType = type;
+		item.properties["Object Type"] = type;
 
 		possibleProperties.forEach(property => {
 			if (property.required) {
@@ -66,15 +67,15 @@
 >
 	<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
 	{value}
-	<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
+	<RightArrow stroke="var(--lavender)" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
-<AddObjectMenu width="20rem" background="#1e1e2e" onSelect={changeObjectType} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />
+<AddObjectMenu width="20rem" background="var(--base)" onSelect={changeObjectType} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />
 
 <style>
 	button {
 		width: 20rem;
-		color: #cdd6f4;
-		background: #11111b;
+		color: var(--text);
+		background: var(--crust);
 		padding: 0.3em;
 		border-radius: 0.5em;
 		outline-offset: -2px;

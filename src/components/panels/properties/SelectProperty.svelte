@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import type { SelectProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, selected } from "../../../api/project.svelte";
+	import { getItemFromId, type ProjectObject, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
@@ -16,7 +16,7 @@
 	} = $props();
 
 	function setProperty() {
-		getItemFromId(selected()!)!.properties[name] = value;
+		(getItemFromId(selected()!)!.properties as any)[name] = value;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -34,4 +34,9 @@
 	});
 </script>
 
-<Select onSelect={setProperty} options={property.options} itemOverride={name === "Font" && altHeld ? (item.properties["Text"] as string) : undefined} bind:value />
+<Select
+	onSelect={setProperty}
+	options={property.options}
+	itemOverride={name === "Font" && altHeld ? ((item as ProjectObject).properties["Text"] as string) : undefined}
+	bind:value
+/>

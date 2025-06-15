@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onMount, type Component } from "svelte";
+	import { onMount } from "svelte";
+	import { type Icon } from "../icons/Icon";
 	import RightArrow from "../icons/RightArrow.svelte";
 
-	export type ComplexOption = { name: string; icon?: Component<{ stroke: string; [key: string]: unknown }>; color?: string; style?: string };
+	export type ComplexOption = { name: string; icon?: Icon; color?: string; style?: string };
 	export type SelectOption = string | ComplexOption;
 
 	let {
@@ -56,10 +57,13 @@
 				{/if}
 				<span style={option.style ?? ""}>{option.name}</span>
 			{:else}
-				{@html value}
+				{value}
 			{/if}
 		{/if}
-		<RightArrow stroke="#b4befe" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
+		<RightArrow
+			stroke="var(--lavender)"
+			style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;"
+		/>
 	</button>
 
 	<!-- Options -->
@@ -69,7 +73,7 @@
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div onclick={select(typeof option === "string" ? option : option.name)} style={typeof option !== "string" && option.style ? option.style : ""}>
 				{#if typeof option === "string"}
-					{@html option}
+					{option}
 				{:else}
 					{#if option.icon}
 						<option.icon stroke={option.color ?? "#FFFFFF"} style="width: 1rem; height: 1rem;" />
@@ -92,12 +96,12 @@
 		padding: 0.25rem;
 		position: relative;
 		width: 20rem;
-		background-color: #11111b;
+		background-color: var(--crust);
 	}
 
 	div,
 	button {
-		color: #cdd6f4;
+		color: var(--text);
 	}
 
 	.header {
@@ -115,8 +119,8 @@
 		position: absolute;
 		left: 0px;
 		top: calc(100% + 0.25rem);
-		background: #11111b;
-		border: 1px solid #313244;
+		background: var(--crust);
+		border: 1px solid var(--surface-0);
 		overflow: hidden;
 		box-shadow: 0px 0px 0.5rem black;
 		z-index: 99;
@@ -125,8 +129,8 @@
 
 		> * {
 			padding: 0.5rem;
-			color: #cdd6f4;
-			background-color: #11111b;
+			color: var(--text);
+			background-color: var(--crust);
 			text-align: left;
 			display: flex;
 			align-items: center;

@@ -61,7 +61,7 @@
 
 <style>
 	.choose {
-		background-color: #11111b;
+		background-color: var(--crust);
 		width: fit-content;
 		padding: 1rem;
 		border-radius: 0.5rem;

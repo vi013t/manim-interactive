@@ -5,6 +5,7 @@
 	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
 	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
+	import { loadTheme } from "../api/theme.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
 	import Notifications from "../components/Notifications.svelte";
 	import Navbar from "../components/panels/Navbar.svelte";
@@ -49,6 +50,7 @@
 			}
 		});
 
+		loadTheme();
 		loadFonts();
 		checkRequirements();
 	});

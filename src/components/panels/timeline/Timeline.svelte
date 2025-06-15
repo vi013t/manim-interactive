@@ -70,9 +70,9 @@
 		<h1>{translate("Timeline")}</h1>
 		<button onclick={togglePlaying}>
 			{#if isPlaying()}
-				<SquareIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<SquareIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 			{:else}
-				<PlayIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<PlayIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 			{/if}
 		</button>
 	</div>
@@ -132,7 +132,7 @@
 	.time {
 		height: 2px;
 		width: 100%;
-		background-color: #b4befe;
+		background-color: var(--lavender);
 		position: absolute;
 		left: 0px;
 		cursor: move;
@@ -144,7 +144,7 @@
 			height: 0px;
 			border-top: 0.5rem solid transparent;
 			border-bottom: 0.5rem solid transparent;
-			border-left: 0.5rem solid #b4befe;
+			border-left: 0.5rem solid var(--lavender);
 			z-index: 9999;
 			position: absolute;
 			top: 50%;
@@ -154,7 +154,7 @@
 	}
 
 	section {
-		background-color: #1e1e2e;
+		background-color: var(--base);
 		height: 100%;
 		position: relative;
 		overflow: hidden;
@@ -163,7 +163,7 @@
 	h1 {
 		text-transform: uppercase;
 		font-size: 0.75rem;
-		color: #9399b2;
+		color: var(--overlay-2);
 		padding: 1em;
 	}
 
@@ -180,12 +180,12 @@
 		:global(> div:not(.time, .marker)) {
 			background-color: inherit;
 			height: 4rem;
-			border-bottom: 1px solid #313244;
+			border-bottom: 1px solid var(--surface-0);
 			display: flex;
 			flex-direction: column;
 
 			&:first-child {
-				border-top: 1px solid #313244;
+				border-top: 1px solid var(--surface-0);
 			}
 		}
 	}
@@ -195,7 +195,7 @@
 		top: -1.6em;
 		padding: 0.75em;
 		background-color: inherit;
-		color: #585b70;
+		color: var(--surface-2);
 		font-size: 0.75rem;
 		left: 0px;
 		width: fit-content;

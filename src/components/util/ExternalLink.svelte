@@ -19,7 +19,7 @@
 
 <a onclick={clickMultple} href={(href as string | undefined) ?? "#"} {...rest} target="_blank" rel="noopener noreferrer">
 	{@render children?.()}
-	<ExternalLinkIcon stroke="#89b4fa" style="width: 1rem; height: 1rem;" />
+	<ExternalLinkIcon stroke="var(--blue)" style="width: 1rem; height: 1rem;" />
 </a>
 
 <style>
@@ -28,6 +28,6 @@
 		display: flex;
 		gap: 0.5rem;
 		align-items: center;
-		color: #89b4fa;
+		color: var(--blue);
 	}
 </style>

@@ -2,6 +2,7 @@
 	import ObjectEntry from "./ObjectEntry.svelte";
 
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../../api/client.svelte";
+	import { getProperty } from "../../../api/manim/properties";
 	import { getProjectObjects } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
@@ -33,15 +34,15 @@
 	<div class="header">
 		<h1>{translate("Objects")}</h1>
 		<button bind:this={plusButton} onclick={clickPlusButton}>
-			<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+			<PlusIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 		</button>
 	</div>
 
-	{#each getProjectObjects().filter(object => object.objectType === "Group") as object (object.id)}
+	{#each getProjectObjects().filter(object => getProperty(object, "Object Type") === "Group") as object (object.id)}
 		<ObjectEntry entry={object} />
 	{/each}
 
-	{#each getProjectObjects().filter(object => object.objectType !== "Group") as object (object.id)}
+	{#each getProjectObjects().filter(object => getProperty(object, "Object Type") !== "Group") as object (object.id)}
 		<ObjectEntry entry={object} />
 	{/each}
 
@@ -54,10 +55,10 @@
 
 <style>
 	section {
-		background-color: #1e1e2e;
+		background-color: var(--base);
 		padding: 1em;
 		position: relative;
-		color: #cdd6f4;
+		color: var(--text);
 
 		&::after {
 			content: "";
@@ -91,7 +92,7 @@
 	h1 {
 		text-transform: uppercase;
 		font-size: 0.75rem;
-		color: #9399b2;
+		color: var(--overlay-2);
 		padding-bottom: 1em;
 	}
 </style>

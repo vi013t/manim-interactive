@@ -60,7 +60,7 @@
 <style>
 	section {
 		border-radius: 0.5rem;
-		background-color: #1e1e2e;
+		background-color: var(--base);
 		position: fixed;
 		width: 30rem;
 		z-index: 999;

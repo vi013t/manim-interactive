@@ -14,7 +14,7 @@
 		onSelect,
 		submenus,
 		width = undefined,
-		background = "#181825",
+		background = "var(--mantle)",
 		demoType = "image",
 	}: {
 		top: string;
@@ -82,7 +82,7 @@
 		<button style:background-color={hoveredSubmenu === submenu.name ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={showMenu(submenu.name)}>
 			<submenu.icon stroke={submenu.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{translate(submenu.name)}
-			<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 		</button>
 
 		<Submenu
@@ -108,6 +108,6 @@
 
 	span {
 		font-size: 0.85rem;
-		border-bottom: 1px solid #313244;
+		border-bottom: 1px solid var(--surface-0);
 	}
 </style>

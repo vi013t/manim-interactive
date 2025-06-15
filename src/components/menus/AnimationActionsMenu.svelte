@@ -22,7 +22,7 @@
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Animation Actions</span>
 	<button>
-		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Animation
 	</button>
 </ContextMenu>
@@ -35,6 +35,6 @@
 
 	span {
 		font-size: 0.85rem;
-		border-bottom: 1px solid #313244;
+		border-bottom: 1px solid var(--surface-0);
 	}
 </style>

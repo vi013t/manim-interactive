@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
+	import { getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, getProjectObjects, selected } from "../../../api/project.svelte";
+	import { getItemFromId, getProjectObjects, type ProjectObject, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
@@ -14,7 +15,7 @@
 	} = $props();
 
 	function setProperty() {
-		getItemFromId(selected()!)!.properties[name] = value;
+		(getItemFromId(selected()!)!.properties as any)[name] = value;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -37,7 +38,7 @@
 	options={getProjectObjects()
 		.filter(object => object.id !== selected())
 		.map(object => {
-			const manimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
+			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 			const category = getObjectCategory(manimObject.categories[0]);
 			return { name: object.name, icon: manimObject.icon, color: category.color };
 		})}
@@ -47,13 +48,13 @@
 	}}
 	value={(() => {
 		if (selectedOption) {
-			const object = getItemFromId(selectedOption)!;
-			const manimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
+			const object = getItemFromId(selectedOption)! as ProjectObject;
+			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 			const category = getObjectCategory(manimObject.categories[0]);
 			return { name: object.name, icon: manimObject.icon, color: category.color };
 		} else {
 			return "";
 		}
 	})()}
-	style={`outline: 2px solid ${selectedOption ? "transparent" : "#f38ba8"}`}
+	style={`outline: 2px solid ${selectedOption ? "transparent" : "var(--red)"}`}
 />

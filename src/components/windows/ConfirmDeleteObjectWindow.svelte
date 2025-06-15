@@ -27,7 +27,7 @@
 <style>
 	p,
 	button {
-		color: #cdd6f4;
+		color: var(--text);
 	}
 
 	p {
@@ -45,7 +45,7 @@
 	}
 
 	button {
-		background-color: #11111b;
+		background-color: var(--crust);
 		padding-left: 2rem;
 		padding-right: 2rem;
 		padding-top: 0.5rem;
@@ -56,8 +56,8 @@
 		justify-content: center;
 
 		&:last-child {
-			background-color: #f38ba8;
-			color: #11111b;
+			background-color: var(--red);
+			color: var(--crust);
 		}
 	}
 </style>

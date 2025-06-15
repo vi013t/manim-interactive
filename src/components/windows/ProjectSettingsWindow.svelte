@@ -100,16 +100,16 @@
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<div class="sidebar">
 			<button onmouseout={unHover("general")} onmouseover={() => (hoverView = "general")} style:background={backgroundColor("general")} onclick={() => (view = "general")}>
-				<GearIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<GearIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				General
 			</button>
 			<button onmouseout={unHover("libraries")} onmouseover={() => (hoverView = "libraries")} style:background={backgroundColor("libraries")} onclick={() => (view = "libraries")}>
-				<PlusIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<PlusIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				Add Ons
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("libraries")} onmouseover={() => (hoverView = "libraries")} style:background={backgroundColor("libraries")} onclick={() => (view = "libraries")}>
-				<PackageIcon stroke="#9399b2" style="width: 1rem; height: 1rem;" />
+				<PackageIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				Script Libraries
 			</button>
 		</div>
@@ -121,7 +121,7 @@
 				{#each getProjectLibraries() as library (library)}
 					<div class="library">
 						<span>{library}</span>
-						<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+						<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 					</div>
 				{/each}
 			{/if}
@@ -133,7 +133,7 @@
 	h1,
 	button,
 	span {
-		color: #cdd6f4;
+		color: var(--text);
 	}
 
 	.library {
@@ -143,7 +143,7 @@
 		margin-left: 2rem;
 
 		> span {
-			background-color: #181825;
+			background-color: var(--mantle);
 			padding-left: 1rem;
 			padding-right: 1rem;
 			padding-top: 0.5rem;
@@ -172,7 +172,7 @@
 	}
 
 	.sidebar {
-		background-color: #181825;
+		background-color: var(--mantle);
 		height: 100%;
 
 		> button {

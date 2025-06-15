@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { objectCategories, objects } from "../../api/manim/objects";
-	import type { Property } from "../../api/manim/property";
+	import { objectCategories, objects, type ObjectProperty, type ObjectPropertyName } from "../../api/manim/objects";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
+	import { addProjectObject, isNameTaken, nextId, select, type ProjectObject } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import Menu from "./Menu.svelte";
 
@@ -20,8 +19,10 @@
 
 	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
-		let properties: { [key: string]: unknown } = {};
-		manimObject.properties.filter((property: Property) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
+		let properties: { [key in ObjectPropertyName]?: unknown } = {
+			"Object Type": type,
+		};
+		manimObject.properties.filter((property: ObjectProperty) => property.required).forEach(property => (properties[property.name] = (property.type as any).defaultValue ?? null));
 		menu.hide();
 
 		let name = translate(type);
@@ -30,14 +31,16 @@
 			name = `${type} ${number++}`;
 		}
 
-		let object = {
+		let object: ProjectObject = {
 			name,
-			objectType: type,
+			type: "object",
 			id: nextId(),
 			properties,
 		};
+
 		addProjectObject(object);
 		select(object);
+
 		if (getPreferences().autosave) runAction("Save Project");
 	}
 

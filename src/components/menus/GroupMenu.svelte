@@ -34,14 +34,14 @@
 	<button onclick={deleteGroup}>
 		<PlusIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Object")}
-		<RightArrow stroke="#89b4fa" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onclick={deleteGroup}>
-		<TypeIcon stroke="#89b4fa" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<TypeIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Rename Group")}
 	</button>
 	<button onclick={deleteGroup}>
-		<TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Delete Group")}
 	</button>
 </ContextMenu>
@@ -54,6 +54,6 @@
 
 	span {
 		font-size: 0.85rem;
-		border-bottom: 1px solid #313244;
+		border-bottom: 1px solid var(--surface-0);
 	}
 </style>

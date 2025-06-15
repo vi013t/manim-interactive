@@ -26,7 +26,7 @@
 	};
 
 	function deleteRegularProperty() {
-		delete getItemFromId(selected()!)!.properties[name];
+		delete (getItemFromId(selected()!)!.properties as any)[name];
 	}
 
 	let { subProperty = false, type: property, name, value, required, deleteProperty = deleteRegularProperty }: Props = $props();
@@ -72,14 +72,14 @@
 		<!-- Error Message -->
 		{#if errorMessage}
 			<span class="error">
-				<ErrorIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" />
+				<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 				<span>{errorMessage}</span>
 			</span>
 		{/if}
 
 		<!-- Delete Button -->
 		{#if !required && property.base !== "list"}
-			<button onclick={deleteProperty}><TrashIcon stroke="#f38ba8" style="width: 1rem; height: 1rem;" /></button>
+			<button onclick={deleteProperty}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
 		{/if}
 	{/key}
 </span>
@@ -89,7 +89,7 @@
 		gap: 0.5rem;
 		margin-left: 0.5rem;
 		span {
-			color: #f38ba8;
+			color: var(--red);
 		}
 	}
 

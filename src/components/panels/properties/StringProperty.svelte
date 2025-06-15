@@ -35,7 +35,7 @@
 	}
 
 	function setProperty() {
-		getItemFromId(selected()!)!.properties[name] = value;
+		(getItemFromId(selected()!)!.properties as any)[name] = value;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -67,7 +67,7 @@
 		style:font-family={property.isMath ? "monospace" : "inherit"}
 		onfocus={() => (inputFocus = true)}
 		onblur={onBlur}
-		style:outline={errorMessage ? "2px solid #f38ba8" : "none"}
+		style:outline={errorMessage ? "2px solid var(--red)" : "none"}
 		type="text"
 		oninput={validate}
 		onkeydown={onInput}
@@ -77,9 +77,9 @@
 
 	{#if property.isMath}
 		<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
-			<QuestionMarkIcon stroke="#cdd6f4" style="width: 1rem; height: 1rem;" />
+			<QuestionMarkIcon stroke="var(--text)" style="width: 1rem; height: 1rem;" />
 		</a>
-		<LatexIcon stroke="#cdd6f4" style="width: 3rem; position: absolute; left: 17rem;" />
+		<LatexIcon stroke="var(--text)" style="width: 3rem; position: absolute; left: 17rem;" />
 		<LatexPreview latex={value} show={inputHover || inputFocus} />
 	{/if}
 </div>
@@ -87,8 +87,8 @@
 <style>
 	input {
 		width: 20rem;
-		color: #cdd6f4;
-		background: #11111b;
+		color: var(--text);
+		background: var(--crust);
 		padding: 0.3em;
 		border-radius: 0.5em;
 		outline-offset: -2px;

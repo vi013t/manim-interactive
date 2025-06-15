@@ -53,24 +53,24 @@ import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import TrashIcon from "../../components/icons/TrashIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
-import type { Property } from "./property";
+import { property, type Property } from "./property";
 
 export type ManimAnimation = {
 	name: string;
 	category: AnimationCategoryName;
 	icon: Component<{ stroke: string; [key: string]: unknown }>;
 	properties: Property[];
-	description?: string;
-	demo?: string;
+	description: string;
+	demo: string;
 	internalName?: string;
 };
 
 export const animationCategories = [
-	{ color: "#a6e3a1", name: "Create", icon: PlusIcon },
-	{ color: "#f38ba8", name: "Destroy", icon: TrashIcon },
-	{ color: "#f9e2af", name: "Highlight", icon: SparkleIcon },
-	{ color: "#89b4fa", name: "Transform", icon: TransformIcon },
-	{ color: "#9399b2", name: "Miscellaneous", icon: AsteriskIcon },
+	{ color: "var(--green)", name: "Create", icon: PlusIcon },
+	{ color: "var(--red)", name: "Destroy", icon: TrashIcon },
+	{ color: "var(--yellow)", name: "Highlight", icon: SparkleIcon },
+	{ color: "var(--blue)", name: "Transform", icon: TransformIcon },
+	{ color: "var(--overlay-2)", name: "Miscellaneous", icon: AsteriskIcon },
 ] as const satisfies { name: string; color: string; icon: Component<{ stroke: string; [key: string]: unknown }> }[];
 
 export function getAnimationCategory(name: AnimationCategoryName) {
@@ -83,6 +83,19 @@ export function getManimAnimationByName(name: string): ManimAnimation | null {
 
 export type AnimationCategoryName = typeof animationCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
 
+const singleObjectProperties = [
+	{
+		name: "Duration",
+		categories: ["Special"],
+		description: "The duration of the animation",
+		internalName: "run_time",
+		type: property().number().nonnegative().default(1),
+		required: true,
+	},
+	{ name: "Object", categories: ["Special"], description: "The object to animate", position: 0, type: property().object() },
+	{ name: "Start Time", categories: ["Special"], description: "The starting time of the animation", special: true, type: property().number().nonnegative() },
+] as const satisfies Property[];
+
 export const animations = [
 	{
 		name: "Appear",
@@ -91,7 +104,7 @@ export const animations = [
 		icon: SparkleIcon,
 		demo: appearDemo,
 		internalName: "Add",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Backspace",
@@ -100,7 +113,7 @@ export const animations = [
 		icon: PlainTextIcon,
 		demo: backspaceDemo,
 		internalName: "RemoveTextLetterByLetter",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Blink",
@@ -108,7 +121,7 @@ export const animations = [
 		description: "Flicker an object.",
 		demo: blinkDemo,
 		icon: BlinkIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Circumscribe",
@@ -116,7 +129,7 @@ export const animations = [
 		description: "Draw a shape around an object.",
 		demo: circumscribeDemo,
 		icon: IncompleteCircle,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Create",
@@ -124,7 +137,7 @@ export const animations = [
 		description: "Incrementally show an object.",
 		demo: createDemo,
 		icon: PlusIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Cyclic Replace",
@@ -133,7 +146,7 @@ export const animations = [
 		demo: cyclicReplaceDemo,
 		icon: CycleIcon,
 		internalName: "CyclicReplace",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Destroy",
@@ -142,7 +155,7 @@ export const animations = [
 		internalName: "Uncreate",
 		demo: destroyDemo,
 		icon: MinimizeIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Disappear",
@@ -150,7 +163,7 @@ export const animations = [
 		description: "Remove an object with no animation.",
 		demo: disappearDemo,
 		icon: SparkleIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Draw Border Then Fill",
@@ -159,7 +172,7 @@ export const animations = [
 		demo: drawBorderThenFillDemo,
 		icon: BorderIcon,
 		internalName: "DrawBorderThenFill",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Erase",
@@ -168,7 +181,7 @@ export const animations = [
 		description: "Erase text away like handwriting.",
 		icon: EraserIcon,
 		internalName: "Unwrite",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Fade In",
@@ -177,7 +190,7 @@ export const animations = [
 		description: "Fade an object in from nothing.",
 		icon: FadeInIcon,
 		internalName: "FadeIn",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Fade Out",
@@ -186,7 +199,7 @@ export const animations = [
 		demo: fadeOutDemo,
 		icon: FadeOutIcon,
 		internalName: "FadeOut",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Fade Transform",
@@ -195,7 +208,7 @@ export const animations = [
 		demo: fadeTransformDemo,
 		icon: FadeOutIcon,
 		internalName: "FadeTransform",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Flash",
@@ -203,7 +216,7 @@ export const animations = [
 		description: "Flash lines around an object.",
 		demo: flashDemo,
 		icon: LightningIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Focus",
@@ -211,7 +224,7 @@ export const animations = [
 		description: "Draw focus to an object.",
 		demo: focusDemo,
 		icon: ReticleIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Grow In",
@@ -220,7 +233,7 @@ export const animations = [
 		description: "Grow an object in from nothing.",
 		demo: growInDemo,
 		internalName: "GrowFromCenter",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Indicate",
@@ -228,13 +241,13 @@ export const animations = [
 		description: "Highlight and expand an object.",
 		demo: indicateDemo,
 		icon: MegaphoneIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	// {
 	// 	name: "Move To Target",
 	// 	category: "Transform",
 	// 	icon: TargetIcon,
-	// 	properties: [],
+	// 	properties: [objectProperty],
 	// },
 	{
 		name: "Passing Flash",
@@ -243,14 +256,15 @@ export const animations = [
 		demo: passingFlashDemo,
 		icon: CircledLightningIcon,
 		internalName: "ShowPassingFlash",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Replacement Transform",
 		category: "Transform",
+		description: "Transforms one object into another, replacing it.",
 		icon: ReplaceIcon,
 		internalName: "ReplacementTransform",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Restore",
@@ -258,7 +272,7 @@ export const animations = [
 		description: "Restore an object to a previously saved state.",
 		demo: restoreDemo,
 		icon: RevertIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	// {
 	// 	name: "Rotate",
@@ -266,7 +280,7 @@ export const animations = [
 	// 	description: "Rotate an object.",
 	// 	demo: rotateDemo,
 	// 	icon: RotateIcon,
-	// 	properties: [],
+	// 	properties: [objectProperty],
 	// },
 	{
 		name: "Scale",
@@ -274,7 +288,7 @@ export const animations = [
 		description: "Change the size of an object.",
 		demo: scaleDemo,
 		icon: ScaleIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Shrink Away",
@@ -283,7 +297,7 @@ export const animations = [
 		demo: shrinkAwayDemo,
 		icon: ShrinkIcon,
 		internalName: "ShrinkToCenter",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Spiral In",
@@ -292,13 +306,14 @@ export const animations = [
 		demo: spiralInDemo,
 		icon: SpiralIcon,
 		internalName: "SpiralIn",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Transform",
 		category: "Transform",
+		description: "Transforms one object into another.",
 		icon: TransformIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Type",
@@ -307,7 +322,7 @@ export const animations = [
 		demo: typeDemo,
 		icon: PlainTextIcon,
 		internalName: "AddTextLetterByLetter",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Wait",
@@ -315,7 +330,7 @@ export const animations = [
 		description: "Wait for some time and do nothing in between animations",
 		demo: focusDemo,
 		icon: ClockIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Wave",
@@ -324,7 +339,7 @@ export const animations = [
 		demo: waveDemo,
 		icon: WaveIcon,
 		internalName: "ApplyWave",
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Wiggle",
@@ -332,7 +347,7 @@ export const animations = [
 		description: "Wiggle an object.",
 		demo: wiggleDemo,
 		icon: WiggleIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 	{
 		name: "Write",
@@ -340,6 +355,12 @@ export const animations = [
 		demo: writeDemo,
 		description: "Write text in like handwriting.",
 		icon: PencilIcon,
-		properties: [],
+		properties: [...singleObjectProperties],
 	},
 ] as const satisfies ManimAnimation[];
+
+export type AnimationPropertyName =
+	| "Animation Type"
+	| (typeof animations extends (infer A)[] ? (A extends { properties: (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
+
+export type AnimationProperty = Omit<Property, "name"> & { name: AnimationPropertyName };

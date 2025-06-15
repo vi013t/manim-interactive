@@ -1,86 +1,99 @@
 import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
-import { getPossibleProperties } from "./manim/properties";
-import { propertyValueToString } from "./manim/property";
+import { getPossibleProperties, getProperty } from "./manim/properties";
+import { propertyValueToString, type FunctionProperty, type KeywordProperty, type PositionalProperty, type Property } from "./manim/property";
 import { animationEndTime, getProjectAnimations, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
-	let animations = getProjectAnimations().toSorted((first, other) => first.startTime - other.startTime);
+	let animations = getProjectAnimations().toSorted((first, other) => getProperty<number>(first, "Start Time")! - getProperty<number>(other, "Start Time")!);
 	let animationsWithWaits: (ProjectAnimation | { wait: number })[] = [];
 	animations.forEach((animation, index) => {
 		animationsWithWaits.push(animation);
 		if (index != animations.length - 1) {
-			let waitTime = animations[index + 1].startTime - animationEndTime(animation);
+			let waitTime = getProperty<number>(animations[index + 1], "Start Time")! - animationEndTime(animation);
 			if (waitTime > 0) animationsWithWaits.push({ wait: waitTime });
 		}
 	});
-	if (animationsWithWaits.length && (animationsWithWaits[0] as ProjectAnimation).startTime > 0) {
-		animationsWithWaits.unshift({ wait: (animationsWithWaits[0] as ProjectAnimation).startTime });
+	if (animationsWithWaits.length && getProperty<number>(animationsWithWaits[0] as ProjectAnimation, "Start Time")! > 0) {
+		animationsWithWaits.unshift({ wait: getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! });
 	}
 
 	const objectLines = topologicalProjectObjects()
 		.map(object => {
-			if (!("objectType" in object)) return;
-			let possibleProperties = getPossibleProperties(object);
+			const possibleProperties = getPossibleProperties(object);
+			const objectBase = objects.find(manimObject => manimObject.name === getProperty<string>(object, "Object Type"))!;
 
-			let objectBase = objects.find(manimObject => manimObject.name === object.objectType)!;
+			// Custom Codegen
 			if ("create" in objectBase) {
 				return `\t\tvar_${object.id} = ${objectBase.create(object.properties)}`;
 			}
 
+			// Properties
+			const properties = Object.entries(object.properties).map(([propertyName, propertyValue]): [unknown, Property] => [
+				propertyValue,
+				possibleProperties.find(possible => possible.name === propertyName)! as Property,
+			]);
+
 			// Positional Arguments
-			let positionalArguments = Object.entries(object.properties)
-				.filter(([propertyName, _propertyValue]) => {
-					let position = possibleProperties.find(possible => possible.name === propertyName)!.position;
-					return position !== undefined;
-				})
-				.toSorted(([nameA, _valueA], [nameB, _valueB]) => {
-					let positionA = possibleProperties.find(possible => possible.name === nameA)!.position!;
-					let positionB = possibleProperties.find(possible => possible.name === nameB)!.position!;
-					return positionA - positionB;
-				})
-				.map(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyValueToString(propertyBase.type, propertyValue)}, `;
-				})
-				.join("");
+			const positionalArguments = properties
+				.filter<[unknown, PositionalProperty]>((propertyData): propertyData is [unknown, PositionalProperty] => "position" in propertyData[1])
+				.toSorted(([_valueA, baseA], [_valueB, baseB]) => baseA.position - baseB.position)
+				.map(([propertyValue, propertyBase]) => propertyValueToString(propertyBase.type, propertyValue))
+				.join(",");
 
 			// Keyword Arguments
-			let keywordArguments = Object.entries(object.properties)
-				.filter(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					let defaultValue = "defaultValue" in propertyBase.type ? propertyBase.type.defaultValue : null;
-					return propertyBase.position === undefined && propertyBase.function === undefined && propertyValue !== defaultValue;
-				})
-				.map(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `${propertyBase.internalName} = ${propertyValueToString(propertyBase.type, propertyValue)}`;
-				})
+			const keywordArguments = properties
+				.filter<[unknown, KeywordProperty]>((propertyData): propertyData is [unknown, KeywordProperty] => "internalName" in propertyData[1])
+				.map(([propertyValue, propertyBase]) => `${propertyBase.internalName} = ${propertyValueToString(propertyBase.type, propertyValue)}`)
 				.join(", ");
 
+			// Separating comma
+			const comma = positionalArguments && keywordArguments ? "," : "";
+
 			// Functions
-			let functions = Object.entries(object.properties)
-				.filter(([propertyName, _propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return propertyBase.function !== undefined;
-				})
-				.map(([propertyName, propertyValue]) => {
-					let propertyBase = possibleProperties.find(possible => possible.name === propertyName)!;
-					return `.${propertyBase.function}(${propertyValueToString(propertyBase.type, propertyValue)})`;
-				})
+			const functions = properties
+				.filter<[unknown, FunctionProperty]>((propertyData): propertyData is [unknown, FunctionProperty] => "function" in propertyData[1])
+				.map(([propertyValue, propertyBase]) => `.${propertyBase.function}(${propertyValueToString(propertyBase.type, propertyValue)})`)
 				.join("");
 
-			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === object.objectType)!;
+			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 
-			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${keywordArguments})${functions}`;
+			return `\t\tvar_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${comma}${keywordArguments})${functions}`;
 		})
 		.join("\n");
 
 	const animationLines = animationsWithWaits
 		.map(animation => {
 			if ("wait" in animation) return `\t\tself.wait(${animation.wait})`;
-			let manimAnimation = getManimAnimationByName(animation.animationType)!;
-			return `\t\tself.play(${manimAnimation.internalName ?? manimAnimation.name}(${animation.objects.map(id => `var_${id}`).join(",")}, run_time=${animation.duration}))`;
+
+			let manimAnimation = getManimAnimationByName(getProperty(animation, "Animation Type")!)!;
+
+			const possibleProperties = getPossibleProperties(animation);
+
+			// Properties
+			const properties = Object.entries(animation.properties).map(([propertyName, propertyValue]): [unknown, Property] => [
+				propertyValue,
+				possibleProperties.find(possible => possible.name === propertyName)! as Property,
+			]);
+
+			// Positional Arguments
+			const positionalArguments = properties
+				.filter<[unknown, PositionalProperty]>((propertyData): propertyData is [unknown, PositionalProperty] => "position" in propertyData[1])
+				.toSorted(([_valueA, baseA], [_valueB, baseB]) => baseA.position - baseB.position)
+				.map(([propertyValue, propertyBase]) => propertyValueToString(propertyBase.type, propertyValue))
+				.join(",");
+
+			// Keyword Arguments
+			const keywordArguments = properties
+				.filter<[unknown, KeywordProperty]>((propertyData): propertyData is [unknown, KeywordProperty] => "internalName" in propertyData[1])
+				.map(([propertyValue, propertyBase]) => `${propertyBase.internalName} = ${propertyValueToString(propertyBase.type, propertyValue)}`)
+				.join(", ");
+
+			// Separating comma
+			const comma = positionalArguments && keywordArguments ? "," : "";
+
+			// Return Out
+			return `\t\tself.play(${manimAnimation.internalName ?? manimAnimation.name}(${positionalArguments}${comma}${keywordArguments})`;
 		})
 		.join("\n");
 

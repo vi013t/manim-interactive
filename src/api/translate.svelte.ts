@@ -5,7 +5,7 @@ import es from "../assets/languages/es.json";
 const languages = [
 	{ code: "en-us", name: "English (US)", translations: enUs },
 	{ code: "en-gb", name: "English (UK)", translations: enGb },
-	{ code: "es", name: "Espa&ntilde;ol", translations: es },
+	{ code: "es", name: "Español", translations: es },
 ] as const satisfies { code: string; translations: { [key: string]: string }; name: string }[];
 
 export type LanguageName = typeof languages extends (infer L)[] ? (L extends { name: unknown } ? L["name"] : never) : never;
@@ -27,10 +27,19 @@ export function setLanguage(name: LanguageName) {
 	localStorage.setItem("language", languages.find(supportedLanguage => supportedLanguage.name === name)!.code);
 }
 
-export function translate(translationKey: string): string {
+/**
+ * Translates the given text into the language currently in use. If no translation exists for the given phrase,
+ * the original text is returned.
+ *
+ * @param text The text to translate
+ *
+ * @returns The translated text
+ */
+export function translate(text: string): string {
 	const translations = languages.find(supportedLanguage => supportedLanguage.name === language)!.translations;
-	if (translationKey in translations) return (translations as any)[translationKey];
-	return translationKey;
+	if (text in translations) return (translations as any)[text];
+	console.warn(`Missing translation for phrase "${text}" in language ${language}`);
+	return text;
 }
 
 export function getLanguageNames(): LanguageName[] {

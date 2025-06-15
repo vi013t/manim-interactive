@@ -6,7 +6,7 @@
 	let { name, property }: { name: string; property: ColorProperty } = $props();
 
 	function setProperty(color: string) {
-		getItemFromId(selected()!)!.properties[name] = color;
+		(getItemFromId(selected()!)!.properties as any)[name] = color;
 	}
 </script>
 

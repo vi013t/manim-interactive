@@ -24,15 +24,19 @@
 
 	function addAnimation(type: string): void {
 		menu.hide();
-		let animation = {
+
+		let animation: ProjectAnimation = {
 			name: `${type}${id !== undefined ? " " + getItemFromId(id)!.name : ""}`,
 			id: nextId(),
-			properties: {},
-			startTime: 0,
-			duration: 1,
-			animationType: type,
-			objects: id !== undefined ? [id] : [],
+			type: "animation",
+			properties: {
+				"Start Time": 0,
+				Duration: 1,
+				"Animation Type": type,
+				Object: id,
+			},
 		};
+
 		onAdd(animation);
 		addProjectAnimation(animation);
 		select(animation);
@@ -63,7 +67,7 @@
 		icon: category.icon,
 		options: animations
 			.filter(animation => animation.category === category.name)
-			.map(animation => ({ name: animation.name, icon: animation.icon, description: "", demo: (animation as any).demo })),
+			.map(animation => ({ name: animation.name, icon: animation.icon, description: animation.description, demo: (animation as any).demo })),
 		title: `Add ${category.name} Animation`,
 		color: category.color,
 	}))}
