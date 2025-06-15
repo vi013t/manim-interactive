@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getProjectAnimations, getProjectAudios, getProjectMarkers, type ProjectMarker } from "../../../api/project.svelte";
+	import { animationEndTime, getProjectAnimations, getProjectAudios, getProjectMarkers, intervalsOverlap, movieLength, type ProjectMarker } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
@@ -43,6 +44,8 @@
 
 			if (pageOffset > lastDivOffset - 500) {
 				const newDiv = document.createElement("div");
+				newDiv.classList.add("timeline-segment");
+				newDiv.setAttribute("data-time", `${seconds}`);
 				document.getElementById("timeline-content")!.appendChild(newDiv);
 
 				const timestamp = document.createElement("span");
@@ -106,6 +109,27 @@
 			(event.target as HTMLElement).blur();
 		}
 	}
+
+	$effect(() => {
+		const length = movieLength();
+		console.log(length);
+		Array.from(document.querySelectorAll(".timeline-segment")).forEach(segment => {
+			const timestamp = Number(segment.getAttribute("data-time"));
+
+			if (timestamp > length) {
+				(segment as HTMLElement).style.display = "block";
+				return;
+			}
+
+			if (
+				!getProjectAnimations().some(projectAnimation =>
+					intervalsOverlap([getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)], [timestamp - 1, timestamp]),
+				)
+			) {
+				(segment as HTMLElement).style.display = getPreferences().collapseWaitTimes ? "none" : "block";
+			}
+		});
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

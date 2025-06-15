@@ -53,10 +53,10 @@
 				width: 100%;
 			}
 
-			button,
+			:is(button,
 			label,
 			select,
-			option {
+			option):not(*[contenteditable]) {
 				cursor: pointer;
 			}
 
@@ -67,6 +67,10 @@
 			span {
 				display: flex;
 				align-items: center;
+			}
+
+			*[contenteditable] {
+				cursor: text;
 			}
 		</style>
 

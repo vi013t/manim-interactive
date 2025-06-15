@@ -336,3 +336,8 @@ export function previousAnimation(animation: ProjectAnimation): ProjectAnimation
 export function isObjectUsed(object: ProjectObject): boolean {
 	return projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id));
 }
+
+export function movieLength(): number {
+	if (projectAnimations.length === 0) return 0;
+	return projectAnimations.map(animation => animationEndTime(animation)).toSorted((anim1, anim2) => anim2 - anim1)[0];
+}

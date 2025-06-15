@@ -460,14 +460,6 @@ export const animations = [
 				required: true,
 			},
 			{
-				name: "Object",
-				categories: ["Special"],
-				description: "The object to animate",
-				position: 0,
-				type: property().object(),
-				required: true,
-			},
-			{
 				name: "Start Time",
 				categories: ["Timing"],
 				description: "The starting time of the animation",

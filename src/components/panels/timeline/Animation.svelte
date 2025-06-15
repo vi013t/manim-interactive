@@ -104,7 +104,7 @@
 		document.addEventListener("mouseup", event => {
 			const cellHeight = 64;
 
-			if (draggingElement) {
+			if (draggingElement && timelineElement) {
 				draggingElement.style.cursor = "pointer";
 				if (draggingAnimation)
 					draggingAnimation.properties["Start Time"] = draggingElement.getBoundingClientRect().top / cellHeight - timelineElement.getBoundingClientRect().top / cellHeight;
@@ -142,7 +142,7 @@
 	bind:this={element}
 >
 	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />
-	{getProperty(animation, "Name")}
+	<span contenteditable>{getProperty(animation, "Name")}</span>
 </button>
 <AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
 
