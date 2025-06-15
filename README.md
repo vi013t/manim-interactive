@@ -30,9 +30,9 @@ Prebuilt binary releases are available on the releases page.
 
 ### Building From Source
 
-Alternatively, you can build from source. The following tools are required:
+Alternatively, you can build from source. The following additional tools are required:
 
-- A JavaScript bundler ([bun](https://bun.sh/), [npm](https://www.npmjs.com/), [deno](https://deno.com/), etc.)
+- A JavaScript bundler ([bun](https://bun.sh/), [npm](https://www.npmjs.com/), [deno](https://deno.com/), [yarn](https://yarnpkg.com/), [pnpm](https://pnpm.io/), etc.)
 - [Rust](https://www.rust-lang.org/)
 
 Then run the following (replacing `bun` with your bundler of choice:)
@@ -54,6 +54,18 @@ Manim Interactive is written using [Tauri](https://v2.tauri.app/), with a fronte
 Please be aware of the project goals before contributing. Manim Interactive aims to be a relatively thin GUI layer over Manim; That is, it does *not* aim to add new features, animations, or object types into Manim. Occasionally, multiple animations are combined into one animation with additional properties. Conventionally, Manim Interactive will occasionally rename something from Manim if a more readable or logical name is determined. Otherwise, the program is relatively faithful to Manim.
 
 I threw most of this together in a spare weekend. Expect some bugs for now.
+
+### Building Locally
+
+You can test the project locally like so:
+
+```bash
+git clone https://github.com/vi013t/manim-interactive.git
+cd manim-interactive
+bun run tauri dev
+```
+
+replacing `bun` with your JavaScript bundler of choice.
 
 ## Other Projects
 

@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import type { SelectProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, type ProjectObject, selected } from "../../../api/project.svelte";
+	import { getItemFromId, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
@@ -34,9 +34,4 @@
 	});
 </script>
 
-<Select
-	onSelect={setProperty}
-	options={property.options}
-	itemOverride={name === "Font" && altHeld ? ((item as ProjectObject).properties["Text"] as string) : undefined}
-	bind:value
-/>
+<Select onSelect={setProperty} options={property.options} itemOverride={name === "Font" && altHeld ? (item.properties as { Text: string })["Text"] : undefined} bind:value />

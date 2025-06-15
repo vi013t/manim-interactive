@@ -73,6 +73,7 @@
 					if (next) {
 						newHeight = Math.min(newHeight / cellHeight, getProperty<number>(next, "Start Time")! - getProperty<number>(animation, "Start Time")!) * cellHeight;
 					}
+					newHeight = Math.max(cellHeight, newHeight);
 
 					expandingElement.style.height = `${newHeight}px`;
 				} else if (draggingElement) {
@@ -90,8 +91,9 @@
 
 					let next = nextAnimation(animation);
 					if (next) {
-						newTop = Math.max(0, Math.min(newTop / cellHeight, getProperty<number>(next, "Start Time")! - getProperty<number>(animation, "Duration")!)) * cellHeight;
+						newTop = Math.min(newTop / cellHeight, getProperty<number>(next, "Start Time")! - getProperty<number>(animation, "Duration")!) * cellHeight;
 					}
+					newTop = Math.max(0, newTop);
 
 					draggingElement.style.top = `${newTop}px`;
 					draggingElement.style.cursor = "grabbing";

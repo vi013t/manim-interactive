@@ -110,7 +110,7 @@
 
 	<!-- Group Contents -->
 	{#if getProperty(entry, "Object Type") === "Group" && expanded}
-		{@const contents = (entry.properties["Items"] as number[]).map(id => getItemFromId(id) as ProjectObject)}
+		{@const contents = (entry.properties as { Items: number[] })["Items"].map(id => getItemFromId(id) as ProjectObject)}
 		<div class="bottom">
 			{#each contents.filter(object => getProperty(object, "Object Type") === "Group") as item (item.id)}
 				<ObjectEntry entry={item} />

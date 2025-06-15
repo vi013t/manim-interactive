@@ -34,7 +34,7 @@
 		manimObject.properties
 			.filter(property => "required" in property && property.required)
 			.forEach(property => {
-				properties[property.name] = (property.type as any).defaultValue ?? null;
+				(properties as any)[property.name] = (property.type as any).defaultValue ?? null;
 			});
 		menu.hide();
 
