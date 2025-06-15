@@ -61,7 +61,7 @@
 	}
 </script>
 
-<div class="container">
+<div id="video-panel" class="container">
 	{#if getProjectAnimations().length > 0}
 		{#if !isVideoLoaded()}
 			<div id="novideo">

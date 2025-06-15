@@ -1,0 +1,34 @@
+* {
+	--text: white;
+	--base: black;
+	--mantle: black;
+	--crust: black;
+}
+
+.window {
+	border: 1px solid #333333;
+
+	.sidebar {
+		border-right: 1px solid #333333;
+	}
+}
+
+#object-panel {
+	border-right: 1px solid #333333;
+}
+
+#timeline {
+	border-left: 1px solid #333333;
+}
+
+#video-panel {
+	border-bottom: 1px solid #333333;
+}
+
+#navbar {
+	border-bottom: 1px solid #333333;
+}
+
+.titlebar {
+	border-bottom: 1px solid #333333;
+}

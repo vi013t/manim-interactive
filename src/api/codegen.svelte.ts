@@ -29,10 +29,9 @@ export function generateCode(): string {
 			}
 
 			// Properties
-			const properties = Object.entries(object.properties).map(([propertyName, propertyValue]): [unknown, Property] => [
-				propertyValue,
-				possibleProperties.find(possible => possible.name === propertyName)! as Property,
-			]);
+			const properties = Object.entries(object.properties)
+				.filter(([propertyName, _propertyValue]) => propertyName !== "Object Type")
+				.map(([propertyName, propertyValue]): [unknown, Property] => [propertyValue, possibleProperties.find(possible => possible.name === propertyName)! as Property]);
 
 			// Positional Arguments
 			const positionalArguments = properties
@@ -71,10 +70,9 @@ export function generateCode(): string {
 			const possibleProperties = getPossibleProperties(animation);
 
 			// Properties
-			const properties = Object.entries(animation.properties).map(([propertyName, propertyValue]): [unknown, Property] => [
-				propertyValue,
-				possibleProperties.find(possible => possible.name === propertyName)! as Property,
-			]);
+			const properties = Object.entries(animation.properties)
+				.filter(([propertyName, _propertyValue]) => propertyName !== "Animation Type")
+				.map(([propertyName, propertyValue]): [unknown, Property] => [propertyValue, possibleProperties.find(possible => possible.name === propertyName)! as Property]);
 
 			// Positional Arguments
 			const positionalArguments = properties
@@ -93,7 +91,7 @@ export function generateCode(): string {
 			const comma = positionalArguments && keywordArguments ? "," : "";
 
 			// Return Out
-			return `\t\tself.play(${manimAnimation.internalName ?? manimAnimation.name}(${positionalArguments}${comma}${keywordArguments})`;
+			return `\t\tself.play(${manimAnimation.internalName ?? manimAnimation.name}(${positionalArguments}${comma}${keywordArguments}))`;
 		})
 		.join("\n");
 

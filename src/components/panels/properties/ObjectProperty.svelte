@@ -47,14 +47,14 @@
 		setProperty();
 	}}
 	value={(() => {
-		if (selectedOption) {
+		if (selectedOption !== undefined) {
 			const object = getItemFromId(selectedOption)! as ProjectObject;
 			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
 			const category = getObjectCategory(manimObject.categories[0]);
 			return { name: object.name, icon: manimObject.icon, color: category.color };
 		} else {
-			return "";
+			return undefined;
 		}
 	})()}
-	style={`outline: 2px solid ${selectedOption ? "transparent" : "var(--red)"}`}
+	style={`outline: 2px solid ${selectedOption !== undefined ? "transparent" : "var(--red)"}`}
 />

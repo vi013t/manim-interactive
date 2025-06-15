@@ -140,6 +140,7 @@ export function getObjectDependencies(id: number): number[] {
 	const possibleProperties = getPossibleProperties(object);
 	return Object.entries(object.properties)
 		.map(([propertyName, propertyValue]) => {
+			if (propertyName === "Object Type") return [];
 			const propertyBase = possibleProperties.find(property => property.name === propertyName)!;
 			if (propertyBase.type.base === "object") return [propertyValue as number];
 			return [];

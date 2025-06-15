@@ -59,6 +59,8 @@
 			{:else}
 				{value}
 			{/if}
+		{:else}
+			None Selected
 		{/if}
 		<RightArrow
 			stroke="var(--lavender)"

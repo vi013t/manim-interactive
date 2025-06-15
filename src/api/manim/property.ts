@@ -239,7 +239,7 @@ export type NumberProperty = {
 	 * Restricts a number property to be in `[0, 1]`.
 	 * The new property is returned without modifying this one.
 	 */
-	percent<This extends NumberProperty, Return extends This>(this: This): Narrow<Narrow<This, "minimumValue", 0>, "maximumValue", 1>;
+	percent<This extends NumberProperty>(this: This): Narrow<Narrow<This, "minimumValue", 0>, "maximumValue", 1>;
 };
 
 export type CoordinateProperty = {
@@ -495,7 +495,7 @@ export const property = (() => {
 				},
 			};
 		},
-		animation(): AnimationTypeProperty {
+		animationType(): AnimationTypeProperty {
 			return {
 				requiredProperties: [],
 				base: "animation",

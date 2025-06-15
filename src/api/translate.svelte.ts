@@ -38,7 +38,7 @@ export function setLanguage(name: LanguageName) {
 export function translate(text: string): string {
 	const translations = languages.find(supportedLanguage => supportedLanguage.name === language)!.translations;
 	if (text in translations) return (translations as any)[text];
-	console.warn(`Missing translation for phrase "${text}" in language ${language}`);
+	if (language !== "English (US)" && language !== "English (UK)") console.warn(`Missing translation for phrase "${text}" in language ${language}`);
 	return text;
 }
 

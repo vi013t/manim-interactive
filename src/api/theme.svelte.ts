@@ -1,6 +1,7 @@
 import catppuccinFrappe from "../assets/themes/catppuccin_frappe.css?raw";
 import catppuccinLatte from "../assets/themes/catppuccin_latte.css?raw";
 import catppuccinMacchiato from "../assets/themes/catppuccin_macchiato.css?raw";
+import midnight from "../assets/themes/midnight.css?raw";
 
 export function setTheme(name: string) {
 	localStorage.setItem("theme", name);
@@ -46,7 +47,12 @@ function getDefaultThemes(): Theme[] {
 			name: "Catppuccin Mocha",
 			data: "",
 			isDark: true,
-		} as const,
+		},
+		{
+			name: "Midnight",
+			data: midnight,
+			isDark: true,
+		},
 	].map(theme => ({
 		...theme,
 		data: theme.data.replaceAll(/;\n/g, " !important;\n"),

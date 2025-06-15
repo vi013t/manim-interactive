@@ -50,7 +50,7 @@
 	});
 </script>
 
-<section bind:this={draggable} style:display={visible ? "flex" : "none"} {...rest}>
+<section class="window" bind:this={draggable} style:display={visible ? "flex" : "none"} {...rest}>
 	<Titlebar close={onClose} {title} />
 	<div class="content">
 		{@render children()}

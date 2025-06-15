@@ -22,13 +22,14 @@
 
 	function getPropertyType(propertyName: string): PropertyType {
 		if (propertyName === "Object Type") return property().objectType();
+		if (propertyName === "Animation Type") return property().animationType();
 
 		let properties = getPossibleProperties(item!);
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
 	function isPropertyRequired(propertyName: string): boolean {
-		if (propertyName === "Object Type") return true;
+		if (propertyName === "Object Type" || propertyName === "Animation Type") return true;
 
 		let properties = getPossibleProperties(item!);
 		return !!properties.find(property => property.name === propertyName)!.required;
@@ -44,6 +45,9 @@
 	let properties = $derived(
 		item
 			? Object.entries(item.properties).toSorted(([firstName, _firstValue], [secondName, _secondValue]) => {
+					if (firstName === "Object Type" || firstName === "Animation Type") return 1;
+					if (secondName === "Object Type" || secondName === "Animation Type") return -1;
+
 					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
 					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
 
@@ -61,6 +65,10 @@
 				})
 			: null,
 	);
+
+	$effect(() => {
+		console.log(properties);
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

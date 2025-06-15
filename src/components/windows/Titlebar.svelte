@@ -5,7 +5,7 @@
 	let { close, title } = $props();
 </script>
 
-<nav>
+<nav class="titlebar">
 	<span class="title">{translate(title)}</span>
 	<div class="window-buttons">
 		<button onclick={close}>
