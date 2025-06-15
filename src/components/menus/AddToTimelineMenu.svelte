@@ -3,7 +3,8 @@
 	import { sep } from "@tauri-apps/api/path";
 	import { open } from "@tauri-apps/plugin-dialog";
 	import { openPreferencesWindow, setPreferencesView } from "../../api/client.svelte";
-	import { addProjectAudio, addProjectMarker, type ProjectAnimation } from "../../api/project.svelte";
+	import { runAction } from "../../api/preferences.svelte";
+	import { addProjectAudio, addProjectMarker, isNameTaken, type ProjectAnimation } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
@@ -44,18 +45,17 @@
 		animation.properties["Start Time"] = startTime;
 	}
 
-	type Submenu = "animation" | "marker";
+	type Submenu = "animation";
 
-	let selectedMenu: Submenu | null = $state(null);
+	let hoveredMenu: Submenu | null = $state(null);
 
-	function selectMenu(name: Submenu | null) {
+	function hoverMenu(name: Submenu | null) {
 		return function () {
-			selectedMenu = name;
+			hoveredMenu = name;
 			hideSubmenus();
 			if (name) {
 				({
 					animation: addAnimationMenu,
-					marker: addAnimationMenu,
 				})[name].show();
 			}
 		};
@@ -78,7 +78,14 @@
 
 	function addMarker(event: MouseEvent) {
 		hide();
-		addProjectMarker("", event.clientY / 64);
+
+		let name = translate("Marker");
+		let number = 2;
+		while (isNameTaken(name)) {
+			name = `Marker ${number++}`;
+		}
+		addProjectMarker(name, event.clientY / 64);
+		runAction("Save Project");
 	}
 
 	function openTimelinePreferences() {
@@ -90,20 +97,20 @@
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>{translate("Timeline Actions")}</span>
-	<button onclick={addAudio} onmouseenter={selectMenu(null)}>
+	<button onclick={addAudio} onmouseenter={hoverMenu(null)}>
 		<AudioIcon stroke="var(--mauve)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Audio")}
 	</button>
-	<button style:background={selectedMenu === "animation" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("animation")}>
+	<button style:background={hoveredMenu === "animation" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={hoverMenu("animation")}>
 		<AnimationIcon stroke="var(--teal)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Animation")}
 		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button onclick={addMarker} style:background={selectedMenu === "marker" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("marker")}>
+	<button onclick={addMarker} onmouseenter={hoverMenu(null)}>
 		<BookmarkIcon stroke="var(--yellow)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Add Marker")}
 	</button>
-	<button onmouseenter={selectMenu(null)} onclick={openTimelinePreferences}>
+	<button onmouseenter={hoverMenu(null)} onclick={openTimelinePreferences}>
 		<GearIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Open Timeline Preferences")}
 	</button>

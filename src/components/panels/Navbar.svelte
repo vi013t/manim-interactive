@@ -5,6 +5,7 @@
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
 	import CloseIcon from "../icons/CloseIcon.svelte";
+	import CollapseIcon from "../icons/CollapseIcon.svelte";
 	import GridIcon from "../icons/GridIcon.svelte";
 	import MagnetIcon from "../icons/MagnetIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
@@ -132,6 +133,13 @@
 			style:background-color={getPreferences().timelineSnapping ? "rgba(180, 150, 255, 20%)" : "transparent"}
 		>
 			<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+		</button>
+		<button
+			title="Toggle Collapsing Wait Times"
+			onclick={togglePreference("collapseWaitTimes")}
+			style:background-color={getPreferences().collapseWaitTimes ? "rgba(180, 150, 255, 20%)" : "transparent"}
+		>
+			<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 	</div>
 

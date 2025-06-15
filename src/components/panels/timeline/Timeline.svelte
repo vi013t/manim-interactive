@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { getPreferences } from "../../../api/preferences.svelte";
-	import { getProjectAnimations, getProjectAudios, getProjectMarkers } from "../../../api/project.svelte";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
+	import { getProjectAnimations, getProjectAudios, getProjectMarkers, type ProjectMarker } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
 	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
 	import AudioMenu from "../../menus/AudioMenu.svelte";
+	import MarkerMenu from "../../menus/MarkerMenu.svelte";
 	import Animation from "./Animation.svelte";
 	import Audio from "./Audio.svelte";
 
@@ -17,10 +18,11 @@
 	let timeSlider: HTMLElement;
 	let addAnimationMenu: AddToTimelineMenu;
 	let audioActionsMenu: AudioMenu | null = $state(null);
+	let markerMenu: MarkerMenu;
 
 	let top = $state("100%");
 	let left = $state("94%");
-	let audioId: number = $state(0);
+	let markerId = $state(0);
 
 	let seconds = 1;
 
@@ -65,6 +67,17 @@
 		});
 
 		checkForNewDiv();
+
+		document.addEventListener("mousemove", event => {
+			if (draggingMarker) {
+				draggingMarker.style.top = `${event.clientY - timelineElement.getBoundingClientRect().top}px`;
+			}
+		});
+
+		document.addEventListener("mouseup", event => {
+			if (draggingMarker) runAction("Save Project");
+			draggingMarker = null;
+		});
 	});
 
 	function addAnimation(event: MouseEvent) {
@@ -72,6 +85,26 @@
 		top = `${event.clientY}px`;
 		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		addAnimationMenu.show();
+	}
+
+	function markerOptions(marker: ProjectMarker) {
+		return function (event: MouseEvent) {
+			event.preventDefault();
+			top = `${event.clientY}px`;
+			left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
+			markerId = marker.id;
+			markerMenu.show();
+		};
+	}
+
+	let draggingMarker: HTMLElement | null = $state(null);
+
+	let markers: HTMLElement[] = $state([]);
+
+	function typeMarker(event: KeyboardEvent) {
+		if (event.key === "Enter") {
+			(event.target as HTMLElement).blur();
+		}
 	}
 </script>
 
@@ -101,8 +134,10 @@
 			{/each}
 
 			<!-- Markers -->
-			{#each getProjectMarkers() as marker (marker.id)}
-				<div class="marker" style:top="{marker.time * 4}rem"></div>
+			{#each getProjectMarkers() as marker, index (marker.id)}
+				<div oncontextmenu={markerOptions(marker)} bind:this={markers[index]} onmousedown={() => (draggingMarker = markers[index])} class="marker" style:top="{marker.time * 4}rem">
+					<span id="marker-{marker.id}-name" onkeydown={typeMarker} bind:textContent={marker.name} contenteditable onblur={() => runAction("Save Project")}></span>
+				</div>
 			{/each}
 
 			<div oncontextmenu={addAnimation}></div>
@@ -113,6 +148,7 @@
 </section>
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
 <AudioMenu bind:this={audioActionsMenu} />
+<MarkerMenu bind:this={markerMenu} {top} {left} id={markerId} />
 
 <style>
 	.header {
@@ -131,9 +167,40 @@
 		position: absolute;
 		width: 100%;
 		height: 2px;
-		background-color: #ffff00;
+		background-color: var(--yellow);
 		left: 0px;
 		transform: translateY(-50%);
+		margin-left: 4rem;
+
+		> span {
+			background: var(--yellow);
+			width: fit-content;
+			top: 50%;
+			position: absolute;
+			transform: translateY(-50%);
+			padding: 0.15em;
+			padding-left: 0.5em;
+			padding-right: 0.25em;
+			border-top-left-radius: 0.25rem;
+			border-bottom-left-radius: 0.25rem;
+			left: 0px;
+			font-size: 0.75rem;
+			cursor: text;
+
+			&::after {
+				content: "";
+				width: 0px;
+				height: 0px;
+				box-sizing: content-box;
+				--size: 0.9em;
+				border-top: var(--size) solid transparent;
+				border-left: var(--size) solid var(--yellow);
+				border-right: var(--size) solid transparent;
+				border-bottom: var(--size) solid transparent;
+				position: absolute;
+				left: 100%;
+			}
+		}
 
 		&:hover {
 			cursor: grab;

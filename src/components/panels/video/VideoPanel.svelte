@@ -25,7 +25,7 @@
 		}
 
 		ctx.lineWidth = 1;
-		ctx.strokeStyle = "var(--surface-2)";
+		ctx.strokeStyle = "#585b70";
 		ctx.stroke();
 
 		// Draw center axis lines

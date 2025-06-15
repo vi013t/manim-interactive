@@ -1,7 +1,7 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
 import type { AnimationPropertyName } from "./manim/animations";
 import type { ObjectPropertyName } from "./manim/objects";
-import { getPossibleProperties, getProperty } from "./manim/properties";
+import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/properties";
 import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
@@ -12,7 +12,9 @@ let projectObjects: ProjectObject[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
 let projectAudios: ProjectAudio[] = $state([]);
 let projectLibraries: Set<string> = $state(new Set(["manim"]));
-let projectMarkers: { id: number; name: string; time: number }[] = $state([]);
+
+export type ProjectMarker = { id: number; name: string; time: number };
+let projectMarkers: ProjectMarker[] = $state([]);
 
 export type ProjectAudio = {
 	id: number;
@@ -178,11 +180,12 @@ export function addProjectObject(object: ProjectObject) {
 	projectObjects.push(object);
 }
 
-export function removeProjectObject(id: number) {
+export function deleteProjectItem(id: number) {
 	if (selected() === id) select(null);
 	projectObjects = projectObjects.filter(object => object.id !== id);
 	projectAnimations = projectAnimations.filter(animation => getProperty<number>(animation, "Object") !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
+	projectMarkers = projectMarkers.filter(marker => marker.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
 	if (getPreferences().autosave) runAction("Save And Recompile Project");
 }
@@ -274,7 +277,8 @@ export function removeNotification(id: number): void {
 export function isNameTaken(name: string, exclude?: number): boolean {
 	return (
 		projectObjects.some(object => getProperty(object, "Name") === name && (exclude === undefined || object.id !== exclude)) ||
-		projectAnimations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude))
+		projectAnimations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude)) ||
+		projectMarkers.some(marker => marker.name === name && (exclude === undefined || marker.id !== exclude))
 	);
 }
 
@@ -327,4 +331,8 @@ export function previousAnimation(animation: ProjectAnimation): ProjectAnimation
 			.toReversed()
 			.find(projectAnimation => getProperty<number>(projectAnimation, "Start Time")! < getProperty<number>(animation, "Start Time")!) ?? null
 	);
+}
+
+export function isObjectUsed(object: ProjectObject): boolean {
+	return projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id));
 }

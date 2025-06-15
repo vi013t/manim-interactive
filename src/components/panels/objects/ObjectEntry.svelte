@@ -4,9 +4,10 @@
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/properties";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
+	import { getItemFromId, isObjectUsed, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
+	import SkullIcon from "../../icons/SkullIcon.svelte";
 	import GroupMenu from "../../menus/GroupMenu.svelte";
 	import ObjectMenu from "../../menus/ObjectMenu.svelte";
 	import ObjectEntry from "./ObjectEntry.svelte";
@@ -79,6 +80,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="object" onclick={clickObject}>
 	<!-- Object name & icon -->
+
 	<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 	<div
 		onmouseover={() => (isHovered = true)}
@@ -100,11 +102,26 @@
 			stroke={getObjectCategory(data.categories[0]).color}
 			style="width: 1rem; height: 1rem; margin-left: {getProperty(entry, 'Object Type') === 'Group' ? 0.2 : 1.2}rem; margin-right: 0.25rem;"
 		/>
-		<span onkeydown={typeName} onblur={setName} bind:this={name} contenteditable autocapitalize="off" spellcheck="false">
+		<span
+			style:color={isObjectUsed(entry) ? "var(--text)" : "var(--overlay-0)"}
+			onkeydown={typeName}
+			onblur={setName}
+			bind:this={name}
+			contenteditable
+			autocapitalize="off"
+			spellcheck="false"
+		>
 			{getProperty(entry, "Name")}
 		</span>
 		{#if itemHasErrors(entry.id)}
-			<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
+			<div class="status">
+				<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
+			</div>
+		{/if}
+		{#if !isObjectUsed(entry)}
+			<div class="status" title="This object is unused">
+				<SkullIcon stroke="var(--overlay-0)" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
+			</div>
 		{/if}
 	</div>
 
@@ -160,5 +177,9 @@
 		padding-left: 1rem;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.status {
+		margin-left: auto;
 	}
 </style>

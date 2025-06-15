@@ -450,7 +450,32 @@ export const animations = [
 		description: "Wait for some time and do nothing in between animations",
 		demo: focusDemo,
 		icon: ClockIcon,
-		properties: [...singleObjectProperties],
+		properties: [
+			{
+				name: "Duration",
+				categories: ["Timing"],
+				description: "The duration of the animation",
+				internalName: "run_time",
+				type: property().number().nonnegative().default(1),
+				required: true,
+			},
+			{
+				name: "Object",
+				categories: ["Special"],
+				description: "The object to animate",
+				position: 0,
+				type: property().object(),
+				required: true,
+			},
+			{
+				name: "Start Time",
+				categories: ["Timing"],
+				description: "The starting time of the animation",
+				special: true,
+				type: property().number().nonnegative(),
+				required: true,
+			},
+		],
 	},
 	{
 		name: "Wave",

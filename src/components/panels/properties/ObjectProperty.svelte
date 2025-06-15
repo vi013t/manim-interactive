@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from "svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
@@ -15,21 +14,9 @@
 	} = $props();
 
 	function setProperty() {
-		(getItemFromId(selected()!)!.properties as any)[name] = value;
+		(getItemFromId(selected()!)!.properties as any)[name] = selectedOption;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
-
-	let altHeld = $state(false);
-
-	onMount(() => {
-		document.addEventListener("keydown", event => {
-			altHeld = event.altKey;
-		});
-
-		document.addEventListener("keyup", event => {
-			altHeld = event.altKey;
-		});
-	});
 
 	let selectedOption: number = $state(value);
 </script>

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getAnimationObjects } from "../../api/manim/properties";
-	import { getProjectAnimations, removeProjectObject } from "../../api/project.svelte";
+	import { deleteProjectItem, getProjectAnimations } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import PropertiesIcon from "../icons/PropertiesIcon.svelte";
@@ -40,7 +40,7 @@
 		if (getProjectAnimations().some(animation => getAnimationObjects(animation).includes(id))) {
 			confirmDeleteObjectWindow.show();
 		} else {
-			removeProjectObject(id);
+			deleteProjectItem(id);
 		}
 	}
 

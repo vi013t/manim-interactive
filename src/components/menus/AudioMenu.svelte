@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { removeProjectObject } from "../../api/project.svelte";
+	import { deleteProjectItem } from "../../api/project.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
@@ -30,7 +30,7 @@
 
 	function deleteAudio() {
 		menu.hide();
-		removeProjectObject(id);
+		deleteProjectItem(id);
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;

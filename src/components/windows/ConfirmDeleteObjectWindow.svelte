@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { removeProjectObject } from "../../api/project.svelte";
+	import { deleteProjectItem } from "../../api/project.svelte";
 	import Window from "./Window.svelte";
 
 	let { id } = $props();
@@ -11,7 +11,7 @@
 	}
 
 	function deleteObject() {
-		removeProjectObject(id);
+		deleteProjectItem(id);
 		deleteWindow.close();
 	}
 </script>

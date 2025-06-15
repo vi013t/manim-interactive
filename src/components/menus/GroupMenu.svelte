@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { removeProjectObject } from "../../api/project.svelte";
+	import { deleteProjectItem } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -25,7 +25,7 @@
 
 	function deleteGroup() {
 		menu.hide();
-		removeProjectObject(id);
+		deleteProjectItem(id);
 	}
 </script>
 
