@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getProperty } from "../../../api/manim/properties";
 	import type { NumberProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { addError, getItemFromId, removeError, selected } from "../../../api/project.svelte";
+	import { addError, animationEndTime, getItemFromId, getProjectAnimations, intervalsOverlap, removeError, selected, type ProjectAnimation } from "../../../api/project.svelte";
 
 	let {
 		value = $bindable(),
@@ -26,6 +27,33 @@
 		if (property.isIntegeric && value !== Math.floor(value)) return "Value must be an integer";
 		if (value < property.minimumValue) return `Value cannot be less than ${property.minimumValue}`;
 		if (value > property.maximumValue) return `Value cannot be greater than ${property.maximumValue}`;
+		if (
+			name === "Duration" &&
+			getProjectAnimations()
+				.filter(animation => animation.id !== id)
+				.some(projectAnimation =>
+					intervalsOverlap(
+						[getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
+						[getProperty<number>(getItemFromId(id)! as ProjectAnimation, "Start Time")!, getProperty<number>(getItemFromId(id)! as ProjectAnimation, "Start Time")! + value],
+					),
+				)
+		) {
+			return `Animation overlaps with other animation`;
+		}
+		if (
+			name === "Start Time" &&
+			getProjectAnimations()
+				.filter(animation => animation.id !== id)
+				.some(projectAnimation =>
+					intervalsOverlap(
+						[getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
+						[value, value + getProperty<number>(getItemFromId(id)! as ProjectAnimation, "Duration")!],
+					),
+				)
+		) {
+			return `Animation overlaps with other animation`;
+		}
+
 		return null;
 	}
 
@@ -36,6 +64,9 @@
 	}
 
 	function setProperty() {
+		validate();
+		if (errorMessage) return;
+
 		(getItemFromId(selected()!)!.properties as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}

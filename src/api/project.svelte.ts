@@ -294,3 +294,37 @@ export function topologicalProjectObjects(): ProjectObject[] {
 
 	return sorted;
 }
+
+export function animationIntersectsOther(animation: ProjectAnimation) {
+	return getProjectAnimations()
+		.filter(projectAnimation => projectAnimation.id !== animation.id)
+		.some(projectAnimation =>
+			intervalsOverlap(
+				[getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
+				[getProperty<number>(animation, "Start Time")!, animationEndTime(animation)]
+			)
+		);
+}
+
+export function intervalsOverlap([start1, end1]: [number, number], [start2, end2]: [number, number]): boolean {
+	return end1 > start2 && end2 > start1;
+}
+
+export function nextAnimation(animation: ProjectAnimation): ProjectAnimation | null {
+	return (
+		getProjectAnimations()
+			.filter(projectAnimation => projectAnimation.id !== animation.id)
+			.toSorted((anim1, anim2) => getProperty<number>(anim1, "Start Time")! - getProperty<number>(anim2, "Start Time")!)
+			.find(projectAnimation => getProperty<number>(projectAnimation, "Start Time")! > getProperty<number>(animation, "Start Time")!) ?? null
+	);
+}
+
+export function previousAnimation(animation: ProjectAnimation): ProjectAnimation | null {
+	return (
+		getProjectAnimations()
+			.filter(projectAnimation => projectAnimation.id !== animation.id)
+			.toSorted((anim1, anim2) => getProperty<number>(anim1, "Start Time")! - getProperty<number>(anim2, "Start Time")!)
+			.toReversed()
+			.find(projectAnimation => getProperty<number>(projectAnimation, "Start Time")! < getProperty<number>(animation, "Start Time")!) ?? null
+	);
+}

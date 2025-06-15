@@ -4,7 +4,7 @@
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { getAnimationObjects, getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { type ProjectAnimation, animationEndTime, getProjectAnimations, select, selected } from "../../../api/project.svelte";
+	import { type ProjectAnimation, animationEndTime, getProjectAnimations, nextAnimation, previousAnimation, select, selected } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
 
 	let { animation, timelineElement }: { animation: ProjectAnimation; timelineElement: HTMLElement } = $props();
@@ -68,9 +68,31 @@
 						if (newHeight % cellHeight < cellHeight / 2) newHeight = newHeight - (newHeight % cellHeight);
 						else newHeight = newHeight + (cellHeight - (newHeight % cellHeight));
 					}
+
+					let next = nextAnimation(animation);
+					if (next) {
+						newHeight = Math.min(newHeight / cellHeight, getProperty<number>(next, "Start Time")! - getProperty<number>(animation, "Start Time")!) * cellHeight;
+					}
+
 					expandingElement.style.height = `${newHeight}px`;
 				} else if (draggingElement) {
 					let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
+					let snapping = getPreferences().timelineSnapping;
+					if (snapping) {
+						if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
+						else newTop = newTop + (cellHeight - (newTop % cellHeight));
+					}
+
+					let previous = previousAnimation(animation);
+					if (previous) {
+						newTop = Math.max(newTop / cellHeight, animationEndTime(previous)) * cellHeight;
+					}
+
+					let next = nextAnimation(animation);
+					if (next) {
+						newTop = Math.max(0, Math.min(newTop / cellHeight, getProperty<number>(next, "Start Time")! - getProperty<number>(animation, "Duration")!)) * cellHeight;
+					}
+
 					draggingElement.style.top = `${newTop}px`;
 					draggingElement.style.cursor = "grabbing";
 				}
@@ -79,16 +101,11 @@
 
 		document.addEventListener("mouseup", event => {
 			const cellHeight = 64;
+
 			if (draggingElement) {
-				let snapping = getPreferences().timelineSnapping;
-				let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
-				if (snapping) {
-					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
-					else newTop = newTop + (cellHeight - (newTop % cellHeight));
-				}
-				draggingElement.style.top = `${newTop}px`;
 				draggingElement.style.cursor = "pointer";
-				if (draggingAnimation) draggingAnimation.properties["Start Time"] = newTop / cellHeight;
+				if (draggingAnimation)
+					draggingAnimation.properties["Start Time"] = draggingElement.getBoundingClientRect().top / cellHeight - timelineElement.getBoundingClientRect().top / cellHeight;
 				if (getPreferences().autosave) runAction("Save And Recompile Project");
 			}
 
@@ -107,6 +124,7 @@
 
 	$effect(() => {
 		element.style.height = `${getProperty<number>(animation, "Duration")! * 64}px`;
+		element.style.top = `${getProperty<number>(animation, "Start Time")! * 64}px`;
 	});
 </script>
 
