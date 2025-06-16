@@ -61,7 +61,7 @@
 		{:else if property.base === "string" && "options" in property}
 			<SelectProperty {property} value={value as string} {name} />
 		{:else if property.base === "coordinate"}
-			<CoordinateProperty value={value as unknown} {name} />
+			<CoordinateProperty value={value as [number, number, number]} {name} bind:errorMessage />
 		{:else if property.base === "compound"}
 			<CompoundProperty value={value as unknown} {name} {property} />
 		{:else if property.base === "list"}
@@ -72,17 +72,17 @@
 			<NumberProperty bind:errorMessage value={value as number} {name} {property} id={selected()!} />
 		{/if}
 
+		<!-- Delete Button -->
+		{#if !required && property.base !== "list"}
+			<button onclick={deleteProperty}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
+		{/if}
+
 		<!-- Error Message -->
 		{#if errorMessage}
 			<span class="error">
 				<ErrorIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 				<span>{errorMessage}</span>
 			</span>
-		{/if}
-
-		<!-- Delete Button -->
-		{#if !required && property.base !== "list"}
-			<button onclick={deleteProperty}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
 		{/if}
 	{/key}
 </span>

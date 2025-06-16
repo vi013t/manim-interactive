@@ -1,9 +1,15 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { getPoint } from "../../../api/client.svelte";
 	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
 	import { getProjectAnimations, getProjectAudios, projectHasErrors } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
+
+	let videoWidth = screen.availWidth * (2 / 3);
+	let videoHeight = (videoWidth * 9) / 16;
+	let boxSize = videoWidth / 14;
+	let centerY = videoHeight / 2; // navbar is 30px
 
 	onMount(() => {
 		const canvas = document.getElementById("grid-canvas") as HTMLCanvasElement;
@@ -94,14 +100,54 @@
 		</div>
 	{/if}
 	<canvas id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
+	{#if getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid && getPoint()}
+		<div class="point" style:left="{videoWidth / 2 + boxSize * getPoint()![0]}px" style:top="{centerY - boxSize * getPoint()![1]}px">
+			<span>({getPoint()![0]}, {getPoint()![1]})</span>
+		</div>
+	{/if}
 </div>
 <CursorCoordinates />
 
 <style>
+	#video-panel {
+		position: relative;
+	}
+
 	.container {
 		width: 100%;
 		aspect-ratio: 1.78;
 		position: relative;
+	}
+
+	.point {
+		position: absolute;
+		background-color: var(--red);
+		width: 0.35rem;
+		height: 0.35rem;
+		border-radius: 50%;
+		transform: translate(-50%, -50%);
+		cursor: move;
+
+		> span {
+			width: 10rem;
+			position: absolute;
+			top: 1rem;
+			left: 1rem;
+			color: var(--red);
+		}
+
+		&::before {
+			content: "";
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			background-color: var(--red);
+			opacity: 0.5;
+			height: 400%;
+			width: 400%;
+			border-radius: 50%;
+		}
 	}
 
 	#novideo {

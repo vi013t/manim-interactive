@@ -114,31 +114,19 @@
 	</ContextMenu>
 
 	<div class="video-options">
-		<button
-			onclick={togglePreference("lowRes")}
-			title="Toggle Low Resolution (faster reload times)"
-			style:background-color={getPreferences().lowRes ? "rgba(180, 150, 255, 20%)" : "transparent"}
-		>
+		<button onclick={togglePreference("lowRes")} title="Toggle Low Resolution (faster reload times)" class:option-on={getPreferences().lowRes}>
 			<ResolutionIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
-		<button onclick={togglePreference("grid")} title="Toggle Grid" style:background-color={getPreferences().grid ? "rgba(180, 150, 255, 20%)" : "transparent"}>
+		<button onclick={togglePreference("grid")} title="Toggle Grid" class:option-on={getPreferences().grid}>
 			<GridIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 	</div>
 
 	<div class="timeline-options">
-		<button
-			title="Toggle Timeline Snapping"
-			onclick={togglePreference("timelineSnapping")}
-			style:background-color={getPreferences().timelineSnapping ? "rgba(180, 150, 255, 20%)" : "transparent"}
-		>
+		<button title="Toggle Timeline Snapping" onclick={togglePreference("timelineSnapping")} class:option-on={getPreferences().timelineSnapping}>
 			<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
-		<button
-			title="Toggle Collapsing Wait Times"
-			onclick={togglePreference("collapseWaitTimes")}
-			style:background-color={getPreferences().collapseWaitTimes ? "rgba(180, 150, 255, 20%)" : "transparent"}
-		>
+		<button title="Toggle Collapsing Wait Times" onclick={togglePreference("collapseWaitTimes")} class:option-on={getPreferences().collapseWaitTimes}>
 			<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 	</div>
@@ -185,7 +173,15 @@
 			align-items: center;
 			justify-content: center;
 			aspect-ratio: 1;
+
+			&:hover {
+				background-color: rgba(180, 150, 255, 10%);
+			}
 		}
+	}
+
+	.option-on {
+		background-color: rgba(180, 150, 255, 20%);
 	}
 
 	.video-options {

@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { cursorIsIn, getMouseX, getMouseY } from "../../../api/client.svelte";
-	import { getPreferences } from "../../../api/preferences.svelte";
 
 	let videoWidth = screen.availWidth * (2 / 3);
 	let videoHeight = (videoWidth * 9) / 16;
-	1;
 	let boxSize = videoWidth / 14;
 	let centerX = screen.availWidth / 2;
 	let centerY = videoHeight / 2 + 30; // navbar is 30px
@@ -20,20 +18,7 @@
 		return altHeld && (rect ? cursorIsIn(rect) : false);
 	});
 
-	onMount(() => {
-		document.addEventListener("keydown", event => {
-			altHeld = event.altKey;
-			getPreferences().grid = visible;
-		});
-		document.addEventListener("keyup", event => {
-			altHeld = event.altKey;
-			getPreferences().grid = visible;
-		});
-		document.addEventListener("mousemove", event => {
-			altHeld = event.altKey;
-			getPreferences().grid = visible;
-		});
-	});
+	onMount(() => {});
 </script>
 
 <div bind:this={div} style:display={visible ? "block" : "none"} style:top="{getMouseY()}px" style:left="{getMouseX()}px">

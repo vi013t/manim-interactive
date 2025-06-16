@@ -569,6 +569,10 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 		return result;
 	}
 
+	if (type.base === "coordinate") {
+		return `[${(value as number[]).map(element => `${element}`).join(", ")}]`;
+	}
+
 	if (type.base === "string" && "codegenOverride" in type && type.codegenOverride !== undefined) {
 		return type.codegenOverride(value as string);
 	}

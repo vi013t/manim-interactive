@@ -1,20 +1,91 @@
 <script lang="ts">
-	let { value, name } = $props();
+	import { hidePoint, setPoint } from "../../../api/client.svelte";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
+	import { addError, getItemFromId, removeError, selected } from "../../../api/project.svelte";
+
+	let { value, name, errorMessage = $bindable() }: { value: [number, number, number]; name: string; errorMessage: string | null } = $props();
 
 	let is3D = $state(false);
+
+	let x: string = $state(`${value[0]}`);
+	let y: string = $state(`${value[1]}`);
+	let z: string = $state(`${value[2]}`);
+
+	// svelte-ignore state_referenced_locally
+	let previousValue = $state([x, y, z]);
+
+	let xError = $state(false);
+	let yError = $state(false);
+	let zError = $state(false);
+
+	function getErrorMessage() {
+		let errorMessage = null;
+
+		if (!/^-?\d+(\.\d+)?$/.test(x)) {
+			errorMessage = "X must be a number";
+			xError = true;
+		} else {
+			xError = false;
+		}
+		if (!/^-?\d+(\.\d+)?$/.test(y)) {
+			errorMessage = "Y must be a number";
+			yError = true;
+		} else {
+			yError = false;
+		}
+		if (!/^-?\d+(\.\d+)?$/.test(z)) {
+			errorMessage = "Z must be a number";
+			zError = true;
+		} else {
+			zError = false;
+		}
+
+		if (!errorMessage) setPoint(Number(x), Number(y));
+
+		return errorMessage;
+	}
+
+	let valueChanged = $derived(previousValue[0] !== x || previousValue[1] !== y || previousValue[2] !== z);
+
+	function validate() {
+		errorMessage = getErrorMessage();
+		if (errorMessage) addError({ objectId: selected()!, propertyName: name });
+		else removeError({ objectId: selected()!, propertyName: name });
+	}
+
+	function blur() {
+		validate();
+		if (errorMessage) return;
+		getPreferences().grid = false;
+
+		hidePoint();
+
+		if (valueChanged) {
+			const item = getItemFromId(selected()!)!;
+			(item.properties as any)[name] = [Number(x), Number(y), Number(z)];
+			runAction("Save And Recompile Project");
+		}
+	}
+
+	function focus() {
+		getPreferences().grid = true;
+		validate();
+		if (!errorMessage) setPoint(Number(x), Number(y));
+		previousValue = [x, y, z];
+	}
 </script>
 
 <span class="coordinate">
 	<span>
-		X: <input type="text" />
+		X: <input oninput={validate} style:outline={xError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={x} type="text" />
 	</span>
 	<span>
-		Y: <input type="text" />
+		Y: <input oninput={validate} style:outline={yError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={y} type="text" />
 	</span>
 
 	{#if is3D}
 		<span class="three-d">
-			Z: <input type="text" />
+			Z: <input oninput={validate} style:outline={zError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={z} type="text" />
 		</span>
 		<button onclick={() => (is3D = false)}>2D</button>
 	{:else}

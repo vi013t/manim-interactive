@@ -76,3 +76,17 @@ let nextMenuId = 0;
 export function getNextMenuId() {
 	return nextMenuId++;
 }
+
+let point: null | [number, number] = $state(null);
+
+export function setPoint(x: number, y: number) {
+	point = [x, y];
+}
+
+export function getPoint() {
+	return point;
+}
+
+export function hidePoint() {
+	point = null;
+}
