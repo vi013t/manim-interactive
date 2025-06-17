@@ -17,11 +17,11 @@
 	import AddPropertyMenu from "./AddPropertyMenu.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
 
-	let { top, left, id }: { top: string; left: string; id: number } = $props();
+	let { top, left, ids }: { top: string; left: string; ids: number[] } = $props();
 
 	let menu: ContextMenu;
-	let addAnimationMenu: AddAnimationMenu;
-	let addPropertyMenu: AddPropertyMenu;
+	let addAnimationMenu: AddAnimationMenu = $state(null!);
+	let addPropertyMenu: AddPropertyMenu = $state(null!);
 	let addObjectMenu: AddPropertyMenu;
 
 	export function show() {
@@ -44,21 +44,21 @@
 
 	function deleteObject() {
 		menu.hide();
-		if (isGroup && getProperty(getObjectFromId(id)!, "Objects")!.length > 0) {
+		if (isGroup && getProperty(getObjectFromId(ids[0])!, "Objects")!.length > 0) {
 			confirmDeleteGroupWindow.show();
-		} else if (getProjectAnimations().some(animation => getAnimationObjects(animation).includes(id))) {
+		} else if (getProjectAnimations().some(animation => ids.some(id => getAnimationObjects(animation).includes(id)))) {
 			confirmDeleteObjectWindow.show();
 		} else {
-			deleteProjectItem(id);
+			ids.forEach(id => deleteProjectItem(id));
 		}
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
 	let confirmDeleteGroupWindow: ConfirmDeleteGroupWindow;
 
-	let isGroup = $derived(getProperty(getObjectFromId(id)!, "Object Type") === "Group");
+	let isGroup = $derived(ids.length === 1 && getProperty(getObjectFromId(ids[0])!, "Object Type") === "Group");
 
-	function addObject(type: string): void {
+	function addObjectToGroup(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
 
 		let name = translate(type);
@@ -88,7 +88,7 @@
 		addProjectObject(object);
 		select([object.id]);
 		if (isGroup) {
-			getObjectFromId(id)!.properties["Objects"]!.push(object.id);
+			getObjectFromId(ids[0])!.properties["Objects"]!.push(object.id);
 		}
 
 		if (getPreferences().autosave) runAction("Save Project");
@@ -98,10 +98,13 @@
 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Object Actions</span>
-	<button onclick={deleteObject} onmouseover={hideSubmenus}>
-		<TypeIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Rename Object")}
-	</button>
+
+	{#if ids.length === 1}
+		<button onclick={deleteObject} onmouseover={hideSubmenus}>
+			<TypeIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			{translate("Rename Object")}
+		</button>
+	{/if}
 
 	{#if isGroup}
 		<button
@@ -116,39 +119,44 @@
 		</button>
 	{/if}
 
-	<button
-		onmouseover={() => {
-			hideSubmenus();
-			addAnimationMenu.show();
-		}}
-	>
-		<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Add Animation")}
-		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
-	</button>
-	<button
-		onmouseover={() => {
-			hideSubmenus();
-			addPropertyMenu.show();
-		}}
-	>
-		<PropertiesIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Add Property")}
-		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
-	</button>
+	{#if ids.length === 1}
+		<button
+			onmouseover={() => {
+				hideSubmenus();
+				addAnimationMenu.show();
+			}}
+		>
+			<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			{translate("Add Animation")}
+			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		</button>
+		<button
+			onmouseover={() => {
+				hideSubmenus();
+				addPropertyMenu.show();
+			}}
+		>
+			<PropertiesIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			{translate("Add Property")}
+			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		</button>
+	{/if}
 
 	<button onclick={deleteObject} onmouseover={hideSubmenus}>
 		<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Delete Object")}
 	</button>
 
-	<AddObjectMenu onSelect={addObject} bind:this={addObjectMenu} top="3.5rem" left="100%" />
-	<AddAnimationMenu bind:this={addAnimationMenu} top="{isGroup ? 5.25 : 3.5}rem" left="100%" {id} />
-	<AddPropertyMenu bind:this={addPropertyMenu} top="{isGroup ? 7 : 5.25}rem" left="100%" />
+	<AddObjectMenu onSelect={addObjectToGroup} bind:this={addObjectMenu} top="3.5rem" left="100%" />
+
+	{#if ids.length === 1}
+		<AddAnimationMenu bind:this={addAnimationMenu} top="{isGroup ? 5.25 : 3.5}rem" left="100%" id={ids[0]} />
+		<AddPropertyMenu bind:this={addPropertyMenu} top="{isGroup ? 7 : 5.25}rem" left="100%" />
+	{/if}
 </ContextMenu>
 
-<ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />
-<ConfirmDeleteGroupWindow bind:this={confirmDeleteGroupWindow} {id} />
+<ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {ids} />
+<ConfirmDeleteGroupWindow bind:this={confirmDeleteGroupWindow} {ids} />
 
 <style>
 	:global(button) {

@@ -29,12 +29,15 @@ export function generateCode(): string {
 	const objectLines = topologicalProjectObjects()
 		.map(object => {
 			const possibleProperties = getPossibleProperties(object);
-			const objectBase = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
+			const objectBase: ManimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
 
 			// Custom Codegen
-			if ("create" in objectBase) {
+			if (objectBase.create) {
 				return `\t\tobject_${object.id} = ${objectBase.create(object.properties)}`;
 			}
+
+			// Constructor Name
+			const constructor = objectBase.getConstructorName?.(object.properties) ?? objectBase.internalName ?? objectBase.name;
 
 			// Properties
 			const properties = Object.entries(object.properties)
@@ -63,9 +66,7 @@ export function generateCode(): string {
 				.map(([propertyValue, propertyBase]) => `.${propertyBase.function}(${propertyValueToString(propertyBase.type, propertyValue)})`)
 				.join("");
 
-			let manimObject: ManimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type"))!;
-
-			return `\t\tobject_${object.id} = ${manimObject.internalName ?? manimObject.name}(${positionalArguments}${comma}${keywordArguments})${functions}`;
+			return `\t\tobject_${object.id} = ${constructor}(${positionalArguments}${comma}${keywordArguments})${functions}`;
 		})
 		.join("\n");
 

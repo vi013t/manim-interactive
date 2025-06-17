@@ -10,7 +10,7 @@
 
 	let top = $state("");
 	let left = $state("");
-	let item = $state(getItemFromId(selected()![0])! as ProjectAnimation);
+	let item = $state(getItemFromId(selected()[0])! as ProjectAnimation);
 
 	let Icon = $derived(animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.icon);
 	let iconColor = $derived(getAnimationCategory(animations.find(object => object.name === getProperty(item, "Animation Type")!)!.category).color);

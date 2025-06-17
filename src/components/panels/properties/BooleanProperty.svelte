@@ -5,7 +5,7 @@
 	let { value = $bindable(), name }: { value: boolean; name: string } = $props();
 
 	function setProperty() {
-		(getPropertiesFromId(selected()![0])! as any)[name] = inputValue;
+		(getPropertiesFromId(selected()[0])! as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 

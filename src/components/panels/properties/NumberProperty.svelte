@@ -69,15 +69,15 @@
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
-		else removeError({ objectId: selected()![0], propertyName: name });
+		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
+		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	function setProperty() {
 		validate();
 		if (errorMessage) return;
 
-		(getPropertiesFromId(selected()![0])! as any)[name] = inputValue;
+		(getPropertiesFromId(selected()[0])! as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 

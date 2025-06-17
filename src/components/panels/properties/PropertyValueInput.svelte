@@ -28,7 +28,7 @@
 	};
 
 	function deleteRegularProperty() {
-		delete (getPropertiesFromId(selected()![0])! as any)[name];
+		delete (getPropertiesFromId(selected()[0])! as any)[name];
 		runAction("Save And Recompile Project");
 	}
 
@@ -47,7 +47,7 @@
 	{/if}
 
 	<!-- Property Value -->
-	{#key getItemFromId(selected()![0])}
+	{#key getItemFromId(selected()[0])}
 		{#if property.base === "animationType"}
 			<AnimationProperty value={value as string} {name} {property} />
 		{:else if property.base === "objectType"}
@@ -69,7 +69,7 @@
 		{:else if property.base === "string"}
 			<StringProperty bind:errorMessage value={value as string} {name} {property} />
 		{:else if property.base === "number"}
-			<NumberProperty bind:errorMessage value={value as number} {name} {property} id={selected()![0]} />
+			<NumberProperty bind:errorMessage value={value as number} {name} {property} id={selected()[0]} />
 		{/if}
 
 		<!-- Delete Button -->

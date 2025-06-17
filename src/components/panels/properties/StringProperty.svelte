@@ -23,21 +23,21 @@
 	let inputFocus = $state(false);
 
 	function getErrorMessage(): string | null {
-		if (!property.canBeEmpty && value === "") return "Value cannot be empty";
-		if (name === "Name" && isNameTaken(value.trim(), selected()![0])) return "Name is already taken";
+		if (!property.canBeEmpty && inputValue === "") return "Value cannot be empty";
+		if (name === "Name" && isNameTaken(inputValue.trim(), selected()[0])) return "Name is already taken";
 		return null;
 	}
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
-		else removeError({ objectId: selected()![0], propertyName: name });
+		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
+		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	function setProperty() {
 		validate();
 		if (errorMessage) return;
-		(getPropertiesFromId(selected()![0])! as any)[name] = inputValue;
+		(getPropertiesFromId(selected()[0])! as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 

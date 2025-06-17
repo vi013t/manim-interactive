@@ -19,7 +19,7 @@
 	} = $props();
 
 	let listCollapsed = $state(false);
-	let properties = $derived(getPropertiesFromId(selected()![0])!);
+	let properties = $derived(getPropertiesFromId(selected()[0])!);
 	let listElements: HTMLSpanElement[] = $state([]);
 	let grabbingIndex = $state(0);
 	let grabY = $state(0);

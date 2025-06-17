@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { getPossibleProperties, property, type PropertyType } from "../../../api/manim/property";
-	import { getSelectableFromId, selected } from "../../../api/project.svelte";
+	import { getSelectableFromId, getSingleSelection, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
-	let item = $derived(selected() !== null ? getSelectableFromId(selected()![0])! : null);
+	let item = $derived(getSingleSelection() !== null ? getSelectableFromId(getSingleSelection()!)! : null);
 
 	let top = $state("100%");
 	let left = $state("94%");
@@ -53,6 +53,16 @@
 
 					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
 					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
+
+					if ("special" in firstBase) {
+						if ("special" in secondBase) {
+							return firstName.localeCompare(secondName);
+						}
+
+						return -1;
+					}
+
+					if ("special" in secondBase) return 1;
 
 					if ("position" in firstBase) {
 						if ("position" in secondBase) {

@@ -5,6 +5,7 @@ import arcDemo from "../../assets/images/arc_demo.png";
 import axesDemo from "../../assets/images/axes_demo.png";
 import barChartDemo from "../../assets/images/bar_chart_demo.png";
 import boundingPolygonDemo from "../../assets/images/bounding_polygon_demo.png";
+import bulletedListDemo from "../../assets/images/bulleted_list_demo.png";
 import circleDemo from "../../assets/images/circle_demo.png";
 import codeDemo from "../../assets/images/code_demo.png";
 import combinatorDemo from "../../assets/images/combinator_demo.png";
@@ -14,12 +15,14 @@ import cylinderDemo from "../../assets/images/cylinder_demo.png";
 import dodecahedronDemo from "../../assets/images/dodecahedron_demo.png";
 import ellipseDemo from "../../assets/images/ellipse_demo.png";
 import graphDemo from "../../assets/images/graph_demo.png";
+import groupDemo from "../../assets/images/group_demo.png";
 import icosahedronDemo from "../../assets/images/icosahedron_demo.png";
 import imageDemo from "../../assets/images/image_demo.png";
 import lineDemo from "../../assets/images/line_demo.png";
 import mathTextDemo from "../../assets/images/math_text_demo.png";
 import networkDemo from "../../assets/images/network_demo.png";
 import octahedronDemo from "../../assets/images/octahedron_demo.png";
+import paragraphDemo from "../../assets/images/paragraph_demo.png";
 import plainTextDemo from "../../assets/images/plain_text_demo.png";
 import polygonDemo from "../../assets/images/polygon_demo.png";
 import rectangleDemo from "../../assets/images/rectangle_demo.png";
@@ -80,16 +83,7 @@ import UnionIcon from "../../components/icons/UnionIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getFonts } from "../system.svelte";
-import {
-	getPossibleProperties,
-	property,
-	propertyValueToString,
-	type KeywordProperty,
-	type PositionalProperty,
-	type Property,
-	type PropertyType,
-	type PropertyValue,
-} from "./property";
+import { property, type Property, type PropertyType, type PropertyValue } from "./property";
 
 export const objectCategories = [
 	{ color: "var(--peach)", icon: LineIcon, name: "Line" },
@@ -112,6 +106,7 @@ export type ManimObject = Readonly<{
 	properties: readonly Property[];
 	documentation: string[];
 	create?: (properties: { [key: string]: unknown }) => string;
+	getConstructorName?: (properties: { [key: string]: unknown }) => string;
 }>;
 
 export function getObjectCategory(name: ObjectCategoryName) {
@@ -519,7 +514,7 @@ export const objects = [
 		categories: ["Text"],
 		icon: BulletedListIcon,
 		description: "A list of text items with bullets.",
-		demo: circleDemo,
+		demo: bulletedListDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.tex_mobject.BulletedList.html"],
 		properties: [
 			{
@@ -595,31 +590,8 @@ export const objects = [
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Intersection.html",
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Union.html",
 		],
-		create(properties: { [key: string]: unknown }): string {
-			properties = { ...properties };
-			let name = properties.Method;
-			delete properties.Method;
-
-			let possibleProperties = getPossibleProperties("Combinator");
-			const propertyEntries = Object.entries(properties).map(([propertyName, propertyValue]): [unknown, Property] => [
-				propertyValue,
-				possibleProperties.find(possible => possible.name === propertyName)! as Property,
-			]);
-
-			// Positional Arguments
-			let positionalArguments = propertyEntries
-				.filter<[unknown, PositionalProperty]>((propertyData): propertyData is [unknown, PositionalProperty] => "position" in propertyData[1])
-				.toSorted(([_valueA, baseA], [_valueB, baseB]) => baseA.position - baseB.position)
-				.map(([propertyValue, propertyBase]) => `${propertyValueToString(propertyBase.type, propertyValue)}, `)
-				.join("");
-
-			// Keyword Arguments
-			let keywordArguments = propertyEntries
-				.filter<[unknown, KeywordProperty]>((propertyData): propertyData is [unknown, KeywordProperty] => "internalName" in propertyData[1])
-				.map(([propertyValue, propertyBase]) => `${propertyValueToString(propertyBase.type, propertyValue)}, `)
-				.join(", ");
-
-			return `${name}(${positionalArguments}${keywordArguments})`;
+		getConstructorName(properties: { [key: string]: unknown }): string {
+			return properties.Method as string;
 		},
 	},
 	{
@@ -693,7 +665,7 @@ export const objects = [
 		icon: PackageIcon,
 		description: "A group of other objects, allowing animating them at the same time.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.types.vectorized_mobject.VGroup.html"],
-		demo: circleDemo,
+		demo: groupDemo,
 		properties: [
 			{
 				name: "Group in Hierarchy",
@@ -793,7 +765,7 @@ export const objects = [
 		categories: ["Text"],
 		icon: ParagraphIcon,
 		description: "Text with multiple lines.",
-		demo: circleDemo,
+		demo: paragraphDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.Paragraph.html"],
 		properties: [],
 	},
@@ -922,8 +894,18 @@ export const objects = [
 				categories: ["Details"],
 				description: "The spacing of vertical grid lines.",
 			},
+			{
+				name: "Corner Radius",
+				internalName: "corner_radius",
+				type: property().number().nonnegative(),
+				description: "The rounding of the rectangles corners.",
+				categories: ["Special"],
+			},
 			...VMobjectProperties,
 		],
+		getConstructorName(properties: { [key: string]: unknown }) {
+			return properties["Corner Radius"] !== undefined ? "RoundedRectangle" : "Rectangle";
+		},
 	},
 	{
 		name: "Rectangular Prism",
@@ -989,7 +971,7 @@ export const objects = [
 		demo: squareDemo,
 		description: "A rectangle with equal side lengths.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Square.html"],
-		properties: [],
+		properties: [...VMobjectProperties],
 	},
 	{
 		name: "Star",

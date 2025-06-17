@@ -139,10 +139,8 @@
 	onclick={() => select([animation.id])}
 	{@attach onAnimationMount(animation)}
 	style:background-color={animationColor(animation)}
-	style:outline={selected()![0] === animation.id || (selected() !== null && getAnimationObjects(animation).includes(selected()![0]))
-		? "4px solid rgba(255, 255, 255, 50%)"
-		: "none"}
-	style:opacity={selected() === null || selected()![0] === animation.id || getAnimationObjects(animation).includes(selected()![0]) ? "100%" : "30%"}
+	style:outline={selected()[0] === animation.id || (selected() !== null && getAnimationObjects(animation).includes(selected()[0])) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
+	style:opacity={selected() === null || selected()[0] === animation.id || getAnimationObjects(animation).includes(selected()[0]) ? "100%" : "30%"}
 	bind:this={element}
 >
 	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />

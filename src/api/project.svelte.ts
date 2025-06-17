@@ -1,6 +1,6 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
 import type { AnimationProperties } from "./manim/animations";
-import type { ObjectProperties } from "./manim/objects";
+import { type ObjectProperties } from "./manim/objects";
 import type { Properties } from "./manim/property";
 import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/property";
 import { getPreferences, runAction } from "./preferences.svelte";
@@ -110,6 +110,7 @@ export function resetProject() {
 	projectAudios = [];
 	projectMarkers = [];
 	id = 0;
+	addEndMarker();
 }
 
 export function getProjectAnimations(): ProjectAnimation[] {
@@ -182,7 +183,7 @@ export function addProjectObject(object: ProjectObject) {
 }
 
 export function deleteProjectItem(id: number) {
-	if (selected()?.includes(id)) select(selected()!.filter(sel => sel !== id));
+	if (selected().includes(id)) select(selected().filter(sel => sel !== id));
 
 	getProjectObjects()
 		.filter(object => getProperty(object, "Object Type") === "Group")
@@ -204,14 +205,34 @@ export function deleteProjectItem(id: number) {
 
 type Selectable = ProjectObject | ProjectAnimation;
 
-let selectedItems: number[] | null = $state(null);
+let selectedItems: number[] = $state([]);
 
-export function selected(): number[] | null {
+export function selected(): number[] {
 	return selectedItems;
 }
 
-export function select(id: number[] | null) {
+export function addToSelection(...ids: number[]) {
+	selectedItems.push(...ids);
+}
+
+export function removeFromSelection(...ids: number[]) {
+	selectedItems = selectedItems?.filter(id => !ids.includes(id)) ?? null;
+}
+
+export function deselect() {
+	selectedItems = [];
+}
+
+export function select(id: number[]) {
 	selectedItems = id;
+}
+
+export function getSingleSelection(): number | null {
+	return selectedItems.length === 1 ? selectedItems[0] : null;
+}
+
+export function areMultipleSelected(): boolean {
+	return selectedItems.length > 1;
 }
 
 export function getPropertiesFromId<T extends ProjectObject | ProjectAnimation>(id: number): Properties<T> | null {
@@ -362,7 +383,17 @@ export function previousAnimation(animation: ProjectAnimation): ProjectAnimation
 export function isObjectUsed(object: ProjectObject): boolean {
 	return (
 		projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id)) ||
-		(getProperty(object, "Object Type") === "Group" && getProperty(object, "Objects")!.length > 0)
+		(getProperty(object, "Object Type") === "Group" && getProperty(object, "Objects")!.length > 0) ||
+		(() => {
+			let properties = getPossibleProperties(object);
+			return projectObjects.some(object => {
+				return Object.entries(object.properties).some(([propertyName, propertyValue]) => {
+					if (["Name", "Object Type"].includes(propertyName)) return false;
+					console.log(propertyName, properties);
+					return properties.find(property => property.name === propertyName)!.type.base === "object" && propertyValue === object.id;
+				});
+			});
+		})()
 	);
 }
 

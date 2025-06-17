@@ -6,7 +6,7 @@
 	let { name, property }: { name: string; property: ColorProperty } = $props();
 
 	function setProperty(color: string) {
-		(getPropertiesFromId(selected()![0])! as any)[name] = color;
+		(getPropertiesFromId(selected()[0])! as any)[name] = color;
 	}
 </script>
 

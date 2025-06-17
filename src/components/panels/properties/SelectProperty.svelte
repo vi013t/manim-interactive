@@ -16,11 +16,11 @@
 	} = $props();
 
 	function setProperty() {
-		(getPropertiesFromId(selected()![0]) as any)[name] = value;
+		(getPropertiesFromId(selected()[0]) as any)[name] = value;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
-	let properties = $derived(getPropertiesFromId(selected()![0])!);
+	let properties = $derived(getPropertiesFromId(selected()[0])!);
 	let altHeld = $state(false);
 
 	onMount(() => {

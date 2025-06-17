@@ -49,8 +49,8 @@
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
-		else removeError({ objectId: selected()![0], propertyName: name });
+		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
+		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	function blur() {
@@ -61,7 +61,7 @@
 		hidePoint();
 
 		if (valueChanged) {
-			const properties = getPropertiesFromId(selected()![0])!;
+			const properties = getPropertiesFromId(selected()[0])!;
 			(properties as any)[name] = [Number(x), Number(y), Number(z)];
 			runAction("Save And Recompile Project");
 		}

@@ -9,12 +9,12 @@
 
 	let menu: Menu;
 
-	let item = $derived(getSelectableFromId(selected()![0])!);
+	let item = $derived(getSelectableFromId(selected()[0])!);
 
 	function onSelect(name: string) {
 		hide();
 		let defaultValue = (getPossibleProperties(item).find(property => property.name === name)!.type as any).defaultValue ?? null;
-		addProperty(getItemFromId(selected()![0])!.id, name as ObjectPropertyName, defaultValue);
+		addProperty(getItemFromId(selected()[0])!.id, name as ObjectPropertyName, defaultValue);
 	}
 
 	export function show() {

@@ -3,7 +3,17 @@
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { getObjectFromId, isObjectUsed, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
+	import {
+		addToSelection,
+		areMultipleSelected,
+		getObjectFromId,
+		isObjectUsed,
+		itemHasErrors,
+		removeFromSelection,
+		select,
+		selected,
+		type ProjectObject,
+	} from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import SkullIcon from "../../icons/SkullIcon.svelte";
@@ -38,17 +48,25 @@
 
 	function rightClickObject(event: MouseEvent) {
 		event.preventDefault();
-		select([entry.id]);
+		if (!areMultipleSelected()) select([entry.id]);
 		top = `${event.clientY - 30}px`;
 		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		objectMenu.show();
 	}
 
-	let isSelected = $derived(selected()?.includes(entry.id));
+	let isSelected = $derived(selected().includes(entry.id));
 	let isHovered = $state(false);
 
 	function clickObject(event: MouseEvent) {
-		select([entry.id]);
+		if (event.ctrlKey) {
+			if (isSelected) {
+				removeFromSelection(entry.id);
+			} else {
+				addToSelection(entry.id);
+			}
+		} else {
+			select([entry.id]);
+		}
 	}
 
 	// svelte-ignore non_reactive_update
@@ -150,7 +168,7 @@
 	{/if}
 </div>
 <GroupMenu bind:this={groupMenu} {top} {left} id={entry.id} />
-<ObjectMenu bind:this={objectMenu} {top} {left} id={entry.id} />
+<ObjectMenu bind:this={objectMenu} {top} {left} ids={selected()} />
 
 <style>
 	.object {

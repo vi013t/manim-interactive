@@ -2,7 +2,7 @@
 	import { deleteProjectItem } from "../../api/project.svelte";
 	import Window from "./Window.svelte";
 
-	let { id } = $props();
+	let { ids }: { ids: number[] } = $props();
 
 	let deleteWindow: Window;
 
@@ -11,7 +11,7 @@
 	}
 
 	function deleteObject() {
-		deleteProjectItem(id);
+		ids.forEach(id => deleteProjectItem(id));
 		deleteWindow.close();
 	}
 </script>

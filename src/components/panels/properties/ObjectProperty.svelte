@@ -18,15 +18,15 @@
 
 	function validate() {
 		errorMessage = selectedOption === undefined ? "Selection must not be empty" : null;
-		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
-		else removeError({ objectId: selected()![0], propertyName: name });
+		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
+		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	function setProperty() {
 		validate();
 		if (errorMessage) return;
 
-		(getPropertiesFromId(selected()![0])! as any)[name] = selectedOption;
+		(getPropertiesFromId(selected()[0])! as any)[name] = selectedOption;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -37,7 +37,7 @@
 
 <Select
 	options={getProjectObjects()
-		.filter(object => !selected()!.includes(object.id))
+		.filter(object => !selected().includes(object.id))
 		.map(object => {
 			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
 			const category = getObjectCategory(manimObject.categories[0]);
@@ -48,7 +48,7 @@
 		setProperty();
 	}}
 	value={(() => {
-		if (selectedOption !== undefined) {
+		if (selectedOption !== undefined && selectedOption !== null) {
 			const object = getItemFromId(selectedOption)! as ProjectObject;
 			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
 			const category = getObjectCategory(manimObject.categories[0]);
@@ -57,5 +57,5 @@
 			return undefined;
 		}
 	})()}
-	style={`outline: 2px solid ${selectedOption !== undefined ? "transparent" : "var(--red)"}`}
+	style={`outline: 2px solid ${selectedOption !== undefined && selectedOption !== null ? "transparent" : "var(--red)"}`}
 />

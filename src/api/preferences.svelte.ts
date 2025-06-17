@@ -3,13 +3,13 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
+	deselect,
 	getExplicitProjectLocation,
 	getProjectLocation,
 	getProjectSaveData,
 	loadProjectData,
 	projectHasErrors,
 	resetProject,
-	select,
 	setProjectLocation,
 } from "./project.svelte";
 
@@ -155,7 +155,7 @@ const actions = {
 	Deselect: {
 		name: "Deselect",
 		run() {
-			select(null);
+			deselect();
 		},
 	},
 } as const satisfies { [key: string]: Action<any> };
