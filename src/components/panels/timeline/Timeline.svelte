@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { getProperty } from "../../../api/manim/properties";
+	import { getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { animationEndTime, getProjectAnimations, getProjectAudios, getProjectMarkers, intervalsOverlap, movieLength, type ProjectMarker } from "../../../api/project.svelte";
 	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";

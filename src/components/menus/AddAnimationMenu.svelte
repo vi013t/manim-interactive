@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { animationCategories, animations } from "../../api/manim/animations";
-	import { getProperty } from "../../api/manim/properties";
+	import { getProperty } from "../../api/manim/property";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectAnimation, getItemFromId, nextId, select, updateEndMarker, type ProjectAnimation } from "../../api/project.svelte";
 	import Menu from "./Menu.svelte";

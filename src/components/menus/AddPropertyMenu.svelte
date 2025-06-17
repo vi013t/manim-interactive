@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { ObjectPropertyName } from "../../api/manim/objects";
-	import { addProperty, getPossibleProperties } from "../../api/manim/properties";
-	import { animationPropertyCategories, objectPropertyCategories } from "../../api/manim/property";
+	import { addProperty, animationPropertyCategories, getPossibleProperties, objectPropertyCategories } from "../../api/manim/property";
 	import { getItemFromId, getSelectableFromId, selected } from "../../api/project.svelte";
 	import EmptyIcon from "../icons/EmptyIcon.svelte";
 	import Menu from "./Menu.svelte";

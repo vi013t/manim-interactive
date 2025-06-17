@@ -80,8 +80,16 @@ import UnionIcon from "../../components/icons/UnionIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getFonts } from "../system.svelte";
-import { getPossibleProperties } from "./properties";
-import { property, propertyValueToString, type KeywordProperty, type PositionalProperty, type Property, type PropertyType, type PropertyValue } from "./property";
+import {
+	getPossibleProperties,
+	property,
+	propertyValueToString,
+	type KeywordProperty,
+	type PositionalProperty,
+	type Property,
+	type PropertyType,
+	type PropertyValue,
+} from "./property";
 
 export const objectCategories = [
 	{ color: "var(--peach)", icon: LineIcon, name: "Line" },

@@ -1,8 +1,8 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
 import type { AnimationProperties } from "./manim/animations";
 import type { ObjectProperties } from "./manim/objects";
-import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/properties";
 import type { Properties } from "./manim/property";
+import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/property";
 import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
@@ -183,6 +183,17 @@ export function addProjectObject(object: ProjectObject) {
 
 export function deleteProjectItem(id: number) {
 	if (selected()?.includes(id)) select(selected()!.filter(sel => sel !== id));
+
+	getProjectObjects()
+		.filter(object => getProperty(object, "Object Type") === "Group")
+		.forEach(group => {
+			(group.properties as any)["Objects"] = group.properties["Objects"]!.filter(contentId => contentId !== id);
+		});
+
+	getObjectFromId(id)?.properties["Objects"]?.forEach(objectId => {
+		deleteProjectItem(objectId as number);
+	});
+
 	projectObjects = projectObjects.filter(object => object.id !== id);
 	projectAnimations = projectAnimations.filter(animation => getProperty(animation, "Object") !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
@@ -374,5 +385,5 @@ export function updateEndMarker() {
 export function isObjectInGroup(id: number) {
 	return projectObjects
 		.filter(object => getProperty(object, "Object Type") === "Group")
-		.some(group => getProperty(group, "Objects")!.includes(id) && getProperty(group, "Group in Hierarchy")!);
+		.some(group => getProperty(group, "Objects")!.includes(id) && getProperty(group, "Group in Hierarchy") !== false);
 }

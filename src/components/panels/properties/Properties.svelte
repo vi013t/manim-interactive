@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { getPossibleProperties } from "../../../api/manim/properties";
-	import { property, type PropertyType } from "../../../api/manim/property";
+	import { getPossibleProperties, property, type PropertyType } from "../../../api/manim/property";
 	import { getSelectableFromId, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";

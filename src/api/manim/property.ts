@@ -5,13 +5,9 @@ import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import type { SelectOption } from "../../components/util/Select.svelte";
-import type { ProjectAnimation, ProjectObject } from "../project.svelte";
-import type { AnimationProperties } from "./animations";
-import type { ObjectProperties } from "./objects";
-
-export type Max = 9_007_199_254_740_991; // Number.MAX_VALUE
-export type Min = -9_007_199_254_740_991; // Number.MIN_VALUE
-export type Epsilon = 0.0000000000000002220446049250313080847263336181640625; // Number.EPSILON
+import { getProjectAnimations, getProjectObjects, type ProjectAnimation, type ProjectObject } from "../project.svelte";
+import { animations, type AnimationProperties, type AnimationProperty, type AnimationPropertyName, type AnimationPropertyValue } from "./animations";
+import { objects, type ObjectProperties, type ObjectProperty, type ObjectPropertyName, type ObjectPropertyValue } from "./objects";
 
 type PositionalPropertyPart = {
 	/**
@@ -177,12 +173,12 @@ export type ObjectTypeProperty = {
 	requires(...name: string[]): ObjectTypeProperty;
 };
 
-export type ObjectProperty = {
+export type ObjectPropertyType = {
 	base: "object";
 	allowedTypes: string[];
 	requiredProperties: string[];
-	only(...allowedTypes: string[]): ObjectProperty;
-	requires(...name: string[]): ObjectProperty;
+	only(...allowedTypes: string[]): ObjectPropertyType;
+	requires(...name: string[]): ObjectPropertyType;
 };
 
 export type AnimationTypeProperty = {
@@ -290,7 +286,7 @@ export type PropertyType =
 	| ObjectTypeProperty
 	| AnimationTypeProperty
 	| SelectProperty
-	| ObjectProperty
+	| ObjectPropertyType
 	| ListProperty
 	| CompoundProperty;
 export type PropertyTypeBase = PropertyType["base"];
@@ -298,7 +294,7 @@ export type PropertyTypeBase = PropertyType["base"];
 /**
  * Returns a factory for creating properties.
  */
-export const property = (() => {
+export function property() {
 	return {
 		number(): NumberProperty {
 			return {
@@ -469,7 +465,7 @@ export const property = (() => {
 				},
 			};
 		},
-		object(): ObjectProperty {
+		object(): ObjectPropertyType {
 			return {
 				base: "object",
 				allowedTypes: [],
@@ -563,7 +559,7 @@ export const property = (() => {
 			};
 		},
 	};
-}) satisfies () => { [Key in PropertyTypeBase]: (() => PropertyType) | ((type: PropertyType) => PropertyType) };
+}
 
 export function propertyValueToString(type: PropertyType, value: unknown): string {
 	if (type.base === "list") {
@@ -585,7 +581,7 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 	return `${value}`;
 }
 
-export type PropertyValue<T extends PropertyType> = T extends ObjectProperty ? number : T extends { defaultValue: unknown } ? T["defaultValue"] : never;
+export type PropertyValue<T extends PropertyType> = T extends ObjectPropertyType ? number : T extends { defaultValue: unknown } ? T["defaultValue"] : never;
 
 export function getPropertyObjects(properties: Map<PropertyType, unknown>): number[] {
 	return properties
@@ -600,3 +596,37 @@ export function getPropertyObjects(properties: Map<PropertyType, unknown>): numb
 }
 
 export type Properties<T extends ProjectObject | ProjectAnimation> = T extends ProjectObject ? ObjectProperties : AnimationProperties;
+
+export function getPossibleProperties(item: string): readonly ObjectProperty[];
+export function getPossibleProperties(item: ProjectObject): readonly ObjectProperty[];
+export function getPossibleProperties(item: ProjectAnimation): readonly AnimationProperty[];
+export function getPossibleProperties(item: ProjectObject | ProjectAnimation): readonly ObjectProperty[] | readonly AnimationProperty[];
+
+export function getPossibleProperties(item: ProjectObject | ProjectAnimation | string): readonly ObjectProperty[] | readonly AnimationProperty[] {
+	if (typeof item === "string") return objects.find(object => object.name === item)!.properties as readonly ObjectProperty[];
+	if (item.type === "object") return objects.find(object => object.name === getProperty(item, "Object Type")!)!.properties as readonly ObjectProperty[];
+	return animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.properties as readonly AnimationProperty[];
+}
+
+export function addProperty(id: number, name: ObjectPropertyName | AnimationPropertyName, value: unknown) {
+	((getProjectObjects().find(object => object.id === id) ?? getProjectAnimations().find(animation => animation.id === id)) as any).properties[name] = value;
+}
+
+export function getProperty<Name extends AnimationPropertyName>(item: ProjectAnimation, name: Name): AnimationPropertyValue<Name> | null;
+export function getProperty<Name extends ObjectPropertyName>(item: ProjectObject, name: Name): ObjectPropertyValue<Name> | null;
+export function getProperty<Name extends AnimationPropertyName | ObjectPropertyName>(
+	item: ProjectAnimation | ProjectObject,
+	name: Name
+): Name extends AnimationPropertyName ? AnimationPropertyValue<Name> : Name extends ObjectPropertyName ? ObjectPropertyValue<Name> : never | null {
+	return (item.properties as any)[name] ?? null;
+}
+
+export function getAnimationObjects(animation: ProjectAnimation): number[] {
+	return getPropertyObjects(
+		new Map(
+			getPossibleProperties(animation)
+				.filter(property => property.name in animation.properties)
+				.map(property => [property.type, getProperty(animation, property.name)!])
+		)
+	);
+}

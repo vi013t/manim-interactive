@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { getPossibleProperties, getProperty } from "../../../api/manim/properties";
+	import { getPossibleProperties, getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected, type ProjectObject } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";

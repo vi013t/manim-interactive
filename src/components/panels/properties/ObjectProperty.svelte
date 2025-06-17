@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { getProperty } from "../../../api/manim/properties";
+	import { getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { addError, getItemFromId, getProjectObjects, getPropertiesFromId, type ProjectObject, removeError, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";

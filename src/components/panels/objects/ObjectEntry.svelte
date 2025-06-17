@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
-	import { getProperty } from "../../../api/manim/properties";
+	import { getProperty } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, isObjectUsed, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
+	import { getObjectFromId, isObjectUsed, itemHasErrors, select, selected, type ProjectObject } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import SkullIcon from "../../icons/SkullIcon.svelte";
@@ -85,7 +85,7 @@
 			expanded = !expanded;
 		}}
 	>
-		{#if getProperty(entry, "Object Type") === "Group"}
+		{#if getProperty(entry, "Object Type") === "Group" && entry.properties["Group in Hierarchy"] !== false}
 			{#if expanded}
 				<RightArrow stroke="var(--blue)" style="width: 1rem; height: 1rem; rotate: 90deg;" />
 			{:else}
@@ -94,7 +94,9 @@
 		{/if}
 		<data.icon
 			stroke={getObjectCategory(data.categories[0]).color}
-			style="width: 1rem; height: 1rem; margin-left: {getProperty(entry, 'Object Type') === 'Group' ? 0.2 : 1.2}rem; margin-right: 0.25rem;"
+			style="width: 1rem; height: 1rem; margin-left: {getProperty(entry, 'Object Type') === 'Group' && entry.properties['Group in Hierarchy'] !== false
+				? 0.2
+				: 1.2}rem; margin-right: 0.25rem;"
 		/>
 		<span
 			style:color={isObjectUsed(entry) ? "var(--text)" : "var(--overlay-0)"}
@@ -120,8 +122,22 @@
 	</div>
 
 	<!-- Group Contents -->
-	{#if getProperty(entry, "Object Type") === "Group" && expanded && getProperty(entry, "Objects")!.length > 0}
-		{@const contents = (entry.properties as { Objects: number[] })["Objects"].map(id => getItemFromId(id) as ProjectObject)}
+	{#if getProperty(entry, "Object Type") === "Group" && expanded && getProperty(entry, "Objects")!.length > 0 && entry.properties["Group in Hierarchy"] !== false}
+		{@const contents = entry.properties["Objects"]!.map(id => getObjectFromId(id as number)!).toSorted((obj1, obj2) => {
+			if (!isObjectUsed(obj1)) {
+				if (!isObjectUsed(obj2)) {
+					return obj1.properties["Name"].localeCompare(obj2.properties["Name"]);
+				}
+
+				return 1;
+			}
+
+			if (!isObjectUsed(obj2)) {
+				return -1;
+			}
+
+			return obj1.properties["Name"].localeCompare(obj2.properties["Name"]);
+		})}
 		<div class="bottom">
 			{#each contents.filter(object => getProperty(object, "Object Type") === "Group") as item (item.id)}
 				<ObjectEntry entry={item} />

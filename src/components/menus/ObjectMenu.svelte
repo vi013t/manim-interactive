@@ -1,18 +1,8 @@
 <script lang="ts">
 	import { objects, type ObjectProperties } from "../../api/manim/objects";
-	import { getAnimationObjects, getProperty } from "../../api/manim/properties";
+	import { getAnimationObjects, getProperty } from "../../api/manim/property";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import {
-		addProjectObject,
-		deleteProjectItem,
-		getObjectFromId,
-		getProjectAnimations,
-		getProjectObjects,
-		isNameTaken,
-		nextId,
-		select,
-		type ProjectObject,
-	} from "../../api/project.svelte";
+	import { addProjectObject, deleteProjectItem, getObjectFromId, getProjectAnimations, isNameTaken, nextId, select, type ProjectObject } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import CubeIcon from "../icons/CubeIcon.svelte";
@@ -59,11 +49,6 @@
 		} else if (getProjectAnimations().some(animation => getAnimationObjects(animation).includes(id))) {
 			confirmDeleteObjectWindow.show();
 		} else {
-			getProjectObjects()
-				.filter(object => getProperty(object, "Object Type") === "Group")
-				.forEach(group => {
-					(group.properties as any)["Objects"] = (group.properties as any)["Objects"]!.filter((contentId: number) => contentId !== id);
-				});
 			deleteProjectItem(id);
 		}
 	}

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { getProperty } from "../../../api/manim/properties";
 	import type { NumberProperty } from "../../../api/manim/property";
+	import { getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import {
 		addError,

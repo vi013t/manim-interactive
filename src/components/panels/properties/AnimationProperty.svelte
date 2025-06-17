@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { animations, getAnimationCategory } from "../../../api/manim/animations";
-	import { getProperty } from "../../../api/manim/properties";
 	import type { AnimationTypeProperty } from "../../../api/manim/property";
+	import { getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected, type ProjectAnimation } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";

@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { getPreferences, runAction, savePreferences, type Preference } from "../../api/preferences.svelte";
-	import { getProjectName } from "../../api/project.svelte";
+	import { getProjectLocation, getProjectName } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
 	import CloseIcon from "../icons/CloseIcon.svelte";
@@ -74,6 +75,11 @@
 			savePreferences();
 		};
 	}
+
+	async function openMovieLocation() {
+		invoke("open_movie_location", { projectPath: await getProjectLocation(), lowRes: getPreferences().lowRes });
+		projectMenu.hide();
+	}
 </script>
 
 <nav id="navbar" oncontextmenu={event => event.preventDefault()}>
@@ -96,6 +102,10 @@
 		<button onclick={projectSettings}>
 			<span>{translate("Project Settings")}</span>
 			<span>Ctrl+,</span>
+		</button>
+		<button onclick={openMovieLocation}>
+			<span>{translate("Open Movie File Folder")}</span>
+			<span>Ctrl+E</span>
 		</button>
 	</ContextMenu>
 

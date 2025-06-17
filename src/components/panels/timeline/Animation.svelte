@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
-	import { getAnimationObjects, getProperty } from "../../../api/manim/properties";
+	import { getAnimationObjects, getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { type ProjectAnimation, animationEndTime, getProjectAnimations, nextAnimation, previousAnimation, select, selected, updateEndMarker } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";

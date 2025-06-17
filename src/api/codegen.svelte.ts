@@ -1,7 +1,6 @@
 import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
-import { getPossibleProperties, getProperty } from "./manim/properties";
-import { propertyValueToString, type FunctionProperty, type KeywordProperty, type PositionalProperty, type Property } from "./manim/property";
+import { getPossibleProperties, getProperty, propertyValueToString, type FunctionProperty, type KeywordProperty, type PositionalProperty, type Property } from "./manim/property";
 import { animationEndTime, getProjectAnimations, getProjectMarkers, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {

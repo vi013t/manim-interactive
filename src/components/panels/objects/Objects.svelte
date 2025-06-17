@@ -2,8 +2,8 @@
 	import ObjectEntry from "./ObjectEntry.svelte";
 
 	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../../api/client.svelte";
-	import { getProperty } from "../../../api/manim/properties";
-	import { getProjectObjects, isObjectInGroup } from "../../../api/project.svelte";
+	import { getProperty } from "../../../api/manim/property";
+	import { getProjectObjects, isObjectInGroup, isObjectUsed } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
@@ -28,6 +28,24 @@
 		left = "24rem";
 		objectMenu.show();
 	}
+
+	let sortedObjects = $derived(
+		getProjectObjects().toSorted((obj1, obj2) => {
+			if (!isObjectUsed(obj1)) {
+				if (!isObjectUsed(obj2)) {
+					return obj1.properties["Name"].localeCompare(obj2.properties["Name"]);
+				}
+
+				return 1;
+			}
+
+			if (!isObjectUsed(obj2)) {
+				return -1;
+			}
+
+			return obj1.properties["Name"].localeCompare(obj2.properties["Name"]);
+		}),
+	);
 </script>
 
 <section id="object-panel">
@@ -38,11 +56,11 @@
 		</button>
 	</div>
 
-	{#each getProjectObjects().filter(object => getProperty(object, "Object Type") === "Group" && !isObjectInGroup(object.id)) as object (object.id)}
+	{#each sortedObjects.filter(object => getProperty(object, "Object Type") === "Group" && !isObjectInGroup(object.id)) as object (object.id)}
 		<ObjectEntry entry={object} />
 	{/each}
 
-	{#each getProjectObjects().filter(object => getProperty(object, "Object Type") !== "Group" && !isObjectInGroup(object.id)) as object (object.id)}
+	{#each sortedObjects.filter(object => getProperty(object, "Object Type") !== "Group" && !isObjectInGroup(object.id)) as object (object.id)}
 		<ObjectEntry entry={object} />
 	{/each}
 
