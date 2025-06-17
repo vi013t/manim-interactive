@@ -29,7 +29,6 @@ import AsteriskIcon from "../../components/icons/AsteriskIcon.svelte";
 import BlinkIcon from "../../components/icons/BlinkIcon.svelte";
 import BorderIcon from "../../components/icons/BorderIcon.svelte";
 import CircledLightningIcon from "../../components/icons/CircledLightningIcon.svelte";
-import ClockIcon from "../../components/icons/ClockIcon.svelte";
 import CycleIcon from "../../components/icons/CycleIcon.svelte";
 import EraserIcon from "../../components/icons/EraserIcon.svelte";
 import FadeInIcon from "../../components/icons/FadeInIcon.svelte";
@@ -443,31 +442,6 @@ export const animations = [
 		icon: PlainTextIcon,
 		internalName: "AddTextLetterByLetter",
 		properties: [...singleObjectProperties],
-	},
-	{
-		name: "Wait",
-		category: "Miscellaneous",
-		description: "Wait for some time and do nothing in between animations",
-		demo: focusDemo,
-		icon: ClockIcon,
-		properties: [
-			{
-				name: "Duration",
-				categories: ["Timing"],
-				description: "The duration of the animation",
-				internalName: "run_time",
-				type: property().number().nonnegative().default(1),
-				required: true,
-			},
-			{
-				name: "Start Time",
-				categories: ["Timing"],
-				description: "The starting time of the animation",
-				special: true,
-				type: property().number().nonnegative(),
-				required: true,
-			},
-		],
 	},
 	{
 		name: "Wave",

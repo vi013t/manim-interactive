@@ -2,7 +2,7 @@
 	import { animationCategories, animations } from "../../api/manim/animations";
 	import { getProperty } from "../../api/manim/properties";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import { addProjectAnimation, getItemFromId, nextId, select, type ProjectAnimation } from "../../api/project.svelte";
+	import { addProjectAnimation, getItemFromId, nextId, select, updateEndMarker, type ProjectAnimation } from "../../api/project.svelte";
 	import Menu from "./Menu.svelte";
 
 	let {
@@ -44,6 +44,7 @@
 
 		onAdd(animation);
 		addProjectAnimation(animation);
+		updateEndMarker();
 		select(animation);
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}

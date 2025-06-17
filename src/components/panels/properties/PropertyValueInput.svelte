@@ -53,7 +53,7 @@
 		{:else if property.base === "objectType"}
 			<ObjectTypeProperty value={value as string} />
 		{:else if property.base === "object"}
-			<ObjectProperty value={value as number} {name} />
+			<ObjectProperty bind:errorMessage value={value as number} {name} />
 		{:else if property.base === "color"}
 			<ColorProperty {property} {name} />
 		{:else if property.base === "boolean"}

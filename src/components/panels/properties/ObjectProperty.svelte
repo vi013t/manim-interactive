@@ -1,24 +1,38 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, getProjectObjects, type ProjectObject, selected } from "../../../api/project.svelte";
+	import { addError, getItemFromId, getProjectObjects, type ProjectObject, removeError, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
 		value = $bindable(),
 		name,
+		errorMessage = $bindable(),
 	}: {
 		value: number;
 		name: string;
+		errorMessage: string | null;
 	} = $props();
 
+	function validate() {
+		errorMessage = selectedOption === undefined ? "Selection must not be empty" : null;
+		if (errorMessage) addError({ objectId: selected()!, propertyName: name });
+		else removeError({ objectId: selected()!, propertyName: name });
+	}
+
 	function setProperty() {
+		validate();
+		if (errorMessage) return;
+
 		(getItemFromId(selected()!)!.properties as any)[name] = selectedOption;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
 	let selectedOption: number = $state(value);
+
+	onMount(() => validate());
 </script>
 
 <Select

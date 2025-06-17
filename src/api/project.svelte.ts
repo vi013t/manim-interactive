@@ -202,8 +202,11 @@ export function select(object: Selectable | null) {
 	selectedThing = object?.id ?? null;
 }
 
-export function getItemFromId(id: number): ProjectObject | ProjectAnimation | null {
-	return getProjectObjects().find(object => object.id === id) ?? getProjectAnimations().find(animation => animation.id === id) ?? null;
+export function getItemFromId<T extends ProjectObject | ProjectAnimation | ProjectMarker>(id: number): T | null {
+	return (getProjectObjects().find(object => object.id === id) ??
+		getProjectAnimations().find(animation => animation.id === id) ??
+		getProjectMarkers().find(marker => marker.id === id) ??
+		null) as T | null;
 }
 
 type Error = PropertyError;
@@ -340,4 +343,15 @@ export function isObjectUsed(object: ProjectObject): boolean {
 export function movieLength(): number {
 	if (projectAnimations.length === 0) return 0;
 	return projectAnimations.map(animation => animationEndTime(animation)).toSorted((anim1, anim2) => anim2 - anim1)[0];
+}
+
+export function addEndMarker() {
+	projectMarkers.push({ name: "End", id: nextId(), time: 0 });
+	runAction("Save Project");
+}
+
+export function updateEndMarker() {
+	let endMarker = projectMarkers.find(marker => marker.name === "End")!;
+	let lastAnimation = projectAnimations.toSorted((anim1, anim2) => animationEndTime(anim2) - animationEndTime(anim1))[0];
+	endMarker.time = animationEndTime(lastAnimation);
 }

@@ -73,12 +73,32 @@
 
 		document.addEventListener("mousemove", event => {
 			if (draggingMarker) {
-				draggingMarker.style.top = `${event.clientY - timelineElement.getBoundingClientRect().top}px`;
+				const cellHeight = 64;
+				let minimum = 0;
+				if (draggingMarker.textContent === "End" && getProjectAnimations().length > 0) {
+					minimum =
+						getProjectAnimations()
+							.map(animationEndTime)
+							.toSorted((anim1, anim2) => anim2 - anim1)[0] * cellHeight;
+				}
+				let newTop = Math.max(event.clientY - timelineElement.getBoundingClientRect().top, minimum);
+				if (getPreferences().timelineSnapping) {
+					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
+					else newTop = newTop + (cellHeight - (newTop % cellHeight));
+				}
+				draggingMarker.style.top = `${newTop}px`;
 			}
 		});
 
 		document.addEventListener("mouseup", event => {
-			if (draggingMarker) runAction("Save Project");
+			if (draggingMarker) {
+				getProjectMarkers().find(marker => marker.name === draggingMarker!.textContent)!.time = parseInt(draggingMarker.style.top) / 64;
+				if (draggingMarker.textContent === "End") {
+					runAction("Save And Recompile Project");
+				} else {
+					runAction("Save Project");
+				}
+			}
 			draggingMarker = null;
 		});
 	});
@@ -160,7 +180,11 @@
 			<!-- Markers -->
 			{#each getProjectMarkers() as marker, index (marker.id)}
 				<div oncontextmenu={markerOptions(marker)} bind:this={markers[index]} onmousedown={() => (draggingMarker = markers[index])} class="marker" style:top="{marker.time * 4}rem">
-					<span id="marker-{marker.id}-name" onkeydown={typeMarker} bind:textContent={marker.name} contenteditable onblur={() => runAction("Save Project")}></span>
+					{#if marker.name === "End"}
+						<span id="marker-{marker.id}-name" style:cursor="grab" onkeydown={typeMarker} onblur={() => runAction("Save Project")}>{translate("End")}</span>
+					{:else}
+						<span id="marker-{marker.id}-name" onkeydown={typeMarker} bind:textContent={marker.name} contenteditable onblur={() => runAction("Save Project")}></span>
+					{/if}
 				</div>
 			{/each}
 

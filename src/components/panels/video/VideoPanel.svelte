@@ -58,6 +58,14 @@
 		if (getProjectAudios().length) {
 			(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).play();
 		}
+		updateTime();
+	}
+
+	function updateTime() {
+		setCurrentTime(video!.currentTime);
+		if (!video!.paused && !video!.ended) {
+			requestAnimationFrame(updateTime);
+		}
 	}
 
 	function onPause() {
@@ -65,6 +73,8 @@
 			(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).pause();
 		}
 	}
+
+	let video: HTMLVideoElement | null = $state(null);
 </script>
 
 <div id="video-panel" class="container">
@@ -92,6 +102,7 @@
 			onplay={onPlay}
 			onpause={onPause}
 			id="video-source"
+			bind:this={video}
 		></video>
 	{:else}
 		<div id="novideo">

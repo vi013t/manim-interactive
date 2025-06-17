@@ -199,6 +199,17 @@
 				</label>
 			{:else if view === "timeline"}
 				<h1>{translate("Timeline Settings")}</h1>
+				<label for="timeline-snapping">
+					<span>
+						{translate("Snap by Default")}
+						<input checked={getPreferences().collapseWaitTimes} oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
+					</span>
+					<p>
+						{translate(
+							"By default, timeline elements such as animations, markers, and audios, will snap to even times. Holding control disables this temporarily. If this is disabled, holding control will enable it temporarily instead.",
+						)}
+					</p>
+				</label>
 				<label for="collapse-wait-times">
 					<span>
 						{translate("Automatically Collapse Wait Times")}

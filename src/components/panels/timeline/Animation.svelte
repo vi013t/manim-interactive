@@ -4,7 +4,7 @@
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { getAnimationObjects, getProperty } from "../../../api/manim/properties";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { type ProjectAnimation, animationEndTime, getProjectAnimations, nextAnimation, previousAnimation, select, selected } from "../../../api/project.svelte";
+	import { type ProjectAnimation, animationEndTime, getProjectAnimations, nextAnimation, previousAnimation, select, selected, updateEndMarker } from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
 
 	let { animation, timelineElement }: { animation: ProjectAnimation; timelineElement: HTMLElement } = $props();
@@ -76,6 +76,7 @@
 					newHeight = Math.max(cellHeight, newHeight);
 
 					expandingElement.style.height = `${newHeight}px`;
+					updateEndMarker();
 				} else if (draggingElement) {
 					let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
 					let snapping = getPreferences().timelineSnapping;
@@ -97,6 +98,7 @@
 
 					draggingElement.style.top = `${newTop}px`;
 					draggingElement.style.cursor = "grabbing";
+					updateEndMarker();
 				}
 			}
 		});

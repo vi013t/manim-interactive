@@ -2,7 +2,7 @@ import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
 import { getPossibleProperties, getProperty } from "./manim/properties";
 import { propertyValueToString, type FunctionProperty, type KeywordProperty, type PositionalProperty, type Property } from "./manim/property";
-import { animationEndTime, getProjectAnimations, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
+import { animationEndTime, getProjectAnimations, getProjectMarkers, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
 	let animations = getProjectAnimations().toSorted((first, other) => getProperty<number>(first, "Start Time")! - getProperty<number>(other, "Start Time")!);
@@ -16,6 +16,15 @@ export function generateCode(): string {
 	});
 	if (animationsWithWaits.length && getProperty<number>(animationsWithWaits[0] as ProjectAnimation, "Start Time")! > 0) {
 		animationsWithWaits.unshift({ wait: getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! });
+	}
+
+	// Ending Wait
+	if (animations.length > 0) {
+		let lastAnimation = animations[animations.length - 1];
+		let endingWait = getProjectMarkers().find(marker => marker.name === "End")!.time - animationEndTime(lastAnimation);
+		if (endingWait !== 0) {
+			animationsWithWaits.push({ wait: endingWait });
+		}
 	}
 
 	const objectLines = topologicalProjectObjects()
