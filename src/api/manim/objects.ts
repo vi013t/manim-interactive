@@ -81,7 +81,7 @@ import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getFonts } from "../system.svelte";
 import { getPossibleProperties } from "./properties";
-import { property, propertyValueToString, type Property, type PropertyType, type PropertyValue } from "./property";
+import { property, propertyValueToString, type KeywordProperty, type PositionalProperty, type Property, type PropertyType, type PropertyValue } from "./property";
 
 export const objectCategories = [
 	{ color: "var(--peach)", icon: LineIcon, name: "Line" },
@@ -92,7 +92,7 @@ export const objectCategories = [
 	{ color: "var(--lavender)", icon: AsteriskIcon, name: "Miscellaneous" },
 ] as const satisfies { name: string; color: string; icon: Icon }[];
 
-export type ObjectCategoryName = typeof objectCategories extends (infer Category)[] ? (Category extends { name: unknown } ? Category["name"] : never) : never;
+export type ObjectCategoryName = typeof objectCategories extends (infer Category)[] ? (Category extends { name: string } ? Category["name"] : never) : never;
 
 export type ManimObject = Readonly<{
 	name: string;
@@ -449,12 +449,14 @@ export const objects = [
 			{
 				name: "X-Length",
 				internalName: "x_length",
+				description: "The length of the X axis.",
 				type: property().number().positive(),
 				categories: ["Special"],
 			},
 			{
 				name: "X-Range",
 				internalName: "x_range",
+				description: "The range of the X axis.",
 				type: property().compound().property("Minimum", property().number()).property("Maximum", property().number()).property("Step", property().number()),
 				categories: ["Special"],
 			},
@@ -462,12 +464,14 @@ export const objects = [
 				name: "Y-Length",
 				internalName: "y_length",
 				type: property().number().positive(),
+				description: "The length of the Y axis.",
 				categories: ["Special"],
 			},
 			{
 				name: "Y-Range",
 				internalName: "y_range",
 				type: property().compound().property("Minimum", property().number()).property("Maximum", property().number()).property("Step", property().number()),
+				description: "The range of the Y axis.",
 				categories: ["Special"],
 			},
 			...VMobjectProperties,
@@ -496,6 +500,7 @@ export const objects = [
 				name: "Points",
 				position: 0,
 				type: property().list(property().coordinate()).spread().length(property().number().integeric().positive()),
+				description: "The points for the polygon to wrap around.",
 				categories: ["Special"],
 			},
 		],
@@ -513,6 +518,7 @@ export const objects = [
 				name: "Items",
 				type: property().list(property().string()).spread(),
 				position: 0,
+				description: "The items in the list.",
 				categories: ["Special"],
 			},
 		],
@@ -553,6 +559,7 @@ export const objects = [
 						{ name: "Union", icon: UnionIcon, color: "#b4befe" }
 					),
 				categories: ["Special"],
+				description: "The method by which the objects are combined.",
 				required: true,
 				special: true,
 			},
@@ -560,6 +567,7 @@ export const objects = [
 				name: "First Object",
 				type: property().object(),
 				categories: ["Special"],
+				description: "The first object to combine.",
 				required: true,
 				position: 0,
 			},
@@ -567,6 +575,7 @@ export const objects = [
 				name: "Second Object",
 				type: property().object(),
 				categories: ["Special"],
+				description: "The second object to combine.",
 				required: true,
 				position: 1,
 			},
@@ -578,15 +587,15 @@ export const objects = [
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Intersection.html",
 			"https://docs.manim.community/en/stable/reference/manim.mobject.geometry.boolean_ops.Union.html",
 		],
-		create(properties: { [key: string]: unknown }) {
+		create(properties: { [key: string]: unknown }): string {
 			properties = { ...properties };
 			let name = properties.Method;
 			delete properties.Method;
 
 			let possibleProperties = getPossibleProperties("Combinator");
-			const propertyEntries = Object.entries(properties).map(([propertyName, propertyValue]): [unknown, ObjectProperty] => [
+			const propertyEntries = Object.entries(properties).map(([propertyName, propertyValue]): [unknown, Property] => [
 				propertyValue,
-				possibleProperties.find(possible => possible.name === propertyName)!,
+				possibleProperties.find(possible => possible.name === propertyName)! as Property,
 			]);
 
 			// Positional Arguments
@@ -815,9 +824,16 @@ export const objects = [
 						)
 				),
 				special: true,
+				description: "The parts of the text.",
 				categories: ["Special"],
 			},
-			{ name: "Line Spacing", internalName: "line_spacing", type: property().number().default(-1), categories: ["Special"] },
+			{
+				name: "Line Spacing",
+				internalName: "line_spacing",
+				type: property().number().default(-1),
+				categories: ["Special"],
+				description: "The spacing between the lines of the text.",
+			},
 			{
 				name: "Tab Width",
 				internalName: "tab_width",
@@ -884,8 +900,20 @@ export const objects = [
 				categories: ["Special"],
 				description: "The height of the rectangle.",
 			},
-			{ name: "Horizontal Grid Spacing", internalName: "grid_xstep", type: property().number().nonnegative(), categories: ["Details"] },
-			{ name: "Vertical Grid Spacing", internalName: "grid_ystep", type: property().number().nonnegative(), categories: ["Details"] },
+			{
+				name: "Horizontal Grid Spacing",
+				internalName: "grid_xstep",
+				type: property().number().nonnegative(),
+				categories: ["Details"],
+				description: "The spacing of horizontal grid lines.",
+			},
+			{
+				name: "Vertical Grid Spacing",
+				internalName: "grid_ystep",
+				type: property().number().nonnegative(),
+				categories: ["Details"],
+				description: "The spacing of vertical grid lines.",
+			},
 			...VMobjectProperties,
 		],
 	},

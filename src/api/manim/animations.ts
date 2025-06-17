@@ -382,6 +382,7 @@ export const animations = [
 		category: "Transform",
 		description: "Transforms one object into another, replacing it.",
 		icon: ReplaceIcon,
+		demo: restoreDemo,
 		internalName: "ReplacementTransform",
 		properties: [...singleObjectProperties],
 	},
@@ -432,6 +433,7 @@ export const animations = [
 		category: "Transform",
 		description: "Transforms one object into another.",
 		icon: TransformIcon,
+		demo: spiralInDemo,
 		properties: [...singleObjectProperties],
 	},
 	{

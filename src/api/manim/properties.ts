@@ -11,7 +11,7 @@ export function getPossibleProperties(item: ProjectObject | ProjectAnimation): r
 export function getPossibleProperties(item: ProjectObject | ProjectAnimation | string): readonly ObjectProperty[] | readonly AnimationProperty[] {
 	if (typeof item === "string") return objects.find(object => object.name === item)!.properties as readonly ObjectProperty[];
 	if (item.type === "object") return objects.find(object => object.name === getProperty(item, "Object Type")!)!.properties as readonly ObjectProperty[];
-	return animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.properties as AnimationProperty[];
+	return animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.properties as readonly AnimationProperty[];
 }
 
 export function addProperty(id: number, name: ObjectPropertyName | AnimationPropertyName, value: unknown) {
