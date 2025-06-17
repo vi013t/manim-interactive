@@ -9,10 +9,10 @@
 
 	let top = $state("");
 	let left = $state("");
-	let item = $state(getItemFromId(selected()!)! as ProjectObject);
+	let item = $state(getItemFromId(selected()![0])! as ProjectObject);
 
-	let Icon = $derived(objects.find(object => object.name === getProperty(item, "Object Type"))!.icon);
-	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === getProperty(item, "Object Type"))!.categories[0]).color);
+	let Icon = $derived(objects.find(object => object.name === getProperty(item, "Object Type")!)!.icon);
+	let iconColor = $derived(getObjectCategory(objects.find(object => object.name === getProperty(item, "Object Type")!)!.categories[0]).color);
 
 	// svelte-ignore non_reactive_update
 	let addButton: HTMLButtonElement;

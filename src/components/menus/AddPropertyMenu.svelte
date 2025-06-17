@@ -2,7 +2,7 @@
 	import type { ObjectPropertyName } from "../../api/manim/objects";
 	import { addProperty, getPossibleProperties } from "../../api/manim/properties";
 	import { animationPropertyCategories, objectPropertyCategories } from "../../api/manim/property";
-	import { getItemFromId, selected } from "../../api/project.svelte";
+	import { getItemFromId, getSelectableFromId, selected } from "../../api/project.svelte";
 	import EmptyIcon from "../icons/EmptyIcon.svelte";
 	import Menu from "./Menu.svelte";
 
@@ -10,12 +10,12 @@
 
 	let menu: Menu;
 
-	let item = $derived(getItemFromId(selected()!)!);
+	let item = $derived(getSelectableFromId(selected()![0])!);
 
 	function onSelect(name: string) {
 		hide();
 		let defaultValue = (getPossibleProperties(item).find(property => property.name === name)!.type as any).defaultValue ?? null;
-		addProperty(getItemFromId(selected()!)!.id, name as ObjectPropertyName, defaultValue);
+		addProperty(getItemFromId(selected()![0])!.id, name as ObjectPropertyName, defaultValue);
 	}
 
 	export function show() {
