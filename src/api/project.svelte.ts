@@ -337,7 +337,10 @@ export function previousAnimation(animation: ProjectAnimation): ProjectAnimation
 }
 
 export function isObjectUsed(object: ProjectObject): boolean {
-	return projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id));
+	return (
+		projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id)) ||
+		(getProperty(object, "Object Type") === "Group" && getProperty<number[]>(object, "Objects")!.length > 0)
+	);
 }
 
 export function movieLength(): number {
@@ -354,4 +357,8 @@ export function updateEndMarker() {
 	let endMarker = projectMarkers.find(marker => marker.name === "End")!;
 	let lastAnimation = projectAnimations.toSorted((anim1, anim2) => animationEndTime(anim2) - animationEndTime(anim1))[0];
 	endMarker.time = animationEndTime(lastAnimation);
+}
+
+export function isObjectInGroup(id: number) {
+	return projectObjects.filter(object => getProperty<string>(object, "Object Type") === "Group").some(group => getProperty<number[]>(group, "Objects")!.includes(id));
 }

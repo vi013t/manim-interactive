@@ -35,6 +35,8 @@
 	}
 
 	function setProperty() {
+		validate();
+		if (errorMessage) return;
 		(getItemFromId(selected()!)!.properties as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}

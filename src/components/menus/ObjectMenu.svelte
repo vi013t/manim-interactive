@@ -1,14 +1,28 @@
 <script lang="ts">
-	import { getAnimationObjects } from "../../api/manim/properties";
-	import { deleteProjectItem, getProjectAnimations } from "../../api/project.svelte";
+	import { objects, type ObjectPropertyName } from "../../api/manim/objects";
+	import { getAnimationObjects, getProperty } from "../../api/manim/properties";
+	import { getPreferences, runAction } from "../../api/preferences.svelte";
+	import {
+		addProjectObject,
+		deleteProjectItem,
+		getItemFromId,
+		getProjectAnimations,
+		getProjectObjects,
+		isNameTaken,
+		nextId,
+		select,
+		type ProjectObject,
+	} from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
+	import CubeIcon from "../icons/CubeIcon.svelte";
 	import PropertiesIcon from "../icons/PropertiesIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+	import AddObjectMenu from "./AddObjectMenu.svelte";
 	import AddPropertyMenu from "./AddPropertyMenu.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
 
@@ -17,6 +31,7 @@
 	let menu: ContextMenu;
 	let addAnimationMenu: AddAnimationMenu;
 	let addPropertyMenu: AddPropertyMenu;
+	let addObjectMenu: AddPropertyMenu;
 
 	export function show() {
 		menu.show();
@@ -31,6 +46,7 @@
 	}
 
 	function hideSubmenus() {
+		addObjectMenu.hide();
 		addAnimationMenu.hide();
 		addPropertyMenu.hide();
 	}
@@ -40,11 +56,54 @@
 		if (getProjectAnimations().some(animation => getAnimationObjects(animation).includes(id))) {
 			confirmDeleteObjectWindow.show();
 		} else {
+			getProjectObjects()
+				.filter(object => getProperty<string>(object, "Object Type") === "Group")
+				.forEach(group => {
+					(group.properties as any)["Objects"] = (group.properties as any)["Objects"]!.filter((contentId: number) => contentId !== id);
+				});
 			deleteProjectItem(id);
 		}
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
+
+	let isGroup = $derived(getProperty<string>(getItemFromId(id)!, "Object Type") === "Group");
+
+	function addObject(type: string): void {
+		let manimObject = objects.find(object => object.name === type)!;
+
+		let name = translate(type);
+		let number = 2;
+		while (isNameTaken(name)) {
+			name = `${type} ${number++}`;
+		}
+
+		let properties: { [key in ObjectPropertyName]?: unknown } = {
+			"Object Type": type,
+			Name: name,
+		};
+
+		manimObject.properties
+			.filter(property => "required" in property && property.required)
+			.forEach(property => {
+				(properties as any)[property.name] = (property.type as any).defaultValue ?? null;
+			});
+		menu.hide();
+
+		let object: ProjectObject = {
+			type: "object",
+			id: nextId(),
+			properties,
+		};
+
+		addProjectObject(object);
+		select(object);
+		if (isGroup) {
+			getItemFromId(id)!.properties["Objects"].push(object.id);
+		}
+
+		if (getPreferences().autosave) runAction("Save Project");
+	}
 </script>
 
 <!-- svelte-ignore a11y_mouse_events_have_key_events -->
@@ -54,6 +113,19 @@
 		<TypeIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		{translate("Rename Object")}
 	</button>
+
+	{#if isGroup}
+		<button
+			onmouseover={() => {
+				hideSubmenus();
+				addObjectMenu.show();
+			}}
+		>
+			<CubeIcon stroke="var(--peach)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			{translate("Add Object")}
+			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		</button>
+	{/if}
 
 	<button
 		onmouseover={() => {
@@ -81,8 +153,9 @@
 		{translate("Delete Object")}
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="100%" {id} />
-	<AddPropertyMenu bind:this={addPropertyMenu} top="5.25rem" left="100%" />
+	<AddObjectMenu onSelect={addObject} bind:this={addObjectMenu} top="3.5rem" left="100%" />
+	<AddAnimationMenu bind:this={addAnimationMenu} top="{isGroup ? 5.25 : 3.5}rem" left="100%" {id} />
+	<AddPropertyMenu bind:this={addPropertyMenu} top="{isGroup ? 7 : 5.25}rem" left="100%" />
 </ContextMenu>
 
 <ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />

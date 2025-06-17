@@ -78,18 +78,21 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="object" onclick={clickObject}>
+<div class="object">
 	<!-- Object name & icon -->
 
 	<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 	<div
 		onmouseover={() => (isHovered = true)}
 		onmouseout={() => (isHovered = false)}
-		onclick={() => (expanded = !expanded)}
 		style:background={getBackgroundColor()}
 		class="top"
 		bind:this={topElement}
 		oncontextmenu={rightClickObject}
+		onclick={event => {
+			clickObject(event);
+			expanded = !expanded;
+		}}
 	>
 		{#if getProperty(entry, "Object Type") === "Group"}
 			{#if expanded}
@@ -126,8 +129,8 @@
 	</div>
 
 	<!-- Group Contents -->
-	{#if getProperty(entry, "Object Type") === "Group" && expanded}
-		{@const contents = (entry.properties as { Items: number[] })["Items"].map(id => getItemFromId(id) as ProjectObject)}
+	{#if getProperty(entry, "Object Type") === "Group" && expanded && getProperty<number[]>(entry, "Objects")!.length > 0}
+		{@const contents = (entry.properties as { Objects: number[] })["Objects"].map(id => getItemFromId(id) as ProjectObject)}
 		<div class="bottom">
 			{#each contents.filter(object => getProperty(object, "Object Type") === "Group") as item (item.id)}
 				<ObjectEntry entry={item} />
@@ -136,6 +139,7 @@
 				<ObjectEntry entry={item} />
 			{/each}
 		</div>
+		<div class="group-line"></div>
 	{/if}
 </div>
 <GroupMenu bind:this={groupMenu} {top} {left} id={entry.id} />
@@ -146,6 +150,18 @@
 		width: 100%;
 		font-size: 0.85rem;
 		cursor: pointer;
+		position: relative;
+	}
+
+	.group-line {
+		content: "";
+		position: absolute;
+		width: 1.25rem;
+		height: calc(100% - 2.8rem);
+		top: 2rem;
+		left: 0.62rem;
+		border-left: 2px solid var(--surface-0);
+		border-bottom: 2px solid var(--surface-0);
 	}
 
 	.top {
