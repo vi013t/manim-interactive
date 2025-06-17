@@ -23,6 +23,7 @@ pub fn run() {
             python_package_exists,
             get_fonts,
             command_exists,
+            open_movie_location
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -158,4 +159,15 @@ fn get_fonts() -> Vec<String> {
     fonts.sort();
     fonts.dedup();
     fonts
+}
+
+#[tauri::command]
+fn open_movie_location(project_path: &str, low_res: bool) {
+    let video_path = Path::new(&project_path)
+        .join("media")
+        .join("videos")
+        .join("main")
+        .join(if low_res { "480p15" } else { "1080p60" })
+        .join("Main.mp4");
+    showfile::show_path_in_file_manager(video_path);
 }
