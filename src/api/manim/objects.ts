@@ -81,7 +81,7 @@ import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import { getFonts } from "../system.svelte";
 import { getPossibleProperties } from "./properties";
-import { property, propertyValueToString, type Property } from "./property";
+import { property, propertyValueToString, type Property, type PropertyType, type PropertyValue } from "./property";
 
 export const objectCategories = [
 	{ color: "var(--peach)", icon: LineIcon, name: "Line" },
@@ -1046,6 +1046,17 @@ export const objects = [
 export type ObjectPropertyName =
 	| "Object Type"
 	| "Name"
-	| (typeof objects extends (infer O)[] ? (O extends { properties: (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
+	| (typeof objects extends (infer O)[] ? (O extends { readonly properties: readonly (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
+
+export type ObjectPropertyValue<Name extends ObjectPropertyName> = typeof objects extends (infer O)[]
+	? O extends { readonly properties: readonly (infer P)[] }
+		? P extends { name: Name; type: infer T }
+			? T extends PropertyType
+				? PropertyValue<T>
+				: never
+			: never
+		: never
+	: never;
 
 export type ObjectProperty = Omit<Property, "name"> & { name: ObjectPropertyName };
+export type ObjectProperties = { [Key in Exclude<ObjectPropertyName, "Object Type" | "Name">]?: ObjectPropertyValue<Key> } & { "Object Type": string; Name: string };

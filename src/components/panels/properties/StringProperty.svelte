@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import type { StringProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { addError, getItemFromId, isNameTaken, removeError, selected } from "../../../api/project.svelte";
+	import { addError, getPropertiesFromId, isNameTaken, removeError, selected } from "../../../api/project.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
 	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
 	import LatexPreview from "./LatexPreview.svelte";
@@ -24,20 +24,20 @@
 
 	function getErrorMessage(): string | null {
 		if (!property.canBeEmpty && value === "") return "Value cannot be empty";
-		if (name === "Name" && isNameTaken(value.trim(), selected()!)) return "Name is already taken";
+		if (name === "Name" && isNameTaken(value.trim(), selected()![0])) return "Name is already taken";
 		return null;
 	}
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()!, propertyName: name });
-		else removeError({ objectId: selected()!, propertyName: name });
+		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
+		else removeError({ objectId: selected()![0], propertyName: name });
 	}
 
 	function setProperty() {
 		validate();
 		if (errorMessage) return;
-		(getItemFromId(selected()!)!.properties as any)[name] = inputValue;
+		(getPropertiesFromId(selected()![0])! as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 

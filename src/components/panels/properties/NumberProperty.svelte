@@ -2,7 +2,17 @@
 	import { getProperty } from "../../../api/manim/properties";
 	import type { NumberProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { addError, animationEndTime, getItemFromId, getProjectAnimations, intervalsOverlap, removeError, selected, type ProjectAnimation } from "../../../api/project.svelte";
+	import {
+		addError,
+		animationEndTime,
+		getItemFromId,
+		getProjectAnimations,
+		getPropertiesFromId,
+		intervalsOverlap,
+		removeError,
+		selected,
+		type ProjectAnimation,
+	} from "../../../api/project.svelte";
 
 	let {
 		value = $bindable(),
@@ -33,8 +43,8 @@
 				.filter(animation => animation.id !== id)
 				.some(projectAnimation =>
 					intervalsOverlap(
-						[getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
-						[getProperty<number>(getItemFromId(id)! as ProjectAnimation, "Start Time")!, getProperty<number>(getItemFromId(id)! as ProjectAnimation, "Start Time")! + value],
+						[getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
+						[getProperty(getItemFromId(id)! as ProjectAnimation, "Start Time")!, getProperty(getItemFromId(id)! as ProjectAnimation, "Start Time")! + value],
 					),
 				)
 		) {
@@ -46,8 +56,8 @@
 				.filter(animation => animation.id !== id)
 				.some(projectAnimation =>
 					intervalsOverlap(
-						[getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
-						[value, value + getProperty<number>(getItemFromId(id)! as ProjectAnimation, "Duration")!],
+						[getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
+						[value, value + getProperty(getItemFromId(id)! as ProjectAnimation, "Duration")!],
 					),
 				)
 		) {
@@ -59,15 +69,15 @@
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()!, propertyName: name });
-		else removeError({ objectId: selected()!, propertyName: name });
+		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
+		else removeError({ objectId: selected()![0], propertyName: name });
 	}
 
 	function setProperty() {
 		validate();
 		if (errorMessage) return;
 
-		(getItemFromId(selected()!)!.properties as any)[name] = inputValue;
+		(getPropertiesFromId(selected()![0])! as any)[name] = inputValue;
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
@@ -92,7 +102,7 @@
 	let inputValue = $state(`${value}`);
 
 	$effect(() => {
-		inputValue = (getItemFromId(id)!.properties as any)[name];
+		inputValue = (getPropertiesFromId(id)! as any)[name];
 	});
 </script>
 

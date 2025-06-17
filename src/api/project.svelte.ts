@@ -1,7 +1,8 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
-import type { AnimationPropertyName } from "./manim/animations";
-import type { ObjectPropertyName } from "./manim/objects";
+import type { AnimationProperties } from "./manim/animations";
+import type { ObjectProperties } from "./manim/objects";
 import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/properties";
+import type { Properties } from "./manim/property";
 import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
@@ -126,13 +127,13 @@ export function addProjectAnimation(animation: ProjectAnimation) {
 export type ProjectObject = {
 	id: number;
 	type: "object";
-	properties: { [Key in ObjectPropertyName]?: unknown };
+	properties: ObjectProperties;
 };
 
 export type ProjectAnimation = {
 	id: number;
 	type: "animation";
-	properties: { [Key in AnimationPropertyName]?: unknown };
+	properties: AnimationProperties;
 };
 
 export function getObjectDependencies(id: number): number[] {
@@ -169,7 +170,7 @@ export function checkForObjectDependencyCycles(): boolean {
 }
 
 export function animationEndTime(animation: ProjectAnimation): number {
-	return getProperty<number>(animation, "Start Time")! + getProperty<number>(animation, "Duration")!;
+	return getProperty(animation, "Start Time")! + getProperty(animation, "Duration")!;
 }
 
 export function nextId() {
@@ -181,9 +182,9 @@ export function addProjectObject(object: ProjectObject) {
 }
 
 export function deleteProjectItem(id: number) {
-	if (selected() === id) select(null);
+	if (selected()?.includes(id)) select(selected()!.filter(sel => sel !== id));
 	projectObjects = projectObjects.filter(object => object.id !== id);
-	projectAnimations = projectAnimations.filter(animation => getProperty<number>(animation, "Object") !== id);
+	projectAnimations = projectAnimations.filter(animation => getProperty(animation, "Object") !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	projectMarkers = projectMarkers.filter(marker => marker.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
@@ -192,14 +193,20 @@ export function deleteProjectItem(id: number) {
 
 type Selectable = ProjectObject | ProjectAnimation;
 
-let selectedThing: number | null = $state(null);
+let selectedItems: number[] | null = $state(null);
 
-export function selected(): number | null {
-	return selectedThing;
+export function selected(): number[] | null {
+	return selectedItems;
 }
 
-export function select(object: Selectable | null) {
-	selectedThing = object?.id ?? null;
+export function select(id: number[] | null) {
+	selectedItems = id;
+}
+
+export function getPropertiesFromId<T extends ProjectObject | ProjectAnimation>(id: number): Properties<T> | null {
+	return (getProjectObjects().find(object => object.id === id)?.properties ??
+		getProjectAnimations().find(animation => animation.id === id)?.properties ??
+		null) as Properties<T> | null;
 }
 
 export function getItemFromId<T extends ProjectObject | ProjectAnimation | ProjectMarker>(id: number): T | null {
@@ -207,6 +214,14 @@ export function getItemFromId<T extends ProjectObject | ProjectAnimation | Proje
 		getProjectAnimations().find(animation => animation.id === id) ??
 		getProjectMarkers().find(marker => marker.id === id) ??
 		null) as T | null;
+}
+
+export function getSelectableFromId<T extends ProjectObject | ProjectAnimation>(id: number): T | null {
+	return (getProjectObjects().find(object => object.id === id) ?? getProjectAnimations().find(animation => animation.id === id) ?? null) as T | null;
+}
+
+export function getObjectFromId(id: number): ProjectObject | null {
+	return getProjectObjects().find(object => object.id === id) ?? null;
 }
 
 type Error = PropertyError;
@@ -306,10 +321,7 @@ export function animationIntersectsOther(animation: ProjectAnimation) {
 	return getProjectAnimations()
 		.filter(projectAnimation => projectAnimation.id !== animation.id)
 		.some(projectAnimation =>
-			intervalsOverlap(
-				[getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
-				[getProperty<number>(animation, "Start Time")!, animationEndTime(animation)]
-			)
+			intervalsOverlap([getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)], [getProperty(animation, "Start Time")!, animationEndTime(animation)])
 		);
 }
 
@@ -321,8 +333,8 @@ export function nextAnimation(animation: ProjectAnimation): ProjectAnimation | n
 	return (
 		getProjectAnimations()
 			.filter(projectAnimation => projectAnimation.id !== animation.id)
-			.toSorted((anim1, anim2) => getProperty<number>(anim1, "Start Time")! - getProperty<number>(anim2, "Start Time")!)
-			.find(projectAnimation => getProperty<number>(projectAnimation, "Start Time")! > getProperty<number>(animation, "Start Time")!) ?? null
+			.toSorted((anim1, anim2) => getProperty(anim1, "Start Time")! - getProperty(anim2, "Start Time")!)
+			.find(projectAnimation => getProperty(projectAnimation, "Start Time")! > getProperty(animation, "Start Time")!) ?? null
 	);
 }
 
@@ -330,16 +342,16 @@ export function previousAnimation(animation: ProjectAnimation): ProjectAnimation
 	return (
 		getProjectAnimations()
 			.filter(projectAnimation => projectAnimation.id !== animation.id)
-			.toSorted((anim1, anim2) => getProperty<number>(anim1, "Start Time")! - getProperty<number>(anim2, "Start Time")!)
+			.toSorted((anim1, anim2) => getProperty(anim1, "Start Time")! - getProperty(anim2, "Start Time")!)
 			.toReversed()
-			.find(projectAnimation => getProperty<number>(projectAnimation, "Start Time")! < getProperty<number>(animation, "Start Time")!) ?? null
+			.find(projectAnimation => getProperty(projectAnimation, "Start Time")! < getProperty(animation, "Start Time")!) ?? null
 	);
 }
 
 export function isObjectUsed(object: ProjectObject): boolean {
 	return (
 		projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id)) ||
-		(getProperty(object, "Object Type") === "Group" && getProperty<number[]>(object, "Objects")!.length > 0)
+		(getProperty(object, "Object Type") === "Group" && getProperty(object, "Objects")!.length > 0)
 	);
 }
 
@@ -360,5 +372,7 @@ export function updateEndMarker() {
 }
 
 export function isObjectInGroup(id: number) {
-	return projectObjects.filter(object => getProperty<string>(object, "Object Type") === "Group").some(group => getProperty<number[]>(group, "Objects")!.includes(id));
+	return projectObjects
+		.filter(object => getProperty(object, "Object Type") === "Group")
+		.some(group => getProperty(group, "Objects")!.includes(id) && getProperty(group, "Group in Hierarchy")!);
 }

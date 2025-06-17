@@ -45,7 +45,7 @@
 		onAdd(animation);
 		addProjectAnimation(animation);
 		updateEndMarker();
-		select(animation);
+		select([animation.id]);
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 

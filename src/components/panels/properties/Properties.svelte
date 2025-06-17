@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { getPossibleProperties } from "../../../api/manim/properties";
 	import { property, type PropertyType } from "../../../api/manim/property";
-	import { getItemFromId, selected } from "../../../api/project.svelte";
+	import { getSelectableFromId, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
-	let item = $derived(selected() !== null ? getItemFromId(selected()!)! : null);
+	let item = $derived(selected() !== null ? getSelectableFromId(selected()![0])! : null);
 
 	let top = $state("100%");
 	let left = $state("94%");

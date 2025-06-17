@@ -5,16 +5,16 @@ import { propertyValueToString, type FunctionProperty, type KeywordProperty, typ
 import { animationEndTime, getProjectAnimations, getProjectMarkers, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
 
 export function generateCode(): string {
-	let animations = getProjectAnimations().toSorted((first, other) => getProperty<number>(first, "Start Time")! - getProperty<number>(other, "Start Time")!);
+	let animations = getProjectAnimations().toSorted((first, other) => getProperty(first, "Start Time")! - getProperty(other, "Start Time")!);
 	let animationsWithWaits: (ProjectAnimation | { wait: number })[] = [];
 	animations.forEach((animation, index) => {
 		animationsWithWaits.push(animation);
 		if (index != animations.length - 1) {
-			let waitTime = getProperty<number>(animations[index + 1], "Start Time")! - animationEndTime(animation);
+			let waitTime = getProperty(animations[index + 1], "Start Time")! - animationEndTime(animation);
 			if (waitTime > 0) animationsWithWaits.push({ wait: waitTime });
 		}
 	});
-	if (animationsWithWaits.length && getProperty<number>(animationsWithWaits[0] as ProjectAnimation, "Start Time")! > 0) {
+	if (animationsWithWaits.length && getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! > 0) {
 		animationsWithWaits.unshift({ wait: getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! });
 	}
 
@@ -30,7 +30,7 @@ export function generateCode(): string {
 	const objectLines = topologicalProjectObjects()
 		.map(object => {
 			const possibleProperties = getPossibleProperties(object);
-			const objectBase = objects.find(manimObject => manimObject.name === getProperty<string>(object, "Object Type"))!;
+			const objectBase = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
 
 			// Custom Codegen
 			if ("create" in objectBase) {

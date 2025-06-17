@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/properties";
@@ -39,29 +38,21 @@
 
 	function rightClickObject(event: MouseEvent) {
 		event.preventDefault();
-		select(entry);
+		select([entry.id]);
 		top = `${event.clientY - 30}px`;
 		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
 		objectMenu.show();
 	}
 
-	let isSelected = $derived(selected() === entry.id);
+	let isSelected = $derived(selected()?.includes(entry.id));
 	let isHovered = $state(false);
 
 	function clickObject(event: MouseEvent) {
-		select(entry);
+		select([entry.id]);
 	}
 
 	// svelte-ignore non_reactive_update
 	let topElement: HTMLElement;
-
-	onMount(() => {
-		document.getElementById("object-panel")!.addEventListener("click", event => {
-			if (!event.composedPath().includes(topElement) && selected() === entry.id) {
-				//select(null);
-			}
-		});
-	});
 
 	function getBackgroundColor(): string {
 		if (itemHasErrors(entry.id)) return `rgba(243, 139, 168, ${isSelected ? "40%" : isHovered ? "30%" : "20%"})`;
@@ -73,7 +64,7 @@
 	// svelte-ignore non_reactive_update
 	let name: HTMLElement;
 
-	const data = objects.find(object => object.name === getProperty(entry, "Object Type"))!;
+	const data = objects.find(object => object.name === getProperty(entry, "Object Type")!)!;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -129,7 +120,7 @@
 	</div>
 
 	<!-- Group Contents -->
-	{#if getProperty(entry, "Object Type") === "Group" && expanded && getProperty<number[]>(entry, "Objects")!.length > 0}
+	{#if getProperty(entry, "Object Type") === "Group" && expanded && getProperty(entry, "Objects")!.length > 0}
 		{@const contents = (entry.properties as { Objects: number[] })["Objects"].map(id => getItemFromId(id) as ProjectObject)}
 		<div class="bottom">
 			{#each contents.filter(object => getProperty(object, "Object Type") === "Group") as item (item.id)}

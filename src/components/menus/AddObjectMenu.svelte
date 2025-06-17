@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { objectCategories, objects, type ObjectPropertyName } from "../../api/manim/objects";
+	import { objectCategories, objects, type ObjectProperties } from "../../api/manim/objects";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import { addProjectObject, isNameTaken, nextId, select, type ProjectObject } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
@@ -26,7 +26,7 @@
 			name = `${type} ${number++}`;
 		}
 
-		let properties: { [key in ObjectPropertyName]?: unknown } = {
+		let properties: ObjectProperties = {
 			"Object Type": type,
 			Name: name,
 		};
@@ -45,7 +45,7 @@
 		};
 
 		addProjectObject(object);
-		select(object);
+		select([object.id]);
 
 		if (getPreferences().autosave) runAction("Save Project");
 	}

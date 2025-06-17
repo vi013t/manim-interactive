@@ -52,17 +52,17 @@ import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import TrashIcon from "../../components/icons/TrashIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
 import WiggleIcon from "../../components/icons/WiggleIcon.svelte";
-import { property, type Property } from "./property";
+import { property, type Property, type PropertyType, type PropertyValue } from "./property";
 
-export type ManimAnimation = {
+export type ManimAnimation = Readonly<{
 	name: string;
 	category: AnimationCategoryName;
 	icon: Component<{ stroke: string; [key: string]: unknown }>;
-	properties: Property[];
+	properties: readonly Property[];
 	description: string;
 	demo: string;
 	internalName?: string;
-};
+}>;
 
 export const animationCategories = [
 	{ color: "var(--green)", name: "Create", icon: PlusIcon },
@@ -473,6 +473,18 @@ export const animations = [
 export type AnimationPropertyName =
 	| "Animation Type"
 	| "Name"
-	| (typeof animations extends (infer A)[] ? (A extends { properties: (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
+	| (typeof animations extends (infer A)[] ? (A extends { readonly properties: readonly (infer P)[] } ? (P extends { name: string } ? P["name"] : never) : never) : never);
 
 export type AnimationProperty = Omit<Property, "name"> & { name: AnimationPropertyName };
+
+export type AnimationPropertyValue<Name extends AnimationPropertyName> = typeof animations extends (infer A)[]
+	? A extends { readonly properties: readonly (infer P)[] }
+		? P extends { name: Name; type: infer T }
+			? T extends PropertyType
+				? PropertyValue<T>
+				: never
+			: never
+		: never
+	: never;
+
+export type AnimationProperties = { [Key in Exclude<AnimationPropertyName, "Animation Type" | "Name">]?: AnimationPropertyValue<Key> } & { "Animation Type": string; Name: string };

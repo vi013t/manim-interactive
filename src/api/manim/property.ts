@@ -5,6 +5,9 @@ import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import type { SelectOption } from "../../components/util/Select.svelte";
+import type { ProjectAnimation, ProjectObject } from "../project.svelte";
+import type { AnimationProperties } from "./animations";
+import type { ObjectProperties } from "./objects";
 
 export type Max = 9_007_199_254_740_991; // Number.MAX_VALUE
 export type Min = -9_007_199_254_740_991; // Number.MIN_VALUE
@@ -582,7 +585,7 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 	return `${value}`;
 }
 
-export type PropertyValue<T extends PropertyType> = T extends { defaultValue: unknown } ? T["defaultValue"] : never;
+export type PropertyValue<T extends PropertyType> = T extends ObjectProperty ? number : T extends { defaultValue: unknown } ? T["defaultValue"] : never;
 
 export function getPropertyObjects(properties: Map<PropertyType, unknown>): number[] {
 	return properties
@@ -595,3 +598,5 @@ export function getPropertyObjects(properties: Map<PropertyType, unknown>): numb
 		.toArray()
 		.flat();
 }
+
+export type Properties<T extends ProjectObject | ProjectAnimation> = T extends ProjectObject ? ObjectProperties : AnimationProperties;

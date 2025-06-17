@@ -3,7 +3,7 @@
 	import { flip } from "svelte/animate";
 	import type { ListProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, selected } from "../../../api/project.svelte";
+	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
 	import HandleIcon from "../../icons/HandleIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
@@ -19,7 +19,7 @@
 	} = $props();
 
 	let listCollapsed = $state(false);
-	let item = $derived(getItemFromId(selected()!)!);
+	let properties = $derived(getPropertiesFromId(selected()![0])!);
 	let listElements: HTMLSpanElement[] = $state([]);
 	let grabbingIndex = $state(0);
 	let grabY = $state(0);
@@ -27,7 +27,7 @@
 
 	function deleteProperty(name: string) {
 		return function () {
-			delete (item!.properties as any)[name];
+			delete (properties as any)[name];
 			if (getPreferences().autosave) runAction("Save And Recompile Project");
 		};
 	}
@@ -38,7 +38,7 @@
 				grabElement = null;
 				console.log(event.clientY - grabY);
 				if (event.clientY - grabY > 50) {
-					let list: any[] = (item.properties as any)[name] as any[];
+					let list: any[] = (properties as any)[name] as any[];
 					let temp = list[grabbingIndex];
 					list[grabbingIndex] = list[grabbingIndex + 1];
 					list[grabbingIndex + 1] = temp;
@@ -65,7 +65,7 @@
 			{#if !listCollapsed && value.length !== 0}
 				<button
 					onclick={() => {
-						((item.properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
+						((properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
 					}}
 				>
 					Add Another
@@ -86,7 +86,7 @@
 						value={element as any}
 						required={false}
 						deleteProperty={() => {
-							((item.properties as any)[name] as any[]).splice(index, 1);
+							((properties as any)[name] as any[]).splice(index, 1);
 						}}
 					/>
 					<button
@@ -112,7 +112,7 @@
 		<span class="list-bottom">
 			<button
 				onclick={() => {
-					((item.properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
+					((properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
 				}}
 			>
 				Add Another

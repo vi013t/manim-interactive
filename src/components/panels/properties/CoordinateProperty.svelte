@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { hidePoint, setPoint } from "../../../api/client.svelte";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { addError, getItemFromId, removeError, selected } from "../../../api/project.svelte";
+	import { addError, getPropertiesFromId, removeError, selected } from "../../../api/project.svelte";
 
 	let { value, name, errorMessage = $bindable() }: { value: [number, number, number]; name: string; errorMessage: string | null } = $props();
 
@@ -49,8 +49,8 @@
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()!, propertyName: name });
-		else removeError({ objectId: selected()!, propertyName: name });
+		if (errorMessage) addError({ objectId: selected()![0], propertyName: name });
+		else removeError({ objectId: selected()![0], propertyName: name });
 	}
 
 	function blur() {
@@ -61,8 +61,8 @@
 		hidePoint();
 
 		if (valueChanged) {
-			const item = getItemFromId(selected()!)!;
-			(item.properties as any)[name] = [Number(x), Number(y), Number(z)];
+			const properties = getPropertiesFromId(selected()![0])!;
+			(properties as any)[name] = [Number(x), Number(y), Number(z)];
 			runAction("Save And Recompile Project");
 		}
 	}

@@ -1,11 +1,11 @@
 <script lang="ts">
-	import { objects, type ObjectPropertyName } from "../../api/manim/objects";
+	import { objects, type ObjectProperties } from "../../api/manim/objects";
 	import { getAnimationObjects, getProperty } from "../../api/manim/properties";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import {
 		addProjectObject,
 		deleteProjectItem,
-		getItemFromId,
+		getObjectFromId,
 		getProjectAnimations,
 		getProjectObjects,
 		isNameTaken,
@@ -20,6 +20,7 @@
 	import RightArrow from "../icons/RightArrow.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
+	import ConfirmDeleteGroupWindow from "../windows/ConfirmDeleteGroupWindow.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
 	import AddObjectMenu from "./AddObjectMenu.svelte";
@@ -53,11 +54,13 @@
 
 	function deleteObject() {
 		menu.hide();
-		if (getProjectAnimations().some(animation => getAnimationObjects(animation).includes(id))) {
+		if (isGroup && getProperty(getObjectFromId(id)!, "Objects")!.length > 0) {
+			confirmDeleteGroupWindow.show();
+		} else if (getProjectAnimations().some(animation => getAnimationObjects(animation).includes(id))) {
 			confirmDeleteObjectWindow.show();
 		} else {
 			getProjectObjects()
-				.filter(object => getProperty<string>(object, "Object Type") === "Group")
+				.filter(object => getProperty(object, "Object Type") === "Group")
 				.forEach(group => {
 					(group.properties as any)["Objects"] = (group.properties as any)["Objects"]!.filter((contentId: number) => contentId !== id);
 				});
@@ -66,8 +69,9 @@
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
+	let confirmDeleteGroupWindow: ConfirmDeleteGroupWindow;
 
-	let isGroup = $derived(getProperty<string>(getItemFromId(id)!, "Object Type") === "Group");
+	let isGroup = $derived(getProperty(getObjectFromId(id)!, "Object Type") === "Group");
 
 	function addObject(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
@@ -78,15 +82,15 @@
 			name = `${type} ${number++}`;
 		}
 
-		let properties: { [key in ObjectPropertyName]?: unknown } = {
-			"Object Type": type,
-			Name: name,
+		let properties: ObjectProperties = {
+			"Object Type": type as any,
+			Name: name as any,
 		};
 
 		manimObject.properties
 			.filter(property => "required" in property && property.required)
 			.forEach(property => {
-				(properties as any)[property.name] = (property.type as any).defaultValue ?? null;
+				properties[property.name] = (property.type as any).defaultValue ?? null;
 			});
 		menu.hide();
 
@@ -97,9 +101,9 @@
 		};
 
 		addProjectObject(object);
-		select(object);
+		select([object.id]);
 		if (isGroup) {
-			getItemFromId(id)!.properties["Objects"].push(object.id);
+			getObjectFromId(id)!.properties["Objects"]!.push(object.id);
 		}
 
 		if (getPreferences().autosave) runAction("Save Project");
@@ -159,6 +163,7 @@
 </ContextMenu>
 
 <ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />
+<ConfirmDeleteGroupWindow bind:this={confirmDeleteGroupWindow} {id} />
 
 <style>
 	:global(button) {

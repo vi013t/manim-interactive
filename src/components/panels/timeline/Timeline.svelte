@@ -143,7 +143,7 @@
 
 			if (
 				!getProjectAnimations().some(projectAnimation =>
-					intervalsOverlap([getProperty<number>(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)], [timestamp - 1, timestamp]),
+					intervalsOverlap([getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)], [timestamp - 1, timestamp]),
 				)
 			) {
 				(segment as HTMLElement).style.display = getPreferences().collapseWaitTimes ? "none" : "block";
