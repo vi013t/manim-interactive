@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { generateObjectPreview } from "../../../api/codegen.svelte";
 	import type { ListProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
+	import { getObjectFromId, getPropertiesFromId, getSingleSelection, selected } from "../../../api/project.svelte";
 	import HandleIcon from "../../icons/HandleIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
@@ -43,6 +44,8 @@
 				list.splice(swappingIndex, 0, list.splice(grabbingIndex, 1)[0]);
 				grabline.style.opacity = "0%";
 				counter++;
+				const object = getObjectFromId(getSingleSelection()!);
+				if (object) generateObjectPreview(object);
 				runAction("Save And Recompile Project");
 			}
 		});
@@ -105,20 +108,25 @@
 							}}
 							setProperty={value => {
 								((properties as any)[name] as unknown[])[index] = value;
+								const object = getObjectFromId(getSingleSelection()!);
+								if (object) generateObjectPreview(object);
+								runAction("Save And Recompile Project");
 							}}
 						/>
-						<button
-							class="handle"
-							onmousedown={event => {
-								grabbingIndex = index;
-								grabY = listElements[index].getBoundingClientRect().top;
-								grabElement = listElements[index];
-								updateGrab(event);
-							}}
-							style:cursor={grabElement === listElements[index] ? "grabbing" : "grab"}
-						>
-							<HandleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
-						</button>
+						{#if value.length > 1}
+							<button
+								class="handle"
+								onmousedown={event => {
+									grabbingIndex = index;
+									grabY = listElements[index].getBoundingClientRect().top;
+									grabElement = listElements[index];
+									updateGrab(event);
+								}}
+								style:cursor={grabElement === listElements[index] ? "grabbing" : "grab"}
+							>
+								<HandleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
+							</button>
+						{/if}
 						{#if index === 0}
 							<button onclick={() => (listCollapsed = !listCollapsed)}>Collapse</button>
 						{/if}

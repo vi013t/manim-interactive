@@ -32,11 +32,29 @@ pub fn run() {
 }
 
 #[tauri::command]
-fn recompile(project_path: &str, code: &str, low_res: bool) {
+fn recompile(
+    project_path: &str,
+    code: &str,
+    resolution_width: u32,
+    resolution_height: u32,
+    renderer: &str,
+    file_format: &str,
+    fps: u32,
+    output_file_name: &str,
+) {
     std::fs::write(Path::new(project_path).join("main.py"), code).unwrap();
     println!("Recompiling project at {}", project_path);
     Command::new("manim")
-        .arg(if low_res { "-ql" } else { "-qh" })
+        .arg("--resolution")
+        .arg(format!("{resolution_width},{resolution_height}"))
+        .arg("--renderer")
+        .arg(renderer)
+        .arg("--format")
+        .arg(file_format)
+        .arg("--fps")
+        .arg(format!("{fps}"))
+        .arg("--output_file")
+        .arg(format!("{output_file_name}.{file_format}"))
         .arg("main.py")
         .current_dir(project_path)
         .spawn()
@@ -46,17 +64,28 @@ fn recompile(project_path: &str, code: &str, low_res: bool) {
 }
 
 #[tauri::command]
-fn load_video(path: String, low_res: bool) -> Result<String, String> {
+fn load_video(
+    path: String,
+    low_res: bool,
+    output_file_name: &str,
+    file_format: &str,
+    resolution_height: u32,
+    fps: u32,
+) -> Result<String, String> {
     let video_path = Path::new(&path)
         .join("media")
         .join("videos")
         .join("main")
-        .join(if low_res { "480p15" } else { "1080p60" })
-        .join("Main.mp4");
+        .join(if low_res {
+            "480p15".to_owned()
+        } else {
+            format!("{resolution_height}p{fps}")
+        })
+        .join(format!("{output_file_name}.{file_format}"));
     match std::fs::read(&video_path) {
         Ok(contents) => {
             let encoded = base64::engine::general_purpose::STANDARD.encode(contents);
-            Ok(format!("data:video/mp4;base64,{}", encoded))
+            Ok(encoded)
         }
         Err(e) => Err(format!("Failed to read file: {}", e)),
     }
@@ -200,12 +229,23 @@ fn get_fonts() -> Vec<String> {
 }
 
 #[tauri::command]
-fn open_movie_location(project_path: &str, low_res: bool) {
+fn open_movie_location(
+    project_path: &str,
+    low_res: bool,
+    output_file_name: &str,
+    file_format: &str,
+    resolution_height: u32,
+    fps: u32,
+) {
     let video_path = Path::new(&project_path)
         .join("media")
         .join("videos")
         .join("main")
-        .join(if low_res { "480p15" } else { "1080p60" })
-        .join("Main.mp4");
+        .join(if low_res {
+            "480p15".to_owned()
+        } else {
+            format!("{resolution_height}p{fps}")
+        })
+        .join(format!("{output_file_name}.{file_format}"));
     showfile::show_path_in_file_manager(video_path);
 }

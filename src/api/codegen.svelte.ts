@@ -49,6 +49,7 @@ export function codegenObject(object: Omit<ProjectObject, "previewData"> & { pre
 let isPreviewLoaded = $state(true);
 
 export async function generateObjectPreview(object: Omit<ProjectObject, "previewData"> & { previewData?: string }): Promise<ProjectObject> {
+	console.log("preview genning");
 	isPreviewLoaded = false;
 	const imageData = await invoke<string>("generate_object_preview", {
 		path: await getProjectLocation(),

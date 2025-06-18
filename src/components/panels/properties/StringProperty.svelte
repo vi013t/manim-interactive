@@ -95,7 +95,7 @@
 
 	let inputValue = $state(`${value}`);
 
-	let locked = $state(true);
+	let locked = $state(property.isPath);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

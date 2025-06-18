@@ -2,7 +2,7 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { getPreferences, runAction, savePreferences, setPreference, type Preference } from "../../api/preferences.svelte";
-	import { getProjectLocation, getProjectName } from "../../api/project.svelte";
+	import { getProjectLocation, getProjectName, getProjectSettings } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
 	import ClockCheckIcon from "../icons/ClockCheckIcon.svelte";
@@ -79,7 +79,12 @@
 	}
 
 	async function openMovieLocation() {
-		invoke("open_movie_location", { projectPath: await getProjectLocation(), lowRes: getPreferences().lowRes });
+		invoke("open_movie_location", {
+			projectPath: await getProjectLocation(),
+			lowRes: getPreferences().lowRes,
+			outputFileName: getProjectSettings().outputFileName,
+			fileFormat: getProjectSettings().fileFormat,
+		});
 		projectMenu.hide();
 	}
 </script>

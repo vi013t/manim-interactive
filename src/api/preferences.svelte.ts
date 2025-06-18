@@ -8,6 +8,7 @@ import {
 	getObjectFromId,
 	getProjectLocation,
 	getProjectSaveData,
+	getProjectSettings,
 	getSingleSelection,
 	loadProjectData,
 	projectHasErrors,
@@ -94,16 +95,25 @@ const actions = {
 
 			await invoke("recompile", {
 				projectPath: await getProjectLocation(),
-				lowRes: getPreferences().lowRes,
 				code: generateCode(),
+				fps: getProjectSettings().fps,
+				fileFormat: getProjectSettings().fileFormat,
+				renderer: getProjectSettings().renderer.toLowerCase(),
+				resolutionWidth: getProjectSettings().resolution[0],
+				resolutionHeight: getProjectSettings().resolution[1],
+				outputFileName: getProjectSettings().outputFileName,
 			});
 
 			const videoData = await invoke<string>("load_video", {
 				path: await getProjectLocation(),
 				lowRes: getPreferences().lowRes,
+				resolutionHeight: getProjectSettings().resolution[1],
+				fps: getProjectSettings().fps,
+				outputFileName: getProjectSettings().outputFileName,
+				fileFormat: getProjectSettings().fileFormat,
 			});
 
-			document.getElementById("video-source")?.setAttribute("src", videoData);
+			document.getElementById("video-source")?.setAttribute("src", `data:video/${getProjectSettings().fileFormat};base64,${videoData}`);
 
 			if (getSingleSelection() === null || getObjectFromId(getSingleSelection()!) === null) {
 				(document.getElementById("video-source") as HTMLVideoElement | null)?.play();

@@ -452,3 +452,15 @@ export function regenerateWaits() {
 	projectAnimations.push(...waits);
 	runAction("Save Project");
 }
+
+let projectSettings = $state({
+	fileFormat: "mp4",
+	resolution: [1920, 1080],
+	renderer: "Cairo",
+	fps: 60,
+	outputFileName: "Main",
+});
+
+export function getProjectSettings() {
+	return projectSettings;
+}

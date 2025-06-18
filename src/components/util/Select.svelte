@@ -11,12 +11,14 @@
 		onSelect,
 		itemOverride,
 		value = $bindable(),
+		title = undefined,
 		...rest
 	}: {
 		value?: SelectOption;
 		itemOverride?: string;
 		onSelect: (value: string) => void;
 		options: SelectOption[];
+		title?: string;
 		[key: string]: unknown;
 	} = $props();
 
@@ -49,7 +51,9 @@
 <div bind:this={element} class="select" {...rest}>
 	<!-- Select Button -->
 	<button onclick={onSelectClick} class="header">
-		{#if value}
+		{#if title}
+			{title}
+		{:else if value}
 			{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as ComplexOption | undefined}
 			{#if option}
 				{#if option.icon}

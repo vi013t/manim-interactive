@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { getProjectLibraries } from "../../api/project.svelte";
+	import { getProjectLibraries, getProjectSettings } from "../../api/project.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import PackageIcon from "../icons/PackageIcon.svelte";
-	import PlusIcon from "../icons/PlusIcon.svelte";
+	import ProjectorIcon from "../icons/ProjectorIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
+	import Select from "../util/Select.svelte";
 	import Window from "./Window.svelte";
 
 	let windowComponent: Window;
@@ -35,9 +36,17 @@
 			if (hoverView === viewName) hoverView = null;
 		};
 	}
+
+	function setOutputWidth(event: FocusEvent) {
+		getProjectSettings().resolution[0] = Number((event.target as HTMLInputElement).value);
+	}
+
+	function setOutputHeight(event: FocusEvent) {
+		getProjectSettings().resolution[1] = Number((event.target as HTMLInputElement).value);
+	}
 </script>
 
-<Window bind:this={windowComponent} title="Preferences" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
+<Window bind:this={windowComponent} title="Project Settings" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
 	<div class="container">
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<div class="sidebar">
@@ -45,9 +54,9 @@
 				<GearIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 				General
 			</button>
-			<button onmouseout={unHover("libraries")} onmouseover={() => (hoverView = "libraries")} style:background={backgroundColor("libraries")} onclick={() => (view = "libraries")}>
-				<PlusIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
-				Add Ons
+			<button onmouseout={unHover("output")} onmouseover={() => (hoverView = "output")} style:background={backgroundColor("output")} onclick={() => (view = "output")}>
+				<ProjectorIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
+				Output Settings
 			</button>
 			<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 			<button onmouseout={unHover("libraries")} onmouseover={() => (hoverView = "libraries")} style:background={backgroundColor("libraries")} onclick={() => (view = "libraries")}>
@@ -55,9 +64,51 @@
 				Script Libraries
 			</button>
 		</div>
+
 		<div class="content">
 			{#if view === "general"}
 				<h1>General</h1>
+			{:else if view === "output"}
+				<h1>Output Settings</h1>
+				<span>
+					<span>File Name:</span>
+					<input type="text" value="Main" />
+				</span>
+				<span>
+					<span>File Type:</span>
+					<Select options={["mp4", "mov", "webm"]} value={getProjectSettings().fileFormat} onSelect={format => (getProjectSettings().fileFormat = format)} />
+				</span>
+				<span>
+					<span>Renderer:</span>
+					<Select options={["Cairo", "OpenGL"]} value={getProjectSettings().renderer} onSelect={renderer => (getProjectSettings().renderer = renderer)} />
+				</span>
+				<span>
+					<span>Frames Per Second:</span>
+					<input type="text" value={getProjectSettings().fps} />
+					<Select
+						title="Presets"
+						style="width: 7rem"
+						onSelect={value => {
+							getProjectSettings().fps = Number(value);
+						}}
+						options={["15", "24", "30", "59", "60"]}
+					/>
+				</span>
+				<span class="resolution">
+					<span>Resolution:</span>
+					<input onblur={setOutputWidth} type="text" value={getProjectSettings().resolution[0]} />
+					<span class="x">x</span>
+					<input onblur={setOutputHeight} type="text" value={getProjectSettings().resolution[1]} />
+					<Select
+						title="Presets"
+						style="width: 7rem"
+						onSelect={value => {
+							let [width, _x, height] = value.split(" ");
+							getProjectSettings().resolution = [Number(width), Number(height)];
+						}}
+						options={["854 x 480", "1280 x 720", "1920 x 1080", "2560 x 1440", "3840 x 2160"]}
+					/>
+				</span>
 			{:else if view === "libraries"}
 				<h1>External Libraries</h1>
 				{#each getProjectLibraries() as library (library)}
@@ -76,6 +127,16 @@
 	button,
 	span {
 		color: var(--text);
+	}
+
+	.content > span {
+		margin-left: 2rem;
+		gap: 0.5rem;
+
+		& > span:not(.x) {
+			width: 12rem;
+			justify-content: right;
+		}
 	}
 
 	.library {
@@ -97,6 +158,27 @@
 
 	.content {
 		width: 100%;
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+
+		> *:not(.resolution) {
+			input {
+				width: 20rem;
+				background-color: var(--crust);
+				padding: 0.25rem;
+				border-radius: 0.25rem;
+				color: var(--text);
+			}
+		}
+
+		.resolution > input {
+			width: 9.3rem;
+			background-color: var(--crust);
+			padding: 0.25rem;
+			border-radius: 0.25rem;
+			color: var(--text);
+		}
 	}
 
 	button {
