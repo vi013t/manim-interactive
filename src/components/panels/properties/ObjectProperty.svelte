@@ -2,18 +2,19 @@
 	import { onMount } from "svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { addError, getItemFromId, getProjectObjects, getPropertiesFromId, type ProjectObject, removeError, selected } from "../../../api/project.svelte";
+	import { addError, getItemFromId, getProjectObjects, type ProjectObject, removeError, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
 		value = $bindable(),
 		name,
 		errorMessage = $bindable(),
+		setProperty,
 	}: {
 		value: number;
 		name: string;
 		errorMessage: string | null;
+		setProperty(value: unknown): void;
 	} = $props();
 
 	function validate() {
@@ -22,12 +23,10 @@
 		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
-	function setProperty() {
+	function trySetProperty() {
 		validate();
 		if (errorMessage) return;
-
-		(getPropertiesFromId(selected()[0])! as any)[name] = selectedOption;
-		if (getPreferences().autosave) runAction("Save And Recompile Project");
+		setProperty(selectedOption);
 	}
 
 	let selectedOption: number = $state(value);
@@ -56,7 +55,7 @@
 		})}
 	onSelect={name => {
 		selectedOption = getProjectObjects().find(projectObject => getProperty(projectObject, "Name") === name)!.id;
-		setProperty();
+		trySetProperty();
 	}}
 	bind:value={choice}
 	style={`outline: 2px solid ${selectedOption !== undefined && selectedOption !== null ? "transparent" : "var(--red)"}`}

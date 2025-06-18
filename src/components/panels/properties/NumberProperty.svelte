@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { NumberProperty } from "../../../api/manim/property";
 	import { getProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import {
 		addError,
 		animationEndTime,
@@ -20,12 +19,14 @@
 		name,
 		property,
 		id,
+		setProperty,
 	}: {
 		value: number;
 		errorMessage: string | null;
 		name: string;
 		property: NumberProperty;
 		id: number;
+		setProperty(value: unknown): void;
 	} = $props();
 
 	let inputHover = $state(false);
@@ -73,12 +74,10 @@
 		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
-	function setProperty() {
+	function trySetProperty() {
 		validate();
 		if (errorMessage) return;
-
-		(getPropertiesFromId(selected()[0])! as any)[name] = inputValue;
-		if (getPreferences().autosave) runAction("Save And Recompile Project");
+		setProperty(inputValue);
 	}
 
 	function onInput(event: KeyboardEvent) {
@@ -95,7 +94,7 @@
 	}
 
 	function onBlur() {
-		setProperty();
+		trySetProperty();
 		inputFocus = false;
 	}
 

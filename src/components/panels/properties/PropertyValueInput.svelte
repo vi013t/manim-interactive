@@ -1,11 +1,11 @@
 <script lang="ts" generics="T extends PropertyType">
 	import type { PropertyType, PropertyValue } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, getPropertiesFromId, selected } from "../../../api/project.svelte";
+	import { getItemFromId, getPropertiesFromId, getSingleSelection, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
-	import AnimationProperty from "./AnimationProperty.svelte";
+	import AnimationProperty from "./AnimationTypeProperty.svelte";
 	import BooleanProperty from "./BooleanProperty.svelte";
 	import ColorProperty from "./ColorProperty.svelte";
 	import CompoundProperty from "./CompoundProperty.svelte";
@@ -24,7 +24,7 @@
 		required: boolean;
 		subProperty?: boolean;
 		deleteProperty?: () => void;
-		setProperty?: () => void;
+		setProperty?: (value: unknown) => void;
 	};
 
 	function deleteRegularProperty() {
@@ -32,7 +32,12 @@
 		runAction("Save And Recompile Project");
 	}
 
-	let { subProperty = false, type: property, name, value, required, deleteProperty = deleteRegularProperty }: Props = $props();
+	function setRegularProperty(value: unknown) {
+		(getPropertiesFromId(getSingleSelection()!)! as any)[name] = value;
+		runAction("Save And Recompile Project");
+	}
+
+	let { subProperty = false, type: property, name, value, required, deleteProperty = deleteRegularProperty, setProperty = setRegularProperty }: Props = $props();
 
 	let errorMessage: string | null = $state(null);
 	let listCollapsed = $state(false);
@@ -49,27 +54,27 @@
 	<!-- Property Value -->
 	{#key getItemFromId(selected()[0])}
 		{#if property.base === "animationType"}
-			<AnimationProperty value={value as string} {name} {property} />
+			<AnimationProperty {setProperty} value={value as string} {name} {property} />
 		{:else if property.base === "objectType"}
-			<ObjectTypeProperty value={value as string} />
+			<ObjectTypeProperty {setProperty} value={value as string} />
 		{:else if property.base === "object"}
-			<ObjectProperty bind:errorMessage value={value as number} {name} />
+			<ObjectProperty {setProperty} bind:errorMessage value={value as number} {name} />
 		{:else if property.base === "color"}
-			<ColorProperty {property} {name} />
+			<ColorProperty {setProperty} {property} {name} />
 		{:else if property.base === "boolean"}
-			<BooleanProperty value={value as boolean} {name} />
+			<BooleanProperty {setProperty} value={value as boolean} {name} />
 		{:else if property.base === "string" && "options" in property}
-			<SelectProperty {property} value={value as string} {name} />
+			<SelectProperty {setProperty} {property} value={value as string} {name} />
 		{:else if property.base === "coordinate"}
 			<CoordinateProperty value={value as [number, number, number]} {name} bind:errorMessage />
 		{:else if property.base === "compound"}
 			<CompoundProperty value={value as unknown} {name} {property} />
 		{:else if property.base === "list"}
-			<ListProperty value={value as unknown[]} {name} {property} />
+			<ListProperty {setProperty} value={value as unknown[]} {name} {property} />
 		{:else if property.base === "string"}
-			<StringProperty bind:errorMessage value={value as string} {name} {property} />
+			<StringProperty {setProperty} bind:errorMessage value={value as string} {name} {property} />
 		{:else if property.base === "number"}
-			<NumberProperty bind:errorMessage value={value as number} {name} {property} id={selected()[0]} />
+			<NumberProperty {setProperty} bind:errorMessage value={value as number} {name} {property} id={selected()[0]} />
 		{/if}
 
 		<!-- Delete Button -->

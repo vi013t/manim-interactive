@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import type { SelectProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
@@ -9,15 +8,16 @@
 		value = $bindable(),
 		name,
 		property,
+		setProperty,
 	}: {
 		value: string;
 		name: string;
 		property: SelectProperty;
+		setProperty(value: unknown): void;
 	} = $props();
 
-	function setProperty() {
-		(getPropertiesFromId(selected()[0]) as any)[name] = value;
-		if (getPreferences().autosave) runAction("Save And Recompile Project");
+	function trySetProperty() {
+		setProperty(value);
 	}
 
 	let properties = $derived(getPropertiesFromId(selected()[0])!);
@@ -34,4 +34,4 @@
 	});
 </script>
 
-<Select onSelect={setProperty} options={property.options} itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined} bind:value />
+<Select onSelect={trySetProperty} options={property.options} itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined} bind:value />

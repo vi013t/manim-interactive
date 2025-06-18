@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import type { StringProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { addError, getPropertiesFromId, isNameTaken, removeError, selected } from "../../../api/project.svelte";
+	import { addError, isNameTaken, removeError, selected } from "../../../api/project.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
 	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
 	import LatexPreview from "./LatexPreview.svelte";
@@ -12,11 +11,13 @@
 		errorMessage = $bindable(),
 		name,
 		property,
+		setProperty,
 	}: {
 		value: string;
 		errorMessage: string | null;
 		name: string;
 		property: StringProperty;
+		setProperty(value: unknown): void;
 	} = $props();
 
 	/** Whether the input element is currently being hovered over. */
@@ -41,11 +42,10 @@
 		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
-	function setProperty() {
+	function trySetProperty() {
 		validate();
 		if (errorMessage) return;
-		(getPropertiesFromId(selected()[0])! as any)[name] = inputValue;
-		if (getPreferences().autosave) runAction("Save And Recompile Project");
+		setProperty(inputValue);
 	}
 
 	function onInput(event: KeyboardEvent) {
@@ -61,7 +61,7 @@
 	}
 
 	function onBlur() {
-		setProperty();
+		trySetProperty();
 		inputFocus = false;
 	}
 

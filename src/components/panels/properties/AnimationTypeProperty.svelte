@@ -2,7 +2,6 @@
 	import { animations, getAnimationCategory } from "../../../api/manim/animations";
 	import type { AnimationTypeProperty } from "../../../api/manim/property";
 	import { getProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, selected, type ProjectAnimation } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
@@ -19,7 +18,7 @@
 	let addButton: HTMLButtonElement;
 	let animationMenu: AddAnimationMenu;
 
-	let { value = $bindable(), name, property }: { value: string; name: string; property: AnimationTypeProperty } = $props();
+	let { value = $bindable(), name, property, setProperty }: { value: string; name: string; property: AnimationTypeProperty; setProperty(value: unknown): void } = $props();
 
 	let menuVisible = $state(false);
 
@@ -36,8 +35,7 @@
 	function changeAnimationType(type: string) {
 		menuVisible = false;
 		animationMenu.hide();
-		item.properties["Animation Type"] = type;
-		if (getPreferences().autosave) runAction("Save And Recompile Project");
+		setProperty(type);
 	}
 </script>
 

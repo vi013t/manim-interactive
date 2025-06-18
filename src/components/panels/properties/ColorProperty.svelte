@@ -1,13 +1,12 @@
 <script lang="ts">
 	import type { ColorProperty } from "../../../api/manim/property";
-	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
 	import ColorPicker from "./ColorPicker.svelte";
 
-	let { name, property }: { name: string; property: ColorProperty } = $props();
+	let { name, property, setProperty }: { name: string; property: ColorProperty; setProperty(value: unknown): void } = $props();
 
-	function setProperty(color: string) {
-		(getPropertiesFromId(selected()[0])! as any)[name] = color;
+	function trySetProperty(color: string) {
+		setProperty(color);
 	}
 </script>
 
-<ColorPicker onSelect={setProperty} />
+<ColorPicker onSelect={trySetProperty} />

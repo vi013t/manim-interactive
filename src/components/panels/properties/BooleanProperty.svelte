@@ -1,12 +1,8 @@
 <script lang="ts">
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
+	let { value = $bindable(), name, setProperty }: { value: boolean; name: string; setProperty(value: unknown): void } = $props();
 
-	let { value = $bindable(), name }: { value: boolean; name: string } = $props();
-
-	function setProperty() {
-		(getPropertiesFromId(selected()[0])! as any)[name] = inputValue;
-		if (getPreferences().autosave) runAction("Save And Recompile Project");
+	function trySetProperty() {
+		setProperty(inputValue);
 	}
 
 	let inputValue = $state(value);
@@ -17,7 +13,7 @@
 	style:background-color={value ? "#a6e3a1" : "var(--red)"}
 	onclick={() => {
 		inputValue = !inputValue;
-		setProperty();
+		trySetProperty();
 	}}
 	class="boolean-button"
 >

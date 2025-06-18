@@ -17,7 +17,6 @@
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import SkullIcon from "../../icons/SkullIcon.svelte";
-	import GroupMenu from "../../menus/GroupMenu.svelte";
 	import ObjectMenu from "../../menus/ObjectMenu.svelte";
 	import ObjectEntry from "./ObjectEntry.svelte";
 
@@ -34,17 +33,9 @@
 		runAction("Save Project");
 	}
 
-	let groupMenu: GroupMenu;
 	let objectMenu: ObjectMenu;
 	let top = $state("0px");
 	let left = $state("0px");
-
-	function rightClickGroup(event: MouseEvent) {
-		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
-		groupMenu.show();
-	}
 
 	function rightClickObject(event: MouseEvent) {
 		event.preventDefault();
@@ -167,7 +158,6 @@
 		<div class="group-line"></div>
 	{/if}
 </div>
-<GroupMenu bind:this={groupMenu} {top} {left} id={entry.id} />
 <ObjectMenu bind:this={objectMenu} {top} {left} ids={selected()} />
 
 <style>

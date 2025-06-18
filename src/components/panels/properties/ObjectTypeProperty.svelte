@@ -18,7 +18,7 @@
 	let addButton: HTMLButtonElement;
 	let addObjectMenu: AddObjectMenu;
 
-	let { value = $bindable() }: { value: string } = $props();
+	let { value = $bindable(), setProperty }: { value: string; setProperty(value: unknown): void } = $props();
 
 	let menuVisible = $state(false);
 

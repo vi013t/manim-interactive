@@ -11,10 +11,12 @@
 		value = $bindable(),
 		name,
 		property,
+		setProperty,
 	}: {
 		value: unknown[];
 		name: string;
 		property: ListProperty;
+		setProperty(value: unknown): void;
 	} = $props();
 
 	let listCollapsed = $state(false);
@@ -58,6 +60,7 @@
 	let swappingIndex = $state(0);
 	let counter = $state(1);
 
+	// svelte-ignore non_reactive_update
 	let grabline: HTMLElement;
 	let list: HTMLElement;
 </script>
@@ -96,6 +99,10 @@
 							required={false}
 							deleteProperty={() => {
 								((properties as any)[name] as any[]).splice(index, 1);
+								counter++;
+							}}
+							setProperty={value => {
+								((properties as any)[name] as unknown[])[index] = value;
 							}}
 						/>
 						<button
@@ -145,6 +152,12 @@
 		button:not(.list-items-header, .handle) {
 			width: fit-content;
 			margin-left: auto;
+			background-color: var(--crust);
+			padding-left: 0.5rem;
+			padding-right: 0.5rem;
+			padding-top: 0.25rem;
+			padding-bottom: 0.25rem;
+			border-radius: 0.25rem;
 		}
 
 		.handle {
