@@ -1,32 +1,10 @@
 import { getManimAnimationByName } from "./manim/animations";
 import { objects, type ManimObject } from "./manim/objects";
 import { getPossibleProperties, getProperty, propertyValueToString, type FunctionProperty, type KeywordProperty, type PositionalProperty, type Property } from "./manim/property";
-import { animationEndTime, getProjectAnimations, getProjectMarkers, topologicalProjectObjects, type ProjectAnimation } from "./project.svelte";
+import { getProjectAnimations, topologicalProjectObjects } from "./project.svelte";
 
 export function generateCode(): string {
 	let animations = getProjectAnimations().toSorted((first, other) => getProperty(first, "Start Time")! - getProperty(other, "Start Time")!);
-	let animationsWithWaits: (ProjectAnimation | { wait: number })[] = [];
-	animations.forEach((animation, index) => {
-		animationsWithWaits.push(animation);
-		if (index != animations.length - 1) {
-			let waitTime = getProperty(animations[index + 1], "Start Time")! - animationEndTime(animation);
-			if (waitTime > 0) animationsWithWaits.push({ wait: waitTime });
-		}
-	});
-
-	// Beginning Wait
-	if (animationsWithWaits.length && getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! > 0) {
-		animationsWithWaits.unshift({ wait: getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! });
-	}
-
-	// Ending Wait
-	if (animations.length > 0) {
-		let lastAnimation = animations[animations.length - 1];
-		let endingWait = getProjectMarkers().find(marker => marker.name === "End")!.time - animationEndTime(lastAnimation);
-		if (endingWait !== 0) {
-			animationsWithWaits.push({ wait: endingWait });
-		}
-	}
 
 	const objectLines = topologicalProjectObjects()
 		.map(object => {
@@ -72,10 +50,8 @@ export function generateCode(): string {
 		})
 		.join("\n");
 
-	const animationLines = animationsWithWaits
+	const animationLines = animations
 		.map(animation => {
-			if ("wait" in animation) return `\t\tself.wait(${animation.wait})`;
-
 			let manimAnimation = getManimAnimationByName(getProperty(animation, "Animation Type")!)!;
 
 			const possibleProperties = getPossibleProperties(animation);

@@ -124,6 +124,7 @@ export function getProjectObjects(): ProjectObject[] {
 export function addProjectAnimation(animation: ProjectAnimation) {
 	projectAnimations.push(animation);
 	regenerateWaits();
+	updateEndMarker();
 }
 
 export type ProjectObject = {
@@ -423,7 +424,16 @@ export function isObjectInGroup(id: number) {
 export function regenerateWaits() {
 	projectAnimations = getProjectAnimations().filter(animation => animation.properties["Animation Type"] !== "Wait");
 	let animations = getProjectAnimations().toSorted((first, other) => first.properties["Start Time"]! - other.properties["Start Time"]!);
+
 	let waits: ProjectAnimation[] = [];
+
+	// Beginning Wait
+	if (animations.length > 0 && animations[0].properties["Start Time"] !== 0) {
+		let duration = animations[0].properties["Start Time"];
+		waits.push({ id: nextId(), type: "animation", properties: { "Animation Type": "Wait", Name: `Wait ${duration}s`, Duration: duration, "Start Time": 0 } });
+	}
+
+	// Middle Waits
 	animations.forEach((animation, index) => {
 		if (index != animations.length - 1) {
 			let waitStart = animationEndTime(animation);
@@ -434,5 +444,7 @@ export function regenerateWaits() {
 			}
 		}
 	});
+
 	projectAnimations.push(...waits);
+	runAction("Save Project");
 }

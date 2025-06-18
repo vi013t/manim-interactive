@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { onMount } from "svelte";
-	import { getKeybindings, getPreferences, key, savePreferences, updateKeybinding, type Key, type KeyModifier, type Preference } from "../../api/preferences.svelte";
 	import { getProjectLibraries } from "../../api/project.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import PackageIcon from "../icons/PackageIcon.svelte";
@@ -16,17 +14,6 @@
 	let view = $derived("general");
 	let hoverView: string | null = $state("general");
 
-	let recordingIndex: number | null = $state(null);
-
-	function record(index: number) {
-		if (recordingIndex === index) recordingIndex = null;
-		else if (recordingIndex === null) recordingIndex = index;
-	}
-
-	let modifiers: KeyModifier[] = $state([]);
-	let chosenKey: string = $state("");
-	let binding: Key = $derived(key(chosenKey, ...modifiers));
-
 	function isUserTyping() {
 		const active = document.activeElement as HTMLElement;
 
@@ -39,44 +26,6 @@
 		return isInputOrTextarea || isContentEditable;
 	}
 
-	onMount(() => {
-		document.addEventListener("keydown", event => {
-			// Recording new keybinding
-			if (recordingIndex !== null) {
-				event.preventDefault();
-				if (event.ctrlKey && !modifiers.includes("ctrl")) modifiers.push("ctrl");
-				if (event.shiftKey && !modifiers.includes("shift")) modifiers.push("shift");
-				if (event.altKey && !modifiers.includes("alt")) modifiers.push("alt");
-				if (!["Control", "Shift", "Alt"].includes(event.key)) {
-					chosenKey = event.key;
-					let chosen = key(event.key, ...modifiers);
-					updateKeybinding(recordingIndex, chosen);
-					recordingIndex = null;
-					chosenKey = "";
-					modifiers = [];
-				}
-			}
-
-			// Not Recording (and not typing)
-			else if (!isUserTyping()) {
-				event.preventDefault();
-				getKeybindings().some(keybinding => {
-					if (
-						event.key === keybinding.key.key &&
-						event.ctrlKey === keybinding.key.modifiers.includes("ctrl") &&
-						event.altKey === keybinding.key.modifiers.includes("alt") &&
-						event.shiftKey === keybinding.key.modifiers.includes("shift")
-					) {
-						keybinding.action.run();
-						return true;
-					}
-
-					return false;
-				});
-			}
-		});
-	});
-
 	function backgroundColor(viewName: string) {
 		return view === viewName ? "rgba(180, 150, 255, 20%)" : hoverView === viewName ? "rgba(180, 150, 255, 10%)" : "transparent";
 	}
@@ -84,13 +33,6 @@
 	function unHover(viewName: string) {
 		return function () {
 			if (hoverView === viewName) hoverView = null;
-		};
-	}
-
-	function updateBooleanPreference(preferenceName: Preference) {
-		return function (event: Event) {
-			getPreferences()[preferenceName] = (event.target as HTMLInputElement).checked as any;
-			savePreferences();
 		};
 	}
 </script>

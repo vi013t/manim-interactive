@@ -37,29 +37,14 @@
 
 	const BORDER_SIZE = 4;
 
-	function animationMouseDown(animation: ProjectAnimation) {
-		return function (event: MouseEvent) {
+	function animationMouseDown(event: MouseEvent) {
+		if (!getPreferences().collapseWaitTimes) {
 			if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
 				expandingElement = event.target as HTMLElement;
 			} else {
 				draggingElement = event.target as HTMLElement;
 			}
-		};
-	}
-
-	let ids: number[] = [];
-
-	function onAnimationMount(animation: ProjectAnimation) {
-		return function (element: HTMLElement) {
-			if (!ids.includes(animation.id)) {
-				if (animation.properties["Animation Type"] !== "Wait") {
-					const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
-					let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
-					animation.properties["Start Time"] = startTime;
-					ids.push(animation.id);
-				}
-			}
-		};
+		}
 	}
 
 	function animationColor(animation: ProjectAnimation): string {
@@ -67,6 +52,12 @@
 	}
 
 	onMount(() => {
+		if (animation.properties["Animation Type"] !== "Wait") {
+			const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
+			let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
+			animation.properties["Start Time"] = startTime;
+		}
+
 		document.addEventListener("mousemove", event => {
 			const cellHeight = 64;
 			if (timelineElement) {
@@ -156,21 +147,18 @@
 		if (getPreferences().collapseWaitTimes && animation.properties["Animation Type"] === "Wait") return "4rem";
 		return `${animation.properties["Duration"]! * 4}rem`;
 	});
-
-	$effect(() => {
-		console.log(animation.properties["Name"], $state.snapshot(getProjectAnimations()));
-	});
 </script>
 
 <button
 	oncontextmenu={animationActions}
-	onmousedown={animationMouseDown(animation)}
+	onmousedown={animationMouseDown}
 	class="animation"
 	onclick={() => select([animation.id])}
-	{@attach onAnimationMount(animation)}
 	style:background-color={animationColor(animation)}
-	style:outline={selected()[0] === animation.id || (selected() !== null && getAnimationObjects(animation).includes(selected()[0])) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
-	style:opacity={selected() === null || selected()[0] === animation.id || getAnimationObjects(animation).includes(selected()[0]) ? "100%" : "30%"}
+	style:outline={selected().length === 0 || selected().includes(animation.id) || (selected().length > 0 && getAnimationObjects(animation).includes(selected()[0]))
+		? "4px solid rgba(255, 255, 255, 50%)"
+		: "none"}
+	style:opacity={selected().length === 0 || selected().includes(animation.id) || getAnimationObjects(animation).includes(selected()[0]) ? "100%" : "30%"}
 	style:top={animationTop}
 	style:height={animationHeight}
 	style:display={animation.properties["Animation Type"] === "Wait" && !getPreferences().showWaits ? "none" : "flex"}
@@ -196,6 +184,7 @@
 		gap: 0.5rem;
 		outline-offset: -4px;
 
+		/* Bottom Resize Handle */
 		&::after {
 			content: "";
 			position: absolute;

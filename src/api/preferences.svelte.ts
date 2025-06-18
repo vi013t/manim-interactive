@@ -158,7 +158,7 @@ const actions = {
 			deselect();
 		},
 	},
-} as const satisfies { [key: string]: Action<any> };
+} as const;
 
 let preferences = $state({
 	previews: true,
@@ -220,7 +220,6 @@ export type Key = {
 
 type Action<T = undefined> = {
 	name: string;
-	run: T extends undefined ? (() => void) | (() => Promise<void>) : ((data: T) => void) | ((data: T) => Promise<void>);
 	undo?: T extends undefined ? (() => void) | (() => Promise<void>) : ((data: T) => void) | ((data: T) => Promise<void>);
 };
 
@@ -234,7 +233,7 @@ type ActionData<Name extends ActionName> = (typeof actions)[Name] extends Action
 
 export async function runAction<Name extends ActionName>(name: Name, data?: ActionData<Name>): Promise<void> {
 	let action = actions[name];
-	await (action.run as any)(data);
+	await action.run(data as any);
 	if ("undo" in action) undoHistory.push({ action: action as any, data });
 }
 
@@ -248,16 +247,16 @@ export function key(key: string, ...modifiers: KeyModifier[]): Key {
 	return { key, modifiers };
 }
 
-export function action<Name extends ActionName>(name: Name): (typeof actions)[Name] {
-	return actions[name];
+export function action<Name extends ActionName>(name: Name): Name {
+	return name;
 }
 
 export type Keybinding = {
-	action: Action;
+	action: ActionName;
 	key: Key;
 };
 
-export function keybinding(action: Action, key: Key): Keybinding {
+export function keybinding(action: ActionName, key: Key): Keybinding {
 	return { action, key };
 }
 

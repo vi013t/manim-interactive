@@ -8,6 +8,7 @@
 		getKeybindings,
 		getPreferences,
 		key,
+		runAction,
 		savePreferences,
 		setPreference,
 		updateKeybinding,
@@ -101,7 +102,7 @@
 						event.altKey === keybinding.key.modifiers.includes("alt") &&
 						event.shiftKey === keybinding.key.modifiers.includes("shift")
 					) {
-						keybinding.action.run();
+						runAction(keybinding.action);
 						return true;
 					}
 
@@ -269,7 +270,7 @@
 							{translate("Action")}:
 							<select>
 								{#each getActions() as action}
-									<option selected={action.name === keybinding.action.name}>{translate(action.name)}</option>
+									<option selected={action.name === keybinding.action}>{translate(action.name)}</option>
 								{/each}
 							</select>
 						</span>

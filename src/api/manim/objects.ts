@@ -61,6 +61,9 @@ import type { Icon } from "../../components/icons/Icon";
 import IcosahedronIcon from "../../components/icons/IcosahedronIcon.svelte";
 import ImageIcon from "../../components/icons/ImageIcon.svelte";
 import IntersectionIcon from "../../components/icons/IntersectionIcon.svelte";
+import JustifyCenterIcon from "../../components/icons/JustifyCenterIcon.svelte";
+import JustifyLeftIcon from "../../components/icons/JustifyLeftIcon.svelte";
+import JustifyRightIcon from "../../components/icons/JustifyRightIcon.svelte";
 import LineIcon from "../../components/icons/LineIcon.svelte";
 import NetworkIcon from "../../components/icons/NetworkIcon.svelte";
 import OctahedronIcon from "../../components/icons/OctahedronIcon.svelte";
@@ -519,10 +522,11 @@ export const objects = [
 		properties: [
 			{
 				name: "Items",
-				type: property().list(property().string()).spread(),
+				type: property().list(property().string()).spread().length(property().number().integeric().min(1)),
 				position: 0,
 				description: "The items in the list.",
 				categories: ["Special"],
+				required: true,
 			},
 		],
 	},
@@ -646,7 +650,23 @@ export const objects = [
 		demo: ellipseDemo,
 		description: "All points with an equal sum of distances from two focal points.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Ellipse.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Width",
+				internalName: "width",
+				type: property().number().positive().default(2),
+				description: "The width of the ellipse.",
+				categories: ["Special"],
+			},
+			{
+				name: "Height",
+				internalName: "height",
+				type: property().number().positive().default(1),
+				description: "The height of the ellipse.",
+				categories: ["Special"],
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Graph",
@@ -767,7 +787,37 @@ export const objects = [
 		description: "Text with multiple lines.",
 		demo: paragraphDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.text.text_mobject.Paragraph.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Text",
+				internalName: "text",
+				type: property().list(property().string()).length(property().number().integeric().min(1)).spread(),
+				categories: ["Special"],
+				required: true,
+				description: "The lines of text to display.",
+			},
+			{
+				name: "Line Spacing",
+				internalName: "line_spacing",
+				type: property().number().default(-1),
+				categories: ["Special"],
+				description: "The spacing between the lines of the text.",
+			},
+			{
+				name: "Justify",
+				internalName: "alignment",
+				type: property()
+					.select()
+					.choices(
+						{ name: "left", icon: JustifyLeftIcon, color: "var(--yellow)" },
+						{ name: "right", icon: JustifyRightIcon, color: "var(--yellow)" },
+						{ name: "center", icon: JustifyCenterIcon, color: "var(--yellow)" }
+					),
+				categories: ["Special"],
+				description: "The justification of the text.",
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Text",
@@ -847,7 +897,17 @@ export const objects = [
 		demo: polygonDemo,
 		description: "A set of points connected by straight lines.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Polygon.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Vertices",
+				position: 0,
+				type: property().list(property().coordinate()).length(property().number().integeric().min(3)).spread(),
+				categories: ["Special"],
+				description: "The width of the rectangle.",
+				required: true,
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Polygram",
@@ -856,7 +916,20 @@ export const objects = [
 		description: "A polygon with intersecting edges.",
 		demo: circleDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Polygram.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Vertex Groups",
+				position: 0,
+				type: property()
+					.list(property().list(property().coordinate()).length(property().number().integeric().min(3)))
+					.length(property().number().integeric().min(1))
+					.spread(),
+				description: "The sets of closed points of the polygram.",
+				categories: ["Special"],
+				required: true,
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Rectangle",
@@ -869,14 +942,14 @@ export const objects = [
 			{
 				name: "Width",
 				internalName: "width",
-				type: property().number().nonnegative().default(4),
+				type: property().number().positive().default(4),
 				categories: ["Special"],
 				description: "The width of the rectangle.",
 			},
 			{
 				name: "Height",
 				internalName: "height",
-				type: property().number().nonnegative().default(2),
+				type: property().number().positive().default(2),
 				categories: ["Special"],
 				description: "The height of the rectangle.",
 			},
@@ -925,7 +998,16 @@ export const objects = [
 		demo: regularPolygonDemo,
 		description: "A polygon with any number of equal sides and angles.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.RegularPolygon.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Number of Sides",
+				internalName: "n",
+				type: property().number().integeric().min(3).default(6),
+				description: "The number of sides the regular polygon has.",
+				categories: ["Special"],
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Regular Polygram",
@@ -935,7 +1017,31 @@ export const objects = [
 		demo: regularPolygramDemo,
 		description: "A polygram with any number of equal sides and angles.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.RegularPolygram.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Number of Vertices",
+				internalName: "num_vertices",
+				type: property().number().integeric().min(3),
+				description: "The number of vertices the regular polygram has.",
+				categories: ["Special"],
+				required: true,
+			},
+			{
+				name: "Radius",
+				internalName: "radius",
+				type: property().number().positive().default(1),
+				description: "The radius of the regular polygram.",
+				categories: ["Special"],
+			},
+			{
+				name: "Density",
+				internalName: "density",
+				type: property().number().positive().integeric().default(2),
+				description: "The number of vertices to jump before connecting them.",
+				categories: ["Special"],
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Scripted Object",
@@ -953,7 +1059,30 @@ export const objects = [
 		demo: sectorDemo,
 		description: "All points equidistant from a center point.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.arc.Sector.html"],
-		properties: [],
+		properties: [
+			{
+				name: "Radius",
+				internalName: "radius",
+				type: property().number().positive().default(1),
+				description: "The radius of the circle the sector is cut from.",
+				categories: ["Special"],
+			},
+			{
+				name: "Angle",
+				internalName: "angle",
+				type: property().number().nonnegative().max(360).default(1.57),
+				description: "The elapsed angle to slice the annulus from",
+				categories: ["Special"],
+			},
+			{
+				name: "Start Angle",
+				internalName: "start_angle",
+				type: property().number().nonnegative().max(360).default(0),
+				description: "The angle to slice the annulus from",
+				categories: ["Special"],
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Sphere",
@@ -971,7 +1100,16 @@ export const objects = [
 		demo: squareDemo,
 		description: "A rectangle with equal side lengths.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Square.html"],
-		properties: [...VMobjectProperties],
+		properties: [
+			{
+				name: "Side Length",
+				internalName: "side_length",
+				type: property().number().positive().default(2),
+				description: "The width of the ellipse.",
+				categories: ["Special"],
+			},
+			...VMobjectProperties,
+		],
 	},
 	{
 		name: "Star",
@@ -1057,7 +1195,7 @@ export const objects = [
 		demo: triangleDemo,
 		description: "A regular polygon with three sides.",
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.geometry.polygram.Triangle.html"],
-		properties: [],
+		properties: [...VMobjectProperties],
 	},
 ] as const satisfies ManimObject[];
 
