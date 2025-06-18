@@ -33,6 +33,17 @@
 	let selectedOption: number = $state(value);
 
 	onMount(() => validate());
+
+	let choice = $derived.by(() => {
+		if (selectedOption !== undefined && selectedOption !== null) {
+			const object = getItemFromId(selectedOption)! as ProjectObject;
+			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
+			const category = getObjectCategory(manimObject.categories[0]);
+			return { name: getProperty(object, "Name")!, icon: manimObject.icon, color: category.color };
+		} else {
+			return undefined;
+		}
+	});
 </script>
 
 <Select
@@ -47,15 +58,6 @@
 		selectedOption = getProjectObjects().find(projectObject => getProperty(projectObject, "Name") === name)!.id;
 		setProperty();
 	}}
-	value={(() => {
-		if (selectedOption !== undefined && selectedOption !== null) {
-			const object = getItemFromId(selectedOption)! as ProjectObject;
-			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
-			const category = getObjectCategory(manimObject.categories[0]);
-			return { name: getProperty(object, "Name")!, icon: manimObject.icon, color: category.color };
-		} else {
-			return undefined;
-		}
-	})()}
+	bind:value={choice}
 	style={`outline: 2px solid ${selectedOption !== undefined && selectedOption !== null ? "transparent" : "var(--red)"}`}
 />

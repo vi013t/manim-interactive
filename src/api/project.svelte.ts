@@ -388,9 +388,9 @@ export function isObjectUsed(object: ProjectObject): boolean {
 			let properties = getPossibleProperties(object);
 			return projectObjects.some(object => {
 				return Object.entries(object.properties).some(([propertyName, propertyValue]) => {
-					if (["Name", "Object Type"].includes(propertyName)) return false;
-					console.log(propertyName, properties);
-					return properties.find(property => property.name === propertyName)!.type.base === "object" && propertyValue === object.id;
+					let propertyBase = properties.find(property => property.name === propertyName);
+					if (!propertyBase) return false;
+					return propertyBase.type.base === "object" && propertyValue === object.id;
 				});
 			});
 		})()

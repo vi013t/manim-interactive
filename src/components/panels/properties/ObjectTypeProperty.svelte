@@ -22,7 +22,7 @@
 
 	let menuVisible = $state(false);
 
-	function addObject() {
+	function toggleMenu() {
 		if (addObjectMenu.isVisible()) {
 			menuVisible = false;
 			addObjectMenu.hide();
@@ -64,7 +64,7 @@
 		left = `${element.getBoundingClientRect().left}px`;
 	}}
 	bind:this={addButton}
-	onclick={addObject}
+	onclick={toggleMenu}
 >
 	<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
 	{translate(value)}

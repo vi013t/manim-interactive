@@ -86,10 +86,10 @@
 		};
 
 		addProjectObject(object);
-		select([object.id]);
 		if (isGroup) {
 			getObjectFromId(ids[0])!.properties["Objects"]!.push(object.id);
 		}
+		select([object.id]);
 
 		if (getPreferences().autosave) runAction("Save Project");
 	}

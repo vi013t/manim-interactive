@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { flip } from "svelte/animate";
 	import type { ListProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
@@ -36,25 +35,34 @@
 		document.addEventListener("mouseup", event => {
 			if (grabElement) {
 				grabElement = null;
-				console.log(event.clientY - grabY);
-				if (event.clientY - grabY > 50) {
-					let list: any[] = (properties as any)[name] as any[];
-					let temp = list[grabbingIndex];
-					list[grabbingIndex] = list[grabbingIndex + 1];
-					list[grabbingIndex + 1] = temp;
-					runAction("Save And Recompile Project");
-				}
+				let list = (properties as any)[name] as unknown[];
+				list.splice(swappingIndex, 0, list.splice(grabbingIndex, 1)[0]);
+				grabline.style.opacity = "0%";
+				counter++;
+				runAction("Save And Recompile Project");
 			}
 		});
 
-		document.addEventListener("mousemove", event => {
-			if (grabElement) {
-			}
-		});
+		document.addEventListener("mousemove", updateGrab);
 	});
+
+	function updateGrab(event: MouseEvent) {
+		if (grabElement) {
+			swappingIndex = Math.max(0, Math.min(Math.floor((event.clientY - list.getBoundingClientRect().top) / 30), value.length - 1));
+			grabline.style.opacity = "100%";
+			grabline.style.top = `${swappingIndex * 30}px`;
+			grabElement.style.top = `${event.clientY - list.getBoundingClientRect().top}px`;
+		}
+	}
+
+	let swappingIndex = $state(0);
+	let counter = $state(1);
+
+	let grabline: HTMLElement;
+	let list: HTMLElement;
 </script>
 
-<div class="list">
+<div class="list" bind:this={list}>
 	{#if !(value as any[]).length || listCollapsed}
 		<span style:align-items="center">
 			<button class="list-items-header" onclick={() => (listCollapsed = false)}>
@@ -77,36 +85,40 @@
 	{/if}
 
 	{#if !listCollapsed}
-		{#each value as element, index (index)}
-			<span bind:this={listElements[index]} animate:flip>
-				<span>
-					<PropertyValueInput
-						type={property.type}
-						name={null!}
-						value={element as any}
-						required={false}
-						deleteProperty={() => {
-							((properties as any)[name] as any[]).splice(index, 1);
-						}}
-					/>
-					<button
-						class="handle"
-						onmousedown={() => {
-							grabbingIndex = index;
-							grabY = listElements[index].getBoundingClientRect().top;
-							grabElement = listElements[index];
-						}}
-						style:cursor={grabElement === listElements[index] ? "grabbing" : "grab"}
-					>
-						<HandleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
-					</button>
-					{#if index === 0}
-						<button onclick={() => (listCollapsed = !listCollapsed)}>Collapse</button>
-					{/if}
+		{#key counter}
+			{#each value as element, index (index)}
+				<span bind:this={listElements[index]} class:grabbed={listElements[index] === grabElement}>
+					<span>
+						<PropertyValueInput
+							type={property.type}
+							name={null!}
+							value={element as any}
+							required={false}
+							deleteProperty={() => {
+								((properties as any)[name] as any[]).splice(index, 1);
+							}}
+						/>
+						<button
+							class="handle"
+							onmousedown={event => {
+								grabbingIndex = index;
+								grabY = listElements[index].getBoundingClientRect().top;
+								grabElement = listElements[index];
+								updateGrab(event);
+							}}
+							style:cursor={grabElement === listElements[index] ? "grabbing" : "grab"}
+						>
+							<HandleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
+						</button>
+						{#if index === 0}
+							<button onclick={() => (listCollapsed = !listCollapsed)}>Collapse</button>
+						{/if}
+					</span>
 				</span>
-			</span>
-		{/each}
-	{:else}{/if}
+			{/each}
+		{/key}
+		<div bind:this={grabline} class="grabline"></div>
+	{/if}
 
 	{#if !listCollapsed}
 		<span class="list-bottom">
@@ -130,7 +142,7 @@
 		gap: 0.5rem;
 		position: relative;
 
-		button:not(.list-items-header) {
+		button:not(.list-items-header, .handle) {
 			width: fit-content;
 			margin-left: auto;
 		}
@@ -138,6 +150,8 @@
 		.handle {
 			background-color: transparent;
 			cursor: grab;
+			margin-left: 0.5rem;
+			margin-right: 0.5rem;
 		}
 
 		&:has(span:not(:first-child))::before {
@@ -159,6 +173,22 @@
 		border-radius: 0.5rem;
 		background-color: var(--crust);
 		padding: 0.25rem;
+	}
+
+	.grabline {
+		width: 100%;
+		height: 2px;
+		background: var(--lavender);
+		position: absolute;
+		left: 0px;
+		opacity: 0%;
+	}
+
+	.grabbed {
+		position: absolute;
+		z-index: 999;
+		box-shadow: 0px 0px 1rem black;
+		border: 1px solid var(--surface-0);
 	}
 
 	.list-bottom {

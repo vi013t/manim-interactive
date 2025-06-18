@@ -19,9 +19,16 @@
 		property: StringProperty;
 	} = $props();
 
+	/** Whether the input element is currently being hovered over. */
 	let inputHover = $state(false);
+
+	/** Whether the input element is currently in focus. */
 	let inputFocus = $state(false);
 
+	/**
+	 * Returns the error message associated with the value entered in this property input, or `null`
+	 * if the value is valid.
+	 */
 	function getErrorMessage(): string | null {
 		if (!property.canBeEmpty && inputValue === "") return "Value cannot be empty";
 		if (name === "Name" && isNameTaken(inputValue.trim(), selected()[0])) return "Name is already taken";
@@ -79,6 +86,7 @@
 		bind:value={inputValue}
 	/>
 
+	<!-- Latex -->
 	{#if property.isMath}
 		<a href="https://www.overleaf.com/learn/latex/Mathematical_expressions" target="_blank">
 			<QuestionMarkIcon stroke="var(--text)" style="width: 1rem; height: 1rem;" />

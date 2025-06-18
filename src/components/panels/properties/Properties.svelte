@@ -10,6 +10,7 @@
 
 	let top = $state("100%");
 	let left = $state("94%");
+
 	// svelte-ignore non_reactive_update
 	let propertiesMenu: AddPropertyMenu;
 
