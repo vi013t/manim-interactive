@@ -5,8 +5,10 @@ import {
 	addNotification,
 	deselect,
 	getExplicitProjectLocation,
+	getObjectFromId,
 	getProjectLocation,
 	getProjectSaveData,
+	getSingleSelection,
 	loadProjectData,
 	projectHasErrors,
 	resetProject,
@@ -102,7 +104,10 @@ const actions = {
 			});
 
 			document.getElementById("video-source")?.setAttribute("src", videoData);
-			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
+
+			if (getSingleSelection() === null || getObjectFromId(getSingleSelection()!) === null) {
+				(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
+			}
 			videoLoaded = true;
 			videoGenerated = true;
 

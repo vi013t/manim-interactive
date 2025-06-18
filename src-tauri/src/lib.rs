@@ -23,7 +23,9 @@ pub fn run() {
             python_package_exists,
             get_fonts,
             command_exists,
-            open_movie_location
+            open_movie_location,
+            path_is_file,
+            generate_object_preview
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -61,7 +63,7 @@ fn load_video(path: String, low_res: bool) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn load_audio(path: String) -> Result<String, String> {
+fn load_audio(path: &str) -> Result<String, String> {
     let data = std::fs::read(path).map_err(|error| error.to_string())?;
     Ok(base64::engine::general_purpose::STANDARD.encode(&data))
 }
@@ -92,6 +94,9 @@ fn new_project(path: String, name: String) -> Result<String, String> {
     std::fs::create_dir_all(Path::new(&path).join(&name).join("scripts"))
         .map_err(|_| "Error creating scripts directory".to_owned())?;
 
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("objects"))
+        .map_err(|_| "Error creating objects directory".to_owned())?;
+
     // Return project location
     Ok(format!("{}", Path::new(&path).join(name).display()))
 }
@@ -101,6 +106,34 @@ fn save_project_data(path: String, data: String) -> Result<(), String> {
     std::fs::write(Path::new(&path).join("project.manim"), data)
         .map_err(|_| "Error saving project".to_owned())?;
     Ok(())
+}
+
+#[tauri::command]
+fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
+    std::fs::create_dir_all(Path::new(&path).join("objects"))
+        .map_err(|_| "Error creating objects directory".to_owned())?;
+    let code_path = Path::new(&path)
+        .join("objects")
+        .join(format!("object_{id}.py"));
+    std::fs::write(&code_path, code).map_err(|_| "Error writing object code".to_owned())?;
+
+    let previews_dir = Path::new(&path).join("previews");
+    std::fs::create_dir_all(&previews_dir)
+        .map_err(|_| "Error creating objects directory".to_owned())?;
+    let preview_path = previews_dir.join(format!("object_{id}.png"));
+
+    Command::new("manim")
+        .arg("-o")
+        .arg(&preview_path)
+        .arg("-qh")
+        .arg(&code_path)
+        .current_dir(path)
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
+
+    load_audio(preview_path.as_os_str().to_str().unwrap())
 }
 
 #[tauri::command]
@@ -127,6 +160,11 @@ fn is_new_project_valid(path: &str, name: &str) -> bool {
 #[tauri::command]
 fn path_exists(path: &str) -> bool {
     Path::new(path).exists()
+}
+
+#[tauri::command]
+fn path_is_file(path: &str) -> bool {
+    Path::new(path).is_file()
 }
 
 #[tauri::command]

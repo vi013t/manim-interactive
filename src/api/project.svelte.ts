@@ -1,4 +1,5 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
+import { generateObjectPreview } from "./codegen.svelte";
 import type { AnimationProperties } from "./manim/animations";
 import { type ObjectProperties } from "./manim/objects";
 import type { Properties } from "./manim/property";
@@ -130,6 +131,7 @@ export function addProjectAnimation(animation: ProjectAnimation) {
 export type ProjectObject = {
 	id: number;
 	type: "object";
+	previewData: string;
 	properties: ObjectProperties;
 };
 
@@ -180,8 +182,9 @@ export function nextId() {
 	return id++;
 }
 
-export function addProjectObject(object: ProjectObject) {
-	projectObjects.push(object);
+export async function addProjectObject(object: Omit<ProjectObject, "previewData">) {
+	const obj = await generateObjectPreview(object);
+	projectObjects.push(obj);
 }
 
 export function deleteProjectItem(id: number) {

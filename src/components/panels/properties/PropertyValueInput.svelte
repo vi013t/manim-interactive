@@ -1,7 +1,8 @@
 <script lang="ts" generics="T extends PropertyType">
+	import { generateObjectPreview } from "../../../api/codegen.svelte";
 	import type { PropertyType, PropertyValue } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
-	import { getItemFromId, getPropertiesFromId, getSingleSelection, selected } from "../../../api/project.svelte";
+	import { getItemFromId, getObjectFromId, getPropertiesFromId, getSingleSelection, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
@@ -34,6 +35,8 @@
 
 	function setRegularProperty(value: unknown) {
 		(getPropertiesFromId(getSingleSelection()!)! as any)[name] = value;
+		const object = getObjectFromId(getSingleSelection()!);
+		if (object) generateObjectPreview(object);
 		runAction("Save And Recompile Project");
 	}
 
@@ -66,7 +69,7 @@
 		{:else if property.base === "string" && "options" in property}
 			<SelectProperty {setProperty} {property} value={value as string} {name} />
 		{:else if property.base === "coordinate"}
-			<CoordinateProperty value={value as [number, number, number]} {name} bind:errorMessage />
+			<CoordinateProperty {setProperty} value={value as [number, number, number]} {name} bind:errorMessage />
 		{:else if property.base === "compound"}
 			<CompoundProperty value={value as unknown} {name} {property} />
 		{:else if property.base === "list"}

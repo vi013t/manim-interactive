@@ -82,7 +82,6 @@
 		display: flex;
 		height: 100%;
 		width: 100%;
-		outline: 3px solid red;
 	}
 
 	.container {

@@ -1,9 +1,14 @@
 <script lang="ts">
 	import { hidePoint, setPoint } from "../../../api/client.svelte";
-	import { runAction, setPreference } from "../../../api/preferences.svelte";
-	import { addError, getPropertiesFromId, removeError, selected } from "../../../api/project.svelte";
+	import { setPreference } from "../../../api/preferences.svelte";
+	import { addError, removeError, selected } from "../../../api/project.svelte";
 
-	let { value, name, errorMessage = $bindable() }: { value: [number, number, number]; name: string; errorMessage: string | null } = $props();
+	let {
+		value,
+		name,
+		errorMessage = $bindable(),
+		setProperty,
+	}: { value: [number, number, number]; name: string; errorMessage: string | null; setProperty(value: unknown): void } = $props();
 
 	let is3D = $state(false);
 
@@ -61,9 +66,7 @@
 		hidePoint();
 
 		if (valueChanged) {
-			const properties = getPropertiesFromId(selected()[0])!;
-			(properties as any)[name] = [Number(x), Number(y), Number(z)];
-			runAction("Save And Recompile Project");
+			setProperty([Number(x), Number(y), Number(z)]);
 		}
 	}
 

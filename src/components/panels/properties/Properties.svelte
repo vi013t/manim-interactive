@@ -25,14 +25,14 @@
 		if (propertyName === "Object Type") return property().objectType();
 		if (propertyName === "Animation Type") return property().animationType();
 
-		let properties = getPossibleProperties(item!);
+		let properties = getPossibleProperties(item as any);
 		return properties.find(property => property.name === propertyName)!.type;
 	}
 
 	function isPropertyRequired(propertyName: string): boolean {
 		if (["Animation Type", "Object Type", "Name"].includes(propertyName)) return true;
 
-		let properties = getPossibleProperties(item!);
+		let properties = getPossibleProperties(item as any);
 		return !!properties.find(property => property.name === propertyName)!.required;
 	}
 
@@ -52,8 +52,8 @@
 					if (firstName === "Object Type" || firstName === "Animation Type") return -1;
 					if (secondName === "Object Type" || secondName === "Animation Type") return 1;
 
-					let firstBase = getPossibleProperties(item).find(property => property.name === firstName)!;
-					let secondBase = getPossibleProperties(item).find(property => property.name === secondName)!;
+					let firstBase = getPossibleProperties(item as any).find(property => property.name === firstName)!;
+					let secondBase = getPossibleProperties(item as any).find(property => property.name === secondName)!;
 
 					if ("special" in firstBase) {
 						if ("special" in secondBase) {

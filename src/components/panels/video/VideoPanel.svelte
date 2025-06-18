@@ -1,8 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getPoint } from "../../../api/client.svelte";
+	import { previewLoaded } from "../../../api/codegen.svelte";
 	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
-	import { getProjectAnimations, getProjectAudios, projectHasErrors } from "../../../api/project.svelte";
+	import { getObjectFromId, getProjectAnimations, getProjectAudios, getSingleSelection, projectHasErrors } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 
@@ -75,16 +76,29 @@
 	}
 
 	let video: HTMLVideoElement | null = $state(null);
+
+	let imageSource = $derived(getSingleSelection() && getObjectFromId(getSingleSelection()!) ? `data:image/png;base64,${getObjectFromId(getSingleSelection()!)!.previewData}` : "");
 </script>
 
 <div id="video-panel" class="container">
+	{#if previewLoaded()}
+		{#if imageSource}
+			<img src={imageSource} id="preview-image" class="preview" alt="preview" />
+		{/if}
+	{:else}
+		<div id="novideo">
+			<h1>Reloading...</h1>
+			<p>Reloading object preview image after your changes. When the image loads, it will appear here.</p>
+		</div>
+	{/if}
+
 	{#if getProjectAnimations().length > 0}
-		{#if !isVideoLoaded()}
+		{#if !isVideoLoaded() && !imageSource}
 			<div id="novideo">
 				<h1>Reloading...</h1>
 				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
 			</div>
-		{:else if projectHasErrors() && !hasEverGeneratedVideo()}
+		{:else if projectHasErrors() && !hasEverGeneratedVideo() && !imageSource}
 			<div id="novideo">
 				<h1>Project Has Errors</h1>
 				<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
@@ -93,7 +107,7 @@
 
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
-			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) ? "block" : "none"}
+			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && !imageSource ? "block" : "none"}
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
@@ -102,15 +116,20 @@
 			onplay={onPlay}
 			onpause={onPause}
 			id="video-source"
+			class="preview"
 			bind:this={video}
 		></video>
-	{:else}
+	{:else if !imageSource}
 		<div id="novideo">
 			<h1>No Animations Yet</h1>
 			<p>When you add an animation, the video will appear here.</p>
 		</div>
 	{/if}
+
+	<!-- Grid -->
 	<canvas id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
+
+	<!-- Point -->
 	{#if getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid && getPoint()}
 		<div class="point" style:left="{videoWidth / 2 + boxSize * getPoint()![0]}px" style:top="{centerY - boxSize * getPoint()![1]}px">
 			<span>({getPoint()![0]}, {getPoint()![1]})</span>
@@ -126,7 +145,7 @@
 
 	.container {
 		width: 100%;
-		aspect-ratio: 1.78;
+		aspect-ratio: 16 / 9;
 		position: relative;
 	}
 
@@ -182,10 +201,9 @@
 		}
 	}
 
-	#video-source {
+	.preview {
 		width: 100%;
 		height: 100%;
-		display: block;
 	}
 
 	canvas {

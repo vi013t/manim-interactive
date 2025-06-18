@@ -191,12 +191,16 @@ export type StringProperty = {
 	base: "string";
 	canBeEmpty: boolean;
 	isMath: boolean;
+	isPath: boolean;
 	defaultValue: string;
 	requiredProperties: string[];
+	requiredNotProperties: string[];
 	notEmpty(): StringProperty;
 	math(): StringProperty;
 	default(value: string): StringProperty;
 	requires(...name: string[]): StringProperty;
+	requiresNot(...name: string[]): StringProperty;
+	path<This extends StringProperty>(this: This): Narrow<This, "isPath", true>;
 };
 
 export type NumberProperty = {
@@ -362,6 +366,8 @@ export function property() {
 				canBeEmpty: true,
 				isMath: false,
 				defaultValue: "",
+				isPath: false,
+				requiredNotProperties: [],
 				requiredProperties: [],
 				default(value: string) {
 					return {
@@ -379,6 +385,18 @@ export function property() {
 					return {
 						...this,
 						isMath: true,
+					};
+				},
+				requiresNot(...name: string[]): StringProperty {
+					return {
+						...this,
+						requiredNotProperties: name,
+					};
+				},
+				path() {
+					return {
+						...this,
+						isPath: true,
 					};
 				},
 				requires(...name: string[]) {
@@ -598,13 +616,15 @@ export function getPropertyObjects(properties: Map<PropertyType, unknown>): numb
 export type Properties<T extends ProjectObject | ProjectAnimation> = T extends ProjectObject ? ObjectProperties : AnimationProperties;
 
 export function getPossibleProperties(item: string): readonly ObjectProperty[];
+export function getPossibleProperties(item: Omit<ProjectObject, "previewData"> & { previewData?: string }): readonly ObjectProperty[];
 export function getPossibleProperties(item: ProjectObject): readonly ObjectProperty[];
 export function getPossibleProperties(item: ProjectAnimation): readonly AnimationProperty[];
-export function getPossibleProperties(item: ProjectObject | ProjectAnimation): readonly ObjectProperty[] | readonly AnimationProperty[];
 
-export function getPossibleProperties(item: ProjectObject | ProjectAnimation | string): readonly ObjectProperty[] | readonly AnimationProperty[] {
+export function getPossibleProperties(
+	item: (Omit<ProjectObject, "previewData"> & { previewData?: string }) | ProjectAnimation | string
+): readonly ObjectProperty[] | readonly AnimationProperty[] {
 	if (typeof item === "string") return objects.find(object => object.name === item)!.properties as readonly ObjectProperty[];
-	if (item.type === "object") return objects.find(object => object.name === getProperty(item, "Object Type")!)!.properties as readonly ObjectProperty[];
+	if (item.type === "object") return objects.find(object => object.name === item.properties["Object Type"]!)!.properties as readonly ObjectProperty[];
 	return animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.properties as readonly AnimationProperty[];
 }
 

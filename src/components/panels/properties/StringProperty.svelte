@@ -1,9 +1,14 @@
 <script lang="ts">
+	import { invoke } from "@tauri-apps/api/core";
+	import { open } from "@tauri-apps/plugin-dialog";
 	import { onMount } from "svelte";
 	import type { StringProperty } from "../../../api/manim/property";
 	import { addError, isNameTaken, removeError, selected } from "../../../api/project.svelte";
+	import FolderIcon from "../../icons/FolderIcon.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
+	import LockIcon from "../../icons/LockIcon.svelte";
 	import QuestionMarkIcon from "../../icons/QuestionMarkIcon.svelte";
+	import UnlockIcon from "../../icons/UnlockIcon.svelte";
 	import LatexPreview from "./LatexPreview.svelte";
 
 	let {
@@ -30,20 +35,39 @@
 	 * Returns the error message associated with the value entered in this property input, or `null`
 	 * if the value is valid.
 	 */
-	function getErrorMessage(): string | null {
+	async function getErrorMessage(): Promise<string | null> {
 		if (!property.canBeEmpty && inputValue === "") return "Value cannot be empty";
 		if (name === "Name" && isNameTaken(inputValue.trim(), selected()[0])) return "Name is already taken";
+		if (property.isPath && !(await invoke<boolean>("path_is_file", { path: inputValue }))) return "Path is not an image file";
 		return null;
 	}
 
-	function validate() {
-		errorMessage = getErrorMessage();
+	async function choosePath() {
+		const selected = await open({
+			multiple: false,
+			title: "Select a directory",
+		});
+
+		// Directory Chosen
+		if (typeof selected === "string") {
+			inputValue = selected;
+			trySetProperty();
+		}
+
+		// No directory chosen
+		else {
+			console.log("No directory selected");
+		}
+	}
+
+	async function validate() {
+		errorMessage = await getErrorMessage();
 		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
 		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
-	function trySetProperty() {
-		validate();
+	async function trySetProperty() {
+		await validate();
 		if (errorMessage) return;
 		setProperty(inputValue);
 	}
@@ -70,6 +94,8 @@
 	});
 
 	let inputValue = $state(`${value}`);
+
+	let locked = $state(true);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -83,6 +109,9 @@
 		oninput={validate}
 		onkeydown={onInput}
 		autocomplete="off"
+		style:width={property.isPath ? "18.5rem" : "20rem"}
+		disabled={locked}
+		style:cursor={locked ? "not-allowed" : "text"}
 		bind:value={inputValue}
 	/>
 
@@ -94,11 +123,32 @@
 		<LatexIcon stroke="var(--text)" style="width: 3rem; position: absolute; left: 17rem;" />
 		<LatexPreview latex={value} show={inputHover || inputFocus} />
 	{/if}
+
+	{#if property.isPath}
+		<button class="lock" onclick={() => (locked = !locked)}>
+			{#if locked}
+				<LockIcon style="width: 1rem; height: 1rem;" stroke="var(--text)" />
+			{:else}
+				<UnlockIcon style="width: 1rem; height: 1rem;" stroke="var(--text)" />
+			{/if}
+		</button>
+		<button onclick={choosePath}>
+			<FolderIcon style="width: 1rem; height: 1rem;" stroke="var(--text)" />
+		</button>
+	{/if}
 </div>
 
 <style>
+	.lock {
+		position: absolute;
+		top: 50%;
+		right: 1.25rem;
+		transform: translateY(-50%);
+		background: var(--crust);
+		padding: 0.5rem;
+	}
+
 	input {
-		width: 20rem;
 		color: var(--text);
 		background: var(--crust);
 		padding: 0.3em;
@@ -107,6 +157,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		padding-right: 2rem;
 	}
 
 	.input-container {

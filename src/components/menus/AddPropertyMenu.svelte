@@ -13,7 +13,7 @@
 
 	function onSelect(name: string) {
 		hide();
-		let defaultValue = (getPossibleProperties(item).find(property => property.name === name)!.type as any).defaultValue ?? null;
+		let defaultValue = (getPossibleProperties(item as any).find(property => property.name === name)!.type as any).defaultValue ?? null;
 		addProperty(getItemFromId(selected()[0])!.id, name as ObjectPropertyName, defaultValue);
 	}
 
@@ -38,7 +38,7 @@
 		name: category.name,
 		icon: category.icon,
 		options: item
-			? getPossibleProperties(item)
+			? getPossibleProperties(item as any)
 					.filter(property => property.categories.includes(category.name as any))
 					.map(property => ({ name: property.name, icon: EmptyIcon, description: property.description ?? "", demo: "", disabled: property.name in item.properties }))
 			: [],

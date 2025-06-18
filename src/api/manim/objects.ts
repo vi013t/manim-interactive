@@ -505,7 +505,7 @@ export const objects = [
 			{
 				name: "Points",
 				position: 0,
-				type: property().list(property().coordinate()).spread().length(property().number().integeric().positive()),
+				type: property().list(property().coordinate()).spread().length(property().number().integeric().min(3)),
 				description: "The points for the polygon to wrap around.",
 				categories: ["Special"],
 			},
@@ -722,14 +722,19 @@ export const objects = [
 		demo: imageDemo,
 		documentation: ["https://docs.manim.community/en/stable/reference/manim.mobject.types.image_mobject.ImageMobject.html"],
 		properties: [
-			// Custom
 			{
-				name: "Dynamic",
-				type: property().boolean(),
-				categories: ["Color"],
-				internalName: null!,
-				description:
-					"Whether to reference an image by path instead of saving the image data. If dynamic is on, changes to the image file will be reflected in the animation. If dynamic is off (default), the image data is saved when it's first loaded, and the image file can be modified or deleted without affecting the animation.",
+				name: "Location",
+				type: property().string().path(),
+				categories: ["Special"],
+				special: true,
+				description: "The path to the image",
+			},
+			{
+				name: "Image",
+				type: property().string(),
+				categories: ["Special"],
+				special: true,
+				description: "The path to the image",
 			},
 		],
 	},

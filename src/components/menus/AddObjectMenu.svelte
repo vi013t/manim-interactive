@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { objectCategories, objects, type ObjectProperties } from "../../api/manim/objects";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import { addProjectObject, isNameTaken, nextId, select, type ProjectObject } from "../../api/project.svelte";
+	import { addProjectObject, isNameTaken, nextId, select } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import Menu from "./Menu.svelte";
 
@@ -38,11 +38,11 @@
 			});
 		menu.hide();
 
-		let object: ProjectObject = {
+		const object = {
 			type: "object",
 			id: nextId(),
 			properties,
-		};
+		} as const;
 
 		addProjectObject(object);
 		select([object.id]);
