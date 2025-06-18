@@ -30,6 +30,20 @@ export function getVerticalExpandDirectionFromPosition(position: number): "top" 
 	return position < screen.height / 2 ? "bottom" : "top";
 }
 
+let isProjectSettingsOpen = $state(false);
+
+export function openProjectSettingsWindow() {
+	isProjectSettingsOpen = true;
+}
+
+export function closeProjectSettingsWindow() {
+	isProjectSettingsOpen = false;
+}
+
+export function isProjectSettingsWindowOpen(): boolean {
+	return isProjectSettingsOpen;
+}
+
 let isPreferencesOpen = $state(false);
 let preferencesView = $state("general");
 

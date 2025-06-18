@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { closeProjectSettingsWindow, isProjectSettingsWindowOpen } from "../../api/client.svelte";
 	import { getProjectLibraries, getProjectSettings } from "../../api/project.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import PackageIcon from "../icons/PackageIcon.svelte";
@@ -44,9 +45,17 @@
 	function setOutputHeight(event: FocusEvent) {
 		getProjectSettings().resolution[1] = Number((event.target as HTMLInputElement).value);
 	}
+
+	$effect(() => {
+		if (isProjectSettingsWindowOpen()) {
+			windowComponent.openWindow();
+		} else {
+			windowComponent.close();
+		}
+	});
 </script>
 
-<Window bind:this={windowComponent} title="Project Settings" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
+<Window onClose={closeProjectSettingsWindow} bind:this={windowComponent} title="Project Settings" style="width: 60rem; height: 40rem; padding-bottom: 0px;">
 	<div class="container">
 		<!-- svelte-ignore a11y_mouse_events_have_key_events -->
 		<div class="sidebar">

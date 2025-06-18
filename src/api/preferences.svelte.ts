@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
+import { openPreferencesWindow, openProjectSettingsWindow } from "./client.svelte";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
@@ -173,6 +174,18 @@ const actions = {
 			deselect();
 		},
 	},
+	"Open Preferences": {
+		name: "Open Preferences",
+		run() {
+			openPreferencesWindow();
+		},
+	},
+	"Open Project Settings": {
+		name: "Open Project Settings",
+		run() {
+			openProjectSettingsWindow();
+		},
+	},
 } as const;
 
 let preferences = $state({
@@ -197,6 +210,8 @@ let preferences = $state({
 		keybinding(action("Deselect"), key("Escape")),
 		keybinding(action("Deselect"), key("d", "ctrl")),
 		keybinding(action("Play"), key(" ")),
+		keybinding(action("Open Preferences"), key(".", "ctrl")),
+		keybinding(action("Open Project Settings"), key(",", "ctrl")),
 	],
 });
 

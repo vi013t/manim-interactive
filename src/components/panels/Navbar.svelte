@@ -84,6 +84,8 @@
 			lowRes: getPreferences().lowRes,
 			outputFileName: getProjectSettings().outputFileName,
 			fileFormat: getProjectSettings().fileFormat,
+			resolutionHeight: getProjectSettings().resolution[1],
+			fps: getProjectSettings().fps,
 		});
 		projectMenu.hide();
 	}

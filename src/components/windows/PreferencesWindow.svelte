@@ -341,7 +341,6 @@
 
 	.keybinding-entry {
 		margin-left: 2rem;
-		margin-bottom: 0.5rem;
 
 		.revert {
 			width: fit-content;
