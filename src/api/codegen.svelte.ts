@@ -13,6 +13,8 @@ export function generateCode(): string {
 			if (waitTime > 0) animationsWithWaits.push({ wait: waitTime });
 		}
 	});
+
+	// Beginning Wait
 	if (animationsWithWaits.length && getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! > 0) {
 		animationsWithWaits.unshift({ wait: getProperty(animationsWithWaits[0] as ProjectAnimation, "Start Time")! });
 	}

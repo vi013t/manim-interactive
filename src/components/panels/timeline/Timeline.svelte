@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { getProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { animationEndTime, getProjectAnimations, getProjectAudios, getProjectMarkers, intervalsOverlap, movieLength, type ProjectMarker } from "../../../api/project.svelte";
-	import { currentTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
+	import { getPreferences, onPreferenceChange, runAction, setPreference } from "../../../api/preferences.svelte";
+	import { animationEndTime, getProjectAnimations, getProjectAudios, getProjectMarkers, type ProjectMarker } from "../../../api/project.svelte";
+	import { currentTime, getRelativeTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -34,6 +33,13 @@
 	}
 
 	onMount(() => {
+		onPreferenceChange("relativeTimestamps", relativeTimestamps => {
+			Array.from(document.querySelectorAll(".timestamp")).forEach(timestamp => {
+				let absoluteTime = Number(timestamp.getAttribute("data-time"));
+				timestamp.textContent = formatTime(relativeTimestamps ? getRelativeTime(absoluteTime) : absoluteTime);
+			});
+		});
+
 		const wrapper = document.getElementById("timeline-wrapper")!;
 		wrapper.addEventListener("scroll", checkForNewDiv);
 
@@ -51,6 +57,7 @@
 				const timestamp = document.createElement("span");
 				timestamp.classList.add("timestamp");
 				timestamp.innerHTML = formatTime(seconds);
+				timestamp.setAttribute("data-time", `${seconds}`);
 				newDiv.appendChild(timestamp);
 				newDiv.oncontextmenu = addAnimation;
 
@@ -60,13 +67,13 @@
 		}
 
 		document.addEventListener("keydown", event => {
-			getPreferences().timelineSnapping = !event.ctrlKey;
+			setPreference("timelineSnapping", !event.ctrlKey);
 		});
 		document.addEventListener("keyup", event => {
-			getPreferences().timelineSnapping = !event.ctrlKey;
+			setPreference("timelineSnapping", !event.ctrlKey);
 		});
 		document.addEventListener("mousemove", event => {
-			getPreferences().timelineSnapping = !event.ctrlKey;
+			setPreference("timelineSnapping", !event.ctrlKey);
 		});
 
 		checkForNewDiv();
@@ -129,27 +136,6 @@
 			(event.target as HTMLElement).blur();
 		}
 	}
-
-	$effect(() => {
-		const length = movieLength();
-		console.log(length);
-		Array.from(document.querySelectorAll(".timeline-segment")).forEach(segment => {
-			const timestamp = Number(segment.getAttribute("data-time"));
-
-			if (timestamp > length) {
-				(segment as HTMLElement).style.display = "block";
-				return;
-			}
-
-			if (
-				!getProjectAnimations().some(projectAnimation =>
-					intervalsOverlap([getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)], [timestamp - 1, timestamp]),
-				)
-			) {
-				(segment as HTMLElement).style.display = getPreferences().collapseWaitTimes ? "none" : "block";
-			}
-		});
-	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->

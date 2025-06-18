@@ -11,12 +11,14 @@
 		value = $bindable(),
 		name,
 		property,
+		required,
 		setProperty,
 	}: {
 		value: unknown[];
 		name: string;
 		property: ListProperty;
 		setProperty(value: unknown): void;
+		required: boolean;
 	} = $props();
 
 	let listCollapsed = $state(false);
@@ -81,7 +83,7 @@
 				>
 					Add Another
 				</button>
-			{:else}
+			{:else if !required}
 				<button onclick={deleteProperty(name)}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
 			{/if}
 		</span>
@@ -136,7 +138,9 @@
 			>
 				Add Another
 			</button>
-			<button onclick={deleteProperty(name)} style="color: var(--red);">Delete All</button>
+			{#if !required}
+				<button onclick={deleteProperty(name)} style="color: var(--red);">Delete All</button>
+			{/if}
 		</span>
 	{/if}
 </div>
@@ -186,6 +190,8 @@
 		border-radius: 0.5rem;
 		background-color: var(--crust);
 		padding: 0.25rem;
+		width: 20rem;
+		margin-right: 0.5rem;
 	}
 
 	.grabline {

@@ -173,6 +173,7 @@ let preferences = $state({
 	vimMode: false,
 	latexPreviews: true,
 	timelineSnapping: true,
+	showWaits: false,
 	keybindings: [
 		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),
@@ -182,6 +183,14 @@ let preferences = $state({
 		keybinding(action("Play"), key(" ")),
 	],
 });
+
+type Preferences = typeof preferences;
+
+let preferenceHooks: { name: Preference; hook: (value: unknown) => void }[] = [];
+
+export function onPreferenceChange(name: Preference, hook: (value: unknown) => void) {
+	preferenceHooks.push({ name, hook });
+}
 
 export type Preference = keyof typeof preferences;
 
@@ -193,8 +202,13 @@ export function loadPreferences() {
 	preferences = JSON.parse(localStorage.getItem("manim-interactive-preferences")!);
 }
 
-export function getPreferences() {
+export function getPreferences(): Readonly<Preferences> {
 	return preferences;
+}
+
+export function setPreference(name: Preference, value: any) {
+	preferences[name] = value;
+	preferenceHooks.filter(listener => listener.name === name).forEach(listener => listener.hook(value));
 }
 
 export type KeyModifier = "ctrl" | "shift" | "alt";

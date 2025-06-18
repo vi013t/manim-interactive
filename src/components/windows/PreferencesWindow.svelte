@@ -9,6 +9,7 @@
 		getPreferences,
 		key,
 		savePreferences,
+		setPreference,
 		updateKeybinding,
 		type Key,
 		type KeyModifier,
@@ -122,7 +123,7 @@
 
 	function updateBooleanPreference(preferenceName: Preference) {
 		return function (event: Event) {
-			getPreferences()[preferenceName] = (event.target as HTMLInputElement).checked as any;
+			setPreference(preferenceName, (event.target as HTMLInputElement).checked);
 			savePreferences();
 		};
 	}

@@ -123,6 +123,7 @@ export function getProjectObjects(): ProjectObject[] {
 
 export function addProjectAnimation(animation: ProjectAnimation) {
 	projectAnimations.push(animation);
+	regenerateWaits();
 }
 
 export type ProjectObject = {
@@ -364,7 +365,7 @@ export function intervalsOverlap([start1, end1]: [number, number], [start2, end2
 export function nextAnimation(animation: ProjectAnimation): ProjectAnimation | null {
 	return (
 		getProjectAnimations()
-			.filter(projectAnimation => projectAnimation.id !== animation.id)
+			.filter(projectAnimation => projectAnimation.id !== animation.id && projectAnimation.properties["Animation Type"] !== "Wait")
 			.toSorted((anim1, anim2) => getProperty(anim1, "Start Time")! - getProperty(anim2, "Start Time")!)
 			.find(projectAnimation => getProperty(projectAnimation, "Start Time")! > getProperty(animation, "Start Time")!) ?? null
 	);
@@ -373,7 +374,7 @@ export function nextAnimation(animation: ProjectAnimation): ProjectAnimation | n
 export function previousAnimation(animation: ProjectAnimation): ProjectAnimation | null {
 	return (
 		getProjectAnimations()
-			.filter(projectAnimation => projectAnimation.id !== animation.id)
+			.filter(projectAnimation => projectAnimation.id !== animation.id && projectAnimation.properties["Animation Type"] !== "Wait")
 			.toSorted((anim1, anim2) => getProperty(anim1, "Start Time")! - getProperty(anim2, "Start Time")!)
 			.toReversed()
 			.find(projectAnimation => getProperty(projectAnimation, "Start Time")! < getProperty(animation, "Start Time")!) ?? null
@@ -417,4 +418,21 @@ export function isObjectInGroup(id: number) {
 	return projectObjects
 		.filter(object => getProperty(object, "Object Type") === "Group")
 		.some(group => getProperty(group, "Objects")!.includes(id) && getProperty(group, "Group in Hierarchy") !== false);
+}
+
+export function regenerateWaits() {
+	projectAnimations = getProjectAnimations().filter(animation => animation.properties["Animation Type"] !== "Wait");
+	let animations = getProjectAnimations().toSorted((first, other) => first.properties["Start Time"]! - other.properties["Start Time"]!);
+	let waits: ProjectAnimation[] = [];
+	animations.forEach((animation, index) => {
+		if (index != animations.length - 1) {
+			let waitStart = animationEndTime(animation);
+			console.log(waitStart);
+			let waitDuration = animations[index + 1].properties["Start Time"]! - waitStart;
+			if (waitDuration > 0) {
+				waits.push({ id: nextId(), type: "animation", properties: { "Animation Type": "Wait", Name: `Wait ${waitDuration}s`, "Start Time": waitStart, Duration: waitDuration } });
+			}
+		}
+	});
+	projectAnimations.push(...waits);
 }

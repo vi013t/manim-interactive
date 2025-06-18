@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 	import { updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
-	import { addEndMarker, loadProjectData, setProjectLocation } from "../api/project.svelte";
+	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
 	import { loadTheme } from "../api/theme.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
@@ -53,7 +53,6 @@
 		loadTheme();
 		loadFonts();
 		checkRequirements();
-		addEndMarker();
 	});
 </script>
 

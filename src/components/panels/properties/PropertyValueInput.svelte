@@ -70,7 +70,7 @@
 		{:else if property.base === "compound"}
 			<CompoundProperty value={value as unknown} {name} {property} />
 		{:else if property.base === "list"}
-			<ListProperty {setProperty} value={value as unknown[]} {name} {property} />
+			<ListProperty {setProperty} value={value as unknown[]} {name} {property} {required} />
 		{:else if property.base === "string"}
 			<StringProperty {setProperty} bind:errorMessage value={value as string} {name} {property} />
 		{:else if property.base === "number"}

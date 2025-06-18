@@ -4,14 +4,23 @@
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { getAnimationObjects, getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { type ProjectAnimation, animationEndTime, getProjectAnimations, nextAnimation, previousAnimation, select, selected, updateEndMarker } from "../../../api/project.svelte";
+	import {
+		type ProjectAnimation,
+		animationEndTime,
+		getProjectAnimations,
+		nextAnimation,
+		previousAnimation,
+		regenerateWaits,
+		select,
+		selected,
+		updateEndMarker,
+	} from "../../../api/project.svelte";
 	import AnimationActionsMenu from "../../menus/AnimationActionsMenu.svelte";
 
 	let { animation, timelineElement }: { animation: ProjectAnimation; timelineElement: HTMLElement } = $props();
 
 	let draggingElement: HTMLElement | null = $state(null);
 	let expandingElement: HTMLElement | null = $state(null);
-	let draggingAnimation: ProjectAnimation | null = $state(null);
 
 	const Icon = $derived(getManimAnimationByName(getProperty(animation, "Animation Type")!)!.icon);
 
@@ -34,7 +43,6 @@
 				expandingElement = event.target as HTMLElement;
 			} else {
 				draggingElement = event.target as HTMLElement;
-				draggingAnimation = animation;
 			}
 		};
 	}
@@ -44,11 +52,12 @@
 	function onAnimationMount(animation: ProjectAnimation) {
 		return function (element: HTMLElement) {
 			if (!ids.includes(animation.id)) {
-				const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
-				let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
-				animation.properties["Start Time"] = startTime;
-				element.style.top = `${startTime * 4}rem`;
-				ids.push(animation.id);
+				if (animation.properties["Animation Type"] !== "Wait") {
+					const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
+					let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
+					animation.properties["Start Time"] = startTime;
+					ids.push(animation.id);
+				}
 			}
 		};
 	}
@@ -108,27 +117,48 @@
 
 			if (draggingElement && timelineElement) {
 				draggingElement.style.cursor = "pointer";
-				if (draggingAnimation)
-					draggingAnimation.properties["Start Time"] = draggingElement.getBoundingClientRect().top / cellHeight - timelineElement.getBoundingClientRect().top / cellHeight;
-				if (getPreferences().autosave) runAction("Save And Recompile Project");
+				let newStartTime = draggingElement.getBoundingClientRect().top / cellHeight - timelineElement.getBoundingClientRect().top / cellHeight;
+				if (newStartTime !== animation.properties["Start Time"]) {
+					animation.properties["Start Time"] = newStartTime;
+					if (getPreferences().autosave) runAction("Save And Recompile Project");
+				}
+				regenerateWaits();
 			}
 
 			if (expandingElement) {
 				animation.properties["Duration"] = expandingElement.getBoundingClientRect().height / cellHeight;
+				regenerateWaits();
 				runAction("Save And Recompile Project");
 			}
 
 			draggingElement = null;
-			draggingAnimation = null;
 			expandingElement = null;
 		});
 	});
 
 	let element: HTMLElement;
 
+	let animationTop = $derived.by(() => {
+		let top = 0;
+		getProjectAnimations()
+			.toSorted((anim1, anim2) => anim1.properties["Start Time"]! - anim2.properties["Start Time"]!)
+			.some(projectAnimation => {
+				if (projectAnimation.id === animation.id) return true;
+				if (projectAnimation.properties["Animation Type"] === "Wait") return false;
+				top += projectAnimation.properties["Duration"]! + 1;
+				return false;
+			});
+		if (animation.properties["Animation Type"] === "Wait") top--;
+		return getPreferences().collapseWaitTimes ? `${top * 4}rem` : `${animation.properties["Start Time"]! * 4}rem`;
+	});
+
+	let animationHeight = $derived.by(() => {
+		if (getPreferences().collapseWaitTimes && animation.properties["Animation Type"] === "Wait") return "4rem";
+		return `${animation.properties["Duration"]! * 4}rem`;
+	});
+
 	$effect(() => {
-		element.style.height = `${getProperty(animation, "Duration")! * 64}px`;
-		element.style.top = `${getProperty(animation, "Start Time")! * 64}px`;
+		console.log(animation.properties["Name"], $state.snapshot(getProjectAnimations()));
 	});
 </script>
 
@@ -141,6 +171,9 @@
 	style:background-color={animationColor(animation)}
 	style:outline={selected()[0] === animation.id || (selected() !== null && getAnimationObjects(animation).includes(selected()[0])) ? "4px solid rgba(255, 255, 255, 50%)" : "none"}
 	style:opacity={selected() === null || selected()[0] === animation.id || getAnimationObjects(animation).includes(selected()[0]) ? "100%" : "30%"}
+	style:top={animationTop}
+	style:height={animationHeight}
+	style:display={animation.properties["Animation Type"] === "Wait" && !getPreferences().showWaits ? "none" : "flex"}
 	bind:this={element}
 >
 	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />
@@ -160,7 +193,6 @@
 		padding: 1rem;
 		height: 4rem;
 		z-index: 99999;
-		display: flex;
 		gap: 0.5rem;
 		outline-offset: -4px;
 

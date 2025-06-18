@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
-	import { getPreferences, runAction, savePreferences, type Preference } from "../../api/preferences.svelte";
+	import { getPreferences, runAction, savePreferences, setPreference, type Preference } from "../../api/preferences.svelte";
 	import { getProjectLocation, getProjectName } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
+	import ClockCheckIcon from "../icons/ClockCheckIcon.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 	import CollapseIcon from "../icons/CollapseIcon.svelte";
 	import GridIcon from "../icons/GridIcon.svelte";
@@ -70,7 +71,7 @@
 
 	function togglePreference(preferenceName: Preference) {
 		return function (_event: Event) {
-			getPreferences()[preferenceName] = !(getPreferences()[preferenceName] as boolean) as any;
+			setPreference(preferenceName, !getPreferences()[preferenceName]);
 			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save And Recompile Project");
 			savePreferences();
 		};
@@ -138,6 +139,9 @@
 		</button>
 		<button title="Toggle Collapsing Wait Times" onclick={togglePreference("collapseWaitTimes")} class:option-on={getPreferences().collapseWaitTimes}>
 			<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+		</button>
+		<button title="Toggle Showing Waits" onclick={togglePreference("showWaits")} class:option-on={getPreferences().showWaits}>
+			<ClockCheckIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 	</div>
 

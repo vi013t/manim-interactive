@@ -56,7 +56,12 @@
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
 	let confirmDeleteGroupWindow: ConfirmDeleteGroupWindow;
 
-	let isGroup = $derived(ids.length === 1 && getProperty(getObjectFromId(ids[0])!, "Object Type") === "Group");
+	let isGroup = $derived.by(() => {
+		if (ids.length !== 1) return false;
+		let object = getObjectFromId(ids[0]);
+		if (!object) return false;
+		return object.properties["Object Type"] === "Group";
+	});
 
 	function addObjectToGroup(type: string): void {
 		let manimObject = objects.find(object => object.name === type)!;
