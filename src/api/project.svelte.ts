@@ -4,7 +4,7 @@ import type { AnimationProperties } from "./manim/animations";
 import { type ObjectProperties } from "./manim/objects";
 import type { Properties } from "./manim/property";
 import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/property";
-import { getPreferences, runAction } from "./preferences.svelte";
+import { getPreferences, runAction, setPreference } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
@@ -230,6 +230,7 @@ export function deselect() {
 
 export function select(id: number[]) {
 	selectedItems = id;
+	if (selectedItems.length === 1) setPreference("showMovieOverPreview", false);
 }
 
 export function getSingleSelection(): number | null {

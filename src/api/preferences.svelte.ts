@@ -179,6 +179,7 @@ let preferences = $state({
 	latexPreviews: true,
 	timelineSnapping: true,
 	showWaits: false,
+	showMovieOverPreview: false,
 	keybindings: [
 		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),

@@ -11,6 +11,7 @@
 	import GridIcon from "../icons/GridIcon.svelte";
 	import MagnetIcon from "../icons/MagnetIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
+	import ProjectorIcon from "../icons/ProjectorIcon.svelte";
 	import ResolutionIcon from "../icons/ResolutionIcon.svelte";
 	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
 	import ContextMenu from "../menus/ContextMenu.svelte";
@@ -130,6 +131,9 @@
 		</button>
 		<button onclick={togglePreference("grid")} title="Toggle Grid" class:option-on={getPreferences().grid}>
 			<GridIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+		</button>
+		<button onclick={togglePreference("showMovieOverPreview")} title="Toggle Showing Movie Over Preview" class:option-on={getPreferences().showMovieOverPreview}>
+			<ProjectorIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 		</button>
 	</div>
 
