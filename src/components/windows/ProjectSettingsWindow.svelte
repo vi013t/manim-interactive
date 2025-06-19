@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { closeProjectSettingsWindow, isProjectSettingsWindowOpen } from "../../api/client.svelte";
+	import { closeProjectSettingsWindow, isProjectSettingsWindowOpen, openProjectSettingsWindow } from "../../api/client.svelte";
 	import { getProjectLibraries, getProjectSettings } from "../../api/project.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import PackageIcon from "../icons/PackageIcon.svelte";
@@ -11,10 +11,11 @@
 	let windowComponent: Window;
 
 	export function openWindow() {
-		windowComponent.openWindow();
+		openProjectSettingsWindow();
 	}
-	let view = $derived("general");
-	let hoverView: string | null = $state("general");
+
+	let view = $state("general");
+	let hoverView: string | null = $state(null);
 
 	function isUserTyping() {
 		const active = document.activeElement as HTMLElement;

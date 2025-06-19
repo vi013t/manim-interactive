@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import type { NumberProperty } from "../../../api/manim/property";
 	import { getProperty } from "../../../api/manim/property";
 	import {
@@ -103,10 +104,47 @@
 	$effect(() => {
 		inputValue = (getPropertiesFromId(id)! as any)[name];
 	});
+
+	let grabbingAngle = $state(false);
+
+	onMount(() => {
+		document.addEventListener("mousemove", event => {
+			if (grabbingAngle) {
+				let xFactor = event.clientY - angleElement.getBoundingClientRect().top > 30 ? 1 : -1;
+				let yFactor = event.clientX - angleElement.getBoundingClientRect().left < 30 ? 1 : -1;
+				const raw = Number(inputValue) + (xFactor * event.movementX) / 20 + (yFactor * event.movementY) / 20;
+				const n = 2 * Math.PI;
+				inputValue = `${(((raw % n) + n) % n).toFixed(2)}`;
+				angleElement.style.cursor = "grabbing";
+				document.body.style.cursor = "grabbing";
+			}
+		});
+
+		document.addEventListener("mouseup", event => {
+			grabbingAngle = false;
+			angleElement.style.cursor = "grab";
+			document.body.style.cursor = "initial";
+		});
+	});
+
+	let mode = $state("Degrees");
+	let angleElement: HTMLElement;
+	let angle = $derived(mode === "Radians" ? Number(inputValue) : ((Number(inputValue) * 180) / Math.PI).toFixed(2));
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div onmouseenter={() => (inputHover = true)} onmouseleave={() => (inputHover = false)} class="input-container">
+	{#if property.isAngle}
+		<div
+			bind:this={angleElement}
+			onmousedown={() => (grabbingAngle = true)}
+			class="angle"
+			style:--rotation={`${(Number(inputValue) * 180) / Math.PI}deg`}
+			style:rotate="calc(-1 * var(--rotation))"
+		>
+			<div></div>
+		</div>
+	{/if}
 	<input
 		onfocus={() => (inputFocus = true)}
 		onblur={onBlur}
@@ -115,13 +153,61 @@
 		oninput={validate}
 		onkeydown={onInput}
 		autocomplete="off"
-		bind:value={inputValue}
+		style:width={property.isAngle ? "12rem" : "20rem"}
+		bind:value={() => `${angle}`, value => (inputValue = value)}
 	/>
+	{#if property.isAngle}
+		<button onclick={() => (mode = mode === "Degrees" ? "Radians" : "Degrees")}>{mode}</button>
+	{/if}
 </div>
 
 <style>
+	.angle {
+		width: 3rem;
+		height: 3rem;
+		border-radius: 50%;
+		border: 3px solid var(--text);
+		position: relative;
+		overflow: hidden;
+		cursor: grab;
+
+		&::before {
+			content: "";
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translateY(-50%);
+			height: 3px;
+			width: 50%;
+			background-color: var(--text);
+		}
+
+		&::after {
+			content: "";
+			position: absolute;
+			left: 50%;
+			top: 50%;
+			transform: translateY(-50%);
+			height: 3px;
+			width: 50%;
+			rotate: var(--rotation);
+			transform-origin: top left;
+			border-top: 3px dotted var(--text);
+		}
+
+		> div {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			rotate: 90deg;
+			background-image: conic-gradient(var(--text) 0deg var(--rotation), transparent var(--rotation) 360deg);
+			opacity: 50%;
+		}
+	}
+
 	input {
-		width: 20rem;
 		color: var(--text);
 		background: var(--crust);
 		padding: 0.3em;
@@ -130,6 +216,7 @@
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
+		padding-left: 0.5em;
 	}
 
 	.input-container {
@@ -137,5 +224,15 @@
 		display: flex;
 		gap: 0.5rem;
 		align-items: center;
+	}
+
+	button {
+		background-color: var(--crust);
+		padding-top: 0.25rem;
+		padding-bottom: 0.25rem;
+		border-radius: 0.25rem;
+		width: 4rem;
+		display: flex;
+		justify-content: center;
 	}
 </style>

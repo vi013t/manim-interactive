@@ -1075,7 +1075,7 @@ export const objects = [
 			{
 				name: "Angle",
 				internalName: "angle",
-				type: property().number().nonnegative().max(360).default(1.57),
+				type: property().number().angle().default(1.57),
 				description: "The elapsed angle to slice the annulus from",
 				categories: ["Special"],
 			},

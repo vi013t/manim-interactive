@@ -209,11 +209,13 @@ export type NumberProperty = {
 	minimumValue: number;
 	isIntegeric: boolean;
 	defaultValue: number;
+	isAngle: boolean;
 	requiredProperties: string[];
 
 	requires(...name: string[]): NumberProperty;
 
 	equal<This extends NumberProperty>(this: This, value: number): This;
+	angle<This extends NumberProperty>(this: This): Narrow<This, "isAngle", true>;
 
 	default(value: number): NumberProperty;
 
@@ -307,8 +309,15 @@ export function property() {
 				minimumValue: Number.MIN_VALUE,
 				isIntegeric: false,
 				defaultValue: 0,
+				isAngle: false,
 				requiredProperties: [],
 
+				angle() {
+					return {
+						...this,
+						isAngle: true,
+					};
+				},
 				max<This extends NumberProperty, Value extends number>(this: This, value: Value): Narrow<This, "maximumValue", Value> {
 					return {
 						...this,
