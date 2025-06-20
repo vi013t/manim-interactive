@@ -1,9 +1,17 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { getPoint } from "../../../api/client.svelte";
-	import { previewLoaded } from "../../../api/codegen.svelte";
+	import { objectPreviewLoaded } from "../../../api/codegen.svelte";
 	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded, onPreferenceChange } from "../../../api/preferences.svelte";
-	import { getObjectFromId, getProjectAnimations, getProjectAudios, getSingleSelection, projectHasErrors } from "../../../api/project.svelte";
+	import {
+		getAnimationFromId,
+		getObjectFromId,
+		getProjectAnimations,
+		getProjectAudios,
+		getProjectSettings,
+		getSingleSelection,
+		projectHasErrors,
+	} from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 
@@ -83,16 +91,27 @@
 
 	let video: HTMLVideoElement | null = $state(null);
 
-	let imageSource = $derived(
+	let objectPreviewImage = $derived(
 		getSingleSelection() && getObjectFromId(getSingleSelection()!) ? `data:image/png;base64,${getObjectFromId(getSingleSelection()!)!.previewData}` : null,
 	);
+	let animationPreviewVideo = $derived(
+		getSingleSelection() && getAnimationFromId(getSingleSelection()!) ? `data:video/mp4;base64,${getAnimationFromId(getSingleSelection()!)!.previewData}` : null,
+	);
+
+	$effect(() => {
+		if (animationPreviewVideo) video!.play();
+	});
 </script>
 
 <div id="video-panel" class="container">
 	{#if !getPreferences().showMovieOverPreview}
-		{#if previewLoaded()}
-			{#if imageSource}
-				<img src={imageSource} id="preview-image" class="preview" alt="preview" />
+		{#if animationPreviewVideo}
+			<span class="preview-text">Animation "{getAnimationFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
+		{/if}
+		{#if objectPreviewLoaded()}
+			{#if objectPreviewImage}
+				<span class="preview-text">Object "{getObjectFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
+				<img src={objectPreviewImage} id="preview-image" class="preview" alt="preview" />
 			{/if}
 		{:else}
 			<div id="novideo">
@@ -103,21 +122,25 @@
 	{/if}
 
 	{#if getProjectAnimations().length > 0}
-		{#if !isVideoLoaded() && (!imageSource || getPreferences().showMovieOverPreview)}
+		{#if !isVideoLoaded() && (!objectPreviewImage || getPreferences().showMovieOverPreview)}
 			<div id="novideo">
 				<h1>Reloading...</h1>
 				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
 			</div>
-		{:else if projectHasErrors() && !hasEverGeneratedVideo() && (!imageSource || getPreferences().showMovieOverPreview)}
+		{:else if projectHasErrors() && !hasEverGeneratedVideo() && (!objectPreviewImage || getPreferences().showMovieOverPreview)}
 			<div id="novideo">
 				<h1>Project Has Errors</h1>
 				<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
 			</div>
 		{/if}
 
+		{#if isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && ((!objectPreviewImage && !animationPreviewVideo) || getPreferences().showMovieOverPreview)}
+			<span class="preview-text">Movie "{getProjectSettings().outputFileName}"</span>
+		{/if}
+
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
-			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!imageSource || getPreferences().showMovieOverPreview) ? "block" : "none"}
+			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getPreferences().showMovieOverPreview) ? "block" : "none"}
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
@@ -128,8 +151,9 @@
 			id="video-source"
 			class="preview"
 			bind:this={video}
+			src={animationPreviewVideo ? animationPreviewVideo : undefined}
 		></video>
-	{:else if !imageSource || getPreferences().showMovieOverPreview}
+	{:else if !objectPreviewImage || getPreferences().showMovieOverPreview}
 		<div id="novideo">
 			<h1>No Animations Yet</h1>
 			<p>When you add an animation, the video will appear here.</p>
@@ -224,5 +248,15 @@
 		height: 100%;
 		z-index: 9;
 		pointer-events: none;
+	}
+	.preview-text {
+		position: absolute;
+		top: 0.5rem;
+		left: 0.5rem;
+		color: white;
+		background: var(--crust);
+		padding: 1rem;
+		border-radius: 0.5rem;
+		color: var(--text);
 	}
 </style>

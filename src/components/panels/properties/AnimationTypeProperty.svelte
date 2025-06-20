@@ -18,7 +18,13 @@
 	let addButton: HTMLButtonElement;
 	let animationMenu: AddAnimationMenu;
 
-	let { value = $bindable(), name, property, setProperty }: { value: string; name: string; property: AnimationTypeProperty; setProperty(value: unknown): void } = $props();
+	let {
+		value = $bindable(),
+		name,
+		property,
+		width,
+		setProperty,
+	}: { value: string; name: string; width: string; property: AnimationTypeProperty; setProperty(value: unknown): void } = $props();
 
 	let menuVisible = $state(false);
 
@@ -45,13 +51,14 @@
 		left = `${element.getBoundingClientRect().left}px`;
 	}}
 	bind:this={addButton}
+	style:width
 	onclick={setAnimation}
 >
 	<Icon stroke={iconColor} style="width: 1rem; height: 1rem" />
 	{translate(value)}
 	<RightArrow stroke="var(--lavender)" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
-<AddAnimationMenu width="20rem" background="var(--base)" onSelect={changeAnimationType} bind:this={animationMenu} {top} {left} openers={[document as any]} title={false} />
+<AddAnimationMenu {width} background="var(--base)" onSelect={changeAnimationType} bind:this={animationMenu} {top} {left} openers={[document as any]} title={false} />
 
 <style>
 	button {

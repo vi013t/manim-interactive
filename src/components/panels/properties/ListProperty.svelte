@@ -12,12 +12,14 @@
 		value = $bindable(),
 		name,
 		property,
+		width,
 		required,
 		setProperty,
 	}: {
 		value: unknown[];
 		name: string;
 		property: ListProperty;
+		width: string;
 		setProperty(value: unknown): void;
 		required: boolean;
 	} = $props();
@@ -73,7 +75,7 @@
 <div class="list" bind:this={list}>
 	{#if !(value as any[]).length || listCollapsed}
 		<span style:align-items="center">
-			<button class="list-items-header" onclick={() => (listCollapsed = false)}>
+			<button class="list-items-header" style:width onclick={() => (listCollapsed = false)}>
 				[{value.length === 0 ? "No" : value.length} Items] {#if value.length !== 0}
 					(Click to Expand)
 				{/if}
@@ -198,7 +200,6 @@
 		border-radius: 0.5rem;
 		background-color: var(--crust);
 		padding: 0.25rem;
-		width: 20rem;
 		margin-right: 0.5rem;
 	}
 

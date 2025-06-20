@@ -1,4 +1,5 @@
 <script lang="ts">
+	import namer from "color-namer";
 	import { onMount } from "svelte";
 	import { getMouseX, getMouseY } from "../../../api/client.svelte";
 	import { colors } from "../../../api/manim/colors";
@@ -37,11 +38,37 @@
 			selected = shade;
 		};
 	}
+
+	let name = $derived(
+		Object.values(namer(selected))
+			.map(nameList => ({ name: nameList[0].name, distance: nameList[0].distance }))
+			.toSorted((a, b) => a.distance - b.distance)[0].name,
+	);
+
+	let foreground = $derived(contrastingColor(selected));
+
+	function contrastingColor(color: string) {
+		return luma(color) >= 165 ? "#000000" : "#ffffff";
+	}
+
+	function luma(color: string) {
+		var rgb = hexToRGBArray(color.substring(1));
+		return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+	}
+
+	function hexToRGBArray(color: string) {
+		if (color.length === 3) color = color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
+		else if (color.length !== 6) throw "Invalid hex color: " + color;
+
+		const rgb = [];
+		for (let segment = 0; segment < 3; segment++) rgb[segment] = parseInt(color.substring(segment * 2, segment * 2 + 2), 16);
+		return rgb;
+	}
 </script>
 
 <div class="colors">
 	<!-- svelte-ignore a11y_consider_explicit_label -->
-	<button class="picker" bind:this={pickIcon} style:background-color={selected} onclick={show}></button>
+	<button style:color={foreground} class="picker" bind:this={pickIcon} style:background-color={selected} onclick={show}>{name}</button>
 	<div class="choose" bind:this={picker} style:top style:left style:display={visible ? "flex" : "none"}>
 		<div class="preset">
 			{#each colors as hue}
@@ -55,7 +82,7 @@
 			<label for="color-picker" class="custom"></label>
 			<input type="color" id="color-picker" bind:value={selected} />
 		</div>
-		<button class="preview" style:background-color={selected}>Preview</button>
+		<button class="preview" style:color={foreground} style:background-color={selected}>{name}</button>
 	</div>
 </div>
 
@@ -74,6 +101,10 @@
 		width: 20rem;
 		height: 1.25rem;
 		border-radius: 0.25rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		text-transform: capitalize;
 	}
 
 	.preset {
@@ -117,6 +148,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		text-transform: capitalize;
 	}
 
 	input {

@@ -9,10 +9,12 @@
 		value = $bindable(),
 		name,
 		errorMessage = $bindable(),
+		width,
 		setProperty,
 	}: {
 		value: number;
 		name: string;
+		width: string;
 		errorMessage: string | null;
 		setProperty(value: unknown): void;
 	} = $props();
@@ -58,5 +60,5 @@
 		trySetProperty();
 	}}
 	bind:value={choice}
-	style={`outline: 2px solid ${selectedOption !== undefined && selectedOption !== null ? "transparent" : "var(--red)"}`}
+	style={`width: ${width}; outline: 2px solid ${selectedOption !== undefined && selectedOption !== null ? "transparent" : "var(--red)"}`}
 />

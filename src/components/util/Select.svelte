@@ -12,6 +12,7 @@
 		itemOverride,
 		value = $bindable(),
 		title = undefined,
+		children,
 		...rest
 	}: {
 		value?: SelectOption;
@@ -19,6 +20,7 @@
 		onSelect: (value: string) => void;
 		options: SelectOption[];
 		title?: string;
+		children?: () => any;
 		[key: string]: unknown;
 	} = $props();
 
@@ -50,27 +52,36 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div bind:this={element} class="select" {...rest}>
 	<!-- Select Button -->
-	<button onclick={onSelectClick} class="header">
-		{#if title}
-			{title}
-		{:else if value}
-			{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as ComplexOption | undefined}
-			{#if option}
-				{#if option.icon}
-					<option.icon stroke={option.color ?? "#FFFFFF"} style="width: 1rem; height: 1rem;" />
+
+	{#if children}
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div onclick={onSelectClick} class="header" style:display="contents">
+			{@render children()}
+		</div>
+	{:else}
+		<button onclick={onSelectClick} class="header">
+			{#if title}
+				{title}
+			{:else if value}
+				{@const option = options.find(option => typeof option !== "string" && option.name === (typeof value === "string" ? value : value!.name)) as ComplexOption | undefined}
+				{#if option}
+					{#if option.icon}
+						<option.icon stroke={option.color ?? "#FFFFFF"} style="width: 1rem; height: 1rem;" />
+					{/if}
+					<span style={option.style ?? ""}>{option.name}</span>
+				{:else}
+					{value}
 				{/if}
-				<span style={option.style ?? ""}>{option.name}</span>
 			{:else}
-				{value}
+				None Selected
 			{/if}
-		{:else}
-			None Selected
-		{/if}
-		<RightArrow
-			stroke="var(--lavender)"
-			style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;"
-		/>
-	</button>
+			<RightArrow
+				stroke="var(--lavender)"
+				style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({optionsVisible ? '90deg' : '0deg'}); transition: transform 0.1s;"
+			/>
+		</button>
+	{/if}
 
 	<!-- Options -->
 	<div class="options" style:display={optionsVisible ? "flex" : "none"}>
@@ -120,7 +131,7 @@
 
 	.options {
 		flex-direction: column;
-		width: 100%;
+		width: 20rem;
 		border-radius: 0.5rem;
 		position: absolute;
 		left: 0px;

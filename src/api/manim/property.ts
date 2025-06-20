@@ -1,11 +1,18 @@
+import AnimationIcon from "../../components/icons/AnimationIcon.svelte";
+import BulletedListIcon from "../../components/icons/BulletedListIcon.svelte";
 import CameraIcon from "../../components/icons/CameraIcon.svelte";
 import ClockIcon from "../../components/icons/ClockIcon.svelte";
+import CubeIcon from "../../components/icons/CubeIcon.svelte";
 import type { Icon } from "../../components/icons/Icon";
+import NumberSignIcon from "../../components/icons/NumberSignIcon.svelte";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
+import ReticleIcon from "../../components/icons/ReticleIcon.svelte";
 import StarIcon from "../../components/icons/StarIcon.svelte";
+import SwitchIcon from "../../components/icons/SwitchIcon.svelte";
+import TextIcon from "../../components/icons/TextIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import type { SelectOption } from "../../components/util/Select.svelte";
-import { getProjectAnimations, getProjectObjects, type ProjectAnimation, type ProjectObject } from "../project.svelte";
+import { getProjectAnimations, getProjectObjects, getProjectVariableFromId, type ProjectAnimation, type ProjectObject } from "../project.svelte";
 import { animations, type AnimationProperties, type AnimationProperty, type AnimationPropertyName, type AnimationPropertyValue } from "./animations";
 import { objects, type ObjectProperties, type ObjectProperty, type ObjectPropertyName, type ObjectPropertyValue } from "./objects";
 
@@ -590,6 +597,11 @@ export function property() {
 }
 
 export function propertyValueToString(type: PropertyType, value: unknown): string {
+	if ((value as any).variableId) {
+		let variable = getProjectVariableFromId((value as any).variableId)!;
+		return `variable_${variable.id}`;
+	}
+
 	if (type.base === "list") {
 		let result = (value as unknown[]).map(element => propertyValueToString(type.type, element)).join(", ");
 		if (!type.shouldSpread) result = `[${result}]`;
@@ -627,15 +639,16 @@ export type Properties<T extends ProjectObject | ProjectAnimation> = T extends P
 
 export function getPossibleProperties(item: string): readonly ObjectProperty[];
 export function getPossibleProperties(item: Omit<ProjectObject, "previewData"> & { previewData?: string }): readonly ObjectProperty[];
+export function getPossibleProperties(item: Omit<ProjectAnimation, "previewData"> & { previewData?: string }): readonly AnimationProperty[];
 export function getPossibleProperties(item: ProjectObject): readonly ObjectProperty[];
 export function getPossibleProperties(item: ProjectAnimation): readonly AnimationProperty[];
 
 export function getPossibleProperties(
-	item: (Omit<ProjectObject, "previewData"> & { previewData?: string }) | ProjectAnimation | string
+	item: (Omit<ProjectObject, "previewData"> & { previewData?: string }) | (Omit<ProjectAnimation, "previewData"> & { previewData?: string }) | ProjectAnimation | string
 ): readonly ObjectProperty[] | readonly AnimationProperty[] {
 	if (typeof item === "string") return objects.find(object => object.name === item)!.properties as readonly ObjectProperty[];
 	if (item.type === "object") return objects.find(object => object.name === item.properties["Object Type"]!)!.properties as readonly ObjectProperty[];
-	return animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.properties as readonly AnimationProperty[];
+	return animations.find(manimAnimation => manimAnimation.name === item.properties["Animation Type"]!)!.properties as readonly AnimationProperty[];
 }
 
 export function addProperty(id: number, name: ObjectPropertyName | AnimationPropertyName, value: unknown) {
@@ -656,7 +669,39 @@ export function getAnimationObjects(animation: ProjectAnimation): number[] {
 		new Map(
 			getPossibleProperties(animation)
 				.filter(property => property.name in animation.properties)
-				.map(property => [property.type, getProperty(animation, property.name)!])
+				.map(property => [property.type, animation.properties[property.name]!])
 		)
 	);
+}
+
+export function getPropertyTypeIcon(base: PropertyTypeBase): Icon {
+	return {
+		number: NumberSignIcon,
+		string: TextIcon,
+		list: BulletedListIcon,
+		compound: BulletedListIcon,
+		coordinate: ReticleIcon,
+		object: CubeIcon,
+		objectType: CubeIcon,
+		animation: AnimationIcon,
+		animationType: AnimationIcon,
+		boolean: SwitchIcon,
+		color: PaintRollerIcon,
+	}[base];
+}
+
+export function getPropertyTypeColor(base: PropertyTypeBase): string {
+	return {
+		number: "var(--lavender)",
+		string: "var(--blue)",
+		list: "var(--yellow)",
+		compound: "var(--mauve)",
+		coordinate: "var(--mauve)",
+		object: "var(--peach)",
+		objectType: "var(--peach)",
+		animation: "var(--teal)",
+		animationType: "var(--teal)",
+		boolean: "var(--green)",
+		color: "var(--red)",
+	}[base];
 }

@@ -8,7 +8,8 @@
 		name,
 		errorMessage = $bindable(),
 		setProperty,
-	}: { value: [number, number, number]; name: string; errorMessage: string | null; setProperty(value: unknown): void } = $props();
+		width,
+	}: { width: string; value: [number, number, number]; name: string; errorMessage: string | null; setProperty(value: unknown): void } = $props();
 
 	let is3D = $state(false);
 
@@ -78,7 +79,7 @@
 	}
 </script>
 
-<span class="coordinate">
+<span class="coordinate" style:width>
 	<span>
 		X: <input oninput={validate} style:outline={xError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={x} type="text" />
 	</span>
@@ -132,7 +133,6 @@
 	}
 
 	.coordinate {
-		width: 20rem;
 		gap: 0.5rem;
 
 		span {

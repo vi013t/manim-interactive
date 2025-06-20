@@ -21,12 +21,14 @@
 		name,
 		property,
 		id,
+		width,
 		setProperty,
 	}: {
 		value: number;
 		errorMessage: string | null;
 		name: string;
 		property: NumberProperty;
+		width: string;
 		id: number;
 		setProperty(value: unknown): void;
 	} = $props();
@@ -105,7 +107,7 @@
 	let inputValue = $state(`${value}`);
 
 	$effect(() => {
-		if (!property.isAngle) inputValue = (getPropertiesFromId(id)! as any)[name];
+		if (name === "Start Time" || name === "Duration") inputValue = (getPropertiesFromId(id)! as any)[name];
 	});
 
 	let grabbingAngle = $state(false);
@@ -128,9 +130,9 @@
 		document.addEventListener("mouseup", event => {
 			if (grabbingAngle) {
 				trySetProperty();
+				angleElement.style.cursor = "grab";
 			}
 			grabbingAngle = false;
-			angleElement.style.cursor = "grab";
 			document.body.style.cursor = "initial";
 		});
 	});
@@ -176,7 +178,7 @@
 		oninput={validate}
 		onkeydown={onInput}
 		autocomplete="off"
-		style:width={property.isAngle ? "12rem" : "20rem"}
+		style:width={property.isAngle ? "12rem" : width}
 		bind:value={inputValue}
 	/>
 	{#if property.isAngle}

@@ -8,11 +8,13 @@
 		value = $bindable(),
 		name,
 		property,
+		width,
 		setProperty,
 	}: {
 		value: string;
 		name: string;
 		property: SelectProperty;
+		width: string;
 		setProperty(value: unknown): void;
 	} = $props();
 
@@ -34,4 +36,10 @@
 	});
 </script>
 
-<Select onSelect={trySetProperty} options={property.options} itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined} bind:value />
+<Select
+	style="width: {width};"
+	onSelect={trySetProperty}
+	options={property.options}
+	itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined}
+	bind:value
+/>

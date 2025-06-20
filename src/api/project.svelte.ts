@@ -1,8 +1,8 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
-import { generateObjectPreview } from "./codegen.svelte";
+import { generateAnimationPreview, generateObjectPreview } from "./codegen.svelte";
 import type { AnimationProperties } from "./manim/animations";
 import { type ObjectProperties } from "./manim/objects";
-import type { Properties } from "./manim/property";
+import type { Properties, PropertyType } from "./manim/property";
 import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/property";
 import { getPreferences, runAction, setPreference } from "./preferences.svelte";
 
@@ -10,10 +10,34 @@ let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
 let id = 0;
 
+export type ProjectVariable = {
+	id: number;
+	name: string;
+	type: PropertyType;
+	value: unknown;
+};
+
+let projectVariables: ProjectVariable[] = $state([]);
 let projectObjects: ProjectObject[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
 let projectAudios: ProjectAudio[] = $state([]);
 let projectLibraries: Set<string> = $state(new Set(["manim"]));
+
+export function addProjectVariable(variable: ProjectVariable) {
+	projectVariables.push(variable);
+}
+
+export function getProjectVariableFromName(name: string): ProjectVariable | null {
+	return projectVariables.find(variable => variable.name === name) ?? null;
+}
+
+export function getProjectVariableFromId(id: number): ProjectVariable | null {
+	return projectVariables.find(variable => variable.id === id) ?? null;
+}
+
+export function getProjectVariables(): ProjectVariable[] {
+	return projectVariables;
+}
 
 export type ProjectMarker = { id: number; name: string; time: number };
 let projectMarkers: ProjectMarker[] = $state([]);
@@ -92,15 +116,17 @@ export function getProjectSaveData(): string {
 		animations: projectAnimations,
 		audios: projectAudios,
 		markers: projectMarkers,
+		variables: projectVariables,
 		nextId: id,
 	});
 }
 
 export function loadProjectData(data: string) {
-	const { objects, animations, nextId, audios, markers } = JSON.parse(data);
+	const { objects, animations, nextId, audios, markers, variables } = JSON.parse(data);
 	projectAnimations = animations;
 	projectObjects = objects;
 	projectAudios = audios;
+	projectVariables = variables;
 	projectMarkers = markers;
 	id = nextId;
 }
@@ -110,6 +136,7 @@ export function resetProject() {
 	projectObjects = [];
 	projectAudios = [];
 	projectMarkers = [];
+	projectVariables = [];
 	id = 0;
 	addEndMarker();
 }
@@ -122,8 +149,9 @@ export function getProjectObjects(): ProjectObject[] {
 	return projectObjects;
 }
 
-export function addProjectAnimation(animation: ProjectAnimation) {
-	projectAnimations.push(animation);
+export async function addProjectAnimation(animation: ProjectAnimation) {
+	const anim = await generateAnimationPreview(animation);
+	projectAnimations.push(anim);
 	regenerateWaits();
 	updateEndMarker();
 }
@@ -138,6 +166,7 @@ export type ProjectObject = {
 export type ProjectAnimation = {
 	id: number;
 	type: "animation";
+	previewData: string;
 	properties: AnimationProperties;
 };
 
@@ -262,6 +291,10 @@ export function getObjectFromId(id: number): ProjectObject | null {
 	return getProjectObjects().find(object => object.id === id) ?? null;
 }
 
+export function getAnimationFromId(id: number): ProjectAnimation | null {
+	return getProjectAnimations().find(animation => animation.id === id) ?? null;
+}
+
 type Error = PropertyError;
 type PropertyError = { propertyName: string; objectId: number };
 
@@ -333,6 +366,7 @@ export function removeNotification(id: number): void {
 export function isNameTaken(name: string, exclude?: number): boolean {
 	return (
 		projectObjects.some(object => getProperty(object, "Name") === name && (exclude === undefined || object.id !== exclude)) ||
+		projectVariables.some(variable => variable.name === name && (exclude === undefined || variable.id !== exclude)) ||
 		projectAnimations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude)) ||
 		projectMarkers.some(marker => marker.name === name && (exclude === undefined || marker.id !== exclude))
 	);
@@ -434,7 +468,7 @@ export function regenerateWaits() {
 	// Beginning Wait
 	if (animations.length > 0 && animations[0].properties["Start Time"] !== 0) {
 		let duration = animations[0].properties["Start Time"];
-		waits.push({ id: nextId(), type: "animation", properties: { "Animation Type": "Wait", Name: `Wait ${duration}s`, Duration: duration, "Start Time": 0 } });
+		waits.push({ id: nextId(), type: "animation", previewData: "", properties: { "Animation Type": "Wait", Name: `Wait ${duration}s`, Duration: duration, "Start Time": 0 } });
 	}
 
 	// Middle Waits
@@ -444,7 +478,12 @@ export function regenerateWaits() {
 			console.log(waitStart);
 			let waitDuration = animations[index + 1].properties["Start Time"]! - waitStart;
 			if (waitDuration > 0) {
-				waits.push({ id: nextId(), type: "animation", properties: { "Animation Type": "Wait", Name: `Wait ${waitDuration}s`, "Start Time": waitStart, Duration: waitDuration } });
+				waits.push({
+					id: nextId(),
+					type: "animation",
+					previewData: "",
+					properties: { "Animation Type": "Wait", Name: `Wait ${waitDuration}s`, "Start Time": waitStart, Duration: waitDuration },
+				});
 			}
 		}
 	});

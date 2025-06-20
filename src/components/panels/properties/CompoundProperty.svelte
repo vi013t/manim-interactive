@@ -2,12 +2,19 @@
 	import type { CompoundProperty } from "../../../api/manim/property";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
-	let { value = $bindable(), property, name }: { value: unknown; name: string; property: CompoundProperty } = $props();
+	let { value = $bindable(), property, name, width }: { value: unknown; width: string; name: string; property: CompoundProperty } = $props();
 </script>
 
-<div class="compound">
+<div class="compound" style:width>
 	{#each Object.entries(property.subProperties) as [propertyName, propertyValue]}
-		<PropertyValueInput type={propertyValue} name={propertyName} required value={(propertyValue as any).defaultValue} subProperty />
+		<PropertyValueInput
+			width="calc({width} / {Object.keys(property.subProperties).length})"
+			type={propertyValue}
+			name={propertyName}
+			required
+			value={(propertyValue as any).defaultValue}
+			subProperty
+		/>
 	{/each}
 </div>
 

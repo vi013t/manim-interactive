@@ -16,12 +16,14 @@
 		errorMessage = $bindable(),
 		name,
 		property,
+		width,
 		setProperty,
 	}: {
 		value: string;
 		errorMessage: string | null;
 		name: string;
 		property: StringProperty;
+		width: string;
 		setProperty(value: unknown): void;
 	} = $props();
 
@@ -109,7 +111,7 @@
 		oninput={validate}
 		onkeydown={onInput}
 		autocomplete="off"
-		style:width={property.isPath ? "18.5rem" : "20rem"}
+		style:width={property.isPath ? "18.5rem" : width}
 		disabled={locked}
 		style:cursor={locked ? "not-allowed" : "text"}
 		bind:value={inputValue}

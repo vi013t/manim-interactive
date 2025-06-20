@@ -18,7 +18,7 @@
 	let addButton: HTMLButtonElement;
 	let addObjectMenu: AddObjectMenu;
 
-	let { value = $bindable(), setProperty }: { value: string; setProperty(value: unknown): void } = $props();
+	let { value = $bindable(), setProperty, width }: { value: string; width: string; setProperty(value: unknown): void } = $props();
 
 	let menuVisible = $state(false);
 
@@ -59,6 +59,7 @@
 
 <button
 	class="add-animation"
+	style:width
 	{@attach element => {
 		top = `calc(${element.getBoundingClientRect().top}px + 1.5rem)`;
 		left = `${element.getBoundingClientRect().left}px`;
@@ -70,11 +71,10 @@
 	{translate(value)}
 	<RightArrow stroke="var(--lavender)" style="width: 1rem; height: 1rem; margin-left: auto; transform: rotate({menuVisible ? '90deg' : '0deg'}); transition: transform 0.1s;" />
 </button>
-<AddObjectMenu width="20rem" background="var(--base)" onSelect={changeObjectType} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />
+<AddObjectMenu {width} background="var(--base)" onSelect={changeObjectType} bind:this={addObjectMenu} {top} {left} openers={[document as any]} title={false} />
 
 <style>
 	button {
-		width: 20rem;
 		color: var(--text);
 		background: var(--crust);
 		padding: 0.3em;

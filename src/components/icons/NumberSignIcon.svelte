@@ -2,4 +2,18 @@
 	let { stroke, ...rest } = $props();
 </script>
 
-<svg {...rest} viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <title>pound</title> <desc>Created with Sketch.</desc> <g id="pound" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round"> <rect width="48" height="48" fill="white" fill-opacity="0.01"></rect> <g id="编组" transform="translate(6.000000, 5.500000)" stroke="#000000" stroke-width="4"> <path d="M0,10.5 L36,10.5" id="路径-3"> </path> <path d="M-8,18.5 L28,18.5" id="路径-3" transform="translate(10.000000, 18.500000) rotate(90.000000) translate(-10.000000, -18.500000) "> </path> <path d="M8,18.5 L44,18.5" id="路径-3" transform="translate(26.000000, 18.500000) rotate(90.000000) translate(-26.000000, -18.500000) "> </path> <path d="M0,26.5 L36,26.5" id="路径-3"> </path> </g> </g> </g></svg>
+<svg {...rest} viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" fill={stroke}>
+	<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+	<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+	<g id="SVGRepo_iconCarrier">
+		<g id="pound" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+			<rect width="48" height="48" fill="white" fill-opacity="0.01"></rect>
+			<g id="编组" transform="translate(6.000000, 5.500000)" {stroke} stroke-width="4">
+				<path d="M0,10.5 L36,10.5" id="路径-3"></path>
+				<path d="M-8,18.5 L28,18.5" id="路径-3" transform="translate(10.000000, 18.500000) rotate(90.000000) translate(-10.000000, -18.500000) "></path>
+				<path d="M8,18.5 L44,18.5" id="路径-3" transform="translate(26.000000, 18.500000) rotate(90.000000) translate(-26.000000, -18.500000) "></path>
+				<path d="M0,26.5 L36,26.5" id="路径-3"></path>
+			</g>
+		</g>
+	</g>
+</svg>

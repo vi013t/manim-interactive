@@ -25,7 +25,8 @@ pub fn run() {
             command_exists,
             open_movie_location,
             path_is_file,
-            generate_object_preview
+            generate_object_preview,
+            generate_animation_preview
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -150,6 +151,34 @@ fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<String, St
     std::fs::create_dir_all(&previews_dir)
         .map_err(|_| "Error creating objects directory".to_owned())?;
     let preview_path = previews_dir.join(format!("object_{id}.png"));
+
+    Command::new("manim")
+        .arg("-o")
+        .arg(&preview_path)
+        .arg("-qh")
+        .arg(&code_path)
+        .current_dir(path)
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
+
+    load_audio(preview_path.as_os_str().to_str().unwrap())
+}
+
+#[tauri::command]
+fn generate_animation_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
+    std::fs::create_dir_all(Path::new(&path).join("animations"))
+        .map_err(|_| "Error creating animations directory".to_owned())?;
+    let code_path = Path::new(&path)
+        .join("animations")
+        .join(format!("animation_{id}.py"));
+    std::fs::write(&code_path, code).map_err(|_| "Error writing animation code".to_owned())?;
+
+    let previews_dir = Path::new(&path).join("previews");
+    std::fs::create_dir_all(&previews_dir)
+        .map_err(|_| "Error creating animations directory".to_owned())?;
+    let preview_path = previews_dir.join(format!("animation_{id}.mp4"));
 
     Command::new("manim")
         .arg("-o")

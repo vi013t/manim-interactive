@@ -1,5 +1,5 @@
 <script lang="ts">
-	let { value = $bindable(), name, setProperty }: { value: boolean; name: string; setProperty(value: unknown): void } = $props();
+	let { value = $bindable(), width, setProperty }: { value: boolean; width: string; setProperty(value: unknown): void } = $props();
 
 	function trySetProperty() {
 		setProperty(inputValue);
@@ -9,7 +9,7 @@
 </script>
 
 <button
-	style:width="20rem"
+	style:width
 	style:background-color={value ? "#a6e3a1" : "var(--red)"}
 	onclick={() => {
 		inputValue = !inputValue;
