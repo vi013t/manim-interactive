@@ -95,7 +95,7 @@
 			{#if item}
 				{#each properties! as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
-						<PropertyValueInput canBeVariable={name !== "Name"} {name} type={getPropertyType(name)} value={value as any} required={isPropertyRequired(name)} />
+						<PropertyValueInput locked={false} canBeVariable={name !== "Name"} {name} type={getPropertyType(name)} value={value as any} required={isPropertyRequired(name)} />
 					</span>
 				{/each}
 				<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />

@@ -1,10 +1,26 @@
 <script lang="ts">
+	import { generateAnimationPreview, generateObjectPreview } from "../../../api/codegen.svelte";
 	import { getPropertyTypeColor, getPropertyTypeIcon } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getProjectVariables, type ProjectVariable } from "../../../api/project.svelte";
+	import {
+		deleteProjectItem,
+		getItemFromId,
+		getProjectVariables,
+		getSingleSelection,
+		getVariableDependencies,
+		isVariableUsed,
+		type ProjectAnimation,
+		type ProjectObject,
+		type ProjectVariable,
+	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
+	import LockIcon from "../../icons/LockIcon.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
+	import SkullIcon from "../../icons/SkullIcon.svelte";
+	import TrashIcon from "../../icons/TrashIcon.svelte";
+	import UnlockIcon from "../../icons/UnlockIcon.svelte";
 	import AddVariableMenu from "../../menus/AddVariableMenu.svelte";
+	import ConfirmDeleteVariableWindow from "../../windows/ConfirmDeleteVariableWindow.svelte";
 	import PropertyValueInput from "../properties/PropertyValueInput.svelte";
 
 	let top = $state("");
@@ -20,8 +36,18 @@
 
 	function setVariableValue(variable: ProjectVariable) {
 		return function (value: unknown) {
+			console.log("sttingf");
 			variable.value = value;
-			if (getPreferences().autosave) runAction("Save And Recompile Project");
+			if (getPreferences().autosave) {
+				if (getSingleSelection()) {
+					const item = getItemFromId(getSingleSelection()!)! as ProjectObject | ProjectAnimation;
+					if (getVariableDependencies(item)!.includes(variable.id)) {
+						if (item.type === "object") generateObjectPreview(item);
+						else if (item.type === "animation") generateAnimationPreview(item);
+					}
+				}
+				runAction("Save And Recompile Project");
+			}
 		};
 	}
 
@@ -30,6 +56,22 @@
 			(event.target as HTMLElement).blur();
 		}
 	}
+
+	function deleteVariable(variable: ProjectVariable) {
+		return function () {
+			if (isVariableUsed(variable)) {
+				deleteVariableIds = [variable.id];
+				confirmDeleteVariableWindow.show();
+				return;
+			}
+
+			deleteProjectItem(variable.id);
+			if (getPreferences().autosave) runAction("Save And Recompile Project");
+		};
+	}
+
+	let deleteVariableIds: number[] = $state([]);
+	let confirmDeleteVariableWindow: ConfirmDeleteVariableWindow;
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -47,17 +89,18 @@
 			<span>
 				<span>
 					<Icon stroke={getPropertyTypeColor(variable.type.base)} style="width: 1rem; height: 1rem;" />
-					<span contenteditable onkeydown={input} bind:textContent={variable.name}>{name}</span>
+					<span style:color={isVariableUsed(variable) ? "var(--text)" : "var(--overlay-0)"} contenteditable onkeydown={input} bind:textContent={variable.name}>{name}</span>
 				</span>
 
 				<span>
 					<PropertyValueInput
 						setProperty={setVariableValue(variable)}
 						canBeVariable={false}
-						width="12rem"
+						width="9rem"
 						name="Initial Value"
 						type={variable.type}
 						value={variable.value}
+						locked={variable.locked}
 						required
 					/>
 				</span>
@@ -67,17 +110,33 @@
 						setProperty={setVariableValue(variable)}
 						canBeVariable={false}
 						name="Current Value"
-						width="12rem"
+						width="9rem"
 						type={variable.type}
 						value={variable.value}
 						required
+						locked
 					/>
 				</span>
+
+				<button title="Lock Variable" onclick={() => (variable.locked = !variable.locked)}>
+					{#if variable.locked}
+						<LockIcon stroke="var(--text)" style="width: 1rem; height: 1rem;" />
+					{:else}
+						<UnlockIcon stroke="var(--text)" style="width: 1rem; height: 1rem;" />
+					{/if}
+				</button>
+				<button title="Delete Variable" onclick={deleteVariable(variable)}>
+					<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
+				</button>
+				{#if !isVariableUsed(variable)}
+					<SkullIcon title="This variable is unused" stroke="var(--overlay-0)" style="margin-left: 1rem; width: 1rem; height: 1rem;" />
+				{/if}
 			</span>
 		{/each}
 	</div>
 </section>
 <AddVariableMenu bind:this={addVariableMenu} {top} {left} />
+<ConfirmDeleteVariableWindow bind:this={confirmDeleteVariableWindow} ids={deleteVariableIds} />
 
 <style>
 	.variables {
@@ -86,16 +145,25 @@
 
 		> span {
 			align-items: center;
-			color: var(--text);
 
 			> span {
 				gap: 0.5rem;
+				color: var(--text);
+
+				&:nth-child(3) {
+					margin-left: 2rem;
+				}
+			}
+
+			button {
+				margin-left: 1rem;
 			}
 		}
 
 		span[contenteditable] {
 			padding: 0.5rem;
 			border-radius: 0.5rem;
+			width: 10rem;
 
 			&:focus {
 				background-color: var(--crust);

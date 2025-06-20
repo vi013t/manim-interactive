@@ -15,6 +15,7 @@ export type ProjectVariable = {
 	name: string;
 	type: PropertyType;
 	value: unknown;
+	locked: boolean;
 };
 
 let projectVariables: ProjectVariable[] = $state([]);
@@ -25,6 +26,19 @@ let projectLibraries: Set<string> = $state(new Set(["manim"]));
 
 export function addProjectVariable(variable: ProjectVariable) {
 	projectVariables.push(variable);
+}
+
+export function getVariableDependencies(object: ProjectObject | ProjectAnimation): number[] {
+	return Object.values(object.properties)
+		.filter(value => (value as any).variableId !== undefined)
+		.map(value => (value as any).variableId);
+}
+
+export function isVariableUsed(variable: ProjectVariable): boolean {
+	return (
+		getProjectObjects().some(object => getVariableDependencies(object).includes(variable.id)) ||
+		getProjectAnimations().some(animation => getVariableDependencies(animation).includes(variable.id))
+	);
 }
 
 export function getProjectVariableFromName(name: string): ProjectVariable | null {
@@ -39,7 +53,7 @@ export function getProjectVariables(): ProjectVariable[] {
 	return projectVariables;
 }
 
-export type ProjectMarker = { id: number; name: string; time: number };
+export type ProjectMarker = { id: number; name: string; time: number; type: "marker" };
 let projectMarkers: ProjectMarker[] = $state([]);
 
 export type ProjectAudio = {
@@ -82,7 +96,7 @@ export function removeProjectLibrary(name: string) {
 }
 
 export function addProjectMarker(name: string, time: number) {
-	projectMarkers.push({ name, time, id: nextId() });
+	projectMarkers.push({ name, time, id: nextId(), type: "marker" });
 }
 
 export function getProjectMarkers() {
@@ -232,6 +246,7 @@ export function deleteProjectItem(id: number) {
 	projectObjects = projectObjects.filter(object => object.id !== id);
 	projectAnimations = projectAnimations.filter(animation => getProperty(animation, "Object") !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
+	projectVariables = projectVariables.filter(variable => variable.id !== id);
 	projectMarkers = projectMarkers.filter(marker => marker.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
 	if (getPreferences().autosave) runAction("Save And Recompile Project");
@@ -443,7 +458,7 @@ export function movieLength(): number {
 }
 
 export function addEndMarker() {
-	projectMarkers.push({ name: "End", id: nextId(), time: 0 });
+	projectMarkers.push({ name: "End", id: nextId(), time: 0, type: "marker" });
 	runAction("Save Project");
 }
 

@@ -10,11 +10,13 @@
 		name,
 		errorMessage = $bindable(),
 		width,
+		locked,
 		setProperty,
 	}: {
 		value: number;
 		name: string;
 		width: string;
+		locked: boolean;
 		errorMessage: string | null;
 		setProperty(value: unknown): void;
 	} = $props();
@@ -48,6 +50,7 @@
 </script>
 
 <Select
+	{locked}
 	options={getProjectObjects()
 		.filter(object => !selected().includes(object.id))
 		.map(object => {

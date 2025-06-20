@@ -98,10 +98,13 @@ let isAnimationPreviewLoaded = $state(true);
 
 export async function generateObjectPreview(object: Omit<ProjectObject, "previewData"> & { previewData?: string }): Promise<ProjectObject> {
 	isObjectPreviewLoaded = false;
+	const variableLines = getProjectVariables()
+		.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
+		.join("\n");
 	const imageData = await invoke<string>("generate_object_preview", {
 		path: await getProjectLocation(),
 		id: object.id,
-		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):\n\t\tself.add(${codegenObject(object)})`,
+		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):\n${variableLines}\n\n\t\tself.add(${codegenObject(object)})`,
 	});
 	object.previewData = imageData;
 	isObjectPreviewLoaded = true;
@@ -110,10 +113,13 @@ export async function generateObjectPreview(object: Omit<ProjectObject, "preview
 
 export async function generateAnimationPreview(animation: Omit<ProjectAnimation, "previewData"> & { previewData?: string }): Promise<ProjectAnimation> {
 	isAnimationPreviewLoaded = false;
+	const variableLines = getProjectVariables()
+		.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
+		.join("\n");
 	const videoData = await invoke<string>("generate_animation_preview", {
 		path: await getProjectLocation(),
 		id: animation.id,
-		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):${getAnimationObjects(animation as ProjectAnimation).map(
+		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):${variableLines}\n\n${getAnimationObjects(animation as ProjectAnimation).map(
 			object => `\n\t\tobject_${object} = ${codegenObject(getObjectFromId(object)!)}`
 		)}\n\n\t\tself.play(${codegenAnimation(animation)})`,
 	});

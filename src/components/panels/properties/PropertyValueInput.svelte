@@ -41,11 +41,12 @@
 		canBeVariable?: boolean;
 		width?: string;
 		deleteProperty?: () => void;
+		locked: boolean;
 		setProperty?: (value: unknown) => void;
 	};
 
 	function deleteRegularProperty() {
-		delete (getPropertiesFromId(selected()[0])! as any)[name];
+		delete (getPropertiesFromId(getSingleSelection()!)! as any)[name];
 
 		const object = getObjectFromId(getSingleSelection()!);
 		if (object) generateObjectPreview(object);
@@ -80,6 +81,7 @@
 		value,
 		required,
 		width = "20rem",
+		locked,
 		deleteProperty = deleteRegularProperty,
 		setProperty = setRegularProperty,
 	}: Props = $props();
@@ -100,30 +102,30 @@
 	{/if}
 
 	<!-- Property Value -->
-	{#key getItemFromId(selected()[0])}
+	{#key getItemFromId(getSingleSelection()!)}
 		{#if !variable}
 			{#if property.base === "animationType"}
-				<AnimationProperty {width} {setProperty} value={value as string} {name} {property} />
+				<AnimationProperty {locked} {width} {setProperty} value={value as string} {name} {property} />
 			{:else if property.base === "objectType"}
-				<ObjectTypeProperty {width} {setProperty} value={value as string} />
+				<ObjectTypeProperty {locked} {width} {setProperty} value={value as string} />
 			{:else if property.base === "object"}
-				<ObjectProperty {width} {setProperty} bind:errorMessage value={value as number} {name} />
+				<ObjectProperty {locked} {width} {setProperty} bind:errorMessage value={value as number} {name} />
 			{:else if property.base === "color"}
-				<ColorProperty {width} {setProperty} />
+				<ColorProperty {locked} {width} {setProperty} />
 			{:else if property.base === "boolean"}
-				<BooleanProperty {width} {setProperty} value={value as boolean} />
+				<BooleanProperty {locked} {width} {setProperty} value={value as boolean} />
 			{:else if property.base === "string" && "options" in property}
-				<SelectProperty {width} {setProperty} {property} value={value as string} {name} />
+				<SelectProperty {locked} {width} {setProperty} {property} value={value as string} {name} />
 			{:else if property.base === "coordinate"}
-				<CoordinateProperty {width} {setProperty} value={value as [number, number, number]} {name} bind:errorMessage />
+				<CoordinateProperty {locked} {width} {setProperty} value={value as [number, number, number]} {name} bind:errorMessage />
 			{:else if property.base === "compound"}
-				<CompoundProperty {width} value={value as unknown} {name} {property} />
+				<CompoundProperty {locked} {width} value={value as unknown} {name} {property} />
 			{:else if property.base === "list"}
-				<ListProperty {width} {setProperty} value={value as unknown[]} {name} {property} {required} />
+				<ListProperty {locked} {width} {setProperty} value={value as unknown[]} {name} {property} {required} />
 			{:else if property.base === "string"}
-				<StringProperty {width} {setProperty} bind:errorMessage value={value as string} {name} {property} />
+				<StringProperty {locked} {width} {setProperty} bind:errorMessage value={value as string} {name} {property} />
 			{:else if property.base === "number"}
-				<NumberProperty {width} {setProperty} bind:errorMessage value={value as number} {name} {property} id={selected()[0]} />
+				<NumberProperty {locked} {width} {setProperty} bind:errorMessage value={value as number} {name} {property} id={selected()[0]} />
 			{/if}
 
 			{#if canBeVariable}

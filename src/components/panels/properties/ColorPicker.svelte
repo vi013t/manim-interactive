@@ -9,9 +9,10 @@
 	let left = $state("0px");
 	let top = $state("0px");
 
-	let { onSelect } = $props();
+	let { onSelect, locked = false } = $props();
 
 	export function show() {
+		if (locked) return;
 		left = `${getMouseX()}px`;
 		top = `${getMouseY()}px`;
 		visible = true;

@@ -23,12 +23,14 @@
 		name,
 		property,
 		width,
+		locked,
 		setProperty,
-	}: { value: string; name: string; width: string; property: AnimationTypeProperty; setProperty(value: unknown): void } = $props();
+	}: { locked: boolean; value: string; name: string; width: string; property: AnimationTypeProperty; setProperty(value: unknown): void } = $props();
 
 	let menuVisible = $state(false);
 
 	function setAnimation() {
+		if (locked) return;
 		if (animationMenu.isVisible()) {
 			menuVisible = false;
 			animationMenu.hide();

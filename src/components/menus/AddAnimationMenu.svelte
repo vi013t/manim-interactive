@@ -27,12 +27,13 @@
 		id?: number;
 	} = $props();
 
-	function addAnimation(type: string): void {
+	async function addAnimation(type: string): Promise<void> {
 		menu.hide();
 
 		let animation: ProjectAnimation = {
 			id: nextId(),
 			type: "animation",
+			previewData: null!,
 			properties: {
 				"Start Time": 0,
 				Duration: 1,
@@ -43,7 +44,7 @@
 		};
 
 		onAdd(animation);
-		addProjectAnimation(animation);
+		await addProjectAnimation(animation);
 		updateEndMarker();
 		select([animation.id]);
 		if (getPreferences().autosave) runAction("Save And Recompile Project");

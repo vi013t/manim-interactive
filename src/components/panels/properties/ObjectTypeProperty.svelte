@@ -18,11 +18,13 @@
 	let addButton: HTMLButtonElement;
 	let addObjectMenu: AddObjectMenu;
 
-	let { value = $bindable(), setProperty, width }: { value: string; width: string; setProperty(value: unknown): void } = $props();
+	let { locked, value = $bindable(), setProperty, width }: { locked: boolean; value: string; width: string; setProperty(value: unknown): void } = $props();
 
 	let menuVisible = $state(false);
 
 	function toggleMenu() {
+		if (locked) return;
+
 		if (addObjectMenu.isVisible()) {
 			menuVisible = false;
 			addObjectMenu.hide();

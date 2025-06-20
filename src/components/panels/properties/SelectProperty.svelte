@@ -10,9 +10,11 @@
 		property,
 		width,
 		setProperty,
+		locked,
 	}: {
 		value: string;
 		name: string;
+		locked: boolean;
 		property: SelectProperty;
 		width: string;
 		setProperty(value: unknown): void;
@@ -41,5 +43,6 @@
 	onSelect={trySetProperty}
 	options={property.options}
 	itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined}
+	{locked}
 	bind:value
 />

@@ -313,7 +313,7 @@ export function property() {
 			return {
 				base: "number",
 				maximumValue: Number.MAX_VALUE,
-				minimumValue: Number.MIN_VALUE,
+				minimumValue: -Number.MAX_VALUE,
 				isIntegeric: false,
 				defaultValue: 0,
 				isAngle: false,

@@ -9,7 +9,8 @@
 		errorMessage = $bindable(),
 		setProperty,
 		width,
-	}: { width: string; value: [number, number, number]; name: string; errorMessage: string | null; setProperty(value: unknown): void } = $props();
+		locked,
+	}: { locked: boolean; width: string; value: [number, number, number]; name: string; errorMessage: string | null; setProperty(value: unknown): void } = $props();
 
 	let is3D = $state(false);
 
@@ -81,15 +82,15 @@
 
 <span class="coordinate" style:width>
 	<span>
-		X: <input oninput={validate} style:outline={xError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={x} type="text" />
+		X: <input disabled={locked} oninput={validate} style:outline={xError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={x} type="text" />
 	</span>
 	<span>
-		Y: <input oninput={validate} style:outline={yError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={y} type="text" />
+		Y: <input disabled={locked} oninput={validate} style:outline={yError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={y} type="text" />
 	</span>
 
 	{#if is3D}
 		<span class="three-d">
-			Z: <input oninput={validate} style:outline={zError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={z} type="text" />
+			Z: <input disabled={locked} oninput={validate} style:outline={zError ? "2px solid var(--red)" : "none"} onfocus={focus} onblur={blur} bind:value={z} type="text" />
 		</span>
 		<button onclick={() => (is3D = false)}>2D</button>
 	{:else}

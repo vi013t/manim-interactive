@@ -26,6 +26,7 @@
 				id: nextId(),
 				type: property()[type](null!),
 				value: (property()[type] as any)().defaultValue,
+				locked: false,
 			});
 		};
 	}

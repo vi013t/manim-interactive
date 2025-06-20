@@ -13,6 +13,7 @@
 		value = $bindable(),
 		title = undefined,
 		children,
+		locked,
 		...rest
 	}: {
 		value?: SelectOption;
@@ -22,6 +23,7 @@
 		title?: string;
 		children?: () => any;
 		[key: string]: unknown;
+		locked?: boolean;
 	} = $props();
 
 	let optionsVisible = $state(false);
@@ -37,6 +39,7 @@
 	let element: HTMLElement;
 
 	function onSelectClick(event: MouseEvent) {
+		if (locked) return;
 		optionsVisible = !optionsVisible;
 	}
 

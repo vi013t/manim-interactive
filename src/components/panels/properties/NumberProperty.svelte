@@ -23,6 +23,7 @@
 		id,
 		width,
 		setProperty,
+		locked,
 	}: {
 		value: number;
 		errorMessage: string | null;
@@ -30,6 +31,7 @@
 		property: NumberProperty;
 		width: string;
 		id: number;
+		locked: boolean;
 		setProperty(value: unknown): void;
 	} = $props();
 
@@ -180,6 +182,7 @@
 		autocomplete="off"
 		style:width={property.isAngle ? "12rem" : width}
 		bind:value={inputValue}
+		disabled={locked}
 	/>
 	{#if property.isAngle}
 		<button onclick={changeMode}>{mode}</button>

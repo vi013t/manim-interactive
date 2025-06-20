@@ -15,6 +15,7 @@
 		width,
 		required,
 		setProperty,
+		locked,
 	}: {
 		value: unknown[];
 		name: string;
@@ -22,6 +23,7 @@
 		width: string;
 		setProperty(value: unknown): void;
 		required: boolean;
+		locked: boolean;
 	} = $props();
 
 	let listCollapsed = $state(false);
@@ -104,6 +106,7 @@
 							name={null!}
 							value={element as any}
 							required={false}
+							{locked}
 							deleteProperty={() => {
 								((properties as any)[name] as any[]).splice(index, 1);
 								counter++;

@@ -17,6 +17,7 @@
 		name,
 		property,
 		width,
+		locked,
 		setProperty,
 	}: {
 		value: string;
@@ -24,6 +25,7 @@
 		name: string;
 		property: StringProperty;
 		width: string;
+		locked: boolean;
 		setProperty(value: unknown): void;
 	} = $props();
 
@@ -97,7 +99,7 @@
 
 	let inputValue = $state(`${value}`);
 
-	let locked = $state(property.isPath);
+	let isPathLocked = $state(property.isPath);
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -112,8 +114,7 @@
 		onkeydown={onInput}
 		autocomplete="off"
 		style:width={property.isPath ? "18.5rem" : width}
-		disabled={locked}
-		style:cursor={locked ? "not-allowed" : "text"}
+		disabled={isPathLocked || locked}
 		bind:value={inputValue}
 	/>
 
@@ -127,8 +128,8 @@
 	{/if}
 
 	{#if property.isPath}
-		<button class="lock" onclick={() => (locked = !locked)}>
-			{#if locked}
+		<button class="lock" onclick={() => (isPathLocked = !isPathLocked)}>
+			{#if isPathLocked}
 				<LockIcon style="width: 1rem; height: 1rem;" stroke="var(--text)" />
 			{:else}
 				<UnlockIcon style="width: 1rem; height: 1rem;" stroke="var(--text)" />
