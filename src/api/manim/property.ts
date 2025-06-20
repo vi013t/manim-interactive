@@ -316,6 +316,7 @@ export function property() {
 					return {
 						...this,
 						isAngle: true,
+						minimumValue: 0,
 					};
 				},
 				max<This extends NumberProperty, Value extends number>(this: This, value: Value): Narrow<This, "maximumValue", Value> {

@@ -13,6 +13,7 @@
 		selected,
 		type ProjectAnimation,
 	} from "../../../api/project.svelte";
+	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 
 	let {
 		value = $bindable(),
@@ -37,8 +38,9 @@
 		if (!/^-?\d+(\.\d+)?$/.test(inputValue)) return "Value must be a number";
 		let value = Number(inputValue);
 		if (property.isIntegeric && value !== Math.floor(value)) return "Value must be an integer";
+		let maximum = property.isAngle ? (mode === "Degrees" ? 360 : 2 * Math.PI) : property.maximumValue;
 		if (value < property.minimumValue) return `Value cannot be less than ${property.minimumValue}`;
-		if (value > property.maximumValue) return `Value cannot be greater than ${property.maximumValue}`;
+		if (value > maximum) return `Value cannot be greater than ${maximum}`;
 		if (
 			name === "Duration" &&
 			getProjectAnimations()
@@ -78,7 +80,8 @@
 	function trySetProperty() {
 		validate();
 		if (errorMessage) return;
-		setProperty(inputValue);
+		const value = property.isAngle && mode === "Degrees" ? (Number(inputValue) * Math.PI) / 180 : Number(inputValue);
+		setProperty(value);
 	}
 
 	function onInput(event: KeyboardEvent) {
@@ -102,34 +105,50 @@
 	let inputValue = $state(`${value}`);
 
 	$effect(() => {
-		inputValue = (getPropertiesFromId(id)! as any)[name];
+		if (!property.isAngle) inputValue = (getPropertiesFromId(id)! as any)[name];
 	});
 
 	let grabbingAngle = $state(false);
 
 	onMount(() => {
 		document.addEventListener("mousemove", event => {
+			// if u know a better n less buggy way to do this ill give u head hmu
 			if (grabbingAngle) {
-				let xFactor = event.clientY - angleElement.getBoundingClientRect().top > 30 ? 1 : -1;
-				let yFactor = event.clientX - angleElement.getBoundingClientRect().left < 30 ? 1 : -1;
-				const raw = Number(inputValue) + (xFactor * event.movementX) / 20 + (yFactor * event.movementY) / 20;
-				const n = 2 * Math.PI;
-				inputValue = `${(((raw % n) + n) % n).toFixed(2)}`;
+				const xFactor = event.clientY - angleElement.getBoundingClientRect().top > 30 ? 1 : -1;
+				const yFactor = event.clientX - angleElement.getBoundingClientRect().left < 30 ? 1 : -1;
+				const max = mode === "Degrees" ? 360 : 2 * Math.PI;
+				const scalar = max * 0.008;
+				const raw = Number(inputValue) + (xFactor * event.movementX + yFactor * event.movementY) * scalar;
+				inputValue = `${(((raw % max) + max) % max).toFixed(2)}`;
 				angleElement.style.cursor = "grabbing";
 				document.body.style.cursor = "grabbing";
 			}
 		});
 
 		document.addEventListener("mouseup", event => {
+			if (grabbingAngle) {
+				trySetProperty();
+			}
 			grabbingAngle = false;
 			angleElement.style.cursor = "grab";
 			document.body.style.cursor = "initial";
 		});
 	});
 
-	let mode = $state("Degrees");
+	let mode = $state("Radians");
+	// svelte-ignore non_reactive_update
 	let angleElement: HTMLElement;
-	let angle = $derived(mode === "Radians" ? Number(inputValue) : ((Number(inputValue) * 180) / Math.PI).toFixed(2));
+
+	function changeMode() {
+		if (mode === "Radians") {
+			mode = "Degrees";
+			inputValue = `${((Number(inputValue) * 180) / Math.PI).toFixed(2)}`;
+		} else {
+			mode = "Radians";
+			inputValue = `${((Number(inputValue) * Math.PI) / 180).toFixed(2)}`;
+		}
+		validate();
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -138,11 +157,15 @@
 		<div
 			bind:this={angleElement}
 			onmousedown={() => (grabbingAngle = true)}
-			class="angle"
-			style:--rotation={`${(Number(inputValue) * 180) / Math.PI}deg`}
-			style:rotate="calc(-1 * var(--rotation))"
+			class="angle {errorMessage ? 'error-angle' : null}"
+			style:--rotation={`${mode === "Degrees" ? inputValue : (Number(inputValue) * 180) / Math.PI}deg`}
+			style:rotate={errorMessage ? "0deg" : "calc(-1 * var(--rotation))"}
 		>
-			<div></div>
+			<div class={errorMessage ? "error" : "sector"}>
+				{#if errorMessage}
+					<ErrorIcon stroke="var(--red)" style="width: 1.5rem; height: 1.5rem;" />
+				{/if}
+			</div>
 		</div>
 	{/if}
 	<input
@@ -154,10 +177,10 @@
 		onkeydown={onInput}
 		autocomplete="off"
 		style:width={property.isAngle ? "12rem" : "20rem"}
-		bind:value={() => `${angle}`, value => (inputValue = value)}
+		bind:value={inputValue}
 	/>
 	{#if property.isAngle}
-		<button onclick={() => (mode = mode === "Degrees" ? "Radians" : "Degrees")}>{mode}</button>
+		<button onclick={changeMode}>{mode}</button>
 	{/if}
 </div>
 
@@ -171,18 +194,17 @@
 		overflow: hidden;
 		cursor: grab;
 
-		&::before {
+		&:not(.error-angle)::before {
 			content: "";
 			position: absolute;
 			left: 50%;
 			top: 50%;
-			transform: translateY(-50%);
 			height: 3px;
 			width: 50%;
 			background-color: var(--text);
 		}
 
-		&::after {
+		&:not(.error-angle)::after {
 			content: "";
 			position: absolute;
 			left: 50%;
@@ -195,7 +217,7 @@
 			border-top: 3px dotted var(--text);
 		}
 
-		> div {
+		.sector {
 			width: 100%;
 			height: 100%;
 			position: absolute;
@@ -204,6 +226,17 @@
 			rotate: 90deg;
 			background-image: conic-gradient(var(--text) 0deg var(--rotation), transparent var(--rotation) 360deg);
 			opacity: 50%;
+		}
+
+		.error {
+			width: 100%;
+			height: 100%;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 
@@ -230,7 +263,7 @@
 		background-color: var(--crust);
 		padding-top: 0.25rem;
 		padding-bottom: 0.25rem;
-		border-radius: 0.25rem;
+		border-radius: 0.5rem;
 		width: 4rem;
 		display: flex;
 		justify-content: center;

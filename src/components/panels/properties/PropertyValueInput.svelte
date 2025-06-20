@@ -1,7 +1,7 @@
 <script lang="ts" generics="T extends PropertyType">
 	import { generateObjectPreview } from "../../../api/codegen.svelte";
 	import type { PropertyType, PropertyValue } from "../../../api/manim/property";
-	import { runAction } from "../../../api/preferences.svelte";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import { getItemFromId, getObjectFromId, getPropertiesFromId, getSingleSelection, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
@@ -30,14 +30,16 @@
 
 	function deleteRegularProperty() {
 		delete (getPropertiesFromId(selected()[0])! as any)[name];
-		runAction("Save And Recompile Project");
+		const object = getObjectFromId(getSingleSelection()!);
+		if (object) generateObjectPreview(object);
+		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
 	function setRegularProperty(value: unknown) {
 		(getPropertiesFromId(getSingleSelection()!)! as any)[name] = value;
 		const object = getObjectFromId(getSingleSelection()!);
 		if (object) generateObjectPreview(object);
-		runAction("Save And Recompile Project");
+		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
 	let { subProperty = false, type: property, name, value, required, deleteProperty = deleteRegularProperty, setProperty = setRegularProperty }: Props = $props();
