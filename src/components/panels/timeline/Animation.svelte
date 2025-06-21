@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { getAnimationObjects, getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
@@ -30,20 +29,22 @@
 
 	function animationActions(event: MouseEvent) {
 		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = getHorizontalExpandDirection() === "right" ? `${event.clientX}px` : `calc(${event.clientX}px - 15rem)`;
+		top = `${event.clientY - timelineElement.getBoundingClientRect().top}px`;
+		left = `${event.clientX - timelineElement.getBoundingClientRect().left - 240}px`;
 		animationActionsMenu.show();
 	}
 
 	const BORDER_SIZE = 4;
 
 	function animationMouseDown(event: MouseEvent) {
-		if (!getPreferences().collapseWaitTimes) {
-			if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
-				expandingElement = event.target as HTMLElement;
-			} else {
-				draggingElement = event.target as HTMLElement;
-			}
+		if (event.button !== 0) return;
+		if (getPreferences().collapseWaitTimes) return;
+		if (event.target !== element) return;
+
+		if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
+			expandingElement = event.target as HTMLElement;
+		} else {
+			draggingElement = event.target as HTMLElement;
 		}
 	}
 
@@ -147,6 +148,16 @@
 		if (getPreferences().collapseWaitTimes && animation.properties["Animation Type"] === "Wait") return "4rem";
 		return `${animation.properties["Duration"]! * 4}rem`;
 	});
+
+	function typeName(event: KeyboardEvent): void {
+		if (event.key === "Enter") {
+			(event.target as HTMLElement).blur();
+		}
+	}
+
+	function blurName() {
+		if (getPreferences().autosave) runAction("Save Project");
+	}
 </script>
 
 <button
@@ -165,9 +176,19 @@
 	bind:this={element}
 >
 	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />
-	<span contenteditable>{getProperty(animation, "Name")}</span>
+
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<span
+		autocapitalize="off"
+		spellcheck="false"
+		id="animation-{animation.id}-name"
+		onkeydown={typeName}
+		onblur={blurName}
+		contenteditable
+		bind:textContent={animation.properties["Name"]}
+	></span>
 </button>
-<AnimationActionsMenu bind:this={animationActionsMenu} {top} {left} />
+<AnimationActionsMenu id={animation.id} bind:this={animationActionsMenu} {top} {left} />
 
 <style>
 	.animation {
@@ -180,9 +201,22 @@
 		text-align: left;
 		padding: 1rem;
 		height: 4rem;
-		z-index: 99999;
+		z-index: 99;
 		gap: 0.5rem;
 		outline-offset: -4px;
+
+		span {
+			padding: 0.25rem;
+			padding-left: 0.5rem;
+			padding-right: 0.5rem;
+			border-radius: 0.25rem;
+			text-transform: initial;
+			cursor: text;
+
+			&:focus {
+				background-color: rgba(0, 0, 0, 15%);
+			}
+		}
 
 		/* Bottom Resize Handle */
 		&::after {

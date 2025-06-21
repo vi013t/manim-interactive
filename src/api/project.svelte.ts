@@ -244,11 +244,12 @@ export function deleteProjectItem(id: number) {
 	});
 
 	projectObjects = projectObjects.filter(object => object.id !== id);
-	projectAnimations = projectAnimations.filter(animation => getProperty(animation, "Object") !== id);
+	projectAnimations = projectAnimations.filter(animation => animation.properties["Object"] !== id && animation.id !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	projectVariables = projectVariables.filter(variable => variable.id !== id);
 	projectMarkers = projectMarkers.filter(marker => marker.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
+
 	if (getPreferences().autosave) runAction("Save And Recompile Project");
 }
 

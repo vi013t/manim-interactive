@@ -1,8 +1,10 @@
 <script lang="ts">
+	import { deleteProjectItem } from "../../api/project.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
+	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
 
-	let { top, left }: { top: string; left: string } = $props();
+	let { top, left, id }: { top: string; left: string; id: number } = $props();
 
 	let menu: ContextMenu;
 
@@ -17,11 +19,25 @@
 	export function hide() {
 		menu.hide();
 	}
+
+	function deleteAnimation() {
+		deleteProjectItem(id);
+		hide();
+	}
+
+	function renameAnimation() {
+		document.getElementById(`animation-${id}-name`)!.focus();
+		hide();
+	}
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Animation Actions</span>
-	<button>
+	<button onclick={renameAnimation}>
+		<TypeIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		Rename Animation
+	</button>
+	<button onclick={deleteAnimation}>
 		<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Delete Animation
 	</button>
