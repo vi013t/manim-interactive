@@ -1,4 +1,7 @@
-use std::{path::Path, process::Command};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 //mod audio;
 
@@ -14,7 +17,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             recompile,
             load_video,
-            load_audio,
+            load_file_base64_data,
             new_project,
             save_project_data,
             get_project_data,
@@ -33,17 +36,17 @@ pub fn run() {
 }
 
 #[tauri::command]
-fn recompile(
-    project_path: &str,
-    code: &str,
+async fn recompile(
+    project_path: String,
+    code: String,
     resolution_width: u32,
     resolution_height: u32,
-    renderer: &str,
-    file_format: &str,
+    renderer: String,
+    file_format: String,
     fps: u32,
-    output_file_name: &str,
+    output_file_name: String,
 ) {
-    std::fs::write(Path::new(project_path).join("main.py"), code).unwrap();
+    std::fs::write(Path::new(&project_path).join("main.py"), code).unwrap();
     println!("Recompiling project at {}", project_path);
     Command::new("manim")
         .arg("--resolution")
@@ -51,7 +54,7 @@ fn recompile(
         .arg("--renderer")
         .arg(renderer)
         .arg("--format")
-        .arg(file_format)
+        .arg(&file_format)
         .arg("--fps")
         .arg(format!("{fps}"))
         .arg("--output_file")
@@ -65,7 +68,7 @@ fn recompile(
 }
 
 #[tauri::command]
-fn load_video(
+async fn load_video(
     path: String,
     low_res: bool,
     output_file_name: &str,
@@ -73,33 +76,29 @@ fn load_video(
     resolution_height: u32,
     fps: u32,
 ) -> Result<String, String> {
-    let video_path = Path::new(&path)
-        .join("media")
-        .join("videos")
-        .join("main")
-        .join(if low_res {
-            "480p15".to_owned()
-        } else {
-            format!("{resolution_height}p{fps}")
-        })
-        .join(format!("{output_file_name}.{file_format}"));
-    match std::fs::read(&video_path) {
-        Ok(contents) => {
-            let encoded = base64::engine::general_purpose::STANDARD.encode(contents);
-            Ok(encoded)
-        }
-        Err(e) => Err(format!("Failed to read file: {}", e)),
-    }
+    load_file_base64_data(
+        Path::new(&path)
+            .join("media")
+            .join("videos")
+            .join("main")
+            .join(if low_res {
+                "480p15".to_owned()
+            } else {
+                format!("{resolution_height}p{fps}")
+            })
+            .join(format!("{output_file_name}.{file_format}")),
+    )
+    .await
 }
 
 #[tauri::command]
-fn load_audio(path: &str) -> Result<String, String> {
+async fn load_file_base64_data(path: PathBuf) -> Result<String, String> {
     let data = std::fs::read(path).map_err(|error| error.to_string())?;
     Ok(base64::engine::general_purpose::STANDARD.encode(&data))
 }
 
 #[tauri::command]
-fn new_project(path: String, name: String) -> Result<String, String> {
+async fn new_project(path: String, name: String) -> Result<String, String> {
     // Create the project
     Command::new("uv")
         .arg("init")
@@ -132,14 +131,14 @@ fn new_project(path: String, name: String) -> Result<String, String> {
 }
 
 #[tauri::command]
-fn save_project_data(path: String, data: String) -> Result<(), String> {
+async fn save_project_data(path: String, data: String) -> Result<(), String> {
     std::fs::write(Path::new(&path).join("project.manim"), data)
         .map_err(|_| "Error saving project".to_owned())?;
     Ok(())
 }
 
 #[tauri::command]
-fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
+async fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
     std::fs::create_dir_all(Path::new(&path).join("objects"))
         .map_err(|_| "Error creating objects directory".to_owned())?;
     let code_path = Path::new(&path)
@@ -163,11 +162,11 @@ fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<String, St
         .wait()
         .unwrap();
 
-    load_audio(preview_path.as_os_str().to_str().unwrap())
+    load_file_base64_data(preview_path).await
 }
 
 #[tauri::command]
-fn generate_animation_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
+async fn generate_animation_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
     std::fs::create_dir_all(Path::new(&path).join("animations"))
         .map_err(|_| "Error creating animations directory".to_owned())?;
     let code_path = Path::new(&path)
@@ -191,7 +190,7 @@ fn generate_animation_preview(path: &str, id: u32, code: &str) -> Result<String,
         .wait()
         .unwrap();
 
-    load_audio(preview_path.as_os_str().to_str().unwrap())
+    load_file_base64_data(preview_path).await
 }
 
 #[tauri::command]
@@ -246,7 +245,7 @@ async fn python_package_exists(package_name: String) -> Result<bool, String> {
 }
 
 #[tauri::command]
-fn get_fonts() -> Vec<String> {
+async fn get_fonts() -> Vec<String> {
     let mut fonts = font_enumeration::Collection::new()
         .unwrap()
         .all()

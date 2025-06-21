@@ -51,16 +51,16 @@
 		return luma(color) >= 165 ? "#000000" : "#ffffff";
 	}
 
-	function luma(color: string) {
-		var rgb = hexToRGBArray(color.substring(1));
+	function luma(color: string): number {
+		const rgb = hexToRGB(color.substring(1));
 		return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 	}
 
-	function hexToRGBArray(color: string) {
+	function hexToRGB(color: string): [number, number, number] {
 		if (color.length === 3) color = color.charAt(0) + color.charAt(0) + color.charAt(1) + color.charAt(1) + color.charAt(2) + color.charAt(2);
 		else if (color.length !== 6) throw "Invalid hex color: " + color;
 
-		const rgb = [];
+		const rgb: [number, number, number] = [0, 0, 0];
 		for (let segment = 0; segment < 3; segment++) rgb[segment] = parseInt(color.substring(segment * 2, segment * 2 + 2), 16);
 		return rgb;
 	}
@@ -68,7 +68,9 @@
 
 <div class="colors">
 	<!-- svelte-ignore a11y_consider_explicit_label -->
-	<button style:width style:color={foreground} class="picker" bind:this={pickIcon} style:background-color={value} onclick={show}>{name}</button>
+	<button style:width style:cursor={locked ? "not-allowed" : "pointer"} style:color={foreground} class="picker" bind:this={pickIcon} style:background-color={value} onclick={show}>
+		{name}
+	</button>
 	<div class="choose" bind:this={picker} style:top style:left style:display={visible ? "flex" : "none"}>
 		<div class="preset">
 			{#each colors as hue}

@@ -71,7 +71,7 @@
 		});
 
 		if (typeof file === "string") {
-			let audioData = await invoke<string>("load_audio", { path: file });
+			let audioData = await invoke<string>("load_file_base64_data", { path: file });
 			addProjectAudio(file.substring(file.lastIndexOf(sep()) + 1), audioData);
 		}
 	}
