@@ -705,3 +705,7 @@ export function getPropertyTypeColor(base: PropertyTypeBase): string {
 		color: "var(--red)",
 	}[base];
 }
+
+export function propertyIsNumber<T>(propertyType: PropertyType): propertyType is NumberProperty {
+	return propertyType.base === "number";
+}

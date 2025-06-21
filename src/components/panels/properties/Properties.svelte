@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getPossibleProperties, property, type PropertyType } from "../../../api/manim/property";
-	import { getSelectableFromId, getSingleSelection, selected } from "../../../api/project.svelte";
+	import { addError, getSelectableFromId, getSingleSelection, removeError, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddPropertyMenu from "../../menus/AddPropertyMenu.svelte";
@@ -95,7 +95,17 @@
 			{#if item}
 				{#each properties! as [name, value] (`${item.id}-${name}`)}
 					<span class="property">
-						<PropertyValueInput locked={false} canBeVariable={name !== "Name"} {name} type={getPropertyType(name)} value={value as any} required={isPropertyRequired(name)} />
+						<PropertyValueInput
+							onError={() => addError({ objectId: getSingleSelection()!, propertyName: name })}
+							onErrorFixed={() => removeError({ objectId: getSingleSelection()!, propertyName: name })}
+							id={getSingleSelection()!}
+							locked={false}
+							canBeVariable={name !== "Name"}
+							{name}
+							type={getPropertyType(name)}
+							value={value as any}
+							required={isPropertyRequired(name)}
+						/>
 					</span>
 				{/each}
 				<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />

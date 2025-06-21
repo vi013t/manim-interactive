@@ -1,11 +1,7 @@
 <script lang="ts">
 	import ColorPicker from "./ColorPicker.svelte";
 
-	let { setProperty, width, locked }: { width: string; locked: boolean; setProperty(value: unknown): void } = $props();
-
-	function trySetProperty(color: string) {
-		setProperty(color);
-	}
+	let { width, locked, value = $bindable() }: { value: string; width: string; locked: boolean } = $props();
 </script>
 
-<ColorPicker {locked} onSelect={trySetProperty} />
+<ColorPicker bind:value {width} {locked} />

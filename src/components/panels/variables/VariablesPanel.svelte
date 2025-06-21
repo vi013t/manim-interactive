@@ -3,12 +3,14 @@
 	import { getPropertyTypeColor, getPropertyTypeIcon } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import {
+		addError,
 		deleteProjectItem,
 		getItemFromId,
 		getProjectVariables,
 		getSingleSelection,
 		getVariableDependencies,
 		isVariableUsed,
+		removeError,
 		type ProjectAnimation,
 		type ProjectObject,
 		type ProjectVariable,
@@ -34,9 +36,16 @@
 		addVariableMenu.show();
 	}
 
-	function setVariableValue(variable: ProjectVariable) {
+	/**
+	 * Returns a function that takes in a value and sets the given variable to that value. All dependent objects
+	 * and animations will have their preview reloaded, and the project will be saved and recompiled.
+	 *
+	 * @param variable The variable to set the value of
+	 *
+	 * @return A function that sets the variable to the given value and reloads the necessary data.
+	 */
+	function setVariableValue(variable: ProjectVariable): (value: unknown) => void {
 		return function (value: unknown) {
-			console.log("sttingf");
 			variable.value = value;
 			if (getPreferences().autosave) {
 				if (getSingleSelection()) {
@@ -51,13 +60,27 @@
 		};
 	}
 
-	function input(event: KeyboardEvent) {
+	/**
+	 * Called when the user types into the editable variable name element. If the user presses enter, the
+	 * element is unfocused.
+	 *
+	 * @param event The keyboard event fired when the user types.
+	 */
+	function onTypeVariableName(event: KeyboardEvent) {
 		if (event.key === "Enter") {
 			(event.target as HTMLElement).blur();
 		}
 	}
 
-	function deleteVariable(variable: ProjectVariable) {
+	/**
+	 * Returns a function that deletes the given variable, cleaning up all items that rely on it. If
+	 * there are items that rely on it, a confirm window will be shown.
+	 *
+	 * @param variable The variable to delete.
+	 *
+	 * @return A function that deletes the given variable cleanly.
+	 */
+	function deleteVariable(variable: ProjectVariable): () => void {
 		return function () {
 			if (isVariableUsed(variable)) {
 				deleteVariableIds = [variable.id];
@@ -89,7 +112,13 @@
 			<span>
 				<span>
 					<Icon stroke={getPropertyTypeColor(variable.type.base)} style="width: 1rem; height: 1rem;" />
-					<span style:color={isVariableUsed(variable) ? "var(--text)" : "var(--overlay-0)"} contenteditable onkeydown={input} bind:textContent={variable.name}>{name}</span>
+					<span
+						onblur={() => runAction("Save Project")}
+						style:color={isVariableUsed(variable) ? "var(--text)" : "var(--overlay-0)"}
+						contenteditable
+						onkeydown={onTypeVariableName}
+						bind:textContent={variable.name}
+					></span>
 				</span>
 
 				<span>
@@ -99,8 +128,10 @@
 						width="9rem"
 						name="Initial Value"
 						type={variable.type}
-						value={variable.value}
+						bind:value={variable.value}
 						locked={variable.locked}
+						onError={() => addError({ objectId: variable.id, propertyName: "" })}
+						onErrorFixed={() => removeError({ objectId: variable.id, propertyName: "" })}
 						required
 					/>
 				</span>
@@ -112,7 +143,9 @@
 						name="Current Value"
 						width="9rem"
 						type={variable.type}
-						value={variable.value}
+						bind:value={variable.value}
+						onError={() => {}}
+						onErrorFixed={() => {}}
 						required
 						locked
 					/>

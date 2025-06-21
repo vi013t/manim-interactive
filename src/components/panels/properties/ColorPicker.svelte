@@ -4,12 +4,11 @@
 	import { getMouseX, getMouseY } from "../../../api/client.svelte";
 	import { colors } from "../../../api/manim/colors";
 
-	let selected = $state("#FFFFFF");
 	let visible = $state(false);
 	let left = $state("0px");
 	let top = $state("0px");
 
-	let { onSelect, locked = false } = $props();
+	let { onSelect = () => {}, locked = false, width, value = $bindable() } = $props();
 
 	export function show() {
 		if (locked) return;
@@ -28,7 +27,7 @@
 	onMount(() => {
 		document.addEventListener("click", event => {
 			if (!event.composedPath().includes(picker) && !event.composedPath().includes(pickIcon)) {
-				if (visible) onSelect(selected);
+				if (visible) onSelect(value);
 				hide();
 			}
 		});
@@ -36,17 +35,17 @@
 
 	function onColorClick(shade: string) {
 		return function () {
-			selected = shade;
+			value = shade;
 		};
 	}
 
 	let name = $derived(
-		Object.values(namer(selected))
+		Object.values(namer(value))
 			.map(nameList => ({ name: nameList[0].name, distance: nameList[0].distance }))
 			.toSorted((a, b) => a.distance - b.distance)[0].name,
 	);
 
-	let foreground = $derived(contrastingColor(selected));
+	let foreground = $derived(contrastingColor(value));
 
 	function contrastingColor(color: string) {
 		return luma(color) >= 165 ? "#000000" : "#ffffff";
@@ -69,7 +68,7 @@
 
 <div class="colors">
 	<!-- svelte-ignore a11y_consider_explicit_label -->
-	<button style:color={foreground} class="picker" bind:this={pickIcon} style:background-color={selected} onclick={show}>{name}</button>
+	<button style:width style:color={foreground} class="picker" bind:this={pickIcon} style:background-color={value} onclick={show}>{name}</button>
 	<div class="choose" bind:this={picker} style:top style:left style:display={visible ? "flex" : "none"}>
 		<div class="preset">
 			{#each colors as hue}
@@ -81,9 +80,9 @@
 				</div>
 			{/each}
 			<label for="color-picker" class="custom"></label>
-			<input type="color" id="color-picker" bind:value={selected} />
+			<input type="color" id="color-picker" bind:value />
 		</div>
-		<button class="preview" style:color={foreground} style:background-color={selected}>{name}</button>
+		<button class="preview" style:color={foreground} style:background-color={value}>{name}</button>
 	</div>
 </div>
 
@@ -99,7 +98,6 @@
 	}
 
 	.picker {
-		width: 20rem;
 		height: 1.25rem;
 		border-radius: 0.25rem;
 		display: flex;

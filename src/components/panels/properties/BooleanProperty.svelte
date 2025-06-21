@@ -1,11 +1,5 @@
 <script lang="ts">
-	let { locked, value = $bindable(), width, setProperty }: { locked: boolean; value: boolean; width: string; setProperty(value: unknown): void } = $props();
-
-	function trySetProperty() {
-		setProperty(inputValue);
-	}
-
-	let inputValue = $state(value);
+	let { locked, value = $bindable(), width }: { locked: boolean; value: boolean; width: string } = $props();
 </script>
 
 <button
@@ -13,8 +7,7 @@
 	style:background-color={value ? "#a6e3a1" : "var(--red)"}
 	onclick={() => {
 		if (locked) return;
-		inputValue = !inputValue;
-		trySetProperty();
+		value = !value;
 	}}
 	style:cursor={locked ? "not-allowed" : "pointer"}
 	class="boolean-button"

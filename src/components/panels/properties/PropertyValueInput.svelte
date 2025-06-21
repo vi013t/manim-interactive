@@ -11,7 +11,6 @@
 		getProjectVariables,
 		getPropertiesFromId,
 		getSingleSelection,
-		selected,
 	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
@@ -43,7 +42,26 @@
 		deleteProperty?: () => void;
 		locked: boolean;
 		setProperty?: (value: unknown) => void;
+		onError: () => void;
+		onErrorFixed: () => void;
+		id?: number;
 	};
+
+	let {
+		subProperty = false,
+		type: property,
+		canBeVariable = true,
+		name,
+		value = $bindable(),
+		required,
+		width = "20rem",
+		locked,
+		id,
+		deleteProperty = deleteRegularProperty,
+		setProperty = setRegularProperty,
+		onError,
+		onErrorFixed,
+	}: Props = $props();
 
 	function deleteRegularProperty() {
 		delete (getPropertiesFromId(getSingleSelection()!)! as any)[name];
@@ -73,24 +91,22 @@
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
 
-	let {
-		subProperty = false,
-		type: property,
-		canBeVariable = true,
-		name,
-		value,
-		required,
-		width = "20rem",
-		locked,
-		deleteProperty = deleteRegularProperty,
-		setProperty = setRegularProperty,
-	}: Props = $props();
-
 	let errorMessage: string | null = $state(null);
 	let listCollapsed = $state(false);
 
 	let defaultValue = value;
 	let variable = $derived((value as any).variableId !== undefined ? getProjectVariableFromId((value as any).variableId)!.name : null);
+
+	$effect(() => {
+		if (errorMessage) onError();
+	});
+
+	let skippedSetPropertyMount = false;
+	$effect(() => {
+		console.log(value);
+		if (skippedSetPropertyMount) setProperty(value);
+		else skippedSetPropertyMount = true;
+	});
 </script>
 
 <span class="property" style:align-items={property.base === "list" && ((value as unknown[]).length || !listCollapsed) ? "start" : "center"}>
@@ -105,27 +121,27 @@
 	{#key getItemFromId(getSingleSelection()!)}
 		{#if !variable}
 			{#if property.base === "animationType"}
-				<AnimationProperty {locked} {width} {setProperty} value={value as string} {name} {property} />
+				<AnimationProperty {locked} {width} bind:value={value as string} />
 			{:else if property.base === "objectType"}
-				<ObjectTypeProperty {locked} {width} {setProperty} value={value as string} />
+				<ObjectTypeProperty {locked} {width} bind:value={value as string} />
 			{:else if property.base === "object"}
-				<ObjectProperty {locked} {width} {setProperty} bind:errorMessage value={value as number} {name} />
+				<ObjectProperty {locked} {width} bind:errorMessage bind:value={value as number} />
 			{:else if property.base === "color"}
-				<ColorProperty {locked} {width} {setProperty} />
+				<ColorProperty {locked} {width} bind:value={value as string} />
 			{:else if property.base === "boolean"}
-				<BooleanProperty {locked} {width} {setProperty} value={value as boolean} />
+				<BooleanProperty {locked} {width} bind:value={value as boolean} />
 			{:else if property.base === "string" && "options" in property}
-				<SelectProperty {locked} {width} {setProperty} {property} value={value as string} {name} />
+				<SelectProperty {locked} {width} {property} bind:value={value as string} {name} />
 			{:else if property.base === "coordinate"}
-				<CoordinateProperty {locked} {width} {setProperty} value={value as [number, number, number]} {name} bind:errorMessage />
+				<CoordinateProperty {locked} {width} bind:value={value as [number, number, number]} bind:errorMessage />
 			{:else if property.base === "compound"}
-				<CompoundProperty {locked} {width} value={value as unknown} {name} {property} />
+				<CompoundProperty {locked} {width} value={value as unknown} {onError} {onErrorFixed} {property} />
 			{:else if property.base === "list"}
-				<ListProperty {locked} {width} {setProperty} value={value as unknown[]} {name} {property} {required} />
+				<ListProperty {locked} {width} {onError} {onErrorFixed} {deleteProperty} bind:value={value as unknown[]} {id} {property} {required} />
 			{:else if property.base === "string"}
-				<StringProperty {locked} {width} {setProperty} bind:errorMessage value={value as string} {name} {property} />
+				<StringProperty {locked} {id} {width} bind:errorMessage bind:value={value as string} {name} {property} />
 			{:else if property.base === "number"}
-				<NumberProperty {locked} {width} {setProperty} bind:errorMessage value={value as number} {name} {property} id={selected()[0]} />
+				<NumberProperty {locked} {id} {width} bind:errorMessage bind:value={value as number} {name} {property} />
 			{/if}
 
 			{#if canBeVariable}

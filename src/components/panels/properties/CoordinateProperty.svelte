@@ -1,16 +1,13 @@
 <script lang="ts">
 	import { hidePoint, setPoint } from "../../../api/client.svelte";
 	import { setPreference } from "../../../api/preferences.svelte";
-	import { addError, removeError, selected } from "../../../api/project.svelte";
 
 	let {
-		value,
-		name,
+		value = $bindable(),
 		errorMessage = $bindable(),
-		setProperty,
 		width,
 		locked,
-	}: { locked: boolean; width: string; value: [number, number, number]; name: string; errorMessage: string | null; setProperty(value: unknown): void } = $props();
+	}: { locked: boolean; width: string; value: [number, number, number]; errorMessage: string | null } = $props();
 
 	let is3D = $state(false);
 
@@ -56,8 +53,6 @@
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
-		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	function blur() {
@@ -68,7 +63,7 @@
 		hidePoint();
 
 		if (valueChanged) {
-			setProperty([Number(x), Number(y), Number(z)]);
+			value = [Number(x), Number(y), Number(z)];
 		}
 	}
 

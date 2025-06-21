@@ -2,17 +2,7 @@
 	import { onMount } from "svelte";
 	import type { NumberProperty } from "../../../api/manim/property";
 	import { getProperty } from "../../../api/manim/property";
-	import {
-		addError,
-		animationEndTime,
-		getItemFromId,
-		getProjectAnimations,
-		getPropertiesFromId,
-		intervalsOverlap,
-		removeError,
-		selected,
-		type ProjectAnimation,
-	} from "../../../api/project.svelte";
+	import { animationEndTime, getItemFromId, getProjectAnimations, getPropertiesFromId, intervalsOverlap, type ProjectAnimation } from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 
 	let {
@@ -22,7 +12,6 @@
 		property,
 		id,
 		width,
-		setProperty,
 		locked,
 	}: {
 		value: number;
@@ -30,9 +19,8 @@
 		name: string;
 		property: NumberProperty;
 		width: string;
-		id: number;
+		id?: number;
 		locked: boolean;
-		setProperty(value: unknown): void;
 	} = $props();
 
 	let inputHover = $state(false);
@@ -52,7 +40,7 @@
 				.some(projectAnimation =>
 					intervalsOverlap(
 						[getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
-						[getProperty(getItemFromId(id)! as ProjectAnimation, "Start Time")!, getProperty(getItemFromId(id)! as ProjectAnimation, "Start Time")! + value],
+						[getProperty(getItemFromId(id!)! as ProjectAnimation, "Start Time")!, getProperty(getItemFromId(id!)! as ProjectAnimation, "Start Time")! + value],
 					),
 				)
 		) {
@@ -65,7 +53,7 @@
 				.some(projectAnimation =>
 					intervalsOverlap(
 						[getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)],
-						[value, value + getProperty(getItemFromId(id)! as ProjectAnimation, "Duration")!],
+						[value, value + getProperty(getItemFromId(id!)! as ProjectAnimation, "Duration")!],
 					),
 				)
 		) {
@@ -77,15 +65,13 @@
 
 	function validate() {
 		errorMessage = getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
-		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	function trySetProperty() {
 		validate();
 		if (errorMessage) return;
-		const value = property.isAngle && mode === "Degrees" ? (Number(inputValue) * Math.PI) / 180 : Number(inputValue);
-		setProperty(value);
+		const finalValue = property.isAngle && mode === "Degrees" ? (Number(inputValue) * Math.PI) / 180 : Number(inputValue);
+		value = finalValue;
 	}
 
 	function onInput(event: KeyboardEvent) {
@@ -109,7 +95,7 @@
 	let inputValue = $state(`${value}`);
 
 	$effect(() => {
-		if (name === "Start Time" || name === "Duration") inputValue = (getPropertiesFromId(id)! as any)[name];
+		if (name === "Start Time" || name === "Duration") inputValue = (getPropertiesFromId(id!)! as any)[name];
 	});
 
 	let grabbingAngle = $state(false);

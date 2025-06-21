@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import type { SelectProperty } from "../../../api/manim/property";
-	import { getPropertiesFromId, selected } from "../../../api/project.svelte";
+	import { getPropertiesFromId } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
@@ -9,22 +9,18 @@
 		name,
 		property,
 		width,
-		setProperty,
 		locked,
+		id,
 	}: {
 		value: string;
 		name: string;
 		locked: boolean;
 		property: SelectProperty;
 		width: string;
-		setProperty(value: unknown): void;
+		id?: number;
 	} = $props();
 
-	function trySetProperty() {
-		setProperty(value);
-	}
-
-	let properties = $derived(getPropertiesFromId(selected()[0])!);
+	let properties = $derived(getPropertiesFromId(id!)!);
 	let altHeld = $state(false);
 
 	onMount(() => {
@@ -38,11 +34,4 @@
 	});
 </script>
 
-<Select
-	style="width: {width};"
-	onSelect={trySetProperty}
-	options={property.options}
-	itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined}
-	{locked}
-	bind:value
-/>
+<Select style="width: {width};" options={property.options} itemOverride={name === "Font" && altHeld ? (properties as { Text: string })["Text"] : undefined} {locked} bind:value />

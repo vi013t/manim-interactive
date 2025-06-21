@@ -8,7 +8,7 @@
 
 	let {
 		options,
-		onSelect,
+		onSelect = () => {},
 		itemOverride,
 		value = $bindable(),
 		title = undefined,
@@ -18,7 +18,7 @@
 	}: {
 		value?: SelectOption;
 		itemOverride?: string;
-		onSelect: (value: string) => void;
+		onSelect?: (value: string) => void;
 		options: SelectOption[];
 		title?: string;
 		children?: () => any;

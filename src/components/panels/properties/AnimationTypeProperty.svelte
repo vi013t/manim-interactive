@@ -1,31 +1,20 @@
 <script lang="ts">
 	import { animations, getAnimationCategory } from "../../../api/manim/animations";
-	import type { AnimationTypeProperty } from "../../../api/manim/property";
-	import { getProperty } from "../../../api/manim/property";
-	import { getItemFromId, selected, type ProjectAnimation } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import AddAnimationMenu from "../../menus/AddAnimationMenu.svelte";
 
+	let { value = $bindable(), width, locked }: { locked: boolean; value: string; width: string } = $props();
+
 	let top = $state("");
 	let left = $state("");
-	let item = $state(getItemFromId(selected()[0])! as ProjectAnimation);
-
-	let Icon = $derived(animations.find(manimAnimation => manimAnimation.name === getProperty(item, "Animation Type")!)!.icon);
-	let iconColor = $derived(getAnimationCategory(animations.find(object => object.name === getProperty(item, "Animation Type")!)!.category).color);
 
 	// svelte-ignore non_reactive_update
 	let addButton: HTMLButtonElement;
 	let animationMenu: AddAnimationMenu;
 
-	let {
-		value = $bindable(),
-		name,
-		property,
-		width,
-		locked,
-		setProperty,
-	}: { locked: boolean; value: string; name: string; width: string; property: AnimationTypeProperty; setProperty(value: unknown): void } = $props();
+	let Icon = $derived(animations.find(manimAnimation => manimAnimation.name === value)!.icon);
+	let iconColor = $derived(getAnimationCategory(animations.find(object => object.name === value)!.category).color);
 
 	let menuVisible = $state(false);
 
@@ -43,7 +32,7 @@
 	function changeAnimationType(type: string) {
 		menuVisible = false;
 		animationMenu.hide();
-		setProperty(type);
+		value = type;
 	}
 </script>
 

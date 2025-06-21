@@ -3,7 +3,7 @@
 	import { open } from "@tauri-apps/plugin-dialog";
 	import { onMount } from "svelte";
 	import type { StringProperty } from "../../../api/manim/property";
-	import { addError, isNameTaken, removeError, selected } from "../../../api/project.svelte";
+	import { isNameTaken } from "../../../api/project.svelte";
 	import FolderIcon from "../../icons/FolderIcon.svelte";
 	import LatexIcon from "../../icons/LatexIcon.svelte";
 	import LockIcon from "../../icons/LockIcon.svelte";
@@ -18,7 +18,7 @@
 		property,
 		width,
 		locked,
-		setProperty,
+		id,
 	}: {
 		value: string;
 		errorMessage: string | null;
@@ -26,7 +26,7 @@
 		property: StringProperty;
 		width: string;
 		locked: boolean;
-		setProperty(value: unknown): void;
+		id?: number;
 	} = $props();
 
 	/** Whether the input element is currently being hovered over. */
@@ -41,8 +41,8 @@
 	 */
 	async function getErrorMessage(): Promise<string | null> {
 		if (!property.canBeEmpty && inputValue === "") return "Value cannot be empty";
-		if (name === "Name" && isNameTaken(inputValue.trim(), selected()[0])) return "Name is already taken";
-		if (property.isPath && !(await invoke<boolean>("path_is_file", { path: inputValue }))) return "Path is not an image file";
+		if (name === "Name" && isNameTaken(inputValue.trim(), id)) return "Name is already taken";
+		if (property.isPath && !(await invoke<boolean>("path_is_file", { path: inputValue }))) return "Path is not a file";
 		return null;
 	}
 
@@ -66,14 +66,12 @@
 
 	async function validate() {
 		errorMessage = await getErrorMessage();
-		if (errorMessage) addError({ objectId: selected()[0], propertyName: name });
-		else removeError({ objectId: selected()[0], propertyName: name });
 	}
 
 	async function trySetProperty() {
 		await validate();
 		if (errorMessage) return;
-		setProperty(inputValue);
+		value = inputValue;
 	}
 
 	function onInput(event: KeyboardEvent) {

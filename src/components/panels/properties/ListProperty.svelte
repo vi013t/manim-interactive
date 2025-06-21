@@ -2,50 +2,45 @@
 	import { onMount } from "svelte";
 	import { generateObjectPreview } from "../../../api/codegen.svelte";
 	import type { ListProperty } from "../../../api/manim/property";
-	import { getPreferences, runAction } from "../../../api/preferences.svelte";
-	import { getObjectFromId, getPropertiesFromId, getSingleSelection, selected } from "../../../api/project.svelte";
+	import { runAction } from "../../../api/preferences.svelte";
+	import { getObjectFromId, getSingleSelection } from "../../../api/project.svelte";
 	import HandleIcon from "../../icons/HandleIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import PropertyValueInput from "./PropertyValueInput.svelte";
 
 	let {
 		value = $bindable(),
-		name,
 		property,
 		width,
 		required,
-		setProperty,
+		onError,
+		onErrorFixed,
+		deleteProperty,
 		locked,
+		id,
 	}: {
 		value: unknown[];
-		name: string;
 		property: ListProperty;
 		width: string;
-		setProperty(value: unknown): void;
+		deleteProperty(): void;
 		required: boolean;
 		locked: boolean;
+		onError(): void;
+		onErrorFixed(): void;
+		id?: number;
 	} = $props();
 
 	let listCollapsed = $state(false);
-	let properties = $derived(getPropertiesFromId(selected()[0])!);
 	let listElements: HTMLSpanElement[] = $state([]);
 	let grabbingIndex = $state(0);
 	let grabY = $state(0);
 	let grabElement: HTMLElement | null = $state(null);
 
-	function deleteProperty(name: string) {
-		return function () {
-			delete (properties as any)[name];
-			if (getPreferences().autosave) runAction("Save And Recompile Project");
-		};
-	}
-
 	onMount(() => {
 		document.addEventListener("mouseup", event => {
 			if (grabElement) {
 				grabElement = null;
-				let list = (properties as any)[name] as unknown[];
-				list.splice(swappingIndex, 0, list.splice(grabbingIndex, 1)[0]);
+				value.splice(swappingIndex, 0, value.splice(grabbingIndex, 1)[0]);
 				grabline.style.opacity = "0%";
 				counter++;
 				const object = getObjectFromId(getSingleSelection()!);
@@ -85,35 +80,36 @@
 			{#if !listCollapsed && value.length !== 0}
 				<button
 					onclick={() => {
-						((properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
+						value.push((property.type as any).defaultValue);
 					}}
 				>
 					Add Another
 				</button>
 			{:else if !required}
-				<button onclick={deleteProperty(name)}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
+				<button onclick={deleteProperty}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
 			{/if}
 		</span>
 	{/if}
 
 	{#if !listCollapsed}
 		{#key counter}
-			{#each value as element, index (index)}
+			{#each value, index (index)}
 				<span bind:this={listElements[index]} class:grabbed={listElements[index] === grabElement}>
 					<span>
 						<PropertyValueInput
 							type={property.type}
 							name={null!}
-							value={element as any}
+							bind:value={value[index]}
 							required={false}
+							{onError}
+							{onErrorFixed}
 							{locked}
 							deleteProperty={() => {
-								((properties as any)[name] as any[]).splice(index, 1);
+								value.splice(index, 1);
 								counter++;
 							}}
-							setProperty={value => {
-								((properties as any)[name] as unknown[])[index] = value;
-								const object = getObjectFromId(getSingleSelection()!);
+							setProperty={() => {
+								const object = id ? getObjectFromId(id) : null;
 								if (object) generateObjectPreview(object);
 								runAction("Save And Recompile Project");
 							}}
@@ -146,13 +142,13 @@
 		<span class="list-bottom">
 			<button
 				onclick={() => {
-					((properties as any)[name] as unknown[]).push((property.type as any).defaultValue);
+					value.push((property.type as any).defaultValue);
 				}}
 			>
 				Add Another
 			</button>
 			{#if !required}
-				<button onclick={deleteProperty(name)} style="color: var(--red);">Delete All</button>
+				<button onclick={deleteProperty} style="color: var(--red);">Delete All</button>
 			{/if}
 		</span>
 	{/if}
