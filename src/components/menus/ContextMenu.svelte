@@ -76,7 +76,15 @@
 	});
 </script>
 
-<section style:min-width={width} bind:this={menu} style={styleString} style:background-color={background} style:display={isVisible() ? "flex" : "none"} style:left={left_}>
+<section
+	class="context-menu"
+	style:min-width={width}
+	bind:this={menu}
+	style={styleString}
+	style:background-color={background}
+	style:display={isVisible() ? "flex" : "none"}
+	style:left={left_}
+>
 	{@render children()}
 </section>
 

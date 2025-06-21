@@ -177,6 +177,7 @@
 	style:top={animationTop}
 	style:height={animationHeight}
 	style:display={animation.properties["Animation Type"] === "Wait" && !getPreferences().showWaits ? "none" : "flex"}
+	data-animation-id={animation.id}
 	bind:this={element}
 >
 	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />

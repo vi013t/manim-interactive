@@ -20,7 +20,6 @@
 	}
 
 	function deleteVariableDependencies(item: ProjectObject | ProjectAnimation, variable: ProjectVariable) {
-		console.log(item.properties);
 		Object.entries(item.properties).forEach(([propertyName, propertyValue]) => {
 			if ((propertyValue as any).variableId === variable.id) {
 				(item.properties as any)[propertyName] = variable.value;

@@ -102,7 +102,6 @@
 						event.altKey === keybinding.key.modifiers.includes("alt") &&
 						event.shiftKey === keybinding.key.modifiers.includes("shift")
 					) {
-						console.log("Running binding");
 						runAction(keybinding.action);
 						return true;
 					}

@@ -1,8 +1,18 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
 	import { getPreferences, onPreferenceChange, runAction, setPreference } from "../../../api/preferences.svelte";
-	import { animationEndTime, getProjectAnimations, getProjectAudios, getProjectMarkers, type ProjectMarker } from "../../../api/project.svelte";
+	import {
+		addToSelection,
+		animationEndTime,
+		getAnimationFromId,
+		getProjectAnimations,
+		getProjectAudios,
+		getProjectMarkers,
+		select,
+		selected,
+		type ProjectMarker,
+	} from "../../../api/project.svelte";
 	import { currentTime, getRelativeTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
@@ -10,12 +20,12 @@
 	import AddToTimelineMenu from "../../menus/AddToTimelineMenu.svelte";
 	import AudioMenu from "../../menus/AudioMenu.svelte";
 	import MarkerMenu from "../../menus/MarkerMenu.svelte";
+	import SelectRectangle from "../../util/SelectRectangle.svelte";
 	import Animation from "./Animation.svelte";
 	import Audio from "./Audio.svelte";
 
 	// svelte-ignore non_reactive_update
 	let timelineElement: HTMLElement;
-	let timeSlider: HTMLElement;
 	let addAnimationMenu: AddToTimelineMenu;
 	let audioActionsMenu: AudioMenu | null = $state(null);
 	let markerMenu: MarkerMenu;
@@ -95,6 +105,10 @@
 				}
 				draggingMarker.style.top = `${newTop}px`;
 			}
+
+			if (mouseDown) {
+				selectPoint2 = [Math.max(event.clientX, timelineElement.getBoundingClientRect().left), Math.max(event.clientY, timelineElement.getBoundingClientRect().top)];
+			}
 		});
 
 		document.addEventListener("mouseup", event => {
@@ -107,6 +121,16 @@
 				}
 			}
 			draggingMarker = null;
+
+			// Selection
+			mouseDown = false;
+			let idsToSelect = Array.from(document.querySelectorAll(".animation"))
+				.filter(animationElement => isInSelectionBox(animationElement as HTMLElement))
+				.map(animationElement => Number(animationElement.getAttribute("data-animation-id")!));
+			if (idsToSelect.length > 0) {
+				if ((event.shiftKey || event.ctrlKey) && selected().every(id => getAnimationFromId(id))) addToSelection(...idsToSelect);
+				else select(idsToSelect);
+			}
 		});
 	});
 
@@ -136,6 +160,19 @@
 			(event.target as HTMLElement).blur();
 		}
 	}
+
+	let selectPoint1: [number, number] = $state([0, 0]);
+	let selectPoint2: [number, number] = $state([0, 0]);
+	let mouseDown = $state(false);
+
+	function timelineMouseDown(event: MouseEvent) {
+		selectPoint1 = [event.clientX, event.clientY];
+		selectPoint2 = [event.clientX, event.clientY];
+		let element = event.target as HTMLElement;
+		if (element.hasAttribute("data-time")) {
+			mouseDown = true;
+		}
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -151,7 +188,7 @@
 		</button>
 	</div>
 
-	<div bind:this={timelineElement} id="timeline-wrapper">
+	<div bind:this={timelineElement} id="timeline-wrapper" onmousedown={timelineMouseDown}>
 		<div id="timeline-content">
 			<!-- Animations -->
 			{#each getProjectAnimations() as animation (animation.id)}
@@ -176,13 +213,16 @@
 
 			<div oncontextmenu={addAnimation}></div>
 
-			<div bind:this={timeSlider} class="time" style:top="{currentTime() * 4}rem"></div>
+			<div class="time" style:top="{currentTime() * 4}rem"></div>
 		</div>
 	</div>
 </section>
 <AddToTimelineMenu bind:this={addAnimationMenu} {top} {left} />
 <AudioMenu bind:this={audioActionsMenu} />
 <MarkerMenu bind:this={markerMenu} {top} {left} id={markerId} />
+{#if mouseDown}
+	<SelectRectangle point1={selectPoint1} point2={selectPoint2} />
+{/if}
 
 <style>
 	.header {

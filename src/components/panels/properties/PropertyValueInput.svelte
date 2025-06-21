@@ -105,7 +105,8 @@
 
 	let skippedSetPropertyMount = false;
 	$effect(() => {
-		console.log(value);
+		value;
+
 		if (skippedSetPropertyMount) setProperty(value);
 		else skippedSetPropertyMount = true;
 	});

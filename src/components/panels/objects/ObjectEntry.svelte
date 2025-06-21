@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/property";
 	import { runAction } from "../../../api/preferences.svelte";
@@ -66,7 +66,7 @@
 	function getBackgroundColor(): string {
 		if (itemHasErrors(entry.id)) return `rgba(243, 139, 168, ${isSelected ? "40%" : isHovered ? "30%" : "20%"})`;
 		if (isSelected) return `rgba(180, 150, 255, 20%)`;
-		if (isHovered) return `rgba(180, 150, 255, 10%)`;
+		if (isHovered || isInSelectionBox(element)) return `rgba(180, 150, 255, 10%)`;
 		return "transparent";
 	}
 
@@ -74,11 +74,12 @@
 	let name: HTMLElement;
 
 	const data = objects.find(object => object.name === getProperty(entry, "Object Type")!)!;
+	let element: HTMLElement;
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="object">
+<div bind:this={element} class="object object-entry" data-object-id={entry.id}>
 	<!-- Object name & icon -->
 
 	<!-- svelte-ignore a11y_mouse_events_have_key_events -->

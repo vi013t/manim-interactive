@@ -100,8 +100,12 @@
 		// This does nothing - but it tells $effect() to reload and call again when videoSrc changes
 		videoSrc;
 
-		video?.load();
-		video?.play();
+		try {
+			if (!objectPreviewImage || getPreferences().showMovieOverPreview) {
+				video?.load();
+				video?.play();
+			}
+		} catch (e) {}
 	});
 </script>
 

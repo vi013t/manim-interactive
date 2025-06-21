@@ -491,7 +491,6 @@ export function regenerateWaits() {
 	animations.forEach((animation, index) => {
 		if (index != animations.length - 1) {
 			let waitStart = animationEndTime(animation);
-			console.log(waitStart);
 			let waitDuration = animations[index + 1].properties["Start Time"]! - waitStart;
 			if (waitDuration > 0) {
 				waits.push({

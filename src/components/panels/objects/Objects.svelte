@@ -1,12 +1,14 @@
 <script lang="ts">
 	import ObjectEntry from "./ObjectEntry.svelte";
 
-	import { getHorizontalExpandDirection, getVerticalExpandDirection } from "../../../api/client.svelte";
+	import { onMount } from "svelte";
+	import { getHorizontalExpandDirection, getVerticalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
 	import { getProperty } from "../../../api/manim/property";
-	import { getProjectObjects, isObjectInGroup, isObjectUsed } from "../../../api/project.svelte";
+	import { addToSelection, getObjectFromId, getProjectObjects, isObjectInGroup, isObjectUsed, select, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
+	import SelectRectangle from "../../util/SelectRectangle.svelte";
 
 	let objectMenu: AddObjectMenu;
 
@@ -46,9 +48,43 @@
 			return obj1.properties["Name"].localeCompare(obj2.properties["Name"]);
 		}),
 	);
+
+	onMount(() => {
+		document.addEventListener("mouseup", event => {
+			mouseDown = false;
+			let idsToSelect = Array.from(document.querySelectorAll(".object-entry"))
+				.filter(objectElement => isInSelectionBox(objectElement as HTMLElement))
+				.map(objectElement => Number(objectElement.getAttribute("data-object-id")!));
+			if (idsToSelect.length > 0) {
+				console.log(event.ctrlKey, event.shiftKey);
+				if ((event.shiftKey || event.ctrlKey) && selected().every(id => getObjectFromId(id))) addToSelection(...idsToSelect);
+				else select(idsToSelect);
+			}
+		});
+
+		document.addEventListener("mousemove", event => {
+			if (panelElement) {
+				selectPoint2 = [Math.min(event.clientX, panelElement.getBoundingClientRect().width), Math.max(event.clientY, panelElement.getBoundingClientRect().top + 40)];
+			}
+		});
+	});
+
+	let selectPoint1: [number, number] = $state([0, 0]);
+	let selectPoint2: [number, number] = $state([0, 0]);
+	let mouseDown = $state(false);
+
+	function panelMouseDown(event: MouseEvent) {
+		selectPoint1 = [event.clientX, event.clientY];
+		selectPoint2 = [event.clientX, event.clientY];
+
+		if (!Array.from(document.querySelectorAll(".context-menu")).some(menu => event.composedPath().includes(menu))) mouseDown = true;
+	}
+
+	let panelElement: HTMLElement | null = $state(null);
 </script>
 
-<section id="object-panel">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<section bind:this={panelElement} id="object-panel" onmousedown={panelMouseDown}>
 	<div class="header">
 		<h1>{translate("Objects")}</h1>
 		<button bind:this={plusButton} onclick={clickPlusButton}>
@@ -70,6 +106,9 @@
 
 	<AddObjectMenu bind:this={objectMenu} {top} {left} openers={[plusButton]} />
 </section>
+{#if mouseDown}
+	<SelectRectangle point1={selectPoint1} point2={selectPoint2} />
+{/if}
 
 <style>
 	section {
@@ -77,6 +116,9 @@
 		padding: 1em;
 		position: relative;
 		color: var(--text);
+		display: flex;
+		flex-direction: column;
+		gap: 0.25rem;
 
 		&::after {
 			content: "";

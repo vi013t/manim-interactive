@@ -134,3 +134,13 @@ export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]) {
 export function getFromCache<Key extends keyof Cache>(key: Key): Cache[Key] {
 	return storedCache[key];
 }
+
+export function isInSelectionBox(element: HTMLElement): boolean {
+	let selectionBox = document.getElementById("selection-box");
+	if (!selectionBox) return false;
+
+	let rectSelection = selectionBox.getBoundingClientRect();
+	let rect = element.getBoundingClientRect();
+
+	return rect.bottom > rectSelection.top && rect.right > rectSelection.left && rect.top < rectSelection.bottom && rect.left < rectSelection.right;
+}

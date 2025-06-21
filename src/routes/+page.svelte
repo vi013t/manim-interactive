@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 	import { getMouseX, getMouseY, updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
-	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
+	import { getProjectLocation, loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
 	import { loadTheme } from "../api/theme.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
@@ -57,20 +57,46 @@
 </script>
 
 <main>
-	<Navbar />
-	<div class="container">
-		<Objects />
-		<div class="inner">
-			<VideoPanel />
-			<div class="bottom"><Properties /><VariablesPanel /></div>
-		</div>
-		<Timeline />
-	</div>
-	<AddMenu bind:this={menu} top="{getMouseY()}px" left="{getMouseX()}px" />
+	{#await getProjectLocation() then projectLocation}
+		{#if projectLocation}
+			<Navbar />
+			<div class="container">
+				<Objects />
+				<div class="inner">
+					<VideoPanel />
+					<div class="bottom"><Properties /><VariablesPanel /></div>
+				</div>
+				<Timeline />
+			</div>
+			<AddMenu bind:this={menu} top="{getMouseY()}px" left="{getMouseX()}px" />
+		{:else}
+			<div class="no-project">
+				<h1>No Project Open</h1>
+				<p>When you create or open a project, it will appear here.</p>
+			</div>
+		{/if}
+	{/await}
 </main>
 <Notifications />
 
 <style>
+	.no-project {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+
+		h1 {
+			color: var(--text);
+		}
+
+		p {
+			color: var(--overlay-0);
+		}
+	}
+
 	main {
 		width: 100%;
 		height: 100%;
