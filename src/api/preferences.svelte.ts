@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { openPreferencesWindow, openProjectSettingsWindow } from "./client.svelte";
+import { cache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu } from "./client.svelte";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
@@ -114,7 +114,7 @@ const actions = {
 				fileFormat: getProjectSettings().fileFormat,
 			});
 
-			document.getElementById("video-source")?.setAttribute("src", `data:video/${getProjectSettings().fileFormat};base64,${videoData}`);
+			cache("videoData", `data:video/${getProjectSettings().fileFormat};base64,${videoData}`);
 
 			if (getSingleSelection() === null || getObjectFromId(getSingleSelection()!) === null) {
 				(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
@@ -149,8 +149,10 @@ const actions = {
 		},
 	},
 	"Add New": {
-		name: "Open Project",
-		run() {},
+		name: "Add New",
+		run() {
+			showAddMenu();
+		},
 	},
 	Play: {
 		name: "Play",

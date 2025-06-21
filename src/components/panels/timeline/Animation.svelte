@@ -158,13 +158,17 @@
 	function blurName() {
 		if (getPreferences().autosave) runAction("Save Project");
 	}
+
+	function clickAnimation() {
+		select([animation.id]);
+	}
 </script>
 
 <button
 	oncontextmenu={animationActions}
 	onmousedown={animationMouseDown}
 	class="animation"
-	onclick={() => select([animation.id])}
+	onclick={clickAnimation}
 	style:background-color={animationColor(animation)}
 	style:outline={selected().length === 0 || selected().includes(animation.id) || (selected().length > 0 && getAnimationObjects(animation).includes(selected()[0]))
 		? "4px solid rgba(255, 255, 255, 50%)"

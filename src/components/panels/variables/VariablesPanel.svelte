@@ -106,10 +106,18 @@
 		</button>
 	</div>
 
+	{#if getProjectVariables().length === 0}
+		<div class="novariable">
+			<h1>No Variables Yet</h1>
+			<p>The project has no variables yet. When it does, they will appear here.</p>
+			<button>Add Variable</button>
+		</div>
+	{/if}
+
 	<div class="variables">
 		{#each getProjectVariables() as variable (variable.id)}
 			{@const Icon = getPropertyTypeIcon(variable.type.base)}
-			<span>
+			<span class="variable">
 				<span>
 					<Icon stroke={getPropertyTypeColor(variable.type.base)} style="width: 1rem; height: 1rem;" />
 					<span
@@ -162,7 +170,7 @@
 					<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 				</button>
 				{#if !isVariableUsed(variable)}
-					<SkullIcon title="This variable is unused" stroke="var(--overlay-0)" style="margin-left: 1rem; width: 1rem; height: 1rem;" />
+					<SkullIcon title="This variable is unused" stroke="var(--overlay-0)" style="margin-left: 0.5rem; width: 1rem; height: 1rem;" />
 				{/if}
 			</span>
 		{/each}
@@ -176,8 +184,16 @@
 		display: flex;
 		flex-direction: column;
 
-		> span {
+		.variable {
 			align-items: center;
+			padding-left: 1rem;
+			padding-right: 1rem;
+			border-radius: 0.5rem;
+			height: 3rem;
+
+			&:hover {
+				background-color: rgba(180, 150, 255, 10%);
+			}
 
 			> span {
 				gap: 0.5rem;
@@ -189,14 +205,21 @@
 			}
 
 			button {
-				margin-left: 1rem;
+				margin-left: 0.5rem;
+
+				&:first-of-type {
+					margin-left: 1rem;
+				}
 			}
 		}
 
 		span[contenteditable] {
-			padding: 0.5rem;
+			padding: 0.25rem;
+			padding-left: 0.5rem;
+			padding-right: 0.5rem;
 			border-radius: 0.5rem;
-			width: 10rem;
+			width: 8rem;
+			margin-right: 2rem;
 
 			&:focus {
 				background-color: var(--crust);
@@ -233,6 +256,24 @@
 			&:hover {
 				background: rgba(255, 255, 255, 8%);
 			}
+		}
+	}
+
+	.novariable {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: calc(100% - 3rem);
+		justify-content: center;
+		align-items: center;
+		gap: 0.5rem;
+
+		h1 {
+			color: var(--text);
+		}
+
+		p {
+			color: var(--overlay-2);
 		}
 	}
 </style>

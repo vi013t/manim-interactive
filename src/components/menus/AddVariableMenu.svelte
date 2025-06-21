@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getPropertyTypeColor, getPropertyTypeIcon, property, type PropertyTypeBase } from "../../api/manim/property";
+	import { getPropertyName, getPropertyTypeColor, getPropertyTypeIcon, property, type PropertyTypeBase } from "../../api/manim/property";
 	import { addProjectVariable, isNameTaken, nextId } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
@@ -12,15 +12,19 @@
 		menu.show();
 	}
 
+	export function hide() {
+		menu.hide();
+	}
+
 	function addVariable(type: PropertyTypeBase) {
 		return function () {
-			let name = translate(type);
+			let name = translate(getPropertyName(type));
 			let number = 2;
 			while (isNameTaken(name)) {
-				name = `${type} ${number++}`;
+				name = `${getPropertyName(type)} ${number++}`;
 			}
 
-			menu.hide();
+			hide();
 			addProjectVariable({
 				name,
 				id: nextId(),
@@ -37,11 +41,12 @@
 
 	{#each Object.keys(property())
 		.filter(property => property !== "compound" && property !== "select")
-		.toSorted((a, b) => a.localeCompare(b)) as propertyType}
-		{@const Icon = getPropertyTypeIcon(propertyType as PropertyTypeBase)}
-		<button onclick={addVariable(propertyType as PropertyTypeBase)}>
-			<Icon stroke={getPropertyTypeColor(propertyType as PropertyTypeBase)} style="width: 1rem; height: 1rem;" />
-			{propertyType.replace(/Type$/, " type")}
+		.toSorted((a, b) => a.localeCompare(b))
+		.map(propertyType => propertyType as PropertyTypeBase) as propertyType}
+		{@const Icon = getPropertyTypeIcon(propertyType)}
+		<button onclick={addVariable(propertyType)}>
+			<Icon stroke={getPropertyTypeColor(propertyType)} style="width: 1rem; height: 1rem;" />
+			{getPropertyName(propertyType)}
 		</button>
 	{/each}
 </ContextMenu>

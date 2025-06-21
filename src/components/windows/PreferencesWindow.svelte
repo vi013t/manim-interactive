@@ -97,11 +97,12 @@
 				event.preventDefault();
 				getKeybindings().some(keybinding => {
 					if (
-						event.key === keybinding.key.key &&
+						event.key.toLowerCase() === keybinding.key.key.toLowerCase() &&
 						event.ctrlKey === keybinding.key.modifiers.includes("ctrl") &&
 						event.altKey === keybinding.key.modifiers.includes("alt") &&
 						event.shiftKey === keybinding.key.modifiers.includes("shift")
 					) {
+						console.log("Running binding");
 						runAction(keybinding.action);
 						return true;
 					}

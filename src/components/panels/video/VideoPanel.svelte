@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getPoint } from "../../../api/client.svelte";
+	import { getFromCache, getPoint } from "../../../api/client.svelte";
 	import { objectPreviewLoaded } from "../../../api/codegen.svelte";
-	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded, onPreferenceChange } from "../../../api/preferences.svelte";
+	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
 	import {
 		getAnimationFromId,
 		getObjectFromId,
@@ -61,12 +61,6 @@
 		ctx.moveTo(0, centerY);
 		ctx.lineTo(canvas.width, centerY);
 		ctx.stroke();
-
-		onPreferenceChange("showMovieOverPreview", showMovieOverPreview => {
-			if (showMovieOverPreview) {
-				video?.play();
-			}
-		});
 	});
 
 	function onPlay() {
@@ -77,7 +71,7 @@
 	}
 
 	function updateTime() {
-		setCurrentTime(video!.currentTime);
+		setCurrentTime(video!.currentTime + timeOffset);
 		if (!video!.paused && !video!.ended) {
 			requestAnimationFrame(updateTime);
 		}
@@ -98,8 +92,16 @@
 		getSingleSelection() && getAnimationFromId(getSingleSelection()!) ? `data:video/mp4;base64,${getAnimationFromId(getSingleSelection()!)!.previewData}` : null,
 	);
 
+	let timeOffset = $derived(animationPreviewVideo && !getPreferences().showMovieOverPreview ? getAnimationFromId(getSingleSelection()!)!.properties["Start Time"]! : 0);
+
+	let videoSrc = $derived(animationPreviewVideo && !getPreferences().showMovieOverPreview ? animationPreviewVideo : getFromCache("videoData")!);
+
 	$effect(() => {
-		if (animationPreviewVideo) video!.play();
+		// This does nothing - but it tells $effect() to reload and call again when videoSrc changes
+		videoSrc;
+
+		video?.load();
+		video?.play();
 	});
 </script>
 
@@ -141,9 +143,9 @@
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
 			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getPreferences().showMovieOverPreview) ? "block" : "none"}
-			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
-			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
-			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime)}
+			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
+			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
+			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			oncontextmenu={event => event.preventDefault()}
 			controls
 			onplay={onPlay}
@@ -151,7 +153,7 @@
 			id="video-source"
 			class="preview"
 			bind:this={video}
-			src={animationPreviewVideo ? animationPreviewVideo : undefined}
+			src={videoSrc}
 		></video>
 	{:else if !objectPreviewImage || getPreferences().showMovieOverPreview}
 		<div id="novideo">

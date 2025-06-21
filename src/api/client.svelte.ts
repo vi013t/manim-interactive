@@ -104,3 +104,33 @@ export function getPoint() {
 export function hidePoint() {
 	point = null;
 }
+
+let isAddMenuVisible = $state(false);
+
+export function showAddMenu() {
+	isAddMenuVisible = true;
+}
+
+export function toggleAddMenuVisible(visible: boolean) {
+	isAddMenuVisible = visible;
+}
+
+export function isAddMenuOpen(): boolean {
+	return isAddMenuVisible;
+}
+
+export type Cache = {
+	videoData: string | null;
+};
+
+let storedCache: Cache = $state({
+	videoData: null,
+});
+
+export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]) {
+	storedCache[key] = value;
+}
+
+export function getFromCache<Key extends keyof Cache>(key: Key): Cache[Key] {
+	return storedCache[key];
+}

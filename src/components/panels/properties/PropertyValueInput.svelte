@@ -31,6 +31,8 @@
 	import SelectProperty from "./SelectProperty.svelte";
 	import StringProperty from "./StringProperty.svelte";
 
+	const defaultWidth = "18rem";
+
 	type Props = {
 		type: T;
 		name: string;
@@ -54,7 +56,7 @@
 		name,
 		value = $bindable(),
 		required,
-		width = "20rem",
+		width = defaultWidth,
 		locked,
 		id,
 		deleteProperty = deleteRegularProperty,
@@ -112,7 +114,7 @@
 <span class="property" style:align-items={property.base === "list" && ((value as unknown[]).length || !listCollapsed) ? "start" : "center"}>
 	<!-- Property Name -->
 	{#if name}
-		<span class="property-name" style:width={subProperty || width !== "20rem" ? "fit-content" : "12rem"}>
+		<span class="property-name" style:width={subProperty || width !== defaultWidth ? "fit-content" : "12rem"}>
 			{translate(name)}:
 		</span>
 	{/if}

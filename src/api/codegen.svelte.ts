@@ -119,7 +119,7 @@ export async function generateAnimationPreview(animation: Omit<ProjectAnimation,
 	const videoData = await invoke<string>("generate_animation_preview", {
 		path: await getProjectLocation(),
 		id: animation.id,
-		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):${variableLines}\n\n${getAnimationObjects(animation as ProjectAnimation).map(
+		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):\n${variableLines}\n\n${getAnimationObjects(animation as ProjectAnimation).map(
 			object => `\n\t\tobject_${object} = ${codegenObject(getObjectFromId(object)!)}`
 		)}\n\n\t\tself.play(${codegenAnimation(animation)})`,
 	});

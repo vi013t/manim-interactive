@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
-	import { updateMouseCoordinates } from "../api/client.svelte";
+	import { getMouseX, getMouseY, updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
 	import { loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
@@ -66,7 +66,7 @@
 		</div>
 		<Timeline />
 	</div>
-	<AddMenu bind:this={menu} {top} {left} />
+	<AddMenu bind:this={menu} top="{getMouseY()}px" left="{getMouseX()}px" />
 </main>
 <Notifications />
 

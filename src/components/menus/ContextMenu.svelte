@@ -1,15 +1,44 @@
 <script lang="ts">
-	import { onMount } from "svelte";
+	import { onMount, untrack } from "svelte";
 
-	let { children, top = undefined, left = "0px", width = "15rem", background = "var(--mantle)", openers = [], bottom = undefined, onHide = () => {} } = $props();
+	let {
+		children,
+		top = undefined,
+		left = "0px",
+		width = "15rem",
+		background = "var(--mantle)",
+		openers = [],
+		bottom = undefined,
+		onHide = () => {},
+		getVisible = undefined,
+		setVisible = undefined,
+	}: {
+		children: () => any;
+		top?: string;
+		left?: string;
+		width?: string;
+		background?: string;
+		openers?: HTMLElement[];
+		bottom?: string;
+		onHide?: () => void;
+		getVisible?: () => boolean;
+		setVisible?: (visible: boolean) => void;
+	} = $props();
+
+	let left_ = $state(left);
+	let top_ = $state(top);
 
 	let visible = $state(false);
 
 	export function show() {
+		left_ = left;
+		top_ = top;
+		setVisible?.(true);
 		visible = true;
 	}
 
 	export function hide() {
+		setVisible?.(false);
 		visible = false;
 	}
 
@@ -30,17 +59,24 @@
 	});
 
 	export function isVisible(): boolean {
-		return visible;
+		return getVisible?.() ?? visible;
 	}
 
 	export function element(): HTMLElement {
 		return menu;
 	}
 
-	let styleString = $derived(top ? `top: ${top};` : `bottom: ${bottom};`);
+	let styleString = $derived(top ? `top: ${top_};` : `bottom: ${bottom};`);
+
+	$effect(() => {
+		if (getVisible?.()) {
+			left_ = untrack(() => left);
+			top_ = untrack(() => top);
+		}
+	});
 </script>
 
-<section style:min-width={width} bind:this={menu} style={styleString} style:background-color={background} style:display={visible ? "flex" : "none"} style:left>
+<section style:min-width={width} bind:this={menu} style={styleString} style:background-color={background} style:display={isVisible() ? "flex" : "none"} style:left={left_}>
 	{@render children()}
 </section>
 

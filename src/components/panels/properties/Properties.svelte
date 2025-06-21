@@ -109,6 +109,11 @@
 					</span>
 				{/each}
 				<AddPropertyMenu {top} {left} bind:this={propertiesMenu} />
+			{:else}
+				<div class="no-properties">
+					<h1>No Properties To Show</h1>
+					<p>When you select just one object or animation, its properties will appear here.</p>
+				</div>
 			{/if}
 		{/key}
 	</div>
@@ -131,13 +136,6 @@
 		&:hover {
 			background-color: rgba(180, 150, 255, 10%);
 		}
-	}
-
-	h1 {
-		text-transform: uppercase;
-		font-size: 0.75rem;
-		color: var(--overlay-2);
-		margin-bottom: 1rem;
 	}
 
 	.items {
@@ -174,6 +172,31 @@
 			&:hover {
 				background: rgba(255, 255, 255, 8%);
 			}
+		}
+
+		h1 {
+			text-transform: uppercase;
+			font-size: 0.75rem;
+			color: var(--overlay-2);
+			margin-bottom: 1rem;
+		}
+	}
+
+	.no-properties {
+		display: flex;
+		flex-direction: column;
+		width: 100%;
+		height: 100%;
+		justify-content: center;
+		align-items: center;
+		gap: 0.5rem;
+
+		h1 {
+			color: var(--text);
+		}
+
+		p {
+			color: var(--overlay-2);
 		}
 	}
 </style>

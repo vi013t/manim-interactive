@@ -608,6 +608,10 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 		return result;
 	}
 
+	if (type.base === "boolean") {
+		return value ? "True" : "False";
+	}
+
 	if (type.base === "coordinate") {
 		return `[${(value as number[]).map(element => `${element}`).join(", ")}]`;
 	}
@@ -616,9 +620,15 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 		return type.codegenOverride(value as string);
 	}
 
-	if (["string", "color"].includes(type.base)) return `r"${value}"`;
+	if (type.base === "color" || type.base === "string") return `r"${value}"`;
+
 	if (type.base === "object") return `object_${value}`;
-	return `${value}`;
+	if (type.base === "animationType") return value as string;
+	if (type.base === "number") return `${value}`;
+	if (type.base === "compound") return `${value}`;
+	if (type.base === "objectType") return value as string;
+
+	throw "Unreachable";
 }
 
 export type PropertyValue<T extends PropertyType> = T extends ObjectPropertyType ? number : T extends { defaultValue: unknown } ? T["defaultValue"] : never;
@@ -706,6 +716,17 @@ export function getPropertyTypeColor(base: PropertyTypeBase): string {
 	}[base];
 }
 
-export function propertyIsNumber<T>(propertyType: PropertyType): propertyType is NumberProperty {
-	return propertyType.base === "number";
+export function getPropertyName(name: PropertyTypeBase): string {
+	return {
+		boolean: "Toggle",
+		string: "Text",
+		number: "Number",
+		list: "List",
+		animationType: "Animation Type",
+		objectType: "Object Type",
+		object: "Object",
+		compound: "Compound",
+		color: "Color",
+		coordinate: "Coordinate",
+	}[name];
 }

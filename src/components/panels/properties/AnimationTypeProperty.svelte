@@ -53,7 +53,6 @@
 
 <style>
 	button {
-		width: 20rem;
 		color: var(--text);
 		background: var(--crust);
 		padding: 0.3em;
