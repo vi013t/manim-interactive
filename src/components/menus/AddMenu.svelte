@@ -7,6 +7,7 @@
 	import RightArrow from "../icons/RightArrow.svelte";
 	import VariableIcon from "../icons/VariableIcon.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+	import AddEventMenu from "./AddEventMenu.svelte";
 	import AddObjectMenu from "./AddObjectMenu.svelte";
 	import AddVariableMenu from "./AddVariableMenu.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
@@ -20,6 +21,7 @@
 	let addAnimationMenu: AddAnimationMenu;
 	let addObjectMenu: AddObjectMenu;
 	let addVariableMenu: AddVariableMenu;
+	let addEventMenu: AddEventMenu;
 
 	type Submenu = "animation" | "object" | "variable" | "event";
 	let selectedMenu: Submenu | null = $state(null);
@@ -30,7 +32,7 @@
 			hideSubmenus();
 			({
 				object: addObjectMenu,
-				event: addObjectMenu,
+				event: addEventMenu,
 				animation: addAnimationMenu,
 				variable: addVariableMenu,
 			})[name].show();
@@ -55,6 +57,7 @@
 		addAnimationMenu.hide();
 		addObjectMenu.hide();
 		addVariableMenu.hide();
+		addEventMenu.hide();
 	}
 </script>
 
@@ -91,6 +94,7 @@
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top={verticalExpand === "bottom" ? "1.9rem" : "-5.25rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
+	<AddEventMenu bind:this={addEventMenu} top={verticalExpand === "bottom" ? "5.25rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
 	<AddObjectMenu bind:this={addObjectMenu} top={verticalExpand === "bottom" ? "7rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
 	<AddVariableMenu bind:this={addVariableMenu} top={verticalExpand === "bottom" ? "9.25rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
 </ContextMenu>

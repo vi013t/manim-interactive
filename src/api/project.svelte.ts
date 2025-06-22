@@ -18,6 +18,25 @@ export type ProjectVariable = {
 	locked: boolean;
 };
 
+export type SetVariableEvent = {
+	variableId: number;
+	value: unknown;
+};
+
+export type HideObjectEvent = {
+	objectId: number;
+};
+
+export type ShowObjectEvent = {
+	objectId: number;
+};
+
+export type TransformObjectEvent = {
+	objectId: number;
+};
+
+export type ProjectEvent = SetVariableEvent | HideObjectEvent | TransformObjectEvent | ShowObjectEvent;
+
 let projectVariables: ProjectVariable[] = $state([]);
 let projectObjects: ProjectObject[] = $state([]);
 let projectAnimations: ProjectAnimation[] = $state([]);
