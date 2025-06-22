@@ -2,6 +2,7 @@
 	import { getHorizontalExpandDirection, getVerticalExpandDirection, isAddMenuOpen, toggleAddMenuVisible } from "../../api/client.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
+	import CalendarIcon from "../icons/CalendarIcon.svelte";
 	import CubeIcon from "../icons/CubeIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import VariableIcon from "../icons/VariableIcon.svelte";
@@ -20,7 +21,7 @@
 	let addObjectMenu: AddObjectMenu;
 	let addVariableMenu: AddVariableMenu;
 
-	type Submenu = "animation" | "object" | "variable";
+	type Submenu = "animation" | "object" | "variable" | "event";
 	let selectedMenu: Submenu | null = $state(null);
 
 	function selectMenu(name: Submenu) {
@@ -29,6 +30,7 @@
 			hideSubmenus();
 			({
 				object: addObjectMenu,
+				event: addObjectMenu,
 				animation: addAnimationMenu,
 				variable: addVariableMenu,
 			})[name].show();
@@ -63,9 +65,19 @@
 		Add Animation
 		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button onmouseenter={hideSubmenus}>
+	<button
+		onmouseenter={() => {
+			hideSubmenus();
+			selectedMenu = null;
+		}}
+	>
 		<AudioIcon stroke="var(--mauve)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 		Add Audio
+	</button>
+	<button style:background={selectedMenu === "event" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("event")}>
+		<CalendarIcon stroke="var(--yellow)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		Add Event
+		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button style:background={selectedMenu === "object" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={selectMenu("object")}>
 		<CubeIcon stroke="var(--peach)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
@@ -79,8 +91,8 @@
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top={verticalExpand === "bottom" ? "1.9rem" : "-5.25rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
-	<AddObjectMenu bind:this={addObjectMenu} top={verticalExpand === "bottom" ? "5.25rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
-	<AddVariableMenu bind:this={addVariableMenu} top={verticalExpand === "bottom" ? "7rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
+	<AddObjectMenu bind:this={addObjectMenu} top={verticalExpand === "bottom" ? "7rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
+	<AddVariableMenu bind:this={addVariableMenu} top={verticalExpand === "bottom" ? "9.25rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
 </ContextMenu>
 
 <style>
