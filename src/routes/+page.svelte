@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
-	import { getMouseX, getMouseY, updateMouseCoordinates } from "../api/client.svelte";
-	import { getPreferences, loadPreferences, savePreferences } from "../api/preferences.svelte";
-	import { getProjectLocation, loadProjectData, setProjectLocation } from "../api/project.svelte";
+	import { getMouseX, getMouseY, showNewProjectWindow, updateMouseCoordinates } from "../api/client.svelte";
+	import { getPreferences, loadPreferences, runAction, savePreferences } from "../api/preferences.svelte";
+	import { getExplicitProjectLocation, loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
 	import { loadTheme } from "../api/theme.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
@@ -57,25 +57,27 @@
 </script>
 
 <main>
-	{#await getProjectLocation() then projectLocation}
-		{#if projectLocation}
-			<Navbar />
-			<div class="container">
-				<Objects />
-				<div class="inner">
-					<VideoPanel />
-					<div class="bottom"><Properties /><VariablesPanel /></div>
-				</div>
-				<Timeline />
+	<Navbar />
+	{#if getExplicitProjectLocation()}
+		<div class="container">
+			<Objects />
+			<div class="inner">
+				<VideoPanel />
+				<div class="bottom"><Properties /><VariablesPanel /></div>
 			</div>
-			<AddMenu bind:this={menu} top="{getMouseY()}px" left="{getMouseX()}px" />
-		{:else}
-			<div class="no-project">
-				<h1>No Project Open</h1>
-				<p>When you create or open a project, it will appear here.</p>
-			</div>
-		{/if}
-	{/await}
+			<Timeline />
+		</div>
+		<AddMenu bind:this={menu} top="{getMouseY()}px" left="{getMouseX()}px" />
+	{:else}
+		<div class="no-project">
+			<h1>No Project Open</h1>
+			<p>When you create or open a project, it will appear here.</p>
+			<span>
+				<button onclick={showNewProjectWindow}>Create Project</button>
+				<button onclick={() => runAction("Open Project")}>Open Project</button>
+			</span>
+		</div>
+	{/if}
 </main>
 <Notifications />
 
@@ -87,13 +89,46 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		background-image: linear-gradient(to bottom, var(--base), var(--crust));
+		gap: 1rem;
 
 		h1 {
 			color: var(--text);
+			font-size: 3rem;
 		}
 
 		p {
 			color: var(--overlay-0);
+			font-size: 1.5rem;
+		}
+
+		span {
+			display: flex;
+			gap: 3rem;
+			margin-top: 3rem;
+
+			button {
+				padding-left: 1em;
+				padding-right: 1em;
+				padding-top: 0.5em;
+				padding-bottom: 0.5em;
+				font-size: 1.5rem;
+				border-radius: 0.5em;
+				box-shadow: 0px 0px 0.5em black;
+				transition: scale 0.2s;
+
+				&:hover {
+					scale: 1.05;
+				}
+
+				&:first-child {
+					background-image: linear-gradient(to bottom, var(--lavender), var(--blue));
+				}
+
+				&:last-child {
+					background-image: linear-gradient(to bottom, var(--peach), var(--red));
+				}
+			}
 		}
 	}
 

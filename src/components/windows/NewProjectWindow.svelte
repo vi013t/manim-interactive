@@ -2,7 +2,8 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { open } from "@tauri-apps/plugin-dialog";
 	import { onMount } from "svelte";
-	import { runAction } from "../../api/preferences.svelte";
+	import { isNewProjectWindowOpen, toggleNewProjectWindowVisible } from "../../api/client.svelte";
+	import { resetProject, setProjectLocation } from "../../api/project.svelte";
 	import ErrorIcon from "../icons/ErrorIcon.svelte";
 	import FolderIcon from "../icons/FolderIcon.svelte";
 	import Window from "./Window.svelte";
@@ -17,13 +18,16 @@
 	let valid = $derived(nameErrorMessage === null && pathErrorMessage === null);
 
 	async function confirm() {
-		runAction("New Project", { path, name });
+		let projectPath = await invoke<string>("new_project", { path, name });
+		setProjectLocation(projectPath);
+		resetProject();
+		localStorage.setItem("last-project", projectPath);
 		name = "";
 		windowComponent.close();
 	}
 
 	export function openWindow() {
-		windowComponent.openWindow();
+		toggleNewProjectWindowVisible(true);
 	}
 
 	async function generatePathErrorMessage(): Promise<string | null> {
@@ -60,9 +64,17 @@
 			}
 		});
 	});
+
+	$effect(() => {
+		if (isNewProjectWindowOpen()) {
+			windowComponent.openWindow();
+		} else {
+			windowComponent.close();
+		}
+	});
 </script>
 
-<Window title="New Project" bind:this={windowComponent}>
+<Window onClose={() => toggleNewProjectWindowVisible(false)} title="New Project" bind:this={windowComponent}>
 	<div class="content">
 		<div class="section">
 			<span>

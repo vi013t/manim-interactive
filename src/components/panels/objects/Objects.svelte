@@ -56,7 +56,6 @@
 				.filter(objectElement => isInSelectionBox(objectElement as HTMLElement))
 				.map(objectElement => Number(objectElement.getAttribute("data-object-id")!));
 			if (idsToSelect.length > 0) {
-				console.log(event.ctrlKey, event.shiftKey);
 				if ((event.shiftKey || event.ctrlKey) && selected().every(id => getObjectFromId(id))) addToSelection(...idsToSelect);
 				else select(idsToSelect);
 			}

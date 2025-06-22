@@ -2,7 +2,7 @@
 	import { invoke } from "@tauri-apps/api/core";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { getPreferences, runAction, savePreferences, setPreference, type Preference } from "../../api/preferences.svelte";
-	import { getProjectLocation, getProjectName, getProjectSettings } from "../../api/project.svelte";
+	import { getExplicitProjectLocation, getProjectLocation, getProjectName, getProjectSettings } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
 	import ClockCheckIcon from "../icons/ClockCheckIcon.svelte";
@@ -104,17 +104,23 @@
 			<span>{translate("Open Project")}</span>
 			<span>Ctrl+O</span>
 		</button>
-		<button onclick={saveProject}>
+		<button class="first-disableable" disabled={getExplicitProjectLocation() === null} onclick={saveProject}>
 			<span>{translate("Save Project")}</span>
-			<span>Ctrl+S</span>
+			{#if getExplicitProjectLocation()}
+				<span>Ctrl+S</span>
+			{/if}
 		</button>
-		<button onclick={projectSettings}>
+		<button disabled={getExplicitProjectLocation() === null} onclick={projectSettings}>
 			<span>{translate("Project Settings")}</span>
-			<span>Ctrl+,</span>
+			{#if getExplicitProjectLocation()}
+				<span>Ctrl+,</span>
+			{/if}
 		</button>
-		<button onclick={openMovieLocation}>
+		<button disabled={getExplicitProjectLocation() === null} onclick={openMovieLocation}>
 			<span>{translate("Open Movie File Folder")}</span>
-			<span>Ctrl+E</span>
+			{#if getExplicitProjectLocation()}
+				<span>Ctrl+E</span>
+			{/if}
 		</button>
 	</ContextMenu>
 
@@ -132,31 +138,33 @@
 		<a href="https://docs.manim.community/en/stable/tutorials/quickstart.html" target="_blank">{translate("Manim Documentation")}</a>
 	</ContextMenu>
 
-	<div class="video-options">
-		<button onclick={togglePreference("lowRes")} title="Toggle Low Resolution (faster reload times)" class:option-on={getPreferences().lowRes}>
-			<ResolutionIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-		</button>
-		<button onclick={togglePreference("grid")} title="Toggle Grid" class:option-on={getPreferences().grid}>
-			<GridIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-		</button>
-		<button onclick={togglePreference("showMovieOverPreview")} title="Toggle Showing Movie Over Preview" class:option-on={getPreferences().showMovieOverPreview}>
-			<ProjectorIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-		</button>
-	</div>
+	{#if getExplicitProjectLocation()}
+		<div class="video-options">
+			<button onclick={togglePreference("lowRes")} title="Toggle Low Resolution (faster reload times)" class:option-on={getPreferences().lowRes}>
+				<ResolutionIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</button>
+			<button onclick={togglePreference("grid")} title="Toggle Grid" class:option-on={getPreferences().grid}>
+				<GridIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</button>
+			<button onclick={togglePreference("showMovieOverPreview")} title="Toggle Showing Movie Over Preview" class:option-on={getPreferences().showMovieOverPreview}>
+				<ProjectorIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</button>
+		</div>
 
-	<div class="timeline-options">
-		<button title="Toggle Timeline Snapping" onclick={togglePreference("timelineSnapping")} class:option-on={getPreferences().timelineSnapping}>
-			<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-		</button>
-		<button title="Toggle Collapsing Wait Times" onclick={togglePreference("collapseWaitTimes")} class:option-on={getPreferences().collapseWaitTimes}>
-			<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-		</button>
-		<button title="Toggle Showing Waits" onclick={togglePreference("showWaits")} class:option-on={getPreferences().showWaits}>
-			<ClockCheckIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-		</button>
-	</div>
+		<div class="timeline-options">
+			<button title="Toggle Timeline Snapping" onclick={togglePreference("timelineSnapping")} class:option-on={getPreferences().timelineSnapping}>
+				<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</button>
+			<button title="Toggle Collapsing Wait Times" onclick={togglePreference("collapseWaitTimes")} class:option-on={getPreferences().collapseWaitTimes}>
+				<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</button>
+			<button title="Toggle Showing Waits" onclick={togglePreference("showWaits")} class:option-on={getPreferences().showWaits}>
+				<ClockCheckIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</button>
+		</div>
+	{/if}
 
-	<span class="title">{getProjectName() ?? "Untitled Project"} - {translate("Manim Interactive")}</span>
+	<span class="title">{getProjectName() ? `${getProjectName()} - ` : ""}{translate("Manim Interactive")}</span>
 
 	<div class="window-buttons">
 		<button onclick={minimize}>
@@ -179,9 +187,22 @@
 	button:has(> span) {
 		display: flex;
 
-		> *:last-child {
+		> *:last-child:not(:first-child) {
 			margin-left: auto;
 			color: var(--overlay-2);
+		}
+	}
+
+	button[disabled] {
+		cursor: default;
+		color: var(--overlay-0);
+
+		&:hover {
+			background-color: inherit;
+		}
+
+		&.first-disableable {
+			border-top: 1px solid var(--surface-0);
 		}
 	}
 

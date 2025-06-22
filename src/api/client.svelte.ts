@@ -119,6 +119,20 @@ export function isAddMenuOpen(): boolean {
 	return isAddMenuVisible;
 }
 
+let isNewProjectWindowVisible = $state(false);
+
+export function showNewProjectWindow() {
+	isNewProjectWindowVisible = true;
+}
+
+export function toggleNewProjectWindowVisible(visible: boolean) {
+	isNewProjectWindowVisible = visible;
+}
+
+export function isNewProjectWindowOpen(): boolean {
+	return isNewProjectWindowVisible;
+}
+
 export type Cache = {
 	videoData: string | null;
 };

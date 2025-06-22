@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { cache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu } from "./client.svelte";
+import { cache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
@@ -13,7 +13,6 @@ import {
 	getSingleSelection,
 	loadProjectData,
 	projectHasErrors,
-	resetProject,
 	setProjectLocation,
 } from "./project.svelte";
 
@@ -162,12 +161,8 @@ const actions = {
 	},
 	"New Project": {
 		name: "New Project",
-		async run({ path, name }: { path: string; name: string }) {
-			let projectPath = await invoke<string>("new_project", { path, name });
-			setProjectLocation(projectPath);
-			resetProject();
-			localStorage.setItem("last-project", projectPath);
-			videoGenerated = false;
+		async run() {
+			showNewProjectWindow();
 		},
 	},
 	Deselect: {
@@ -266,7 +261,7 @@ type ActionData<Name extends ActionName> = (typeof actions)[Name] extends Action
 
 export async function runAction<Name extends ActionName>(name: Name, data?: ActionData<Name>): Promise<void> {
 	let action = actions[name];
-	await action.run(data as any);
+	await action.run();
 	if ("undo" in action) undoHistory.push({ action: action as any, data });
 }
 

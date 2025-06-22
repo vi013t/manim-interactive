@@ -155,7 +155,7 @@
 	<AddObjectMenu onSelect={addObjectToGroup} bind:this={addObjectMenu} top="3.5rem" left="100%" />
 
 	{#if ids.length === 1}
-		<AddAnimationMenu bind:this={addAnimationMenu} top="{isGroup ? 5.25 : 3.5}rem" left="100%" id={ids[0]} />
+		<AddAnimationMenu hideParent={hide} bind:this={addAnimationMenu} top="{isGroup ? 5.25 : 3.5}rem" left="100%" id={ids[0]} />
 		<AddPropertyMenu bind:this={addPropertyMenu} top="{isGroup ? 7 : 5.25}rem" left="100%" />
 	{/if}
 </ContextMenu>

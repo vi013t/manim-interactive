@@ -12,8 +12,9 @@
 		title = "Add Animation",
 		onSelect = addAnimation,
 		onAdd = animation => {},
-		width = undefined,
-		background = undefined,
+		width,
+		background,
+		hideParent,
 		id,
 	}: {
 		onAdd?: (animation: ProjectAnimation) => void;
@@ -25,10 +26,12 @@
 		width?: string;
 		background?: string;
 		id?: number;
+		hideParent?: () => void;
 	} = $props();
 
 	async function addAnimation(type: string): Promise<void> {
 		menu.hide();
+		hideParent?.();
 
 		let animation: ProjectAnimation = {
 			id: nextId(),
