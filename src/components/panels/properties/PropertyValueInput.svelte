@@ -1,8 +1,9 @@
 <script lang="ts" generics="T extends PropertyType">
 	import { generateAnimationPreview, generateObjectPreview } from "../../../api/codegen.svelte";
-	import { getPropertyTypeColor, getPropertyTypeIcon, type PropertyType, type PropertyValue } from "../../../api/manim/property";
+	import { getPropertyName, getPropertyTypeColor, getPropertyTypeIcon, property as createProperty, type PropertyType, type PropertyValue } from "../../../api/manim/property";
 	import { getPreferences, runAction, setPreference } from "../../../api/preferences.svelte";
 	import {
+	addProjectVariable,
 		getAnimationFromId,
 		getItemFromId,
 		getObjectFromId,
@@ -11,6 +12,8 @@
 		getProjectVariables,
 		getPropertiesFromId,
 		getSingleSelection,
+		isNameTaken,
+		nextId,
 	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
@@ -157,6 +160,24 @@
 						.filter(variable => variable.type.base === property.base)
 						.map(variable => ({ name: variable.name, icon: getPropertyTypeIcon(property.base), color: getPropertyTypeColor(property.base) }))}
 					style="width: 2rem; background-color: transparent;"
+					additionalButtonText="Create New {getPropertyName(property.base)} Variable"
+					additionalButtonClick={() => {
+						let name = translate(getPropertyName(property.base));
+						let number = 2;
+						while (isNameTaken(name)) {
+							name = `${getPropertyName(property.base)} ${number++}`;
+						}
+
+						let id = nextId();
+
+						addProjectVariable({
+							name,
+							id,
+							type: createProperty()[property.base](null!),
+							value: (createProperty()[property.base] as any)().defaultValue,
+							locked: false,
+						});
+					}}
 				>
 					<button class="variable-button">
 						<VariableIcon stroke="var(--lavender)" style="width: 1rem; height: 1rem;" />

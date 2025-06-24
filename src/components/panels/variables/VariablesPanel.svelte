@@ -110,7 +110,6 @@
 		<div class="novariable">
 			<h1>No Variables Yet</h1>
 			<p>The project has no variables yet. When it does, they will appear here.</p>
-			<button>Add Variable</button>
 		</div>
 	{/if}
 
@@ -263,7 +262,7 @@
 		display: flex;
 		flex-direction: column;
 		width: 100%;
-		height: calc(100% - 3rem);
+		height: calc(100% - 4.5rem);
 		justify-content: center;
 		align-items: center;
 		gap: 0.5rem;

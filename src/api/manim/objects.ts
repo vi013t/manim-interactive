@@ -563,7 +563,7 @@ export const objects = [
 						{ name: "Difference", icon: DifferenceIcon, color: "#b4befe" },
 						{ name: "Exclusion", icon: IntersectionIcon, color: "#b4befe" },
 						{ name: "Intersection", icon: IntersectionIcon, color: "#b4befe" },
-						{ name: "Union", icon: UnionIcon, color: "#b4befe" }
+						{ name: "Union", icon: UnionIcon, color: "#b4befe" },
 					),
 				categories: ["Special"],
 				description: "The method by which the objects are combined.",
@@ -816,7 +816,7 @@ export const objects = [
 					.choices(
 						{ name: "left", icon: JustifyLeftIcon, color: "var(--yellow)" },
 						{ name: "right", icon: JustifyRightIcon, color: "var(--yellow)" },
-						{ name: "center", icon: JustifyCenterIcon, color: "var(--yellow)" }
+						{ name: "center", icon: JustifyCenterIcon, color: "var(--yellow)" },
 					),
 				categories: ["Special"],
 				description: "The justification of the text.",
@@ -855,8 +855,8 @@ export const objects = [
 								.property("Italic", property().boolean())
 								.property("Underline", property().boolean())
 								.property("Strikethrough", property().boolean())
-								.property("Color", property().color())
-						)
+								.property("Color", property().color()),
+						),
 				),
 				special: true,
 				description: "The parts of the text.",
@@ -883,15 +883,15 @@ export const objects = [
 				categories: ["Details"],
 				description: "Whether to center-justify the text.",
 			},
-			{
-				name: "Font",
-				type: property()
-					.select()
-					.choices(...(await getFonts()).map(font => ({ name: font, style: `font-family: "${font}"` }))),
-				description: "The font of the text.",
-				categories: ["Special"],
-				internalName: "font",
-			},
+			// {
+			// 	name: "Font",
+			// 	type: property()
+			// 		.select()
+			// 		.choices(getFonts().then(fonts => fonts.map(font => ({ name: font, style: `font-family: "${font}"` })))),
+			// 	description: "The font of the text.",
+			// 	categories: ["Special"],
+			// 	internalName: "font",
+			// },
 			...VMobjectProperties,
 		],
 	},

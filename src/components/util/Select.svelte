@@ -14,6 +14,8 @@
 		title = undefined,
 		children,
 		locked,
+		additionalButtonText,
+		additionalButtonClick,
 		...rest
 	}: {
 		value?: SelectOption;
@@ -24,6 +26,8 @@
 		children?: () => any;
 		[key: string]: unknown;
 		locked?: boolean;
+		additionalButtonText?: string;
+		additionalButtonClick?: (event: MouseEvent) => void;
 	} = $props();
 
 	let optionsVisible = $state(false);
@@ -106,6 +110,15 @@
 				{/if}
 			</div>
 		{/each}
+
+		{#if additionalButtonText}
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<div onclick={additionalButtonClick}>
+				{additionalButtonText}
+			</div>
+		{/if}
+
 	</div>
 </div>
 
@@ -143,7 +156,7 @@
 		border: 1px solid var(--surface-0);
 		overflow: hidden;
 		box-shadow: 0px 0px 0.5rem black;
-		z-index: 99;
+		z-index: 9999;
 		max-height: 10rem;
 		overflow-y: auto;
 
