@@ -246,13 +246,13 @@ export type NumberProperty = {
 	integeric<This extends NumberProperty>(this: This): Narrow<This, "isIntegeric", true>;
 
 	/**
-	 * Restricts a number property to be greater than or equal to 0. To make a number property greater than *and not equal to* 0, use {positive()} instead.
+	 * Restricts a number property to be greater than or equal to 0. To make a number property greater than *and not equal to* 0, use `positive()` instead.
 	 * The new property is returned without modifying this one.
 	 */
 	nonnegative<This extends NumberProperty>(this: This): Narrow<This, "minimumValue", 0>;
 
 	/**
-	 * Restricts a number property to be greater than 0. To make a number property greater than *or equal to* 0, use {nonnegative()} instead.
+	 * Restricts a number property to be greater than 0. To make a number property greater than *or equal to* 0, use `nonnegative()` instead.
 	 * The new property is returned without modifying this one.
 	 */
 	positive<This extends NumberProperty>(this: This): Narrow<This, "minimumValue", 0.000001>;
