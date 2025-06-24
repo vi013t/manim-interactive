@@ -25,9 +25,9 @@ export async function checkRequirements() {
 				addNotification(
 					`Missing Requirement "${requirement.name}"`,
 					`The program "${requirement.name} must be installed to use Manim Interactive, but it's not currently installed. Get it <a href="${requirement.link}">here</a>.`,
-					{ severity: "error", autohide: false }
+					{ severity: "error", autohide: false },
 				);
 			}
-		})
+		}),
 	);
 }

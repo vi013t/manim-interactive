@@ -11,7 +11,7 @@ import StarIcon from "../../components/icons/StarIcon.svelte";
 import SwitchIcon from "../../components/icons/SwitchIcon.svelte";
 import TextIcon from "../../components/icons/TextIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
-import type { SelectOption } from "../../components/util/Select.svelte";
+import { type SelectOption } from "../../components/util/Select.svelte";
 import { getProjectAnimations, getProjectObjects, getProjectVariableFromId, type ProjectAnimation, type ProjectObject } from "../project.svelte";
 import { animations, type AnimationProperties, type AnimationProperty, type AnimationPropertyName, type AnimationPropertyValue } from "./animations";
 import { objects, type ObjectProperties, type ObjectProperty, type ObjectPropertyName, type ObjectPropertyValue } from "./objects";
@@ -116,13 +116,13 @@ export type ColorProperty = {
 
 export type SelectProperty = {
 	base: "string";
-	options: string[];
+	options: SelectOption[];
 	requiredProperties: string[];
 	defaultValue: string | null;
 	codegenOverride?: (value: string) => string;
 	default(value: string): SelectProperty;
-	choices(...options: SelectOption[]): SelectProperty;
-	requires<const This extends SelectProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names>;
+	choices(...options: SelectOption[] | Promise<SelectOption>[]): SelectProperty;
+	requires<This extends SelectProperty, const Names extends string[]>(this: This, ...name: Names): Narrow<This, "requiredProperties", Names>;
 	codegen(value: (value: string) => string): SelectProperty;
 };
 
@@ -654,7 +654,7 @@ export function getPossibleProperties(item: ProjectObject): readonly ObjectPrope
 export function getPossibleProperties(item: ProjectAnimation): readonly AnimationProperty[];
 
 export function getPossibleProperties(
-	item: (Omit<ProjectObject, "previewData"> & { previewData?: string }) | (Omit<ProjectAnimation, "previewData"> & { previewData?: string }) | ProjectAnimation | string
+	item: (Omit<ProjectObject, "previewData"> & { previewData?: string }) | (Omit<ProjectAnimation, "previewData"> & { previewData?: string }) | ProjectAnimation | string,
 ): readonly ObjectProperty[] | readonly AnimationProperty[] {
 	if (typeof item === "string") return objects.find(object => object.name === item)!.properties as readonly ObjectProperty[];
 	if (item.type === "object") return objects.find(object => object.name === item.properties["Object Type"]!)!.properties as readonly ObjectProperty[];
@@ -669,7 +669,7 @@ export function getProperty<Name extends AnimationPropertyName>(item: ProjectAni
 export function getProperty<Name extends ObjectPropertyName>(item: ProjectObject, name: Name): ObjectPropertyValue<Name> | null;
 export function getProperty<Name extends AnimationPropertyName | ObjectPropertyName>(
 	item: ProjectAnimation | ProjectObject,
-	name: Name
+	name: Name,
 ): Name extends AnimationPropertyName ? AnimationPropertyValue<Name> : Name extends ObjectPropertyName ? ObjectPropertyValue<Name> : never | null {
 	return (item.properties as any)[name] ?? null;
 }
@@ -679,8 +679,8 @@ export function getAnimationObjects(animation: ProjectAnimation): number[] {
 		new Map(
 			getPossibleProperties(animation)
 				.filter(property => property.name in animation.properties)
-				.map(property => [property.type, animation.properties[property.name]!])
-		)
+				.map(property => [property.type, animation.properties[property.name]!]),
+		),
 	);
 }
 
