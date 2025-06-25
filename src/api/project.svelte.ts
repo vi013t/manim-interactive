@@ -1,6 +1,7 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
 import { generateAnimationPreview, generateObjectPreview } from "./codegen.svelte";
 import type { AnimationProperties } from "./manim/animations";
+import type { EventProperties } from "./manim/events";
 import { type ObjectProperties } from "./manim/objects";
 import type { Properties, PropertyType } from "./manim/property";
 import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/property";
@@ -17,25 +18,6 @@ export type ProjectVariable = {
 	value: unknown;
 	locked: boolean;
 };
-
-export type SetVariableEvent = {
-	variableId: number;
-	value: unknown;
-};
-
-export type HideObjectEvent = {
-	objectId: number;
-};
-
-export type ShowObjectEvent = {
-	objectId: number;
-};
-
-export type TransformObjectEvent = {
-	objectId: number;
-};
-
-export type ProjectEvent = SetVariableEvent | HideObjectEvent | TransformObjectEvent | ShowObjectEvent;
 
 let projectVariables: ProjectVariable[] = $state([]);
 let projectObjects: ProjectObject[] = $state([]);
@@ -72,8 +54,7 @@ export function getProjectVariables(): ProjectVariable[] {
 	return projectVariables;
 }
 
-export type ProjectMarker = { id: number; name: string; time: number; type: "marker" };
-let projectMarkers: ProjectMarker[] = $state([]);
+let projectEvents: ProjectEvent[] = $state([]);
 
 export type ProjectAudio = {
 	id: number;
@@ -114,12 +95,8 @@ export function removeProjectLibrary(name: string) {
 	projectLibraries.delete(name);
 }
 
-export function addProjectMarker(name: string, time: number) {
-	projectMarkers.push({ name, time, id: nextId(), type: "marker" });
-}
-
-export function getProjectMarkers() {
-	return projectMarkers;
+export function getProjectEvents() {
+	return projectEvents;
 }
 
 export function getExplicitProjectLocation(): string | null {
@@ -148,7 +125,7 @@ export function getProjectSaveData(): string {
 		objects: projectObjects,
 		animations: projectAnimations,
 		audios: projectAudios,
-		markers: projectMarkers,
+		markers: projectEvents,
 		variables: projectVariables,
 		nextId: id,
 	});
@@ -160,7 +137,7 @@ export function loadProjectData(data: string) {
 	projectObjects = objects;
 	projectAudios = audios;
 	projectVariables = variables;
-	projectMarkers = markers;
+	projectEvents = markers;
 	id = nextId;
 }
 
@@ -168,7 +145,7 @@ export function resetProject() {
 	projectAnimations = [];
 	projectObjects = [];
 	projectAudios = [];
-	projectMarkers = [];
+	projectEvents = [];
 	projectVariables = [];
 	id = 0;
 	addEndMarker();
@@ -194,6 +171,12 @@ export type ProjectObject = {
 	type: "object";
 	previewData: string;
 	properties: ObjectProperties;
+};
+
+export type ProjectEvent = {
+	id: number;
+	type: "event";
+	properties: EventProperties;
 };
 
 export type ProjectAnimation = {
@@ -249,6 +232,10 @@ export async function addProjectObject(object: Omit<ProjectObject, "previewData"
 	projectObjects.push(obj);
 }
 
+export function addProjectEvent(event: ProjectEvent): void {
+	projectEvents.push(event);
+}
+
 export function deleteProjectItem(id: number) {
 	if (selected().includes(id)) select(selected().filter(sel => sel !== id));
 
@@ -266,7 +253,7 @@ export function deleteProjectItem(id: number) {
 	projectAnimations = projectAnimations.filter(animation => animation.properties["Object"] !== id && animation.id !== id);
 	projectAudios = projectAudios.filter(audio => audio.id !== id);
 	projectVariables = projectVariables.filter(variable => variable.id !== id);
-	projectMarkers = projectMarkers.filter(marker => marker.id !== id);
+	projectEvents = projectEvents.filter(marker => marker.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
 
 	if (getPreferences().autosave) runAction("Save And Recompile Project");
@@ -311,10 +298,10 @@ export function getPropertiesFromId<T extends ProjectObject | ProjectAnimation>(
 		null) as Properties<T> | null;
 }
 
-export function getItemFromId<T extends ProjectObject | ProjectAnimation | ProjectMarker>(id: number): T | null {
+export function getItemFromId<T extends ProjectObject | ProjectAnimation | ProjectEvent>(id: number): T | null {
 	return (getProjectObjects().find(object => object.id === id) ??
 		getProjectAnimations().find(animation => animation.id === id) ??
-		getProjectMarkers().find(marker => marker.id === id) ??
+		getProjectEvents().find(marker => marker.id === id) ??
 		null) as T | null;
 }
 
@@ -403,7 +390,7 @@ export function isNameTaken(name: string, exclude?: number): boolean {
 		projectObjects.some(object => getProperty(object, "Name") === name && (exclude === undefined || object.id !== exclude)) ||
 		projectVariables.some(variable => variable.name === name && (exclude === undefined || variable.id !== exclude)) ||
 		projectAnimations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude)) ||
-		projectMarkers.some(marker => marker.name === name && (exclude === undefined || marker.id !== exclude))
+		projectEvents.some(event => event.properties.Name === name && (exclude === undefined || event.id !== exclude))
 	);
 }
 
@@ -472,20 +459,24 @@ export function isObjectUsed(object: ProjectObject): boolean {
 	);
 }
 
-export function movieLength(): number {
+export function lastAnimationEndTime(): number {
 	if (projectAnimations.length === 0) return 0;
 	return projectAnimations.map(animation => animationEndTime(animation)).toSorted((anim1, anim2) => anim2 - anim1)[0];
 }
 
+export function movieLength(): number {
+	return projectEvents.find(event => event.properties.Name === "End")!.properties.Time!;
+}
+
 export function addEndMarker() {
-	projectMarkers.push({ name: "End", id: nextId(), time: 0, type: "marker" });
+	projectEvents.push({ id: nextId(), type: "event", properties: { Time: 0, Name: "End", "Event Type": "Empty Event" } });
 	runAction("Save Project");
 }
 
 export function updateEndMarker() {
-	let endMarker = projectMarkers.find(marker => marker.name === "End")!;
+	let endMarker = projectEvents.find(event => event.properties.Name === "End")!;
 	let lastAnimation = projectAnimations.toSorted((anim1, anim2) => animationEndTime(anim2) - animationEndTime(anim1))[0];
-	endMarker.time = animationEndTime(lastAnimation);
+	endMarker.properties.Time = animationEndTime(lastAnimation);
 }
 
 export function isObjectInGroup(id: number) {
@@ -496,21 +487,32 @@ export function isObjectInGroup(id: number) {
 
 export function regenerateWaits() {
 	projectAnimations = getProjectAnimations().filter(animation => animation.properties["Animation Type"] !== "Wait");
-	let animations = getProjectAnimations().toSorted((first, other) => first.properties["Start Time"]! - other.properties["Start Time"]!);
+
+	let times = (getProjectAnimations() as (ProjectAnimation | ProjectEvent)[])
+		.concat(getProjectEvents())
+		.toSorted((first, other) => {
+			let startTime1 = first.type === "animation" ? first.properties["Start Time"]! : first.properties.Time!;
+			let startTime2 = other.type === "animation" ? other.properties["Start Time"]! : other.properties.Time!;
+			return startTime1 - startTime2;
+		})
+		.map(item => {
+			if (item.type === "event") return { startTime: item.properties.Time!, endTime: item.properties.Time! };
+			return { startTime: item.properties["Start Time"]!, endTime: animationEndTime(item) };
+		});
 
 	let waits: ProjectAnimation[] = [];
 
 	// Beginning Wait
-	if (animations.length > 0 && animations[0].properties["Start Time"] !== 0) {
-		let duration = animations[0].properties["Start Time"];
+	if (times.length > 0 && times[0].startTime !== 0) {
+		let duration = times[0].startTime;
 		waits.push({ id: nextId(), type: "animation", previewData: "", properties: { "Animation Type": "Wait", Name: `Wait ${duration}s`, Duration: duration, "Start Time": 0 } });
 	}
 
 	// Middle Waits
-	animations.forEach((animation, index) => {
-		if (index != animations.length - 1) {
-			let waitStart = animationEndTime(animation);
-			let waitDuration = animations[index + 1].properties["Start Time"]! - waitStart;
+	times.forEach((time, index) => {
+		if (index != times.length - 1) {
+			let waitStart = time.endTime;
+			let waitDuration = times[index + 1].startTime - waitStart;
 			if (waitDuration > 0) {
 				waits.push({
 					id: nextId(),

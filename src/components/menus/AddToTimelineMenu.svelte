@@ -3,21 +3,24 @@
 	import { sep } from "@tauri-apps/api/path";
 	import { open } from "@tauri-apps/plugin-dialog";
 	import { openPreferencesWindow, setPreferencesView } from "../../api/client.svelte";
-	import { runAction } from "../../api/preferences.svelte";
-	import { addProjectAudio, addProjectMarker, isNameTaken, type ProjectAnimation } from "../../api/project.svelte";
+	import { addProjectAudio, type ProjectAnimation } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import AudioIcon from "../icons/AudioIcon.svelte";
-	import BookmarkIcon from "../icons/BookmarkIcon.svelte";
+	import CalendarIcon from "../icons/CalendarIcon.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+	import AddEventMenu from "./AddEventMenu.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
 
 	let { top, left }: { top: string; left: string } = $props();
 
 	let menu: ContextMenu;
+
 	let addAnimationMenu: AddAnimationMenu;
+	let addEventMenu: AddEventMenu;
+
 	let startTime = $state(0);
 
 	export function show() {
@@ -39,13 +42,14 @@
 
 	function hideSubmenus() {
 		addAnimationMenu.hide();
+		addEventMenu.hide();
 	}
 
 	function onAdd(animation: ProjectAnimation) {
 		animation.properties["Start Time"] = startTime;
 	}
 
-	type Submenu = "animation";
+	type Submenu = "animation" | "event";
 
 	let hoveredMenu: Submenu | null = $state(null);
 
@@ -56,6 +60,7 @@
 			if (name) {
 				({
 					animation: addAnimationMenu,
+					event: addEventMenu,
 				})[name].show();
 			}
 		};
@@ -76,18 +81,6 @@
 		}
 	}
 
-	function addMarker(event: MouseEvent) {
-		hide();
-
-		let name = translate("Marker");
-		let number = 2;
-		while (isNameTaken(name)) {
-			name = `Marker ${number++}`;
-		}
-		addProjectMarker(name, event.clientY / 64);
-		runAction("Save Project");
-	}
-
 	function openTimelinePreferences() {
 		hide();
 		setPreferencesView("timeline");
@@ -106,9 +99,10 @@
 		{translate("Add Animation")}
 		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
-	<button onclick={addMarker} onmouseenter={hoverMenu(null)}>
-		<BookmarkIcon stroke="var(--yellow)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Add Marker")}
+	<button style:background={hoveredMenu === "event" ? "rgba(180, 150, 255, 10%)" : "transparent"} onmouseenter={hoverMenu("event")}>
+		<CalendarIcon stroke="var(--yellow)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+		{translate("Add Event")}
+		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 	<button onmouseenter={hoverMenu(null)} onclick={openTimelinePreferences}>
 		<GearIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
@@ -116,6 +110,7 @@
 	</button>
 
 	<AddAnimationMenu bind:this={addAnimationMenu} top="3.5rem" left="-100%" {onAdd} />
+	<AddEventMenu bind:this={addEventMenu} top="5.25rem" left="-100%" />
 </ContextMenu>
 
 <style>

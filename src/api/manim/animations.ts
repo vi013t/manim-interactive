@@ -1,12 +1,10 @@
 import type { Component } from "svelte";
-import appearDemo from "../../assets/videos/appear_demo.mp4";
 import backspaceDemo from "../../assets/videos/backspace_demo.mp4";
 import blinkDemo from "../../assets/videos/blink_demo.mp4";
 import circumscribeDemo from "../../assets/videos/circumscribe_demo.mp4";
 import createDemo from "../../assets/videos/create_demo.mp4";
 import cyclicReplaceDemo from "../../assets/videos/cyclic_replace_demo.mp4";
 import destroyDemo from "../../assets/videos/destroy_demo.mp4";
-import disappearDemo from "../../assets/videos/disappear_demo.mp4";
 import drawBorderThenFillDemo from "../../assets/videos/draw_border_then_fill_demo.mp4";
 import eraseDemo from "../../assets/videos/erase_demo.mp4";
 import fadeInDemo from "../../assets/videos/fade_in_demo.mp4";
@@ -218,15 +216,6 @@ const singleObjectProperties = [
 
 export const animations = [
 	{
-		name: "Appear",
-		category: "Create",
-		description: "Add an object without any kind of animation.",
-		icon: SparkleIcon,
-		demo: appearDemo,
-		internalName: "Add",
-		properties: [...singleObjectProperties],
-	},
-	{
 		name: "Backspace",
 		category: "Destroy",
 		description: "Delete text one letter at a time.",
@@ -275,14 +264,6 @@ export const animations = [
 		internalName: "Uncreate",
 		demo: destroyDemo,
 		icon: MinimizeIcon,
-		properties: [...singleObjectProperties],
-	},
-	{
-		name: "Disappear",
-		category: "Destroy",
-		description: "Remove an object with no animation.",
-		demo: disappearDemo,
-		icon: SparkleIcon,
 		properties: [...singleObjectProperties],
 	},
 	{

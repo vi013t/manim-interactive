@@ -1,10 +1,10 @@
 import { invoke } from "@tauri-apps/api/core";
 import { getManimAnimationByName } from "./manim/animations";
+import { events } from "./manim/events";
 import { objects, type ManimObject } from "./manim/objects";
 import {
 	getAnimationObjects,
 	getPossibleProperties,
-	getProperty,
 	propertyValueToString,
 	type FunctionProperty,
 	type KeywordProperty,
@@ -14,10 +14,12 @@ import {
 import {
 	getObjectFromId,
 	getProjectAnimations,
+	getProjectEvents,
 	getProjectLocation,
 	getProjectVariables,
 	topologicalProjectObjects,
 	type ProjectAnimation,
+	type ProjectEvent,
 	type ProjectObject,
 } from "./project.svelte";
 
@@ -137,7 +139,17 @@ export function animationPreviewLoaded() {
 }
 
 export function generateCode(): string {
-	let animations = getProjectAnimations().toSorted((first, other) => getProperty(first, "Start Time")! - getProperty(other, "Start Time")!);
+	let animations = (getProjectAnimations() as (ProjectAnimation | ProjectEvent)[]).concat(getProjectEvents()).toSorted((first, other) => {
+		let startTime1 = first.type === "animation" ? first.properties["Start Time"]! : first.properties.Time!;
+		let startTime2 = other.type === "animation" ? other.properties["Start Time"]! : other.properties.Time!;
+
+		if (startTime1 === startTime2) {
+			if (first.type === "event") return -1;
+			if (other.type === "event") return 1;
+		}
+
+		return startTime1 - startTime2;
+	});
 
 	const variableLines = getProjectVariables()
 		.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
@@ -147,16 +159,35 @@ export function generateCode(): string {
 		.map(object => `\t\tobject_${object.id} = ${codegenObject(object)}`)
 		.join("\n");
 
-	const animationLines = animations.map(animation => `\t\tself.play(${codegenAnimation(animation)})`).join("\n");
+	console.log($state.snapshot(animations.map(anim => anim.properties.Name)));
+
+	const animationLines = animations
+		.map(animation => {
+			if (animation.type === "event") {
+				const eventBase = events.find(event => event.name === animation.properties["Event Type"])!;
+				return "codegen" in eventBase ? `\t\t${eventBase.codegen(animation.properties)}` : null;
+			}
+
+			return `\t\tself.play(${codegenAnimation(animation)})`;
+		})
+		.filter(line => line)
+		.join("\n");
+
+	console.log(animationLines);
 
 	return `from manim import *
 
 class Main(Scene):
+
 	def construct(self):
+
+		# Variables
 ${variableLines}
 
+		# Objects
 ${objectLines}
 
+		# Animations
 ${animationLines}
 `;
 }

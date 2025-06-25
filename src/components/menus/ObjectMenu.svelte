@@ -5,6 +5,7 @@
 	import { addProjectObject, deleteProjectItem, getObjectFromId, getProjectAnimations, isNameTaken, nextId, select } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
+	import CalendarIcon from "../icons/CalendarIcon.svelte";
 	import CubeIcon from "../icons/CubeIcon.svelte";
 	import PropertiesIcon from "../icons/PropertiesIcon.svelte";
 	import RightArrow from "../icons/RightArrow.svelte";
@@ -13,6 +14,7 @@
 	import ConfirmDeleteGroupWindow from "../windows/ConfirmDeleteGroupWindow.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
 	import AddAnimationMenu from "./AddAnimationMenu.svelte";
+	import AddEventMenu from "./AddEventMenu.svelte";
 	import AddObjectMenu from "./AddObjectMenu.svelte";
 	import AddPropertyMenu from "./AddPropertyMenu.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
@@ -22,7 +24,8 @@
 	let menu: ContextMenu;
 	let addAnimationMenu: AddAnimationMenu = $state(null!);
 	let addPropertyMenu: AddPropertyMenu = $state(null!);
-	let addObjectMenu: AddPropertyMenu;
+	let addObjectMenu: AddPropertyMenu = $state(null!);
+	let addEventMenu: AddEventMenu = $state(null!);
 
 	export function show() {
 		menu.show();
@@ -40,6 +43,7 @@
 		addObjectMenu.hide();
 		addAnimationMenu.hide();
 		addPropertyMenu.hide();
+		addEventMenu.hide();
 	}
 
 	function deleteObject() {
@@ -131,8 +135,18 @@
 				addAnimationMenu.show();
 			}}
 		>
-			<AnimationIcon stroke="#94e2d5" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			<AnimationIcon stroke="var(--teal)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{translate("Add Animation")}
+			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
+		</button>
+		<button
+			onmouseover={() => {
+				hideSubmenus();
+				addEventMenu.show();
+			}}
+		>
+			<CalendarIcon stroke="var(--yellow)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			{translate("Add Event")}
 			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 		</button>
 		<button
@@ -141,7 +155,7 @@
 				addPropertyMenu.show();
 			}}
 		>
-			<PropertiesIcon stroke="#f9e2af" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+			<PropertiesIcon stroke="var(--peach)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{translate("Add Property")}
 			<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 		</button>
@@ -156,7 +170,8 @@
 
 	{#if ids.length === 1}
 		<AddAnimationMenu hideParent={hide} bind:this={addAnimationMenu} top="{isGroup ? 5.25 : 3.5}rem" left="100%" id={ids[0]} />
-		<AddPropertyMenu bind:this={addPropertyMenu} top="{isGroup ? 7 : 5.25}rem" left="100%" />
+		<AddEventMenu bind:this={addEventMenu} top="{isGroup ? 7 : 5.25}rem" left="100%" objectEventsOnly />
+		<AddPropertyMenu bind:this={addPropertyMenu} top="{isGroup ? 8.75 : 7}rem" left="100%" />
 	{/if}
 </ContextMenu>
 

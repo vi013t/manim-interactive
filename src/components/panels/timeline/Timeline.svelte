@@ -8,10 +8,11 @@
 		getAnimationFromId,
 		getProjectAnimations,
 		getProjectAudios,
-		getProjectMarkers,
+		getProjectEvents,
+		regenerateWaits,
 		select,
 		selected,
-		type ProjectMarker,
+		type ProjectEvent,
 	} from "../../../api/project.svelte";
 	import { currentTime, getRelativeTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
@@ -89,12 +90,13 @@
 		checkForNewDiv();
 
 		document.addEventListener("mousemove", event => {
-			if (draggingMarker) {
+			if (draggingEvent) {
 				const cellHeight = 64;
 				let minimum = 0;
-				if (draggingMarker.textContent === "End" && getProjectAnimations().length > 0) {
+				if (draggingEvent.textContent === "End" && getProjectAnimations().length > 0) {
 					minimum =
 						getProjectAnimations()
+							.filter(animation => animation.properties["Animation Type"] !== "Wait")
 							.map(animationEndTime)
 							.toSorted((anim1, anim2) => anim2 - anim1)[0] * cellHeight;
 				}
@@ -103,7 +105,7 @@
 					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
 					else newTop = newTop + (cellHeight - (newTop % cellHeight));
 				}
-				draggingMarker.style.top = `${newTop}px`;
+				draggingEvent.style.top = `${newTop}px`;
 			}
 
 			if (mouseDown) {
@@ -112,15 +114,12 @@
 		});
 
 		document.addEventListener("mouseup", event => {
-			if (draggingMarker) {
-				getProjectMarkers().find(marker => marker.name === draggingMarker!.textContent)!.time = parseInt(draggingMarker.style.top) / 64;
-				if (draggingMarker.textContent === "End") {
-					runAction("Save And Recompile Project");
-				} else {
-					runAction("Save Project");
-				}
+			if (draggingEvent) {
+				getProjectEvents().find(marker => marker.properties.Name === draggingEvent!.textContent)!.properties.Time = parseInt(draggingEvent.style.top) / 64;
+				regenerateWaits();
+				runAction("Save And Recompile Project");
 			}
-			draggingMarker = null;
+			draggingEvent = null;
 
 			// Selection
 			mouseDown = false;
@@ -141,7 +140,7 @@
 		addAnimationMenu.show();
 	}
 
-	function markerOptions(marker: ProjectMarker) {
+	function markerOptions(marker: ProjectEvent) {
 		return function (event: MouseEvent) {
 			event.preventDefault();
 			top = `${event.clientY}px`;
@@ -151,7 +150,7 @@
 		};
 	}
 
-	let draggingMarker: HTMLElement | null = $state(null);
+	let draggingEvent: HTMLElement | null = $state(null);
 
 	let markers: HTMLElement[] = $state([]);
 
@@ -201,12 +200,18 @@
 			{/each}
 
 			<!-- Markers -->
-			{#each getProjectMarkers() as marker, index (marker.id)}
-				<div oncontextmenu={markerOptions(marker)} bind:this={markers[index]} onmousedown={() => (draggingMarker = markers[index])} class="marker" style:top="{marker.time * 4}rem">
-					{#if marker.name === "End"}
+			{#each getProjectEvents() as marker, index (marker.id)}
+				<div
+					oncontextmenu={markerOptions(marker)}
+					bind:this={markers[index]}
+					onmousedown={() => (draggingEvent = markers[index])}
+					class="marker"
+					style:top="{marker.properties.Time! * 4}rem"
+				>
+					{#if marker.properties.Name === "End"}
 						<span id="marker-{marker.id}-name" style:cursor="grab" onkeydown={typeMarker} onblur={() => runAction("Save Project")}>{translate("End")}</span>
 					{:else}
-						<span id="marker-{marker.id}-name" onkeydown={typeMarker} bind:textContent={marker.name} contenteditable onblur={() => runAction("Save Project")}></span>
+						<span id="marker-{marker.id}-name" onkeydown={typeMarker} bind:textContent={marker.properties.Name} contenteditable onblur={() => runAction("Save Project")}></span>
 					{/if}
 				</div>
 			{/each}

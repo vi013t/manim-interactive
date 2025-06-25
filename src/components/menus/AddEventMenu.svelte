@@ -1,13 +1,10 @@
 <script lang="ts">
+	import { events, type ManimEvent } from "../../api/manim/events";
+	import { addProjectEvent, getSingleSelection, isNameTaken, lastAnimationEndTime, nextId, type ProjectEvent } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
-	import CircleIcon from "../icons/CircleIcon.svelte";
-	import PlusIcon from "../icons/PlusIcon.svelte";
-	import TransformIcon from "../icons/TransformIcon.svelte";
-	import TrashIcon from "../icons/TrashIcon.svelte";
-	import VariableIcon from "../icons/VariableIcon.svelte";
 	import ContextMenu from "./ContextMenu.svelte";
 
-	let { top, left } = $props();
+	let { top, left, objectEventsOnly = false } = $props();
 
 	export function hide() {
 		menu.hide();
@@ -18,31 +15,47 @@
 	}
 
 	let menu: ContextMenu;
+
+	function addEvent(event: ManimEvent) {
+		return function () {
+			hide();
+
+			let name = translate(event.name);
+
+			let number = 2;
+			while (isNameTaken(name)) {
+				name = `${translate(event.name)} ${number++}`;
+			}
+
+			const projectEvent: ProjectEvent = {
+				id: nextId(),
+				type: "event",
+				properties: {
+					Name: name,
+					"Event Type": event.name,
+					Time: Math.max(lastAnimationEndTime(), 1),
+				},
+			};
+
+			if (getSingleSelection()) {
+				projectEvent.properties.Object = getSingleSelection()!;
+			}
+
+			addProjectEvent(projectEvent);
+		};
+	}
 </script>
 
 <ContextMenu bind:this={menu} {top} {left}>
-	<span>Add Event</span>
-
-	<button>
-		<VariableIcon stroke="var(--lavender)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Set Variable Value")}
-	</button>
-	<button>
-		<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Hide Object")}
-	</button>
-	<button>
-		<PlusIcon stroke="var(--green)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Show Object")}
-	</button>
-	<button>
-		<TransformIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Tranform Object")}
-	</button>
-	<button>
-		<CircleIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
-		{translate("Empty Event")}
-	</button>
+	<span>{translate("Add Event")}</span>
+	{#each events as event}
+		{#if !objectEventsOnly || event.properties.find(property => property.name === "Object")}
+			<button onclick={addEvent(event)}>
+				<event.icon stroke={event.color} style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
+				{event.name}
+			</button>
+		{/if}
+	{/each}
 </ContextMenu>
 
 <style>
