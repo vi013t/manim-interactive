@@ -40,6 +40,7 @@ Then run the following (replacing `bun` with your bundler of choice:)
 ```bash
 git clone https://vi013t/manim-interactive.git
 cd manim-interactive
+bun install
 bun run tauri build
 ```
 
@@ -62,6 +63,7 @@ You can test the project locally like so:
 ```bash
 git clone https://github.com/vi013t/manim-interactive.git
 cd manim-interactive
+bun install
 bun run tauri dev
 ```
 
