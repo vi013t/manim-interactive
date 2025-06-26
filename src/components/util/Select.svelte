@@ -24,10 +24,10 @@
 		options: SelectOption[];
 		title?: string;
 		children?: () => any;
-		[key: string]: unknown;
 		locked?: boolean;
 		additionalButtonText?: string;
 		additionalButtonClick?: (event: MouseEvent) => void;
+		[key: string]: unknown;
 	} = $props();
 
 	let optionsVisible = $state(false);
@@ -118,7 +118,6 @@
 				{additionalButtonText}
 			</div>
 		{/if}
-
 	</div>
 </div>
 

@@ -40,6 +40,7 @@
 		const possibleProperties = getPossibleProperties(type);
 		const propertiesToDelete: string[] = [];
 		Object.entries(item.properties).forEach(([propertyName, propertyValue]) => {
+			if (propertyName === "Name") return;
 			let propertyBase = possibleProperties.find(property => property.name === propertyName);
 			if (!propertyBase) propertiesToDelete.push(propertyName);
 		});

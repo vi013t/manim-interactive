@@ -179,6 +179,7 @@
 	style:display={animation.properties["Animation Type"] === "Wait" && !getPreferences().showWaits ? "none" : "flex"}
 	data-animation-id={animation.id}
 	bind:this={element}
+	class:wait={animation.properties["Animation Type"] === "Wait"}
 >
 	<Icon stroke="var(--mantle)" style="height: clamp(1rem, 50%, 1.5rem); aspect-ratio: 1;" />
 
@@ -202,13 +203,16 @@
 		color: #000000;
 		position: absolute;
 		width: 60%;
-		cursor: pointer;
 		text-align: left;
 		padding: 1rem;
 		height: 4rem;
 		z-index: 99;
 		gap: 0.5rem;
 		outline-offset: -4px;
+
+		&.wait {
+			cursor: default;
+		}
 
 		span {
 			padding: 0.25rem;
@@ -224,7 +228,7 @@
 		}
 
 		/* Bottom Resize Handle */
-		&::after {
+		&:not(.wait)::after {
 			content: "";
 			position: absolute;
 			left: 0;

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
+	import { cache, getFromCache, type CacheKey } from "../../api/client.svelte";
 	import { getPreferences, runAction, savePreferences, setPreference, type Preference } from "../../api/preferences.svelte";
 	import { getExplicitProjectLocation, getProjectLocation, getProjectName, getProjectSettings } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
@@ -13,8 +14,10 @@
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
 	import ProjectorIcon from "../icons/ProjectorIcon.svelte";
 	import ResolutionIcon from "../icons/ResolutionIcon.svelte";
+	import SlidesIcon from "../icons/SlidesIcon.svelte";
 	import UnmaximizeIcon from "../icons/UnmaximizeIcon.svelte";
 	import ContextMenu from "../menus/ContextMenu.svelte";
+	import Tooltip from "../util/Tooltip.svelte";
 	import NewProjectWindow from "../windows/NewProjectWindow.svelte";
 	import PreferencesWindow from "../windows/PreferencesWindow.svelte";
 	import ProjectSettingsWindow from "../windows/ProjectSettingsWindow.svelte";
@@ -73,15 +76,21 @@
 	function togglePreference(preferenceName: Preference) {
 		return function (_event: Event) {
 			setPreference(preferenceName, !getPreferences()[preferenceName]);
-			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save And Recompile Project");
 			savePreferences();
+		};
+	}
+
+	function toggleCachePreference(preferenceName: CacheKey<boolean>) {
+		return function () {
+			cache(preferenceName, !getFromCache(preferenceName));
+			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save And Recompile Project");
 		};
 	}
 
 	async function openMovieLocation() {
 		invoke("open_movie_location", {
 			projectPath: await getProjectLocation(),
-			lowRes: getPreferences().lowRes,
+			lowRes: getFromCache("lowRes"),
 			outputFileName: getProjectSettings().outputFileName,
 			fileFormat: getProjectSettings().fileFormat,
 			resolutionHeight: getProjectSettings().resolution[1],
@@ -91,7 +100,7 @@
 	}
 </script>
 
-<nav id="navbar" oncontextmenu={event => event.preventDefault()}>
+<nav id="navbar" oncontextmenu={event => event.preventDefault()} data-tauri-drag-region>
 	<img src={icon} alt="Manim Interactive" />
 
 	<button bind:this={projectButton} onclick={projectMenu.toggle}>{translate("Project")}</button>
@@ -140,31 +149,44 @@
 
 	{#if getExplicitProjectLocation()}
 		<div class="video-options">
-			<button onclick={togglePreference("lowRes")} title="Toggle Low Resolution (faster reload times)" class:option-on={getPreferences().lowRes}>
+			<Tooltip text="Toggle low resolution (for faster load times)" element="button" onclick={toggleCachePreference("lowRes")} class={getFromCache("lowRes") ? "option-on" : ""}>
 				<ResolutionIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-			</button>
-			<button onclick={togglePreference("grid")} title="Toggle Grid" class:option-on={getPreferences().grid}>
+			</Tooltip>
+			<Tooltip text="Toggle grid overlay" element="button" onclick={toggleCachePreference("grid")} class={getFromCache("grid") ? "option-on" : undefined}>
 				<GridIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-			</button>
-			<button onclick={togglePreference("showMovieOverPreview")} title="Toggle Showing Movie Over Preview" class:option-on={getPreferences().showMovieOverPreview}>
+			</Tooltip>
+			<Tooltip
+				text="Toggle showing main movie over selected item preview"
+				element="button"
+				onclick={toggleCachePreference("showMovieOverPreview")}
+				class={getFromCache("showMovieOverPreview") ? "option-on" : undefined}
+			>
 				<ProjectorIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-			</button>
+			</Tooltip>
 		</div>
 
 		<div class="timeline-options">
-			<button title="Toggle Timeline Snapping" onclick={togglePreference("timelineSnapping")} class:option-on={getPreferences().timelineSnapping}>
+			<Tooltip text="Toggle timeline snapping" element="button" onclick={togglePreference("timelineSnapping")} class={getPreferences().timelineSnapping ? "option-on" : undefined}>
 				<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-			</button>
-			<button title="Toggle Collapsing Wait Times" onclick={togglePreference("collapseWaitTimes")} class:option-on={getPreferences().collapseWaitTimes}>
+			</Tooltip>
+			<Tooltip
+				text="Toggle collapsing wait times"
+				element="button"
+				onclick={togglePreference("collapseWaitTimes")}
+				class={getPreferences().collapseWaitTimes ? "option-on" : undefined}
+			>
 				<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-			</button>
-			<button title="Toggle Showing Waits" onclick={togglePreference("showWaits")} class:option-on={getPreferences().showWaits}>
+			</Tooltip>
+			<Tooltip text="Toggle showing waits" element="button" onclick={togglePreference("showWaits")} class={getPreferences().showWaits ? "option-on" : undefined}>
 				<ClockCheckIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
-			</button>
+			</Tooltip>
+			<Tooltip text="Toggle slides mode" element="button" onclick={toggleCachePreference("slidesMode")} class={getFromCache("slidesMode") ? "option-on" : undefined}>
+				<SlidesIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</Tooltip>
 		</div>
 	{/if}
 
-	<span class="title">{getProjectName() ? `${getProjectName()} - ` : ""}{translate("Manim Interactive")}</span>
+	<span class="title" data-tauri-drag-region>{getProjectName() ? `${getProjectName()} - ` : ""}{translate("Manim Interactive")}</span>
 
 	<div class="window-buttons">
 		<button onclick={minimize}>
@@ -213,7 +235,7 @@
 		align-items: center;
 		position: absolute;
 
-		> * {
+		:global(> *) {
 			height: 100%;
 			display: flex;
 			align-items: center;
@@ -226,7 +248,7 @@
 		}
 	}
 
-	.option-on {
+	:global(.option-on) {
 		background-color: rgba(180, 150, 255, 20%);
 	}
 

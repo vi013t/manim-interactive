@@ -1,9 +1,10 @@
 <script lang="ts" generics="T extends PropertyType">
+	import { cache } from "../../../api/client.svelte";
 	import { generateAnimationPreview, generateObjectPreview } from "../../../api/codegen.svelte";
-	import { getPropertyName, getPropertyTypeColor, getPropertyTypeIcon, property as createProperty, type PropertyType, type PropertyValue } from "../../../api/manim/property";
-	import { getPreferences, runAction, setPreference } from "../../../api/preferences.svelte";
+	import { property as createProperty, getPropertyName, getPropertyTypeColor, getPropertyTypeIcon, type PropertyType, type PropertyValue } from "../../../api/manim/property";
+	import { getPreferences, runAction } from "../../../api/preferences.svelte";
 	import {
-	addProjectVariable,
+		addProjectVariable,
 		getAnimationFromId,
 		getItemFromId,
 		getObjectFromId,
@@ -18,10 +19,12 @@
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 	import LinkIcon from "../../icons/LinkIcon.svelte";
+	import SkullIcon from "../../icons/SkullIcon.svelte";
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import UnlinkIcon from "../../icons/UnlinkIcon.svelte";
 	import VariableIcon from "../../icons/VariableIcon.svelte";
 	import Select from "../../util/Select.svelte";
+	import Tooltip from "../../util/Tooltip.svelte";
 	import AnimationProperty from "./AnimationTypeProperty.svelte";
 	import BooleanProperty from "./BooleanProperty.svelte";
 	import ColorProperty from "./ColorProperty.svelte";
@@ -77,7 +80,7 @@
 		const animation = getAnimationFromId(getSingleSelection()!);
 		if (animation) generateAnimationPreview(animation);
 
-		setPreference("showMovieOverPreview", false);
+		cache("showMovieOverPreview", false);
 
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
@@ -91,7 +94,7 @@
 		const animation = getAnimationFromId(getSingleSelection()!);
 		if (animation) generateAnimationPreview(animation);
 
-		setPreference("showMovieOverPreview", false);
+		cache("showMovieOverPreview", false);
 
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
@@ -194,7 +197,7 @@
 					variable = null;
 					value = defaultValue;
 				}}
-				class="variable-button"
+				class="variable-button unlink"
 			>
 				<UnlinkIcon stroke="var(--lavender)" style="width: 1rem; height: 1rem;" />
 			</button>
@@ -202,7 +205,15 @@
 
 		<!-- Delete Button -->
 		{#if !required && property.base !== "list"}
-			<button onclick={deleteProperty}><TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" /></button>
+			<Tooltip text="Delete Property (reset to default)" element="button" onclick={deleteProperty}>
+				<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
+			</Tooltip>
+		{/if}
+
+		{#if !required && "defaultValue" in property && value === property.defaultValue}
+			<Tooltip text="This property is set to its default value and can be deleted with no change.">
+				<SkullIcon stroke="var(--overlay-0)" style="width: 1rem; height: 1rem;" />
+			</Tooltip>
 		{/if}
 
 		<!-- Error Message -->
@@ -221,6 +232,12 @@
 		border-radius: 0.25rem;
 		background-color: var(--crust);
 	}
+
+	.unlink {
+		margin-left: 0.25rem;
+		margin-right: 0.25rem;
+	}
+
 	.error {
 		gap: 0.5rem;
 		margin-left: 0.5rem;

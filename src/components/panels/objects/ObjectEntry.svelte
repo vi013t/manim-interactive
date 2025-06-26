@@ -18,6 +18,7 @@
 	import RightArrow from "../../icons/RightArrow.svelte";
 	import SkullIcon from "../../icons/SkullIcon.svelte";
 	import ObjectMenu from "../../menus/ObjectMenu.svelte";
+	import Tooltip from "../../util/Tooltip.svelte";
 	import ObjectEntry from "./ObjectEntry.svelte";
 
 	let { entry }: { entry: ProjectObject } = $props();
@@ -125,9 +126,9 @@
 			</div>
 		{/if}
 		{#if !isObjectUsed(entry)}
-			<div class="status" title="This object is unused">
+			<Tooltip text="This object is unused and can be deleted with no change." style="margin-left: auto;">
 				<SkullIcon stroke="var(--overlay-0)" style="width: 1rem; height: 1rem; margin-left: 0.5rem;" />
-			</div>
+			</Tooltip>
 		{/if}
 	</div>
 

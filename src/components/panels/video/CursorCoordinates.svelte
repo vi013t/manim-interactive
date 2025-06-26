@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { cursorIsIn, getMouseX, getMouseY } from "../../../api/client.svelte";
+	import { cursorIsIn, getFromCache, getMouseX, getMouseY } from "../../../api/client.svelte";
 
 	let videoWidth = screen.availWidth * (2 / 3);
 	let videoHeight = (videoWidth * 9) / 16;
@@ -15,7 +15,7 @@
 	let altHeld = $state(false);
 	let visible = $derived.by(() => {
 		let rect = document.getElementById("video-source")?.getBoundingClientRect();
-		return altHeld && (rect ? cursorIsIn(rect) : false);
+		return getFromCache("grid") && (rect ? cursorIsIn(rect) : false);
 	});
 
 	onMount(() => {});

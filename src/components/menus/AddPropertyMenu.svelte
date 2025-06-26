@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ObjectPropertyName } from "../../api/manim/objects";
 	import { addProperty, animationPropertyCategories, getPossibleProperties, objectPropertyCategories } from "../../api/manim/property";
+	import { runAction } from "../../api/preferences.svelte";
 	import { getItemFromId, getSelectableFromId, selected } from "../../api/project.svelte";
 	import EmptyIcon from "../icons/EmptyIcon.svelte";
 	import Menu from "./Menu.svelte";
@@ -15,6 +16,7 @@
 		hide();
 		let defaultValue = (getPossibleProperties(item as any).find(property => property.name === name)!.type as any).defaultValue ?? null;
 		addProperty(getItemFromId(selected()[0])!.id, name as ObjectPropertyName, defaultValue);
+		runAction("Save Project");
 	}
 
 	export function show() {

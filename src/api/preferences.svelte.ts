@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { cache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
+import { cache, getFromCache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
@@ -106,7 +106,7 @@ const actions = {
 
 			const videoData = await invoke<string>("load_video", {
 				path: await getProjectLocation(),
-				lowRes: getPreferences().lowRes,
+				lowRes: getFromCache("lowRes"),
 				resolutionHeight: getProjectSettings().resolution[1],
 				fps: getProjectSettings().fps,
 				outputFileName: getProjectSettings().outputFileName,
@@ -193,13 +193,11 @@ let preferences = $state({
 	developerMode: false,
 	autosave: true,
 	autoOpenLastProject: true,
-	grid: false,
-	lowRes: false,
 	vimMode: false,
 	latexPreviews: true,
 	timelineSnapping: true,
 	showWaits: false,
-	showMovieOverPreview: false,
+	showTooltips: true,
 	keybindings: [
 		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),
@@ -237,6 +235,7 @@ export function getPreferences(): Readonly<Preferences> {
 export function setPreference(name: Preference, value: any) {
 	preferences[name] = value;
 	preferenceHooks.filter(listener => listener.name === name).forEach(listener => listener.hook(value));
+	savePreferences();
 }
 
 export type KeyModifier = "ctrl" | "shift" | "alt";

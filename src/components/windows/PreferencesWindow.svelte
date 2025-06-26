@@ -9,7 +9,6 @@
 		getPreferences,
 		key,
 		runAction,
-		savePreferences,
 		setPreference,
 		updateKeybinding,
 		type Key,
@@ -125,7 +124,6 @@
 	function updateBooleanPreference(preferenceName: Preference) {
 		return function (event: Event) {
 			setPreference(preferenceName, (event.target as HTMLInputElement).checked);
-			savePreferences();
 		};
 	}
 </script>
@@ -198,6 +196,13 @@
 						<input oninput={updateBooleanPreference("latexPreviews")} id="latex-preview" type="checkbox" checked={getPreferences().latexPreviews} />
 					</span>
 					<p>{translate("Show previews for LaTeX math equations as you type them")}.</p>
+				</label>
+				<label for="show-tooltips">
+					<span>
+						{translate("Show Tooltips")}
+						<input oninput={updateBooleanPreference("showTooltips")} id="show-tooltips" type="checkbox" checked={getPreferences().showTooltips} />
+					</span>
+					<p>{translate("Show tooltips when hovering on buttons or icons that explain them.")}.</p>
 				</label>
 			{:else if view === "timeline"}
 				<h1>{translate("Timeline Settings")}</h1>

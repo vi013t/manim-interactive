@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { getFromCache, getPoint } from "../../../api/client.svelte";
 	import { objectPreviewLoaded } from "../../../api/codegen.svelte";
-	import { getPreferences, hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
+	import { hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
 	import {
 		getAnimationFromId,
 		getObjectFromId,
@@ -92,16 +92,16 @@
 		getSingleSelection() && getAnimationFromId(getSingleSelection()!) ? `data:video/mp4;base64,${getAnimationFromId(getSingleSelection()!)!.previewData}` : null,
 	);
 
-	let timeOffset = $derived(animationPreviewVideo && !getPreferences().showMovieOverPreview ? getAnimationFromId(getSingleSelection()!)!.properties["Start Time"]! : 0);
+	let timeOffset = $derived(animationPreviewVideo && !getFromCache("showMovieOverPreview") ? getAnimationFromId(getSingleSelection()!)!.properties["Start Time"]! : 0);
 
-	let videoSrc = $derived(animationPreviewVideo && !getPreferences().showMovieOverPreview ? animationPreviewVideo : getFromCache("videoData")!);
+	let videoSrc = $derived(animationPreviewVideo && !getFromCache("showMovieOverPreview") ? animationPreviewVideo : getFromCache("videoData")!);
 
 	$effect(() => {
 		// This does nothing - but it tells $effect() to reload and call again when videoSrc changes
 		videoSrc;
 
 		try {
-			if (!objectPreviewImage || getPreferences().showMovieOverPreview) {
+			if (!objectPreviewImage || getFromCache("showMovieOverPreview")) {
 				video?.load();
 				video?.play();
 			}
@@ -110,7 +110,7 @@
 </script>
 
 <div id="video-panel" class="container">
-	{#if !getPreferences().showMovieOverPreview}
+	{#if !getFromCache("showMovieOverPreview")}
 		{#if animationPreviewVideo}
 			<span class="preview-text">Animation "{getAnimationFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
 		{/if}
@@ -128,25 +128,25 @@
 	{/if}
 
 	{#if getProjectAnimations().length > 0}
-		{#if !isVideoLoaded() && (!objectPreviewImage || getPreferences().showMovieOverPreview)}
+		{#if !isVideoLoaded() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
 			<div id="novideo">
 				<h1>Reloading...</h1>
 				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
 			</div>
-		{:else if projectHasErrors() && !hasEverGeneratedVideo() && (!objectPreviewImage || getPreferences().showMovieOverPreview)}
+		{:else if projectHasErrors() && !hasEverGeneratedVideo() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
 			<div id="novideo">
 				<h1>Project Has Errors</h1>
 				<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
 			</div>
 		{/if}
 
-		{#if isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && ((!objectPreviewImage && !animationPreviewVideo) || getPreferences().showMovieOverPreview)}
+		{#if isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && ((!objectPreviewImage && !animationPreviewVideo) || getFromCache("showMovieOverPreview"))}
 			<span class="preview-text">Movie "{getProjectSettings().outputFileName}"</span>
 		{/if}
 
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<video
-			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getPreferences().showMovieOverPreview) ? "block" : "none"}
+			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache("showMovieOverPreview")) ? "block" : "none"}
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
@@ -159,7 +159,7 @@
 			bind:this={video}
 			src={videoSrc}
 		></video>
-	{:else if !objectPreviewImage || getPreferences().showMovieOverPreview}
+	{:else if !objectPreviewImage || getFromCache("showMovieOverPreview")}
 		<div id="novideo">
 			<h1>No Animations Yet</h1>
 			<p>When you add an animation, the video will appear here.</p>
@@ -167,10 +167,10 @@
 	{/if}
 
 	<!-- Grid -->
-	<canvas id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid ? "100%" : "0%"}></canvas>
+	<canvas id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getFromCache("grid") ? "100%" : "0%"}></canvas>
 
 	<!-- Point -->
-	{#if getProjectAnimations().length > 0 && isVideoLoaded() && getPreferences().grid && getPoint()}
+	{#if getProjectAnimations().length > 0 && isVideoLoaded() && getFromCache("grid") && getPoint()}
 		<div class="point" style:left="{videoWidth / 2 + boxSize * getPoint()![0]}px" style:top="{centerY - boxSize * getPoint()![1]}px">
 			<span>({getPoint()![0]}, {getPoint()![1]})</span>
 		</div>

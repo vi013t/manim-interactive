@@ -135,10 +135,22 @@ export function isNewProjectWindowOpen(): boolean {
 
 export type Cache = {
 	videoData: string | null;
+	slidesMode: boolean;
+	showMovieOverPreview: boolean;
+	grid: boolean;
+	lowRes: boolean;
 };
 
+/**
+ * The stored cache for the current session. The cache is similar to `preferences`, except they're localized to the current
+ * session and not saved between window restarts.
+ */
 let storedCache: Cache = $state({
 	videoData: null,
+	slidesMode: false,
+	showMovieOverPreview: false,
+	grid: false,
+	lowRes: false,
 });
 
 export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]) {
@@ -147,6 +159,10 @@ export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]) {
 
 export function getFromCache<Key extends keyof Cache>(key: Key): Cache[Key] {
 	return storedCache[key];
+}
+
+export function getCache(): Cache {
+	return storedCache;
 }
 
 export function isInSelectionBox(element: HTMLElement): boolean {
@@ -158,3 +174,14 @@ export function isInSelectionBox(element: HTMLElement): boolean {
 
 	return rect.bottom > rectSelection.top && rect.right > rectSelection.left && rect.top < rectSelection.bottom && rect.left < rectSelection.right;
 }
+
+/**
+ * The name of a key in the local cache map.
+ *
+ * If a generic type argument is provided, only keys that are mapped to values of that type
+ * are returned. For example, `CacheKey<boolean>` only returns cache keys that have boolean
+ * values.
+ *
+ * If no generic type argument is provided, all cache keys are returned.
+ */
+export type CacheKey<CacheValue = any> = { [Key in keyof Cache]: Cache[Key] extends CacheValue ? Key : never }[keyof Cache];

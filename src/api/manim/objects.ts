@@ -85,7 +85,6 @@ import TriangleIcon from "../../components/icons/TriangleIcon.svelte";
 import UnionIcon from "../../components/icons/UnionIcon.svelte";
 import VariableIcon from "../../components/icons/VariableIcon.svelte";
 import WaveIcon from "../../components/icons/WaveIcon.svelte";
-import { getFonts } from "../system.svelte";
 import { property, type Property, type PropertyType, type PropertyValue } from "./property";
 
 export const objectCategories = [
@@ -187,7 +186,13 @@ const VMobjectProperties = [
 		description: "The thickness of the object's background stroke.",
 		categories: ["Color"],
 	},
-	{ name: "Sheen Factor", internalName: "sheen_factor", type: property().number(), description: "The sheen factor of the object.", categories: ["Color"] },
+	{
+		name: "Sheen Factor",
+		internalName: "sheen_factor",
+		type: property().number(),
+		description: "The sheen factor of the object.",
+		categories: ["Color"],
+	},
 	{
 		name: "Sheen Direction",
 		internalName: "sheen_direction",
@@ -202,12 +207,22 @@ const VMobjectProperties = [
 		description: "The image of the object's background.",
 		categories: ["Color"],
 	},
-	{ name: "Joint Type", internalName: "joint_type", type: property().number(), description: "The type of joint used to connect lines on the object.", categories: ["Details"] },
+	{
+		name: "Joint Type",
+		internalName: "joint_type",
+		type: property()
+			.select()
+			.choices("Bevel", "Miter", "Round")
+			.default("Miter")
+			.codegen(value => `LineJointType.${value.toUpperCase()}`),
+		description: "The type of joint used to connect lines on the object.",
+		categories: ["Details"],
+	},
 	{
 		name: "Close New Points",
 		internalName: "close_new_points",
 		type: property().boolean(),
-		description: "Whether to close new points on the object.",
+		description: "Indicates that it will not be displayed, but that it should count in parent mobject's path",
 		categories: ["Details"],
 	},
 	{
@@ -241,8 +256,12 @@ const VMobjectProperties = [
 	{
 		name: "Cap Style",
 		internalName: "cap_style",
-		type: property().number(),
-		description: "The cap style of the object.",
+		type: property()
+			.select()
+			.choices("Butt", "Round", "Square")
+			.default("Square")
+			.codegen(value => `CapStyleType.${value.toUpperCase()}`),
+		description: 'The style of the object\'s line-ends. For example, a line drawn with "Round" cap style will round off the end of the lines.',
 		categories: ["Details"],
 	},
 	{
@@ -563,7 +582,7 @@ export const objects = [
 						{ name: "Difference", icon: DifferenceIcon, color: "#b4befe" },
 						{ name: "Exclusion", icon: IntersectionIcon, color: "#b4befe" },
 						{ name: "Intersection", icon: IntersectionIcon, color: "#b4befe" },
-						{ name: "Union", icon: UnionIcon, color: "#b4befe" },
+						{ name: "Union", icon: UnionIcon, color: "#b4befe" }
 					),
 				categories: ["Special"],
 				description: "The method by which the objects are combined.",
@@ -816,7 +835,7 @@ export const objects = [
 					.choices(
 						{ name: "left", icon: JustifyLeftIcon, color: "var(--yellow)" },
 						{ name: "right", icon: JustifyRightIcon, color: "var(--yellow)" },
-						{ name: "center", icon: JustifyCenterIcon, color: "var(--yellow)" },
+						{ name: "center", icon: JustifyCenterIcon, color: "var(--yellow)" }
 					),
 				categories: ["Special"],
 				description: "The justification of the text.",
@@ -855,8 +874,8 @@ export const objects = [
 								.property("Italic", property().boolean())
 								.property("Underline", property().boolean())
 								.property("Strikethrough", property().boolean())
-								.property("Color", property().color()),
-						),
+								.property("Color", property().color())
+						)
 				),
 				special: true,
 				description: "The parts of the text.",

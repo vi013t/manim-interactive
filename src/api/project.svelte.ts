@@ -1,11 +1,12 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
+import { cache } from "./client.svelte";
 import { generateAnimationPreview, generateObjectPreview } from "./codegen.svelte";
 import type { AnimationProperties } from "./manim/animations";
 import type { EventProperties } from "./manim/events";
 import { type ObjectProperties } from "./manim/objects";
 import type { Properties, PropertyType } from "./manim/property";
 import { getAnimationObjects, getPossibleProperties, getProperty } from "./manim/property";
-import { getPreferences, runAction, setPreference } from "./preferences.svelte";
+import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
@@ -281,7 +282,7 @@ export function deselect() {
 
 export function select(id: number[]) {
 	selectedItems = id;
-	if (selectedItems.length === 1) setPreference("showMovieOverPreview", false);
+	if (selectedItems.length === 1) cache("showMovieOverPreview", false);
 }
 
 export function getSingleSelection(): number | null {

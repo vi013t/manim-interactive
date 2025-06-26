@@ -22,6 +22,7 @@
 	import TrashIcon from "../../icons/TrashIcon.svelte";
 	import UnlockIcon from "../../icons/UnlockIcon.svelte";
 	import AddVariableMenu from "../../menus/AddVariableMenu.svelte";
+	import Tooltip from "../../util/Tooltip.svelte";
 	import ConfirmDeleteVariableWindow from "../../windows/ConfirmDeleteVariableWindow.svelte";
 	import PropertyValueInput from "../properties/PropertyValueInput.svelte";
 
@@ -55,7 +56,9 @@
 						else if (item.type === "animation") generateAnimationPreview(item);
 					}
 				}
-				runAction("Save And Recompile Project");
+
+				if (isVariableUsed(variable)) runAction("Save And Recompile Project");
+				else runAction("Save Project");
 			}
 		};
 	}
@@ -169,7 +172,9 @@
 					<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
 				</button>
 				{#if !isVariableUsed(variable)}
-					<SkullIcon title="This variable is unused" stroke="var(--overlay-0)" style="margin-left: 0.5rem; width: 1rem; height: 1rem;" />
+					<Tooltip text="This variable is unused and can be deleted with no change." style="margin-left: 0.5rem;">
+						<SkullIcon stroke="var(--overlay-0)" style="width: 1rem; height: 1rem;" />
+					</Tooltip>
 				{/if}
 			</span>
 		{/each}
