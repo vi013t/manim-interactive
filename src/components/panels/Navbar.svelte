@@ -83,6 +83,7 @@
 	function toggleCachePreference(preferenceName: CacheKey<boolean>) {
 		return function () {
 			cache(preferenceName, !getFromCache(preferenceName));
+			console.log(preferenceName, getFromCache(preferenceName));
 			if (preferenceName === "lowRes" && getPreferences().autosave) runAction("Save And Recompile Project");
 		};
 	}
@@ -166,14 +167,19 @@
 		</div>
 
 		<div class="timeline-options">
-			<Tooltip text="Toggle timeline snapping" element="button" onclick={togglePreference("timelineSnapping")} class={getPreferences().timelineSnapping ? "option-on" : undefined}>
+			<Tooltip
+				text="Toggle timeline snapping"
+				element="button"
+				onclick={toggleCachePreference("timelineSnapping")}
+				class={getFromCache("timelineSnapping") ? "option-on" : undefined}
+			>
 				<MagnetIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 			</Tooltip>
 			<Tooltip
 				text="Toggle collapsing wait times"
 				element="button"
-				onclick={togglePreference("collapseWaitTimes")}
-				class={getPreferences().collapseWaitTimes ? "option-on" : undefined}
+				onclick={toggleCachePreference("collapseWaitTimes")}
+				class={getFromCache("collapseWaitTimes") ? "option-on" : undefined}
 			>
 				<CollapseIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 			</Tooltip>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import { getFromCache } from "../../../api/client.svelte";
 	import { animations, getAnimationCategory, getManimAnimationByName } from "../../../api/manim/animations";
 	import { getAnimationObjects, getProperty } from "../../../api/manim/property";
 	import { getPreferences, runAction } from "../../../api/preferences.svelte";
@@ -38,7 +39,7 @@
 
 	function animationMouseDown(event: MouseEvent) {
 		if (event.button !== 0) return;
-		if (getPreferences().collapseWaitTimes) return;
+		if (getFromCache("collapseWaitTimes")) return;
 		if (event.target !== element) return;
 
 		if (event.offsetY > (event.target as HTMLElement).clientHeight - BORDER_SIZE) {
@@ -63,7 +64,7 @@
 			const cellHeight = 64;
 			if (timelineElement) {
 				if (expandingElement) {
-					let snapping = getPreferences().timelineSnapping;
+					let snapping = getFromCache("timelineSnapping");
 					let newHeight = event.y - expandingElement.getBoundingClientRect().top;
 					if (snapping) {
 						if (newHeight % cellHeight < cellHeight / 2) newHeight = newHeight - (newHeight % cellHeight);
@@ -80,7 +81,7 @@
 					updateEndMarker();
 				} else if (draggingElement) {
 					let newTop = event.clientY - timelineElement.getBoundingClientRect().top - draggingElement.clientHeight / 2;
-					let snapping = getPreferences().timelineSnapping;
+					let snapping = getFromCache("timelineSnapping");
 					if (snapping) {
 						if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
 						else newTop = newTop + (cellHeight - (newTop % cellHeight));
@@ -141,11 +142,11 @@
 				return false;
 			});
 		if (animation.properties["Animation Type"] === "Wait") top--;
-		return getPreferences().collapseWaitTimes ? `${top * 4}rem` : `${animation.properties["Start Time"]! * 4}rem`;
+		return getFromCache("collapseWaitTimes") ? `${top * 4}rem` : `${animation.properties["Start Time"]! * 4}rem`;
 	});
 
 	let animationHeight = $derived.by(() => {
-		if (getPreferences().collapseWaitTimes && animation.properties["Animation Type"] === "Wait") return "4rem";
+		if (getFromCache("collapseWaitTimes") && animation.properties["Animation Type"] === "Wait") return "4rem";
 		return `${animation.properties["Duration"]! * 4}rem`;
 	});
 

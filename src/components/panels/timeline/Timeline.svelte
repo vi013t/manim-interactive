@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
-	import { getPreferences, onPreferenceChange, runAction, setPreference } from "../../../api/preferences.svelte";
+	import { getFromCache, getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
+	import { onPreferenceChange, runAction } from "../../../api/preferences.svelte";
 	import {
 		addToSelection,
 		animationEndTime,
@@ -14,7 +14,7 @@
 		selected,
 		type ProjectEvent,
 	} from "../../../api/project.svelte";
-	import { currentTime, getRelativeTime, isPlaying, togglePlaying } from "../../../api/timeline.svelte";
+	import { currentTime, getRelativeTime } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
 	import SquareIcon from "../../icons/SquareIcon.svelte";
@@ -77,15 +77,15 @@
 			}
 		}
 
-		document.addEventListener("keydown", event => {
-			setPreference("timelineSnapping", !event.ctrlKey);
-		});
-		document.addEventListener("keyup", event => {
-			setPreference("timelineSnapping", !event.ctrlKey);
-		});
-		document.addEventListener("mousemove", event => {
-			setPreference("timelineSnapping", !event.ctrlKey);
-		});
+		// document.addEventListener("keydown", event => {
+		// 	cache("timelineSnapping", !event.ctrlKey);
+		// });
+		// document.addEventListener("keyup", event => {
+		// 	cache("timelineSnapping", !event.ctrlKey);
+		// });
+		// document.addEventListener("mousemove", event => {
+		// 	cache("timelineSnapping", !event.ctrlKey);
+		// });
 
 		checkForNewDiv();
 
@@ -101,7 +101,7 @@
 							.toSorted((anim1, anim2) => anim2 - anim1)[0] * cellHeight;
 				}
 				let newTop = Math.max(event.clientY - timelineElement.getBoundingClientRect().top, minimum);
-				if (getPreferences().timelineSnapping) {
+				if (getFromCache("timelineSnapping")) {
 					if (newTop % cellHeight < cellHeight / 2) newTop = newTop - (newTop % cellHeight);
 					else newTop = newTop + (cellHeight - (newTop % cellHeight));
 				}
@@ -172,14 +172,26 @@
 			mouseDown = true;
 		}
 	}
+
+	let isPlaying = $derived.by(() => {
+		let video = document.getElementById("video-source") as HTMLVideoElement | null;
+		return video && video.currentTime > 0 && !video.paused && !video.ended && video.readyState > 2;
+	});
+
+	function togglePlay() {
+		let video = document.getElementById("video-source") as HTMLVideoElement | null;
+		if (!video) return;
+		if (isPlaying) video.pause();
+		else video.play();
+	}
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <section id="timeline">
 	<div class="header">
 		<h1>{translate("Timeline")}</h1>
-		<button onclick={togglePlaying}>
-			{#if isPlaying()}
+		<button onclick={togglePlay}>
+			{#if isPlaying}
 				<SquareIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />
 			{:else}
 				<PlayIcon stroke="var(--overlay-2)" style="width: 1rem; height: 1rem;" />

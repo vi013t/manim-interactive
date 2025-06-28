@@ -139,6 +139,8 @@ export type Cache = {
 	showMovieOverPreview: boolean;
 	grid: boolean;
 	lowRes: boolean;
+	timelineSnapping: boolean;
+	collapseWaitTimes: boolean;
 };
 
 /**
@@ -151,6 +153,8 @@ let storedCache: Cache = $state({
 	showMovieOverPreview: false,
 	grid: false,
 	lowRes: false,
+	timelineSnapping: true,
+	collapseWaitTimes: false,
 });
 
 export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]) {

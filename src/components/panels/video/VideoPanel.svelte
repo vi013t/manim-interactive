@@ -14,6 +14,7 @@
 	} from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
+	import Video from "./Video.svelte";
 
 	let videoWidth = screen.availWidth * (2 / 3);
 	let videoHeight = (videoWidth * 9) / 16;
@@ -71,8 +72,8 @@
 	}
 
 	function updateTime() {
-		setCurrentTime(video!.currentTime + timeOffset);
-		if (!video!.paused && !video!.ended) {
+		setCurrentTime(video!.element()!.currentTime + timeOffset);
+		if (!video!.element()!.paused && !video!.element()!.ended) {
 			requestAnimationFrame(updateTime);
 		}
 	}
@@ -83,7 +84,7 @@
 		}
 	}
 
-	let video: HTMLVideoElement | null = $state(null);
+	let video: Video | null = $state(null);
 
 	let objectPreviewImage = $derived(
 		getSingleSelection() && getObjectFromId(getSingleSelection()!) ? `data:image/png;base64,${getObjectFromId(getSingleSelection()!)!.previewData}` : null,
@@ -102,8 +103,8 @@
 
 		try {
 			if (!objectPreviewImage || getFromCache("showMovieOverPreview")) {
-				video?.load();
-				video?.play();
+				video?.element()?.load();
+				video?.element()?.play();
 			}
 		} catch (e) {}
 	});
@@ -145,20 +146,19 @@
 		{/if}
 
 		<!-- svelte-ignore a11y_media_has_caption -->
-		<video
-			style:display={isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache("showMovieOverPreview")) ? "block" : "none"}
+		<Video
+			style="display: {isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache('showMovieOverPreview')) ? 'block' : 'none'}"
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			oncontextmenu={event => event.preventDefault()}
-			controls
 			onplay={onPlay}
 			onpause={onPause}
 			id="video-source"
 			class="preview"
 			bind:this={video}
 			src={videoSrc}
-		></video>
+		/>
 	{:else if !objectPreviewImage || getFromCache("showMovieOverPreview")}
 		<div id="novideo">
 			<h1>No Animations Yet</h1>
@@ -241,7 +241,7 @@
 		}
 	}
 
-	.preview {
+	:global(.preview) {
 		width: 100%;
 		height: 100%;
 	}

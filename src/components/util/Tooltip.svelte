@@ -1,17 +1,21 @@
-<script lang="ts">
+<script lang="ts" generics="ElementType extends keyof HTMLElementTagNameMap">
+	import type { Snippet } from "svelte";
+	import type { HTMLAttributes } from "svelte/elements";
 	import { cursorIsIn } from "../../api/client.svelte";
 	import { getPreferences } from "../../api/preferences.svelte";
 
+	type AtLeastOne<T> = {
+		[K in keyof T]: Required<Pick<T, K>> & Partial<Omit<T, K>>;
+	}[keyof T];
+
 	type Props =
-		| {
-				text: string;
-		  }
-		| {
-				text: string;
-				children: () => unknown;
-				element?: keyof HTMLElementTagNameMap;
-				[key: string]: unknown;
-		  };
+		| { text: string }
+		| ({ text: string } & AtLeastOne<
+				{
+					children: Snippet;
+					element: ElementType;
+				} & HTMLAttributes<HTMLElementTagNameMap[ElementType]>
+		  >);
 
 	let props: Props = $props();
 	let { text, children, element = "div", ...rest } = $derived(props as any);
@@ -42,10 +46,6 @@
 {/if}
 
 <style>
-	div {
-		position: relative;
-	}
-
 	span {
 		position: absolute;
 		height: auto;

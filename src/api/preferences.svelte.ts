@@ -187,7 +187,6 @@ const actions = {
 
 let preferences = $state({
 	previews: true,
-	collapseWaitTimes: false,
 	relativeTimestamps: false,
 	dimUnselectedAnimations: true,
 	developerMode: false,
@@ -195,7 +194,6 @@ let preferences = $state({
 	autoOpenLastProject: true,
 	vimMode: false,
 	latexPreviews: true,
-	timelineSnapping: true,
 	showWaits: false,
 	showTooltips: true,
 	keybindings: [
