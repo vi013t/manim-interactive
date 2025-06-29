@@ -3,15 +3,7 @@
 	import { getFromCache, getPoint } from "../../../api/client.svelte";
 	import { objectPreviewLoaded } from "../../../api/codegen.svelte";
 	import { hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
-	import {
-		getAnimationFromId,
-		getObjectFromId,
-		getProjectAnimations,
-		getProjectAudios,
-		getProjectSettings,
-		getSingleSelection,
-		projectHasErrors,
-	} from "../../../api/project.svelte";
+	import { getAnimationFromId, getObjectFromId, getProjectAnimations, getProjectSettings, getSingleSelection, isAudioLoaded, projectHasErrors } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 	import Video from "./Video.svelte";
@@ -65,11 +57,9 @@
 	});
 
 	function onPlay() {
-		getProjectAudios().forEach(audio => {
-			let element = document.getElementById(`audio-${audio.id}`) as HTMLAudioElement;
-			element.currentTime = video!.element()!.currentTime;
-			element.play();
-		});
+		let element = document.getElementById(`master-audio`) as HTMLAudioElement;
+		element.currentTime = video!.element()!.currentTime;
+		element.play();
 		updateTime();
 	}
 
@@ -81,11 +71,9 @@
 	}
 
 	function onPause() {
-		getProjectAudios().forEach(audio => {
-			let element = document.getElementById(`audio-${audio.id}`) as HTMLAudioElement;
-			element.currentTime = video!.element()!.currentTime;
-			element.pause();
-		});
+		let element = document.getElementById(`master-audio`) as HTMLAudioElement;
+		element.currentTime = video!.element()!.currentTime;
+		element.pause();
 	}
 
 	let video: Video | null = $state(null);
@@ -149,9 +137,18 @@
 			<span class="preview-text">Movie "{getProjectSettings().outputFileName}"</span>
 		{/if}
 
+		{#if !isAudioLoaded()}
+			<div id="novideo">
+				<h1>Reloading Audio...</h1>
+				<p>Reloading audio after your changes. When the audio loads, the video will appear here.</p>
+			</div>
+		{/if}
+
 		<!-- svelte-ignore a11y_media_has_caption -->
 		<Video
-			style="display: {isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache('showMovieOverPreview')) ? 'block' : 'none'}"
+			style="display: {isAudioLoaded() && isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache('showMovieOverPreview'))
+				? 'block'
+				: 'none'}"
 			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
 			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}

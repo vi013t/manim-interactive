@@ -240,8 +240,13 @@
 {#if mouseDown}
 	<SelectRectangle point1={selectPoint1} point2={selectPoint2} />
 {/if}
+<audio id="master-audio" volume={getFromCache("volume")}></audio>
 
 <style>
+	#master-audio {
+		display: none;
+	}
+
 	.header {
 		display: flex;
 

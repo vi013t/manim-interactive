@@ -3,6 +3,7 @@ import BulletedListIcon from "../../components/icons/BulletedListIcon.svelte";
 import CameraIcon from "../../components/icons/CameraIcon.svelte";
 import ClockIcon from "../../components/icons/ClockIcon.svelte";
 import CubeIcon from "../../components/icons/CubeIcon.svelte";
+import FolderIcon from "../../components/icons/FolderIcon.svelte";
 import type { Icon } from "../../components/icons/Icon";
 import NumberSignIcon from "../../components/icons/NumberSignIcon.svelte";
 import PaintRollerIcon from "../../components/icons/PaintRollerIcon.svelte";
@@ -281,6 +282,14 @@ export type CoordinateProperty = {
 	requires(...name: string[]): CoordinateProperty;
 };
 
+export type FileProperty = {
+	base: "file";
+	requiredNotProperties: string[];
+	extensions: string[] | null;
+	requiresNot(...names: string[]): FileProperty;
+	types(...names: string[]): FileProperty;
+};
+
 export type BooleanProperty = {
 	base: "boolean";
 	defaultValue: boolean;
@@ -310,7 +319,8 @@ export type PropertyType =
 	| SelectProperty
 	| ObjectPropertyType
 	| ListProperty
-	| CompoundProperty;
+	| CompoundProperty
+	| FileProperty;
 export type PropertyTypeBase = PropertyType["base"];
 
 /**
@@ -383,6 +393,25 @@ export function property() {
 				},
 				requires(...name: string[]) {
 					return { ...this, requiredProperties: name };
+				},
+			};
+		},
+		file(): FileProperty {
+			return {
+				base: "file",
+				requiredNotProperties: [],
+				extensions: null,
+				requiresNot(...names: string[]): FileProperty {
+					return {
+						...this,
+						requiredNotProperties: names,
+					};
+				},
+				types(...names: string[]): FileProperty {
+					return {
+						...this,
+						extensions: names,
+					};
 				},
 			};
 		},
@@ -640,7 +669,13 @@ export function propertyValueToString(type: PropertyType, value: unknown): strin
 	throw "Unreachable";
 }
 
-export type PropertyValue<T extends PropertyType> = T extends ObjectPropertyType ? number : T extends { defaultValue: unknown } ? T["defaultValue"] : never;
+export type PropertyValue<T extends PropertyType> = T extends ObjectPropertyType
+	? number
+	: T extends FileProperty
+	? string
+	: T extends { defaultValue: unknown }
+	? T["defaultValue"]
+	: never;
 
 export function getPropertyObjects(properties: Map<PropertyType, unknown>): number[] {
 	return properties
@@ -720,6 +755,7 @@ export function getPropertyTypeIcon(base: PropertyTypeBase): Icon {
 		animationType: AnimationIcon,
 		boolean: SwitchIcon,
 		color: PaintRollerIcon,
+		file: FolderIcon,
 	}[base];
 }
 
@@ -736,6 +772,7 @@ export function getPropertyTypeColor(base: PropertyTypeBase): string {
 		animationType: "var(--teal)",
 		boolean: "var(--green)",
 		color: "var(--red)",
+		file: "var(--lavender)",
 	}[base];
 }
 
@@ -751,5 +788,6 @@ export function getPropertyName(name: PropertyTypeBase): string {
 		compound: "Compound",
 		color: "Color",
 		coordinate: "Coordinate",
+		file: "File",
 	}[name];
 }

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import type { HTMLVideoAttributes } from "svelte/elements";
-	import { cache, getFromCache } from "../../../api/client.svelte";
+	import { cache, cursorIsIn, getFromCache } from "../../../api/client.svelte";
 	import FilledPlayIcon from "../../icons/FilledPlayIcon.svelte";
 	import FullscreenIcon from "../../icons/FullscreenIcon.svelte";
 	import MuteIcon from "../../icons/MuteIcon.svelte";
@@ -16,6 +16,7 @@
 	let volumeSlider: HTMLButtonElement | null = $state(null);
 	let volumeContainer: HTMLElement | null = $state(null);
 	let paused = $state(false);
+	let ended = $state(false);
 	let currentTime = $state(0);
 	let duration = $state(0);
 	let seeking = $state(false);
@@ -24,6 +25,9 @@
 	let showVolumeSlider = $state(false);
 	let previousVolume = $state(getFromCache("volume"));
 	let volumeChanged = $state(false);
+	let controlsOpacity: "100%" | "0%" = $state("0%");
+	let isPlaying = $derived.by(() => currentTime > 0 && !paused && !ended);
+	let controlsOpacityTimeoutID: number | null = $state(null);
 
 	export function element() {
 		return video;
@@ -67,6 +71,7 @@
 	});
 
 	let volumeBarHeight = $derived.by(() => {
+		loaded;
 		if (!volumeSlider) return "0px";
 		return `${getFromCache("volume") * volumeSlider.getBoundingClientRect().height}px`;
 	});
@@ -81,6 +86,15 @@
 		seekVolume(event);
 	}
 
+	function showControls() {
+		if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
+		controlsOpacity = "100%";
+		controlsOpacityTimeoutID = setTimeout(() => {
+			controlsOpacity = "0%";
+			controlsOpacityTimeoutID = null;
+		}, 1000);
+	}
+
 	onMount(() => {
 		video?.addEventListener("loadedmetadata", event => {
 			loaded = true;
@@ -89,6 +103,10 @@
 		document.addEventListener("mousemove", event => {
 			if (seeking) seek(event);
 			if (seekingVolume) seekVolume(event);
+
+			if (video && cursorIsIn(video.getBoundingClientRect()) && isPlaying) {
+				showControls();
+			}
 		});
 
 		document.addEventListener("mouseup", event => {
@@ -100,6 +118,21 @@
 			if (!event.composedPath().includes(volumeContainer!)) {
 				showVolumeSlider = false;
 			}
+		});
+
+		video!.addEventListener("pause", event => {
+			if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
+			controlsOpacity = "100%";
+		});
+
+		video!.addEventListener("pause", event => {
+			if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
+			controlsOpacity = "100%";
+		});
+
+		video!.addEventListener("ended", event => {
+			if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
+			controlsOpacity = "100%";
 		});
 	});
 
@@ -126,8 +159,8 @@
 </script>
 
 <div class="video-container" style={attributes.style}>
-	<video onclick={togglePlay} bind:duration bind:currentTime bind:paused bind:this={video} {...attributes} loop={getFromCache("loopVideo")}></video>
-	<div class="controls">
+	<video bind:ended onclick={togglePlay} bind:duration bind:currentTime bind:paused bind:this={video} {...attributes} loop={getFromCache("loopVideo")}></video>
+	<div class="controls" style:opacity={controlsOpacity}>
 		<!-- svelte-ignore a11y_consider_explicit_label -->
 		<button bind:this={progressBar} style:--progress-bar-width={progressBarWidth} class="progress" onmousedown={beginSeeking}></button>
 		<button onclick={togglePlay} class="play">
@@ -176,6 +209,7 @@
 	}
 
 	.controls {
+		transition: opacity 0.25s;
 		position: absolute;
 		width: 100%;
 		height: 7rem;

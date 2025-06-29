@@ -6,6 +6,7 @@
 	import {
 		addProjectVariable,
 		getAnimationFromId,
+		getAudioFromId,
 		getItemFromId,
 		getObjectFromId,
 		getProjectVariableFromId,
@@ -15,6 +16,8 @@
 		getSingleSelection,
 		isNameTaken,
 		nextId,
+		recompileAudio,
+		removeError,
 	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
@@ -30,6 +33,7 @@
 	import ColorProperty from "./ColorProperty.svelte";
 	import CompoundProperty from "./CompoundProperty.svelte";
 	import CoordinateProperty from "./CoordinateProperty.svelte";
+	import FileProperty from "./FileProperty.svelte";
 	import ListProperty from "./ListProperty.svelte";
 	import NumberProperty from "./NumberProperty.svelte";
 	import ObjectProperty from "./ObjectProperty.svelte";
@@ -80,7 +84,11 @@
 		const animation = getAnimationFromId(getSingleSelection()!);
 		if (animation) generateAnimationPreview(animation);
 
+		const audio = getAudioFromId(getSingleSelection()!);
+		if (audio) recompileAudio();
+
 		cache("showMovieOverPreview", false);
+		removeError({ objectId: id!, propertyName: name });
 
 		if (getPreferences().autosave) runAction("Save And Recompile Project");
 	}
@@ -93,6 +101,9 @@
 
 		const animation = getAnimationFromId(getSingleSelection()!);
 		if (animation) generateAnimationPreview(animation);
+
+		const audio = getAudioFromId(getSingleSelection()!);
+		if (audio) recompileAudio();
 
 		cache("showMovieOverPreview", false);
 
@@ -151,6 +162,8 @@
 				<StringProperty {locked} {id} {width} bind:errorMessage bind:value={value as string} {name} {property} />
 			{:else if property.base === "number"}
 				<NumberProperty {locked} {id} {width} bind:errorMessage bind:value={value as number} {name} {property} />
+			{:else if property.base === "file"}
+				<FileProperty {locked} {width} bind:value={value as string} {property} />
 			{/if}
 
 			{#if canBeVariable}

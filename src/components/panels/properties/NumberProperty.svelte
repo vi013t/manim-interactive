@@ -2,7 +2,15 @@
 	import { onMount } from "svelte";
 	import type { NumberProperty } from "../../../api/manim/property";
 	import { getProperty } from "../../../api/manim/property";
-	import { animationEndTime, getItemFromId, getProjectAnimations, getPropertiesFromId, intervalsOverlap, type ProjectAnimation } from "../../../api/project.svelte";
+	import {
+		animationEndTime,
+		getAnimationFromId,
+		getItemFromId,
+		getProjectAnimations,
+		getPropertiesFromId,
+		intervalsOverlap,
+		type ProjectAnimation,
+	} from "../../../api/project.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
 
 	let {
@@ -48,6 +56,7 @@
 		}
 		if (
 			name === "Start Time" &&
+			getAnimationFromId(id!) &&
 			getProjectAnimations()
 				.filter(animation => animation.id !== id)
 				.some(projectAnimation =>

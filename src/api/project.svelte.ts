@@ -1,3 +1,4 @@
+import { invoke } from "@tauri-apps/api/core";
 import { join, sep, tempDir } from "@tauri-apps/api/path";
 import type { AudioProperties } from "./audio";
 import { cache } from "./client.svelte";
@@ -61,10 +62,40 @@ let projectEvents: ProjectEvent[] = $state([]);
 export type ProjectAudio = {
 	id: number;
 	type: "audio";
-	data: string;
 	duration: number;
 	properties: AudioProperties;
 };
+
+let audioLoaded = $state(true);
+
+export async function recompileAudio() {
+	if (getProjectAudios().length === 0) {
+		(document.getElementById("master-audio") as HTMLAudioElement).src = ``;
+		return;
+	}
+
+	audioLoaded = false;
+	saveToProjectCache(
+		"masterAudio",
+		await invoke<string>("merge_audios", {
+			projectPath: await getProjectLocation(),
+			audios: getProjectAudios().map(audio => ({
+				id: audio.id,
+				duration: audio.duration,
+				data: audio.properties["Embedded Source"]!,
+				start_time: audio.properties["Start Time"]!,
+			})),
+			videoLength: movieLength(),
+			outputPath: null,
+		})
+	);
+	(document.getElementById("master-audio") as HTMLAudioElement).src = `data:audio/mp3;base64,${getFromProjectCache("masterAudio")}`;
+	audioLoaded = true;
+}
+
+export function isAudioLoaded() {
+	return audioLoaded;
+}
 
 export async function addProjectAudio(name: string, data: string) {
 	let duration = await new Promise<number>(resolve => {
@@ -76,14 +107,16 @@ export async function addProjectAudio(name: string, data: string) {
 
 	projectAudios.push({
 		type: "audio",
-		data,
 		duration,
 		id: nextId(),
 		properties: {
 			Name: name,
 			"Start Time": 0,
+			"Embedded Source": data,
 		},
 	});
+
+	await recompileAudio();
 }
 
 export function getProjectAudios() {
@@ -553,4 +586,20 @@ let projectSettings = $state({
 
 export function getProjectSettings() {
 	return projectSettings;
+}
+
+export type ProjectCache = {
+	masterAudio: string | null;
+};
+
+let projectCache: ProjectCache = $state({
+	masterAudio: null,
+});
+
+export function saveToProjectCache<Key extends keyof ProjectCache>(key: Key, value: ProjectCache[Key]): void {
+	projectCache[key] = value;
+}
+
+export function getFromProjectCache<Key extends keyof ProjectCache>(key: Key): ProjectCache[Key] {
+	return projectCache[key];
 }

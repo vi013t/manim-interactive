@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getFromCache, getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
 	import { select, type ProjectAudio } from "../../../api/project.svelte";
 	import AudioMenu from "../../menus/AudioMenu.svelte";
 
@@ -9,6 +9,9 @@
 		const ctx = canvas.getContext("2d")!;
 		canvas.width = canvas.clientWidth;
 		canvas.height = canvas.clientHeight;
+
+		// Reset
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 		const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
 
@@ -69,13 +72,6 @@
 	let left = $state("");
 	let top = $state("");
 
-	// $effect(() => {
-	// 	if (getProjectAudios().length) {
-	// 		let audio = document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null;
-	// 		if (audio) audio.currentTime = currentTime();
-	// 	}
-	// });
-
 	function audioActions(event: MouseEvent) {
 		if (menu) {
 			menu.setId(audio.id);
@@ -86,14 +82,23 @@
 		}
 	}
 
-	let volume = $derived((audio.properties.Volume ?? 1) * getFromCache("volume"));
+	let canvas: HTMLCanvasElement;
+
+	$effect(() => {
+		createWaveform(audio.properties["Embedded Source"]!, canvas);
+		new Promise<number>(resolve => {
+			const audioElement = new Audio(`data:audio/mp3;base64,${audio.properties["Embedded Source"]!}`);
+			audioElement.addEventListener("loadedmetadata", () => {
+				resolve(audioElement.duration);
+			});
+		}).then(duration => (audio.duration = duration));
+	});
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
-<button onclick={() => select([audio.id])} oncontextmenu={audioActions} class="audio" style:height="{audio.duration * 4}rem">
-	<audio {volume} id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
+<button onclick={() => select([audio.id])} oncontextmenu={audioActions} class="audio" style:height="{audio.duration * 4}rem" style:top="{audio.properties['Start Time']! * 4}rem">
 	<span contenteditable bind:textContent={audio.properties.Name}></span>
-	<canvas {@attach canvas => createWaveform(audio.data, canvas)} width="100" height="400"></canvas>
+	<canvas bind:this={canvas} {@attach canvas => createWaveform(audio.properties["Embedded Source"]!, canvas)} width="100" height="400"></canvas>
 </button>
 
 <style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { deleteProjectItem } from "../../api/project.svelte";
+	import { deleteProjectItem, recompileAudio } from "../../api/project.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
 	import ConfirmDeleteObjectWindow from "../windows/ConfirmDeleteObjectWindow.svelte";
@@ -31,6 +31,7 @@
 	function deleteAudio() {
 		menu.hide();
 		deleteProjectItem(id);
+		recompileAudio();
 	}
 
 	let confirmDeleteObjectWindow: ConfirmDeleteObjectWindow;
@@ -49,7 +50,7 @@
 	</button>
 </ContextMenu>
 
-<ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} {id} />
+<ConfirmDeleteObjectWindow bind:this={confirmDeleteObjectWindow} ids={[id]} />
 
 <style>
 	:global(button) {

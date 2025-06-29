@@ -211,7 +211,12 @@ const actions = {
 				fileFormat: getProjectSettings().fileFormat,
 				fps: getProjectSettings().fps,
 				outputFileName: getProjectSettings().outputFileName,
-				audios: getProjectAudios().map(audio => ({ id: audio.id, data: audio.data, duration: audio.duration, start_time: audio.properties["Start Time"]! })),
+				audios: getProjectAudios().map(audio => ({
+					id: audio.id,
+					data: audio.properties["Embedded Source"]!,
+					duration: audio.duration,
+					start_time: audio.properties["Start Time"]!,
+				})),
 				videoLength: movieLength(),
 				openWhenFinished: true,
 			});

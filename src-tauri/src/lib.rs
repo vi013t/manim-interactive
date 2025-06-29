@@ -3,8 +3,6 @@ use std::{
     process::{Command, Stdio},
 };
 
-//mod audio;
-
 use base64::Engine;
 use colored::Colorize;
 use reqwest::StatusCode;
@@ -30,7 +28,8 @@ pub fn run() {
             path_is_file,
             generate_object_preview,
             generate_animation_preview,
-            compile
+            compile,
+            merge_audios
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -111,7 +110,13 @@ async fn compile(
         .join("audio.mp3");
 
     println!("    {} Audios...", "Merging".bold().green());
-    merge_audios(project_path.clone(), audios, video_length, &audio_path).await;
+    merge_audios(
+        Path::new(&project_path).into(),
+        audios,
+        video_length,
+        Some(audio_path.clone()),
+    )
+    .await;
 
     println!("    {} audio to video...", "Adding".bold().green());
     let output_path = Path::new(&project_path)
@@ -348,21 +353,18 @@ struct Audio {
     duration: f32,
 }
 
-async fn merge_audios<ProjectPath: AsRef<Path>, OutputPath: AsRef<Path>>(
-    project_path: ProjectPath,
+#[tauri::command]
+async fn merge_audios(
+    project_path: PathBuf,
     audios: Vec<Audio>,
     video_length: f32,
-    output_path: OutputPath,
-) {
-    let raw_audio_cache_path = Path::new(project_path.as_ref())
-        .join("cache")
-        .join("audios")
-        .join("raw");
+    output_path: Option<PathBuf>,
+) -> String {
+    let output_path =
+        output_path.unwrap_or_else(|| project_path.join("cache").join("output").join("audio.mp3"));
+    let raw_audio_cache_path = project_path.join("cache").join("audios").join("raw");
 
-    let padded_audio_cache_path = Path::new(project_path.as_ref())
-        .join("cache")
-        .join("audios")
-        .join("padded");
+    let padded_audio_cache_path = project_path.join("cache").join("audios").join("padded");
 
     let mut merge_command = Command::new("ffmpeg");
     merge_command.arg("-y");
@@ -407,7 +409,7 @@ async fn merge_audios<ProjectPath: AsRef<Path>, OutputPath: AsRef<Path>>(
                 audio.id
             );
             add_end_silence(
-                project_path.as_ref(),
+                &project_path,
                 video_length - audio.duration - audio.start_time,
                 file_path,
                 &output_path,
@@ -432,13 +434,15 @@ async fn merge_audios<ProjectPath: AsRef<Path>, OutputPath: AsRef<Path>>(
     merge_command
         .arg("-filter_complex")
         .arg(format!("amix=inputs={}:duration=first", audios.len()))
-        .arg(output_path.as_ref())
+        .arg(&output_path)
         .current_dir(&project_path)
         .stdout(Stdio::null())
         .spawn()
         .unwrap()
         .wait()
         .unwrap();
+
+    load_file_base64_data(output_path).await.unwrap()
 }
 
 fn add_audio_to_video<
