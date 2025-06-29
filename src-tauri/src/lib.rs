@@ -114,16 +114,14 @@ async fn compile(
     merge_audios(project_path.clone(), audios, video_length, &audio_path).await;
 
     println!("    {} audio to video...", "Adding".bold().green());
-    add_audio_to_video(
-        project_path.clone(),
-        audio_path,
-        &video_path,
-        output_file_name,
-    );
+    let output_path = Path::new(&project_path)
+        .join("output")
+        .join(format!("{output_file_name}.{file_format}"));
+    add_audio_to_video(project_path.clone(), audio_path, &video_path, &output_path);
 
     if open_when_finished {
         println!("    {} movie location...", "Opening".bold().green());
-        showfile::show_path_in_file_manager(video_path);
+        showfile::show_path_in_file_manager(output_path);
     }
 
     println!("{}\n", "Done!".bold().green());
@@ -190,6 +188,10 @@ async fn new_project(path: String, name: String) -> Result<String, String> {
 
     std::fs::create_dir_all(Path::new(&path).join(&name).join("cache").join("output"))
         .map_err(|_| "Error creating cache directory".to_owned())?;
+
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("output"))
+        .map_err(|_| "Error creating cache directory".to_owned())?;
+
     std::fs::create_dir_all(
         Path::new(&path)
             .join(&name)
@@ -362,23 +364,47 @@ async fn merge_audios<ProjectPath: AsRef<Path>, OutputPath: AsRef<Path>>(
         .join("padded");
 
     let mut merge_command = Command::new("ffmpeg");
+    merge_command.arg("-y");
 
     for audio in &audios {
+        println!("        {} audio {}...", "Padding".bold().green(), audio.id);
         let audio_path = raw_audio_cache_path.join(format!("audio_{}.mp3", audio.id));
         let output_path = padded_audio_cache_path.join(format!("audio_{}.mp3", audio.id));
 
-        std::fs::write(&audio_path, &audio.data).unwrap();
+        std::fs::write(
+            &audio_path,
+            base64::engine::general_purpose::STANDARD
+                .decode(&audio.data)
+                .unwrap(),
+        )
+        .unwrap();
 
         let mut file_path = audio_path;
 
         // Starting Silence
         if audio.start_time != 0. {
+            println!(
+                "            {} start for audio {}...",
+                "Padding".bold().green(),
+                audio.id
+            );
             add_start_silence(&project_path, audio.start_time, file_path, &output_path);
             file_path = output_path.clone();
+        } else {
+            println!(
+                "            {} start pad for audio {}...",
+                "Skipping".bold().green(),
+                audio.id
+            );
         }
 
         // Ending Silence
         if audio.start_time + audio.duration < video_length {
+            print!(
+                "            {} end for audio {}... ",
+                "Padding".bold().green(),
+                audio.id
+            );
             add_end_silence(
                 project_path.as_ref(),
                 video_length - audio.duration - audio.start_time,
@@ -386,15 +412,22 @@ async fn merge_audios<ProjectPath: AsRef<Path>, OutputPath: AsRef<Path>>(
                 &output_path,
             );
             file_path = output_path.clone();
+        } else {
+            println!(
+                "            {} end pad for audio {}...",
+                "Skipping".bold().green(),
+                audio.id
+            );
         }
 
         // Trimming
 
-        // Merging - ffmpeg -i INPUT1 -i INPUT2 -i INPUT3 -filter_complex amix=inputs=3:duration=first:dropout_transition=3 OUTPUT
+        // Merging
         merge_command.arg("-i").arg(&file_path);
     }
 
     // Finish Merge
+    println!("        {} padded audio clips...", "Merging".bold().green());
     merge_command
         .arg("-filter_complex")
         .arg(format!("amix=inputs={}:duration=first", audios.len()))
@@ -419,6 +452,7 @@ fn add_audio_to_video<
     output_path: OutputPath,
 ) {
     Command::new("ffmpeg")
+        .arg("-y")
         .arg("-i")
         .arg(video_path.as_ref())
         .arg("-i")
@@ -445,6 +479,7 @@ fn add_start_silence<ProjectPath: AsRef<Path>, InputPath: AsRef<Path>, OutputPat
     output_file_path: OutputPath,
 ) {
     Command::new("ffmpeg")
+        .arg("-y")
         .arg("-i")
         .arg(audio_file_path.as_ref())
         .arg("-af")
@@ -464,16 +499,16 @@ fn add_end_silence<ProjectPath: AsRef<Path>, InputPath: AsRef<Path>, OutputPath:
     audio_file_path: InputPath,
     output_file_path: OutputPath,
 ) {
-    Command::new("ffmpeg")
+    let mut command = Command::new("ffmpeg");
+    command
+        .arg("-y")
         .arg("-i")
         .arg(audio_file_path.as_ref())
         .arg("-af")
         .arg(format!("apad=pad_dur={end_silence}"))
         .arg(output_file_path.as_ref())
         .current_dir(project_path)
-        .stdout(Stdio::null())
-        .spawn()
-        .unwrap()
-        .wait()
-        .unwrap();
+        .stdout(Stdio::null());
+    println!("{}", format!("({command:?})").dimmed());
+    let status = command.status().unwrap();
 }
