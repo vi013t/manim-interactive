@@ -141,6 +141,8 @@ export type Cache = {
 	lowRes: boolean;
 	timelineSnapping: boolean;
 	collapseWaitTimes: boolean;
+	volume: number;
+	loopVideo: boolean;
 };
 
 /**
@@ -155,10 +157,18 @@ let storedCache: Cache = $state({
 	lowRes: false,
 	timelineSnapping: true,
 	collapseWaitTimes: false,
+	volume: 1,
+	loopVideo: false,
 });
 
-export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]) {
+export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]): void {
 	storedCache[key] = value;
+
+	if (key === "volume") {
+		Array.from(document.querySelectorAll<HTMLAudioElement>(".audio")).forEach(audioElement => {
+			audioElement.volume = value as number;
+		});
+	}
 }
 
 export function getFromCache<Key extends keyof Cache>(key: Key): Cache[Key] {

@@ -65,9 +65,11 @@
 	});
 
 	function onPlay() {
-		if (getProjectAudios().length) {
-			(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).play();
-		}
+		getProjectAudios().forEach(audio => {
+			let element = document.getElementById(`audio-${audio.id}`) as HTMLAudioElement;
+			element.currentTime = video!.element()!.currentTime;
+			element.play();
+		});
 		updateTime();
 	}
 
@@ -79,9 +81,11 @@
 	}
 
 	function onPause() {
-		if (getProjectAudios().length) {
-			(document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement).pause();
-		}
+		getProjectAudios().forEach(audio => {
+			let element = document.getElementById(`audio-${audio.id}`) as HTMLAudioElement;
+			element.currentTime = video!.element()!.currentTime;
+			element.pause();
+		});
 	}
 
 	let video: Video | null = $state(null);

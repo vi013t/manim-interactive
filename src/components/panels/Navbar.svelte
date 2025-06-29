@@ -1,15 +1,15 @@
 <script lang="ts">
-	import { invoke } from "@tauri-apps/api/core";
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { cache, getFromCache, type CacheKey } from "../../api/client.svelte";
 	import { getPreferences, runAction, savePreferences, setPreference, type Preference } from "../../api/preferences.svelte";
-	import { getExplicitProjectLocation, getProjectLocation, getProjectName, getProjectSettings } from "../../api/project.svelte";
+	import { getExplicitProjectLocation, getProjectName } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
 	import ClockCheckIcon from "../icons/ClockCheckIcon.svelte";
 	import CloseIcon from "../icons/CloseIcon.svelte";
 	import CollapseIcon from "../icons/CollapseIcon.svelte";
 	import GridIcon from "../icons/GridIcon.svelte";
+	import LoopIcon from "../icons/LoopIcon.svelte";
 	import MagnetIcon from "../icons/MagnetIcon.svelte";
 	import MinimizeIcon from "../icons/MinimizeIcon.svelte";
 	import ProjectorIcon from "../icons/ProjectorIcon.svelte";
@@ -88,15 +88,8 @@
 		};
 	}
 
-	async function openMovieLocation() {
-		invoke("open_movie_location", {
-			projectPath: await getProjectLocation(),
-			lowRes: getFromCache("lowRes"),
-			outputFileName: getProjectSettings().outputFileName,
-			fileFormat: getProjectSettings().fileFormat,
-			resolutionHeight: getProjectSettings().resolution[1],
-			fps: getProjectSettings().fps,
-		});
+	async function compile() {
+		runAction("Compile Project");
 		projectMenu.hide();
 	}
 </script>
@@ -126,10 +119,10 @@
 				<span>Ctrl+,</span>
 			{/if}
 		</button>
-		<button disabled={getExplicitProjectLocation() === null} onclick={openMovieLocation}>
-			<span>{translate("Open Movie File Folder")}</span>
+		<button disabled={getExplicitProjectLocation() === null} onclick={compile}>
+			<span>{translate("Compile")}</span>
 			{#if getExplicitProjectLocation()}
-				<span>Ctrl+E</span>
+				<span>Ctrl+C</span>
 			{/if}
 		</button>
 	</ContextMenu>
@@ -163,6 +156,9 @@
 				class={getFromCache("showMovieOverPreview") ? "option-on" : undefined}
 			>
 				<ProjectorIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
+			</Tooltip>
+			<Tooltip text="Toggle video looping." element="button" onclick={toggleCachePreference("loopVideo")} class={getFromCache("loopVideo") ? "option-on" : undefined}>
+				<LoopIcon stroke="var(--overlay-2)" style="width: 1.25rem; height: 1.25rem;" />
 			</Tooltip>
 		</div>
 

@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { getHorizontalExpandDirection } from "../../../api/client.svelte";
-	import { getProjectAudios, type ProjectAudio } from "../../../api/project.svelte";
-	import { currentTime } from "../../../api/timeline.svelte";
+	import { getFromCache, getHorizontalExpandDirection } from "../../../api/client.svelte";
+	import { select, type ProjectAudio } from "../../../api/project.svelte";
 	import AudioMenu from "../../menus/AudioMenu.svelte";
 
 	let { audio, menu }: { audio: ProjectAudio; menu: AudioMenu | null } = $props();
@@ -70,12 +69,12 @@
 	let left = $state("");
 	let top = $state("");
 
-	$effect(() => {
-		if (getProjectAudios().length) {
-			let audio = document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null;
-			if (audio) audio.currentTime = currentTime();
-		}
-	});
+	// $effect(() => {
+	// 	if (getProjectAudios().length) {
+	// 		let audio = document.getElementById(`audio-${getProjectAudios()[0].id}`) as HTMLAudioElement | null;
+	// 		if (audio) audio.currentTime = currentTime();
+	// 	}
+	// });
 
 	function audioActions(event: MouseEvent) {
 		if (menu) {
@@ -86,11 +85,14 @@
 			menu.showAt(top, left);
 		}
 	}
+
+	let volume = $derived((audio.properties.Volume ?? 1) * getFromCache("volume"));
 </script>
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
-<button oncontextmenu={audioActions} class="audio" style:height="{audio.duration * 4}rem">
-	<audio id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
+<button onclick={() => select([audio.id])} oncontextmenu={audioActions} class="audio" style:height="{audio.duration * 4}rem">
+	<audio {volume} id="audio-{audio.id}" src="data:audio/mp3;base64,{audio.data}"></audio>
+	<span contenteditable bind:textContent={audio.properties.Name}></span>
 	<canvas {@attach canvas => createWaveform(audio.data, canvas)} width="100" height="400"></canvas>
 </button>
 
@@ -108,6 +110,17 @@
 		canvas {
 			width: 100%;
 			height: 100%;
+		}
+
+		span {
+			position: absolute;
+			writing-mode: vertical-rl;
+			background-color: var(--mauve);
+			border: 4px solid rgba(255, 255, 255, 50%);
+			top: -4px;
+			left: -4px;
+			padding: 0.5rem;
+			border-radius: 0.5em;
 		}
 	}
 </style>

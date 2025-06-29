@@ -1,4 +1,5 @@
 import { join, sep, tempDir } from "@tauri-apps/api/path";
+import type { AudioProperties } from "./audio";
 import { cache } from "./client.svelte";
 import { generateAnimationPreview, generateObjectPreview } from "./codegen.svelte";
 import type { AnimationProperties } from "./manim/animations";
@@ -59,9 +60,10 @@ let projectEvents: ProjectEvent[] = $state([]);
 
 export type ProjectAudio = {
 	id: number;
+	type: "audio";
 	data: string;
-	name: string;
 	duration: number;
+	properties: AudioProperties;
 };
 
 export async function addProjectAudio(name: string, data: string) {
@@ -73,10 +75,14 @@ export async function addProjectAudio(name: string, data: string) {
 	});
 
 	projectAudios.push({
-		name,
+		type: "audio",
 		data,
 		duration,
 		id: nextId(),
+		properties: {
+			Name: name,
+			"Start Time": 0,
+		},
 	});
 }
 
@@ -293,9 +299,10 @@ export function areMultipleSelected(): boolean {
 	return selectedItems.length > 1;
 }
 
-export function getPropertiesFromId<T extends ProjectObject | ProjectAnimation>(id: number): Properties<T> | null {
+export function getPropertiesFromId<T extends ProjectObject | ProjectAnimation | ProjectAudio>(id: number): Properties<T> | null {
 	return (getProjectObjects().find(object => object.id === id)?.properties ??
 		getProjectAnimations().find(animation => animation.id === id)?.properties ??
+		getProjectAudios().find(audio => audio.id === id)?.properties ??
 		null) as Properties<T> | null;
 }
 
@@ -306,8 +313,11 @@ export function getItemFromId<T extends ProjectObject | ProjectAnimation | Proje
 		null) as T | null;
 }
 
-export function getSelectableFromId<T extends ProjectObject | ProjectAnimation>(id: number): T | null {
-	return (getProjectObjects().find(object => object.id === id) ?? getProjectAnimations().find(animation => animation.id === id) ?? null) as T | null;
+export function getSelectableFromId<T extends ProjectObject | ProjectAnimation | ProjectAudio>(id: number): T | null {
+	return (getProjectObjects().find(object => object.id === id) ??
+		getProjectAnimations().find(animation => animation.id === id) ??
+		getProjectAudios().find(audio => audio.id === id) ??
+		null) as T | null;
 }
 
 export function getObjectFromId(id: number): ProjectObject | null {
@@ -316,6 +326,10 @@ export function getObjectFromId(id: number): ProjectObject | null {
 
 export function getAnimationFromId(id: number): ProjectAnimation | null {
 	return getProjectAnimations().find(animation => animation.id === id) ?? null;
+}
+
+export function getAudioFromId(id: number): ProjectAudio | null {
+	return getProjectAudios().find(audio => audio.id === id) ?? null;
 }
 
 type Error = PropertyError;

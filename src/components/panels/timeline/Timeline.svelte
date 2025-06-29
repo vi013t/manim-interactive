@@ -262,8 +262,10 @@
 		left: 0px;
 		transform: translateY(-50%);
 		margin-left: 4rem;
+		box-shadow: 0px 0px 0.5rem black;
 
 		> span {
+			box-shadow: 0px 0px 0.5rem black;
 			background: var(--yellow);
 			width: fit-content;
 			top: 50%;

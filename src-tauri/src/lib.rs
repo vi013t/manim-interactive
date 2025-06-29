@@ -1,11 +1,12 @@
 use std::{
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Stdio},
 };
 
 //mod audio;
 
 use base64::Engine;
+use colored::Colorize;
 use reqwest::StatusCode;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -26,10 +27,10 @@ pub fn run() {
             python_package_exists,
             get_fonts,
             command_exists,
-            open_movie_location,
             path_is_file,
             generate_object_preview,
-            generate_animation_preview
+            generate_animation_preview,
+            compile
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
@@ -46,8 +47,8 @@ async fn recompile(
     fps: u32,
     output_file_name: String,
 ) {
+    let output_file = format!("{output_file_name}.{file_format}");
     std::fs::write(Path::new(&project_path).join("main.py"), code).unwrap();
-    println!("Recompiling project at {}", project_path);
     Command::new("manim")
         .arg("--resolution")
         .arg(format!("{resolution_width},{resolution_height}"))
@@ -58,13 +59,74 @@ async fn recompile(
         .arg("--fps")
         .arg(format!("{fps}"))
         .arg("--output_file")
-        .arg(format!("{output_file_name}.{file_format}"))
+        .arg(output_file)
         .arg("main.py")
         .current_dir(project_path)
+        .stdout(Stdio::null())
         .spawn()
         .unwrap()
         .wait()
         .unwrap();
+}
+
+#[tauri::command]
+async fn compile(
+    project_path: String,
+    code: String,
+    resolution_width: u32,
+    resolution_height: u32,
+    renderer: String,
+    file_format: String,
+    fps: u32,
+    output_file_name: String,
+    audios: Vec<Audio>,
+    video_length: f32,
+    open_when_finished: bool,
+) {
+    println!("\n{} project...", "Compiling".bold().green());
+
+    println!("    {} Python...", "Running".bold().green());
+    recompile(
+        project_path.clone(),
+        code,
+        resolution_width,
+        resolution_height,
+        renderer,
+        file_format.clone(),
+        fps,
+        output_file_name.clone(),
+    )
+    .await;
+
+    let video_path = Path::new(&project_path)
+        .join("media")
+        .join("videos")
+        .join("main")
+        .join(format!("{resolution_height}p{fps}"))
+        .join(format!("{output_file_name}.{file_format}"));
+
+    let audio_path = Path::new(&project_path)
+        .join("cache")
+        .join("output")
+        .join("audio.mp3");
+
+    println!("    {} Audios...", "Merging".bold().green());
+    merge_audios(project_path.clone(), audios, video_length, &audio_path).await;
+
+    println!("    {} audio to video...", "Adding".bold().green());
+    add_audio_to_video(
+        project_path.clone(),
+        audio_path,
+        &video_path,
+        output_file_name,
+    );
+
+    if open_when_finished {
+        println!("    {} movie location...", "Opening".bold().green());
+        showfile::show_path_in_file_manager(video_path);
+    }
+
+    println!("{}\n", "Done!".bold().green());
 }
 
 #[tauri::command]
@@ -125,6 +187,25 @@ async fn new_project(path: String, name: String) -> Result<String, String> {
 
     std::fs::create_dir_all(Path::new(&path).join(&name).join("objects"))
         .map_err(|_| "Error creating objects directory".to_owned())?;
+
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("cache").join("output"))
+        .map_err(|_| "Error creating cache directory".to_owned())?;
+    std::fs::create_dir_all(
+        Path::new(&path)
+            .join(&name)
+            .join("cache")
+            .join("audios")
+            .join("raw"),
+    )
+    .map_err(|_| "Error creating cache directory".to_owned())?;
+    std::fs::create_dir_all(
+        Path::new(&path)
+            .join(&name)
+            .join("cache")
+            .join("audios")
+            .join("padded"),
+    )
+    .map_err(|_| "Error creating cache directory".to_owned())?;
 
     // Return project location
     Ok(format!("{}", Path::new(&path).join(name).display()))
@@ -256,24 +337,143 @@ async fn get_fonts() -> Vec<String> {
     fonts
 }
 
-#[tauri::command]
-fn open_movie_location(
-    project_path: &str,
-    low_res: bool,
-    output_file_name: &str,
-    file_format: &str,
-    resolution_height: u32,
-    fps: u32,
+#[derive(serde::Deserialize)]
+struct Audio {
+    id: u32,
+    data: String,
+    start_time: f32,
+    duration: f32,
+}
+
+async fn merge_audios<ProjectPath: AsRef<Path>, OutputPath: AsRef<Path>>(
+    project_path: ProjectPath,
+    audios: Vec<Audio>,
+    video_length: f32,
+    output_path: OutputPath,
 ) {
-    let video_path = Path::new(&project_path)
-        .join("media")
-        .join("videos")
-        .join("main")
-        .join(if low_res {
-            "480p15".to_owned()
-        } else {
-            format!("{resolution_height}p{fps}")
-        })
-        .join(format!("{output_file_name}.{file_format}"));
-    showfile::show_path_in_file_manager(video_path);
+    let raw_audio_cache_path = Path::new(project_path.as_ref())
+        .join("cache")
+        .join("audios")
+        .join("raw");
+
+    let padded_audio_cache_path = Path::new(project_path.as_ref())
+        .join("cache")
+        .join("audios")
+        .join("padded");
+
+    let mut merge_command = Command::new("ffmpeg");
+
+    for audio in &audios {
+        let audio_path = raw_audio_cache_path.join(format!("audio_{}.mp3", audio.id));
+        let output_path = padded_audio_cache_path.join(format!("audio_{}.mp3", audio.id));
+
+        std::fs::write(&audio_path, &audio.data).unwrap();
+
+        let mut file_path = audio_path;
+
+        // Starting Silence
+        if audio.start_time != 0. {
+            add_start_silence(&project_path, audio.start_time, file_path, &output_path);
+            file_path = output_path.clone();
+        }
+
+        // Ending Silence
+        if audio.start_time + audio.duration < video_length {
+            add_end_silence(
+                project_path.as_ref(),
+                video_length - audio.duration - audio.start_time,
+                file_path,
+                &output_path,
+            );
+            file_path = output_path.clone();
+        }
+
+        // Trimming
+
+        // Merging - ffmpeg -i INPUT1 -i INPUT2 -i INPUT3 -filter_complex amix=inputs=3:duration=first:dropout_transition=3 OUTPUT
+        merge_command.arg("-i").arg(&file_path);
+    }
+
+    // Finish Merge
+    merge_command
+        .arg("-filter_complex")
+        .arg(format!("amix=inputs={}:duration=first", audios.len()))
+        .arg(output_path.as_ref())
+        .current_dir(&project_path)
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
+}
+
+fn add_audio_to_video<
+    ProjectPath: AsRef<Path>,
+    AudioPath: AsRef<Path>,
+    VideoPath: AsRef<Path>,
+    OutputPath: AsRef<Path>,
+>(
+    project_path: ProjectPath,
+    audio_path: AudioPath,
+    video_path: VideoPath,
+    output_path: OutputPath,
+) {
+    Command::new("ffmpeg")
+        .arg("-i")
+        .arg(video_path.as_ref())
+        .arg("-i")
+        .arg(audio_path.as_ref())
+        .arg("-c")
+        .arg("copy")
+        .arg("-map")
+        .arg("0:v:0")
+        .arg("-map")
+        .arg("1:a:0")
+        .arg(output_path.as_ref())
+        .current_dir(project_path)
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
+}
+
+fn add_start_silence<ProjectPath: AsRef<Path>, InputPath: AsRef<Path>, OutputPath: AsRef<Path>>(
+    project_path: ProjectPath,
+    start_silence: f32,
+    audio_file_path: InputPath,
+    output_file_path: OutputPath,
+) {
+    Command::new("ffmpeg")
+        .arg("-i")
+        .arg(audio_file_path.as_ref())
+        .arg("-af")
+        .arg(format!("adelay={start_silence}s:all=true"))
+        .arg(output_file_path.as_ref())
+        .current_dir(project_path)
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
+}
+
+fn add_end_silence<ProjectPath: AsRef<Path>, InputPath: AsRef<Path>, OutputPath: AsRef<Path>>(
+    project_path: ProjectPath,
+    end_silence: f32,
+    audio_file_path: InputPath,
+    output_file_path: OutputPath,
+) {
+    Command::new("ffmpeg")
+        .arg("-i")
+        .arg(audio_file_path.as_ref())
+        .arg("-af")
+        .arg(format!("apad=pad_dur={end_silence}"))
+        .arg(output_file_path.as_ref())
+        .current_dir(project_path)
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap()
+        .wait()
+        .unwrap();
 }

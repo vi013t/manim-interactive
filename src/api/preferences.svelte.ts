@@ -7,11 +7,13 @@ import {
 	deselect,
 	getExplicitProjectLocation,
 	getObjectFromId,
+	getProjectAudios,
 	getProjectLocation,
 	getProjectSaveData,
 	getProjectSettings,
 	getSingleSelection,
 	loadProjectData,
+	movieLength,
 	projectHasErrors,
 	setProjectLocation,
 } from "./project.svelte";
@@ -181,6 +183,40 @@ const actions = {
 		name: "Open Project Settings",
 		run() {
 			openProjectSettingsWindow();
+		},
+	},
+	"Compile Project": {
+		name: "Compile Project",
+		async run() {
+			const projectData = getProjectSaveData();
+
+			const saveData = invoke("save_project_data", {
+				path: await getProjectLocation(),
+				data: projectData,
+			});
+
+			if (projectHasErrors()) {
+				addNotification("Error Compiling Project", "Your project currently contains errors, so the video couldn't be reloaded. Fix the errors to reload the video.", {
+					severity: "error",
+				});
+				return;
+			}
+
+			await invoke("compile", {
+				projectPath: await getProjectLocation(),
+				code: generateCode(),
+				resolutionWidth: getProjectSettings().resolution[0],
+				resolutionHeight: getProjectSettings().resolution[1],
+				renderer: getProjectSettings().renderer.toLowerCase(),
+				fileFormat: getProjectSettings().fileFormat,
+				fps: getProjectSettings().fps,
+				outputFileName: getProjectSettings().outputFileName,
+				audios: getProjectAudios().map(audio => ({ id: audio.id, data: audio.data, duration: audio.duration, start_time: audio.properties["Start Time"]! })),
+				videoLength: movieLength(),
+				openWhenFinished: true,
+			});
+
+			await saveData;
 		},
 	},
 } as const;
