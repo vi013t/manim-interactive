@@ -121,7 +121,8 @@ async fn compile(
 
     if open_when_finished {
         println!("    {} movie location...", "Opening".bold().green());
-        showfile::show_path_in_file_manager(output_path);
+        showfile::show_path_in_file_manager(&output_path);
+        open::that(&output_path).unwrap();
     }
 
     println!("{}\n", "Done!".bold().green());

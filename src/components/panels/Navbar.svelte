@@ -113,16 +113,16 @@
 				<span>Ctrl+S</span>
 			{/if}
 		</button>
+		<button disabled={getExplicitProjectLocation() === null} onclick={compile}>
+			<span>{translate("Compile Project")}</span>
+			{#if getExplicitProjectLocation()}
+				<span>Ctrl+C</span>
+			{/if}
+		</button>
 		<button disabled={getExplicitProjectLocation() === null} onclick={projectSettings}>
 			<span>{translate("Project Settings")}</span>
 			{#if getExplicitProjectLocation()}
 				<span>Ctrl+,</span>
-			{/if}
-		</button>
-		<button disabled={getExplicitProjectLocation() === null} onclick={compile}>
-			<span>{translate("Compile")}</span>
-			{#if getExplicitProjectLocation()}
-				<span>Ctrl+C</span>
 			{/if}
 		</button>
 	</ContextMenu>

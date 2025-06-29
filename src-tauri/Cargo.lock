@@ -2191,6 +2191,7 @@ dependencies = [
  "bincode",
  "colored",
  "font-enumeration",
+ "open",
  "reqwest",
  "serde",
  "serde_json",
