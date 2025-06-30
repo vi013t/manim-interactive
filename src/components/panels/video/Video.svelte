@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 	import { onMount } from "svelte";
 	import type { HTMLVideoAttributes } from "svelte/elements";
 	import { cache, cursorIsIn, getFromCache } from "../../../api/client.svelte";
@@ -6,10 +7,11 @@
 	import FullscreenIcon from "../../icons/FullscreenIcon.svelte";
 	import MuteIcon from "../../icons/MuteIcon.svelte";
 	import PauseIcon from "../../icons/PauseIcon.svelte";
+	import PictureInPictureIcon from "../../icons/PictureInPictureIcon.svelte";
 	import VideoLoopIcon from "../../icons/VideoLoopIcon.svelte";
 	import VolumeIcon from "../../icons/VolumeIcon.svelte";
 
-	let attributes: Omit<HTMLVideoAttributes, "controls" | "loop"> = $props();
+	let { draggable = false, ...attributes }: { draggable?: boolean } & Omit<HTMLVideoAttributes, "controls" | "loop"> = $props();
 
 	let video: HTMLVideoElement | null = $state(null);
 	let progressBar: HTMLButtonElement | null = $state(null);
@@ -33,8 +35,36 @@
 		return video;
 	}
 
-	function fullscreen() {
-		video?.requestFullscreen();
+	function toggleFullscreen() {
+		if (getFromCache("videoState") === "fullscreen") cache("videoState", "normal");
+		else cache("videoState", "fullscreen");
+	}
+
+	function togglePip() {
+		if (getFromCache("videoState") === "pip") cache("videoState", "normal");
+		else {
+			cache("videoState", "pip");
+			const webview = new WebviewWindow("video-pip", {
+				url: "/video",
+				decorations: false,
+				alwaysOnTop: true,
+				width: 656,
+				height: 369,
+				resizable: true,
+				title: "Manim Interactive - Video Picture-in-Picture",
+			});
+
+			webview.once("tauri://created", function () {
+				console.log("initialized");
+			});
+			webview.once("tauri://error", function (error) {
+				console.error(error);
+			});
+
+			webview.onCloseRequested(event => {
+				cache("videoState", "normal");
+			});
+		}
 	}
 
 	function formatTime(time: number) {
@@ -66,6 +96,7 @@
 
 	let progressBarWidth = $derived.by(() => {
 		loaded;
+		getFromCache("videoState");
 		if (!progressBar) return "0px";
 		return `${(currentTime / duration) * progressBar.getBoundingClientRect().width}px`;
 	});
@@ -137,7 +168,7 @@
 
 		video!.addEventListener("click", _event => {
 			togglePlay();
-		})
+		});
 	});
 
 	function toggleMute() {
@@ -160,11 +191,33 @@
 		cache("loopVideo", !getFromCache("loopVideo"));
 		if (getFromCache("loopVideo")) video?.play();
 	}
+
+	let container: HTMLElement;
+	let boundingBox = $derived.by(() => container?.getBoundingClientRect() ?? null);
 </script>
 
-<div class="video-container" style={attributes.style}>
-	<video bind:ended bind:duration bind:currentTime bind:paused bind:this={video} loop={getFromCache("loopVideo")} {...attributes}></video>
-	<div class="controls" style:opacity={controlsOpacity}>
+<div
+	bind:this={container}
+	class="video-container"
+	style={attributes.style}
+	style:position={getFromCache("videoState") === "normal" ? "relative" : "absolute"}
+	style:left={getFromCache("videoState") === "fullscreen" ? `-${boundingBox.left}px` : "0px"}
+	style:top={getFromCache("videoState") === "fullscreen" ? `-${boundingBox.top}px` : "0px"}
+	data-tauri-drag-region={draggable}
+>
+	<video
+		data-tauri-drag-region={draggable}
+		style:width={getFromCache("videoState") === "fullscreen" ? `100vw` : undefined}
+		style:height={getFromCache("videoState") === "fullscreen" ? `100vh` : undefined}
+		bind:ended
+		bind:duration
+		bind:currentTime
+		bind:paused
+		bind:this={video}
+		loop={getFromCache("loopVideo")}
+		{...attributes}
+	></video>
+	<div class="controls" style:opacity={controlsOpacity} data-tauri-drag-region={draggable}>
 		<button aria-label="Seek video" bind:this={progressBar} style:--progress-bar-width={progressBarWidth} class="progress" onmousedown={beginSeeking}></button>
 		<button onclick={togglePlay} class="play">
 			{#if paused}
@@ -174,10 +227,21 @@
 			{/if}
 		</button>
 		<span class="timestamp">{timestamp}</span>
+		<button class="pip" onclick={togglePip} style:--loop-slash-display={getFromCache("loopVideo") ? "none" : "block"}>
+			<PictureInPictureIcon stroke="white" style="width: 1.5rem; height: 1.5rem;" />
+		</button>
 		<button class="loop" onclick={toggleLoop} style:--loop-slash-display={getFromCache("loopVideo") ? "none" : "block"}>
 			<VideoLoopIcon stroke="white" style="width: 1.5rem; height: 1.5rem;" />
 		</button>
-		<div tabindex="0" aria-valuenow={getFromCache("volume")} role="slider" onmouseleave={volumeContainerUnhover} onmouseenter={volumeContainerHover} bind:this={volumeContainer} class="volume-container">
+		<div
+			tabindex="0"
+			aria-valuenow={getFromCache("volume")}
+			role="slider"
+			onmouseleave={volumeContainerUnhover}
+			onmouseenter={volumeContainerHover}
+			bind:this={volumeContainer}
+			class="volume-container"
+		>
 			<button
 				aria-label="Change video volume"
 				style:display={showVolumeSlider ? "block" : "none"}
@@ -194,7 +258,7 @@
 				{/if}
 			</button>
 		</div>
-		<button onclick={fullscreen} class="fullscreen">
+		<button onclick={toggleFullscreen} class="fullscreen">
 			<FullscreenIcon stroke="white" style="width: 1.5rem; height: 1.5rem;" />
 		</button>
 	</div>
@@ -207,7 +271,8 @@
 
 	.video-container {
 		display: contents;
-		position: relative;
+		z-index: 9;
+		background-color: black;
 	}
 
 	.controls {
@@ -241,6 +306,12 @@
 				transform: translateX(-50%) rotate(10deg);
 				display: var(--loop-slash-display);
 			}
+		}
+
+		.pip {
+			position: absolute;
+			bottom: 3rem;
+			right: 10rem;
 		}
 
 		.volume-container {

@@ -2,19 +2,19 @@
 	import { onMount } from "svelte";
 	import type { HTMLAttributes } from "svelte/elements";
 
-	let { value = $bindable(), ...attributes  }: { value: boolean } & { [Key in keyof HTMLAttributes<HTMLButtonElement>]: HTMLAttributes<HTMLButtonElement>[Key] } = $props();
+	let { value = $bindable(), ...attributes }: { value: boolean } & { [Key in keyof HTMLAttributes<HTMLButtonElement>]: HTMLAttributes<HTMLButtonElement>[Key] } = $props();
 
 	let button: HTMLButtonElement = $state(null!);
 
 	onMount(() => {
-		button.addEventListener("click", () => value = !value);
+		button.addEventListener("click", () => (value = !value));
 	});
 </script>
 
-<button 
-	bind:this={button} 
-	{...attributes} 
-	style:--thumb-left={value ? `calc(100% - ${(button?.getBoundingClientRect().height ?? 0) / 2}px - var(--padding) * 2)` : "var(--padding)"}
+<button
+	bind:this={button}
+	{...attributes}
+	style:--thumb-left={value ? `calc(100% - 0.75rem - var(--padding) * 2)` : "var(--padding)"}
 	style:--thumb-color={value ? "var(--lavender)" : "var(--surface-2)"}
 ></button>
 
@@ -36,7 +36,9 @@
 			top: var(--padding);
 			border-radius: 50%;
 			left: var(--thumb-left);
-			transition: left 0.2s, background-color 0.2s;
+			transition:
+				left 0.2s,
+				background-color 0.2s;
 		}
 	}
 </style>

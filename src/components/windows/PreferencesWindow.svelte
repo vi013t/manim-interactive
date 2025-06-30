@@ -8,10 +8,11 @@
 		getKeybindings,
 		getPreferences,
 		key,
+		keysAreEqual,
 		runAction,
+		savePreferences,
 		setPreference,
 		updateKeybinding,
-		bindPreference,
 		type Key,
 		type KeyModifier,
 		type Preference,
@@ -31,9 +32,10 @@
 	import PlusIcon from "../icons/PlusIcon.svelte";
 	import SunIcon from "../icons/SunIcon.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
-	import Select from "../util/Select.svelte";
-	import Window from "./Window.svelte";
 	import RadioInput from "../util/RadioInput.svelte";
+	import Select from "../util/Select.svelte";
+	import Tooltip from "../util/Tooltip.svelte";
+	import Window from "./Window.svelte";
 
 	let windowComponent: Window;
 
@@ -96,7 +98,7 @@
 			// Not Recording (and not typing)
 			else if (!isUserTyping()) {
 				event.preventDefault();
-				getKeybindings().some(keybinding => {
+				getKeybindings().forEach(keybinding => {
 					if (
 						event.key.toLowerCase() === keybinding.key.key.toLowerCase() &&
 						event.ctrlKey === keybinding.key.modifiers.includes("ctrl") &&
@@ -104,10 +106,7 @@
 						event.shiftKey === keybinding.key.modifiers.includes("shift")
 					) {
 						runAction(keybinding.action);
-						return true;
 					}
-
-					return false;
 				});
 			}
 		});
@@ -188,21 +187,21 @@
 				<label for="preview-videos">
 					<span>
 						{translate("Object & Animation Previews")}
-						<RadioInput id="preview-videos" bind:value={() => getPreferences().previews, (value) => setPreference("previews", value)} style="margin-left: auto;"/>
+						<RadioInput id="preview-videos" bind:value={() => getPreferences().previews, value => setPreference("previews", value)} style="margin-left: auto;" />
 					</span>
 					<p>{translate("Show preview images and videos when adding new objects or animations")}.</p>
 				</label>
 				<label for="latex-preview">
 					<span>
 						{translate("Show LaTeX Previews")}
-						<RadioInput id="latex-videos" bind:value={() => getPreferences().latexPreviews, (value) => setPreference("latexPreviews", value)} style="margin-left: auto;"/>
+						<RadioInput id="latex-videos" bind:value={() => getPreferences().latexPreviews, value => setPreference("latexPreviews", value)} style="margin-left: auto;" />
 					</span>
 					<p>{translate("Show previews for LaTeX math equations as you type them")}.</p>
 				</label>
 				<label for="show-tooltips">
 					<span>
 						{translate("Show Tooltips")}
-						<RadioInput id="show-tooltips" bind:value={() => getPreferences().showTooltips, (value) => setPreference("showTooltips", value)} style="margin-left: auto;"/>
+						<RadioInput id="show-tooltips" bind:value={() => getPreferences().showTooltips, value => setPreference("showTooltips", value)} style="margin-left: auto;" />
 					</span>
 					<p>{translate("Show tooltips when hovering on buttons or icons that explain them.")}.</p>
 				</label>
@@ -211,7 +210,11 @@
 				<label for="timeline-snapping">
 					<span>
 						{translate("Snap by Default")}
-						<RadioInput id="timeline-snapping" bind:value={() => getPreferences().timelineSnappingByDefault, (value) => setPreference("timelineSnappingByDefault", value)} style="margin-left: auto;"/>
+						<RadioInput
+							id="timeline-snapping"
+							bind:value={() => getPreferences().timelineSnappingByDefault, value => setPreference("timelineSnappingByDefault", value)}
+							style="margin-left: auto;"
+						/>
 					</span>
 					<p>
 						{translate(
@@ -222,21 +225,33 @@
 				<label for="collapse-wait-times">
 					<span>
 						{translate("Automatically Collapse Wait Times")}
-						<RadioInput id="collapse-wait-times" bind:value={() => getPreferences().collapseWaitTimes, (value) => setPreference("collapseWaitTimes", value)} style="margin-left: auto;"/>
+						<RadioInput
+							id="collapse-wait-times"
+							bind:value={() => getPreferences().collapseWaitTimes, value => setPreference("collapseWaitTimes", value)}
+							style="margin-left: auto;"
+						/>
 					</span>
 					<p>{translate("Automatically collapse blank space on the timeline. The space will open up when dragging an animation.")}</p>
 				</label>
 				<label for="relative-timestamps">
 					<span>
 						{translate("Relative Timestamps")}
-						<RadioInput id="relative-timestamps" bind:value={() => getPreferences().relativeTimestamps, (value) => setPreference("relativeTimestamps", value)} style="margin-left: auto;"/>
+						<RadioInput
+							id="relative-timestamps"
+							bind:value={() => getPreferences().relativeTimestamps, value => setPreference("relativeTimestamps", value)}
+							style="margin-left: auto;"
+						/>
 					</span>
 					<p>{translate("Show timestamps relative to the last animation instead of relative to the start of the video")}.</p>
 				</label>
 				<label for="dim-inactive-animations">
 					<span>
 						{translate("Dim Unselected Animations")}
-						<RadioInput id="dim-inactive-animations" bind:value={() => getPreferences().dimUnselectedAnimations, (value) => setPreference("dimUnselectedAnimations", value)} style="margin-left: auto;"/>
+						<RadioInput
+							id="dim-inactive-animations"
+							bind:value={() => getPreferences().dimUnselectedAnimations, value => setPreference("dimUnselectedAnimations", value)}
+							style="margin-left: auto;"
+						/>
 					</span>
 					<p>{translate("When an object is selected, dim animations for other objects, and highlight animations for the selected object")}.</p>
 				</label>
@@ -275,28 +290,37 @@
 					<span class="keybinding-entry">
 						<span>
 							{translate("Action")}:
-							<select>
-								{#each getActions() as action}
-									<option selected={action.name === keybinding.action}>{translate(action.name)}</option>
-								{/each}
-							</select>
+							<Select options={getActions().map(action => action.name)} bind:value={keybinding.action} onSelect={savePreferences} width="15rem" />
 						</span>
 						<span class="binding">
 							{translate("Keybind")}:
-							<button class="key">{displayKey(recordingIndex === index ? binding : keybinding.key)}</button>
+							<span
+								class="key"
+								style:outline={getKeybindings()
+									.filter((_key, otherIndex) => otherIndex !== index)
+									.some(otherKey => keysAreEqual(keybinding.key, otherKey.key))
+									? "2px solid var(--red)"
+									: "none"}
+							>
+								{displayKey(recordingIndex === index ? binding : keybinding.key)}
+							</span>
 						</span>
-						<button class="revert" onclick={() => record(index)}>
+						<button style:margin-left="0.5rem" class="revert" onclick={() => record(index)}>
 							{#if recordingIndex === index}
-								<FilledSquareIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
+								<Tooltip text="Stop recording keybinding">
+									<FilledSquareIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
+								</Tooltip>
 							{:else if recordingIndex === null}
-								<FilledCircleIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
+								<Tooltip text="Record keybinding">
+									<FilledCircleIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
+								</Tooltip>
 							{:else}
 								<FilledCircleIcon stroke="var(--surface-2)" style="width: 1rem; height: 1rem;" />
 							{/if}
 						</button>
-						<button class="revert" onclick={() => deleteKeybinding(index)}>
+						<Tooltip element="button" text="Delete keybinding" onclick={() => deleteKeybinding(index)} style="border-radius: 0.5rem; padding: 0.5rem;">
 							<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
-						</button>
+						</Tooltip>
 					</span>
 				{/each}
 			{:else if view === "developer"}
@@ -376,22 +400,6 @@
 		}
 	}
 
-	select {
-		color: var(--text);
-		background: var(--mantle);
-		padding: 0.5rem;
-		margin-left: 0.5rem;
-		margin-right: 0.5rem;
-		width: 15rem;
-		border-radius: 0.5rem;
-
-		option {
-			&:hover {
-				background: rgba(180, 150, 255, 10%);
-			}
-		}
-	}
-
 	p {
 		color: var(--overlay-0);
 		font-size: 0.85rem;
@@ -463,6 +471,7 @@
 		gap: 0.5rem;
 		color: var(--text);
 		align-items: center;
+		margin-bottom: 1rem;
 
 		.create {
 			background-color: var(--lavender);

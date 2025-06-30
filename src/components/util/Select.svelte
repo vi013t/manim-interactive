@@ -13,12 +13,15 @@
 		value = $bindable(),
 		title = undefined,
 		children,
+		width = "20rem",
 		locked,
 		additionalButtonText,
 		additionalButtonClick,
+		isError,
 		...rest
 	}: {
 		value?: SelectOption;
+		width?: string;
 		itemOverride?: string;
 		onSelect?: (value: string) => void;
 		options: SelectOption[];
@@ -27,6 +30,7 @@
 		locked?: boolean;
 		additionalButtonText?: string;
 		additionalButtonClick?: (event: MouseEvent) => void;
+		isError?: boolean;
 		[key: string]: unknown;
 	} = $props();
 
@@ -57,7 +61,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-<div bind:this={element} class="select" {...rest}>
+<div bind:this={element} class="select" {...rest} style:width>
 	<!-- Select Button -->
 
 	{#if children}
@@ -67,7 +71,7 @@
 			{@render children()}
 		</div>
 	{:else}
-		<button onclick={onSelectClick} class="header">
+		<button onclick={onSelectClick} class="header" style:outline={isError ? "2px solid var(--red)" : "none"}>
 			{#if title}
 				{title}
 			{:else if value}
@@ -91,7 +95,7 @@
 	{/if}
 
 	<!-- Options -->
-	<div class="options" style:display={optionsVisible ? "flex" : "none"}>
+	<div class="options" style:display={optionsVisible ? "flex" : "none"} style:width>
 		{#each options as option}
 			<!-- svelte-ignore a11y_click_events_have_key_events -->
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -127,7 +131,6 @@
 		border-radius: 0.5rem;
 		padding: 0.25rem;
 		position: relative;
-		width: 20rem;
 		background-color: var(--crust);
 	}
 
@@ -146,7 +149,6 @@
 
 	.options {
 		flex-direction: column;
-		width: 20rem;
 		border-radius: 0.5rem;
 		position: absolute;
 		left: 0px;

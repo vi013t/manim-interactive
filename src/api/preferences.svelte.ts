@@ -64,7 +64,7 @@ const actions = {
 		},
 	},
 	"Save And Recompile Project": {
-		name: "Save Project",
+		name: "Save And Recompile Project",
 		async run() {
 			videoLoaded = false;
 			const projectData = getProjectSaveData();
@@ -290,6 +290,10 @@ export type Key = {
 	key: string;
 	modifiers: KeyModifier[];
 };
+
+export function keysAreEqual(key: Key, other: Key): boolean {
+	return key.key === other.key && key.modifiers.every(modifier => other.modifiers.includes(modifier)) && other.modifiers.every(modifier => key.modifiers.includes(modifier));
+}
 
 type Action<T = undefined> = {
 	name: string;

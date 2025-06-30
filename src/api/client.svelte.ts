@@ -143,6 +143,8 @@ export type Cache = {
 	collapseWaitTimes: boolean;
 	volume: number;
 	loopVideo: boolean;
+	videoState: "fullscreen" | "normal" | "pip";
+	videoPipAlwaysOnTop: boolean;
 };
 
 /**
@@ -159,6 +161,8 @@ let storedCache: Cache = $state({
 	collapseWaitTimes: false,
 	volume: 1,
 	loopVideo: false,
+	videoState: "normal",
+	videoPipAlwaysOnTop: true,
 });
 
 export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]): void {

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
 	import { onMount } from "svelte";
-	import { getMouseX, getMouseY, showNewProjectWindow, updateMouseCoordinates } from "../api/client.svelte";
+	import { cache, getFromCache, getMouseX, getMouseY, showNewProjectWindow, updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, runAction, savePreferences } from "../api/preferences.svelte";
 	import { getExplicitProjectLocation, loadProjectData, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
@@ -62,7 +62,15 @@
 		<div class="container">
 			<Objects />
 			<div class="inner">
-				<VideoPanel />
+				{#if getFromCache("videoState") !== "pip"}
+					<VideoPanel />
+				{:else}
+					<div class="video-popped-out">
+						<h1>Video Popped Out</h1>
+						<p>The video is currently popped out in it's own Picture-in-Picture window.</p>
+						<button onclick={() => cache("videoState", "normal")}>Bring Video Back</button>
+					</div>
+				{/if}
 				<div class="bottom"><Properties /><VariablesPanel /></div>
 			</div>
 			<Timeline />
@@ -82,6 +90,44 @@
 <Notifications />
 
 <style>
+	.video-popped-out {
+		width: 100%;
+		aspect-ratio: 16 / 9;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		background-color: var(--crust);
+		gap: 1rem;
+
+		h1 {
+			color: var(--text);
+			font-size: 3rem;
+		}
+
+		p {
+			color: var(--overlay-0);
+			font-size: 1.5rem;
+		}
+
+		button {
+			padding-left: 1em;
+			padding-right: 1em;
+			padding-top: 0.5em;
+			padding-bottom: 0.5em;
+			font-size: 1.5rem;
+			border-radius: 0.5em;
+			box-shadow: 0px 0px 0.5em black;
+			transition: scale 0.2s;
+			background-image: linear-gradient(to bottom, var(--lavender), var(--blue));
+			margin-top: 3rem;
+
+			&:hover {
+				scale: 1.05;
+			}
+		}
+	}
+
 	.no-project {
 		width: 100%;
 		height: 100%;
