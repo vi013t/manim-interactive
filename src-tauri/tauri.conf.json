@@ -1,32 +1,36 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "manim-interactive",
-  "version": "0.1.0",
-  "identifier": "com.manim-interactive.app",
-  "build": {
-    "beforeDevCommand": "bun run dev",
-    "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "bun run build",
-    "frontendDist": "../build"
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Manim Interactive",
-		"maximized": true,
-		"decorations": false
-      }
-    ],
-    "security": {
-      "csp": null
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-		"icons/icon.ico",
-		"icons/icon.png"
-    ]
-  }
+	"$schema": "https://schema.tauri.app/config/2",
+	"productName": "manim-interactive",
+	"version": "0.1.0",
+	"identifier": "com.manim-interactive.app",
+	"build": {
+		"beforeDevCommand": "bun run dev",
+		"devUrl": "http://localhost:1420",
+		"beforeBuildCommand": "bun run build",
+		"frontendDist": "../build"
+	},
+	"app": {
+		"windows": [
+			{
+				"title": "Manim Interactive",
+				"maximized": true,
+				"decorations": false
+			}
+		],
+		"security": {
+			"csp": null
+		}
+	},
+	"bundle": {
+		"active": true,
+		"targets": "all",
+		"icon": ["icons/icon.ico", "icons/icon.png"],
+		"createUpdaterArtifacts": true
+	},
+	"plugins": {
+		"updater": {
+			"pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEI1NTQ5OTBDQzU2ODI3MkUKUldRdUoyakZESmxVdFFiOThXbmZVQ01kQVhiM2hITWFkaDNBUXRpWTlGcVVjdDViaGlRSjFReEEK",
+			"endpoints": ["https://github.com/vi013t/manim-interactive/releases/latest/download/latest.json"]
+		}
+	}
 }

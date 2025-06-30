@@ -9,7 +9,7 @@
 	import VideoLoopIcon from "../../icons/VideoLoopIcon.svelte";
 	import VolumeIcon from "../../icons/VolumeIcon.svelte";
 
-	let attributes: Omit<HTMLVideoAttributes, "controls"> = $props();
+	let attributes: Omit<HTMLVideoAttributes, "controls" | "loop"> = $props();
 
 	let video: HTMLVideoElement | null = $state(null);
 	let progressBar: HTMLButtonElement | null = $state(null);
@@ -96,7 +96,7 @@
 	}
 
 	onMount(() => {
-		video?.addEventListener("loadedmetadata", event => {
+		video?.addEventListener("loadedmetadata", _event => {
 			loaded = true;
 		});
 
@@ -109,7 +109,7 @@
 			}
 		});
 
-		document.addEventListener("mouseup", event => {
+		document.addEventListener("mouseup", _event => {
 			seeking = false;
 			seekingVolume = false;
 		});
@@ -120,20 +120,24 @@
 			}
 		});
 
-		video!.addEventListener("pause", event => {
+		video!.addEventListener("pause", _event => {
 			if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
 			controlsOpacity = "100%";
 		});
 
-		video!.addEventListener("pause", event => {
+		video!.addEventListener("pause", _event => {
 			if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
 			controlsOpacity = "100%";
 		});
 
-		video!.addEventListener("ended", event => {
+		video!.addEventListener("ended", _event => {
 			if (controlsOpacityTimeoutID !== null) clearTimeout(controlsOpacityTimeoutID);
 			controlsOpacity = "100%";
 		});
+
+		video!.addEventListener("click", _event => {
+			togglePlay();
+		})
 	});
 
 	function toggleMute() {
@@ -159,10 +163,9 @@
 </script>
 
 <div class="video-container" style={attributes.style}>
-	<video bind:ended onclick={togglePlay} bind:duration bind:currentTime bind:paused bind:this={video} {...attributes} loop={getFromCache("loopVideo")}></video>
+	<video bind:ended bind:duration bind:currentTime bind:paused bind:this={video} loop={getFromCache("loopVideo")} {...attributes}></video>
 	<div class="controls" style:opacity={controlsOpacity}>
-		<!-- svelte-ignore a11y_consider_explicit_label -->
-		<button bind:this={progressBar} style:--progress-bar-width={progressBarWidth} class="progress" onmousedown={beginSeeking}></button>
+		<button aria-label="Seek video" bind:this={progressBar} style:--progress-bar-width={progressBarWidth} class="progress" onmousedown={beginSeeking}></button>
 		<button onclick={togglePlay} class="play">
 			{#if paused}
 				<FilledPlayIcon stroke="white" style="width: 1rem; height: 1rem;" />
@@ -174,10 +177,9 @@
 		<button class="loop" onclick={toggleLoop} style:--loop-slash-display={getFromCache("loopVideo") ? "none" : "block"}>
 			<VideoLoopIcon stroke="white" style="width: 1.5rem; height: 1.5rem;" />
 		</button>
-		<!-- svelte-ignore a11y_no_static_element_interactions -->
-		<div onmouseleave={volumeContainerUnhover} onmouseenter={volumeContainerHover} bind:this={volumeContainer} class="volume-container">
-			<!-- svelte-ignore a11y_consider_explicit_label -->
+		<div tabindex="0" aria-valuenow={getFromCache("volume")} role="slider" onmouseleave={volumeContainerUnhover} onmouseenter={volumeContainerHover} bind:this={volumeContainer} class="volume-container">
 			<button
+				aria-label="Change video volume"
 				style:display={showVolumeSlider ? "block" : "none"}
 				onmousedown={beginSeekingVolume}
 				bind:this={volumeSlider}

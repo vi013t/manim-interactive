@@ -10,6 +10,7 @@ use reqwest::StatusCode;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_fs::init())
         .plugin(tauri_plugin_opener::init())
@@ -104,24 +105,13 @@ async fn compile(
         .join(format!("{resolution_height}p{fps}"))
         .join(format!("{output_file_name}.{file_format}"));
 
-    let audio_path = Path::new(&project_path)
-        .join("cache")
-        .join("output")
-        .join("audio.mp3");
+    let audio_path = Path::new(&project_path).join("cache").join("output").join("audio.mp3");
 
     println!("    {} Audios...", "Merging".bold().green());
-    merge_audios(
-        Path::new(&project_path).into(),
-        audios,
-        video_length,
-        Some(audio_path.clone()),
-    )
-    .await;
+    merge_audios(Path::new(&project_path).into(), audios, video_length, Some(audio_path.clone())).await;
 
     println!("    {} audio to video...", "Adding".bold().green());
-    let output_path = Path::new(&project_path)
-        .join("output")
-        .join(format!("{output_file_name}.{file_format}"));
+    let output_path = Path::new(&project_path).join("output").join(format!("{output_file_name}.{file_format}"));
     add_audio_to_video(project_path.clone(), audio_path, &video_path, &output_path);
 
     if open_when_finished {
@@ -186,34 +176,18 @@ async fn new_project(path: String, name: String) -> Result<String, String> {
         .map_err(|_| "Error Waiting for UV".to_owned())?;
 
     // Create scripts folder
-    std::fs::create_dir_all(Path::new(&path).join(&name).join("scripts"))
-        .map_err(|_| "Error creating scripts directory".to_owned())?;
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("scripts")).map_err(|_| "Error creating scripts directory".to_owned())?;
 
-    std::fs::create_dir_all(Path::new(&path).join(&name).join("objects"))
-        .map_err(|_| "Error creating objects directory".to_owned())?;
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("objects")).map_err(|_| "Error creating objects directory".to_owned())?;
 
-    std::fs::create_dir_all(Path::new(&path).join(&name).join("cache").join("output"))
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("cache").join("output")).map_err(|_| "Error creating cache directory".to_owned())?;
+
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("output")).map_err(|_| "Error creating cache directory".to_owned())?;
+
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("cache").join("audios").join("raw"))
         .map_err(|_| "Error creating cache directory".to_owned())?;
-
-    std::fs::create_dir_all(Path::new(&path).join(&name).join("output"))
+    std::fs::create_dir_all(Path::new(&path).join(&name).join("cache").join("audios").join("padded"))
         .map_err(|_| "Error creating cache directory".to_owned())?;
-
-    std::fs::create_dir_all(
-        Path::new(&path)
-            .join(&name)
-            .join("cache")
-            .join("audios")
-            .join("raw"),
-    )
-    .map_err(|_| "Error creating cache directory".to_owned())?;
-    std::fs::create_dir_all(
-        Path::new(&path)
-            .join(&name)
-            .join("cache")
-            .join("audios")
-            .join("padded"),
-    )
-    .map_err(|_| "Error creating cache directory".to_owned())?;
 
     // Return project location
     Ok(format!("{}", Path::new(&path).join(name).display()))
@@ -221,23 +195,18 @@ async fn new_project(path: String, name: String) -> Result<String, String> {
 
 #[tauri::command]
 async fn save_project_data(path: String, data: String) -> Result<(), String> {
-    std::fs::write(Path::new(&path).join("project.manim"), data)
-        .map_err(|_| "Error saving project".to_owned())?;
+    std::fs::write(Path::new(&path).join("project.manim"), data).map_err(|_| "Error saving project".to_owned())?;
     Ok(())
 }
 
 #[tauri::command]
 async fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
-    std::fs::create_dir_all(Path::new(&path).join("objects"))
-        .map_err(|_| "Error creating objects directory".to_owned())?;
-    let code_path = Path::new(&path)
-        .join("objects")
-        .join(format!("object_{id}.py"));
+    std::fs::create_dir_all(Path::new(&path).join("objects")).map_err(|_| "Error creating objects directory".to_owned())?;
+    let code_path = Path::new(&path).join("objects").join(format!("object_{id}.py"));
     std::fs::write(&code_path, code).map_err(|_| "Error writing object code".to_owned())?;
 
     let previews_dir = Path::new(&path).join("previews");
-    std::fs::create_dir_all(&previews_dir)
-        .map_err(|_| "Error creating objects directory".to_owned())?;
+    std::fs::create_dir_all(&previews_dir).map_err(|_| "Error creating objects directory".to_owned())?;
     let preview_path = previews_dir.join(format!("object_{id}.png"));
 
     Command::new("manim")
@@ -256,16 +225,12 @@ async fn generate_object_preview(path: &str, id: u32, code: &str) -> Result<Stri
 
 #[tauri::command]
 async fn generate_animation_preview(path: &str, id: u32, code: &str) -> Result<String, String> {
-    std::fs::create_dir_all(Path::new(&path).join("animations"))
-        .map_err(|_| "Error creating animations directory".to_owned())?;
-    let code_path = Path::new(&path)
-        .join("animations")
-        .join(format!("animation_{id}.py"));
+    std::fs::create_dir_all(Path::new(&path).join("animations")).map_err(|_| "Error creating animations directory".to_owned())?;
+    let code_path = Path::new(&path).join("animations").join(format!("animation_{id}.py"));
     std::fs::write(&code_path, code).map_err(|_| "Error writing animation code".to_owned())?;
 
     let previews_dir = Path::new(&path).join("previews");
-    std::fs::create_dir_all(&previews_dir)
-        .map_err(|_| "Error creating animations directory".to_owned())?;
+    std::fs::create_dir_all(&previews_dir).map_err(|_| "Error creating animations directory".to_owned())?;
     let preview_path = previews_dir.join(format!("animation_{id}.mp4"));
 
     Command::new("manim")
@@ -284,8 +249,7 @@ async fn generate_animation_preview(path: &str, id: u32, code: &str) -> Result<S
 
 #[tauri::command]
 fn get_project_data(path: String) -> Result<String, String> {
-    std::fs::read_to_string(Path::new(&path).join("project.manim"))
-        .map_err(|_| "Error reading project".to_owned())
+    std::fs::read_to_string(Path::new(&path).join("project.manim")).map_err(|_| "Error reading project".to_owned())
 }
 
 #[tauri::command]
@@ -354,14 +318,8 @@ struct Audio {
 }
 
 #[tauri::command]
-async fn merge_audios(
-    project_path: PathBuf,
-    audios: Vec<Audio>,
-    video_length: f32,
-    output_path: Option<PathBuf>,
-) -> String {
-    let output_path =
-        output_path.unwrap_or_else(|| project_path.join("cache").join("output").join("audio.mp3"));
+async fn merge_audios(project_path: PathBuf, audios: Vec<Audio>, video_length: f32, output_path: Option<PathBuf>) -> String {
+    let output_path = output_path.unwrap_or_else(|| project_path.join("cache").join("output").join("audio.mp3"));
     let raw_audio_cache_path = project_path.join("cache").join("audios").join("raw");
 
     let padded_audio_cache_path = project_path.join("cache").join("audios").join("padded");
@@ -374,53 +332,26 @@ async fn merge_audios(
         let audio_path = raw_audio_cache_path.join(format!("audio_{}.mp3", audio.id));
         let output_path = padded_audio_cache_path.join(format!("audio_{}.mp3", audio.id));
 
-        std::fs::write(
-            &audio_path,
-            base64::engine::general_purpose::STANDARD
-                .decode(&audio.data)
-                .unwrap(),
-        )
-        .unwrap();
+        std::fs::write(&audio_path, base64::engine::general_purpose::STANDARD.decode(&audio.data).unwrap()).unwrap();
 
         let mut file_path = audio_path;
 
         // Starting Silence
         if audio.start_time != 0. {
-            println!(
-                "            {} start for audio {}...",
-                "Padding".bold().green(),
-                audio.id
-            );
+            println!("            {} start for audio {}...", "Padding".bold().green(), audio.id);
             add_start_silence(&project_path, audio.start_time, file_path, &output_path);
             file_path = output_path.clone();
         } else {
-            println!(
-                "            {} start pad for audio {}...",
-                "Skipping".bold().green(),
-                audio.id
-            );
+            println!("            {} start pad for audio {}...", "Skipping".bold().green(), audio.id);
         }
 
         // Ending Silence
         if audio.start_time + audio.duration < video_length {
-            print!(
-                "            {} end for audio {}... ",
-                "Padding".bold().green(),
-                audio.id
-            );
-            add_end_silence(
-                &project_path,
-                video_length - audio.duration - audio.start_time,
-                file_path,
-                &output_path,
-            );
+            print!("            {} end for audio {}... ", "Padding".bold().green(), audio.id);
+            add_end_silence(&project_path, video_length - audio.duration - audio.start_time, file_path, &output_path);
             file_path = output_path.clone();
         } else {
-            println!(
-                "            {} end pad for audio {}...",
-                "Skipping".bold().green(),
-                audio.id
-            );
+            println!("            {} end pad for audio {}...", "Skipping".bold().green(), audio.id);
         }
 
         // Trimming
@@ -445,12 +376,7 @@ async fn merge_audios(
     load_file_base64_data(output_path).await.unwrap()
 }
 
-fn add_audio_to_video<
-    ProjectPath: AsRef<Path>,
-    AudioPath: AsRef<Path>,
-    VideoPath: AsRef<Path>,
-    OutputPath: AsRef<Path>,
->(
+fn add_audio_to_video<ProjectPath: AsRef<Path>, AudioPath: AsRef<Path>, VideoPath: AsRef<Path>, OutputPath: AsRef<Path>>(
     project_path: ProjectPath,
     audio_path: AudioPath,
     video_path: VideoPath,

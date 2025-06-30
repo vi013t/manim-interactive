@@ -11,6 +11,7 @@
 		runAction,
 		setPreference,
 		updateKeybinding,
+		bindPreference,
 		type Key,
 		type KeyModifier,
 		type Preference,
@@ -32,6 +33,7 @@
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import Select from "../util/Select.svelte";
 	import Window from "./Window.svelte";
+	import RadioInput from "../util/RadioInput.svelte";
 
 	let windowComponent: Window;
 
@@ -186,21 +188,21 @@
 				<label for="preview-videos">
 					<span>
 						{translate("Object & Animation Previews")}
-						<input oninput={updateBooleanPreference("previews")} id="preview-videos" type="checkbox" checked={getPreferences().previews} />
+						<RadioInput id="preview-videos" bind:value={() => getPreferences().previews, (value) => setPreference("previews", value)} style="margin-left: auto;"/>
 					</span>
 					<p>{translate("Show preview images and videos when adding new objects or animations")}.</p>
 				</label>
 				<label for="latex-preview">
 					<span>
 						{translate("Show LaTeX Previews")}
-						<input oninput={updateBooleanPreference("latexPreviews")} id="latex-preview" type="checkbox" checked={getPreferences().latexPreviews} />
+						<RadioInput id="latex-videos" bind:value={() => getPreferences().latexPreviews, (value) => setPreference("latexPreviews", value)} style="margin-left: auto;"/>
 					</span>
 					<p>{translate("Show previews for LaTeX math equations as you type them")}.</p>
 				</label>
 				<label for="show-tooltips">
 					<span>
 						{translate("Show Tooltips")}
-						<input oninput={updateBooleanPreference("showTooltips")} id="show-tooltips" type="checkbox" checked={getPreferences().showTooltips} />
+						<RadioInput id="show-tooltips" bind:value={() => getPreferences().showTooltips, (value) => setPreference("showTooltips", value)} style="margin-left: auto;"/>
 					</span>
 					<p>{translate("Show tooltips when hovering on buttons or icons that explain them.")}.</p>
 				</label>
@@ -209,7 +211,7 @@
 				<label for="timeline-snapping">
 					<span>
 						{translate("Snap by Default")}
-						<input checked={getPreferences().collapseWaitTimes} oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
+						<RadioInput id="timeline-snapping" bind:value={() => getPreferences().timelineSnappingByDefault, (value) => setPreference("timelineSnappingByDefault", value)} style="margin-left: auto;"/>
 					</span>
 					<p>
 						{translate(
@@ -220,21 +222,21 @@
 				<label for="collapse-wait-times">
 					<span>
 						{translate("Automatically Collapse Wait Times")}
-						<input checked={getPreferences().collapseWaitTimes} oninput={updateBooleanPreference("collapseWaitTimes")} id="collapse-wait-times" type="checkbox" />
+						<RadioInput id="collapse-wait-times" bind:value={() => getPreferences().collapseWaitTimes, (value) => setPreference("collapseWaitTimes", value)} style="margin-left: auto;"/>
 					</span>
 					<p>{translate("Automatically collapse blank space on the timeline. The space will open up when dragging an animation.")}</p>
 				</label>
 				<label for="relative-timestamps">
 					<span>
 						{translate("Relative Timestamps")}
-						<input checked={getPreferences().relativeTimestamps} oninput={updateBooleanPreference("relativeTimestamps")} id="relative-timestamps" type="checkbox" />
+						<RadioInput id="relative-timestamps" bind:value={() => getPreferences().relativeTimestamps, (value) => setPreference("relativeTimestamps", value)} style="margin-left: auto;"/>
 					</span>
 					<p>{translate("Show timestamps relative to the last animation instead of relative to the start of the video")}.</p>
 				</label>
 				<label for="dim-inactive-animations">
 					<span>
 						{translate("Dim Unselected Animations")}
-						<input oninput={updateBooleanPreference("dimUnselectedAnimations")} id="dim-inactive-animations" checked={getPreferences().dimUnselectedAnimations} type="checkbox" />
+						<RadioInput id="dim-inactive-animations" bind:value={() => getPreferences().dimUnselectedAnimations, (value) => setPreference("dimUnselectedAnimations", value)} style="margin-left: auto;"/>
 					</span>
 					<p>{translate("When an object is selected, dim animations for other objects, and highlight animations for the selected object")}.</p>
 				</label>
@@ -430,7 +432,7 @@
 		}
 
 		> *:first-child {
-			margin-bottom: 0.5rem;
+			margin-bottom: 0.25rem;
 		}
 
 		> span > span {

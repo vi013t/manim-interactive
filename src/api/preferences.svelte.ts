@@ -237,6 +237,7 @@ let preferences = $state({
 	latexPreviews: true,
 	showWaits: false,
 	showTooltips: true,
+	timelineSnappingByDefault: true,
 	keybindings: [
 		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
 		keybinding(action("Open Project"), key("o", "ctrl")),
@@ -250,6 +251,8 @@ let preferences = $state({
 });
 
 type Preferences = typeof preferences;
+
+type DeepReadonly<T> = { readonly [Key in keyof T]: DeepReadonly<T[Key]> };
 
 let preferenceHooks: { name: Preference; hook: (value: unknown) => void }[] = [];
 
@@ -267,8 +270,12 @@ export function loadPreferences() {
 	preferences = JSON.parse(localStorage.getItem("manim-interactive-preferences")!);
 }
 
-export function getPreferences(): Readonly<Preferences> {
+export function getPreferences(): DeepReadonly<Preferences> {
 	return preferences;
+}
+
+export function bindPreference<Name extends Preference>(preferenceName: Name): [() => DeepReadonly<Preferences[Name]>, (value: Preferences[Name]) => void] {
+	return [() => getPreferences()[preferenceName], (value: Preferences[Preference]) => setPreference(preferenceName, value)];
 }
 
 export function setPreference(name: Preference, value: any) {

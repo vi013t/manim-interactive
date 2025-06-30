@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { getFromCache, getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
-	import { onPreferenceChange, runAction } from "../../../api/preferences.svelte";
+	import { cache, getFromCache, getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
+	import { getPreferences, onPreferenceChange, runAction } from "../../../api/preferences.svelte";
 	import {
 		addToSelection,
 		animationEndTime,
@@ -44,6 +44,7 @@
 	}
 
 	onMount(() => {
+
 		onPreferenceChange("relativeTimestamps", relativeTimestamps => {
 			Array.from(document.querySelectorAll(".timestamp")).forEach(timestamp => {
 				let absoluteTime = Number(timestamp.getAttribute("data-time"));
@@ -76,18 +77,17 @@
 				checkForNewDiv();
 			}
 		}
-
-		// document.addEventListener("keydown", event => {
-		// 	cache("timelineSnapping", !event.ctrlKey);
-		// });
-		// document.addEventListener("keyup", event => {
-		// 	cache("timelineSnapping", !event.ctrlKey);
-		// });
-		// document.addEventListener("mousemove", event => {
-		// 	cache("timelineSnapping", !event.ctrlKey);
-		// });
-
 		checkForNewDiv();
+
+		document.addEventListener("keydown", event => {
+			cache("timelineSnapping", getPreferences().timelineSnappingByDefault !== event.ctrlKey);
+		});
+		document.addEventListener("keyup", event => {
+			cache("timelineSnapping", getPreferences().timelineSnappingByDefault !== event.ctrlKey);
+		});
+		document.addEventListener("mousemove", event => {
+			cache("timelineSnapping", getPreferences().timelineSnappingByDefault !== event.ctrlKey);
+		});
 
 		document.addEventListener("mousemove", event => {
 			if (draggingEvent) {
