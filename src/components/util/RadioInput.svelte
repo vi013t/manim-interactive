@@ -15,7 +15,7 @@
 	bind:this={button}
 	{...attributes}
 	style:--thumb-left={value ? `calc(100% - 0.75rem - var(--padding) * 2)` : "var(--padding)"}
-	style:--thumb-color={value ? "var(--lavender)" : "var(--surface-2)"}
+	style:--thumb-color={value ? "var(--lavender)" : "var(--surface-0)"}
 ></button>
 
 <style>

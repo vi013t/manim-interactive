@@ -19,7 +19,6 @@
 	} from "../../api/preferences.svelte";
 	import { getTheme, getThemes, setTheme } from "../../api/theme.svelte";
 	import { getLanguage, getLanguageNames, setLanguage, translate, type LanguageName } from "../../api/translate.svelte";
-	import BeakerIcon from "../icons/BeakerIcon.svelte";
 	import ClockIcon from "../icons/ClockIcon.svelte";
 	import CodeIcon from "../icons/CodeIcon.svelte";
 	import CubeIcon from "../icons/CubeIcon.svelte";
@@ -227,7 +226,7 @@
 						{translate("Automatically Collapse Wait Times")}
 						<RadioInput
 							id="collapse-wait-times"
-							bind:value={() => getPreferences().collapseWaitTimes, value => setPreference("collapseWaitTimes", value)}
+							bind:value={() => getPreferences().collapseWaitsByDefault, value => setPreference("collapseWaitsByDefault", value)}
 							style="margin-left: auto;"
 						/>
 					</span>
@@ -260,29 +259,23 @@
 				<label for="autosave">
 					<span>
 						{translate("Autosave")}
-						<input oninput={updateBooleanPreference("autosave")} id="autosave" checked={getPreferences().autosave} type="checkbox" />
+						<RadioInput id="autosave" bind:value={() => getPreferences().autosave, value => setPreference("autosave", value)} style="margin-left: auto;" />
 					</span>
 					<p>{translate("Automatically save the project when making changes, such as adding or deleting objects or animations, moving animations, changing properties, etc")}.</p>
 				</label>
 				<label for="auto-open-last">
 					<span>
 						{translate("Automatically Open Last Project")}
-						<input oninput={updateBooleanPreference("autoOpenLastProject")} id="auto-open-last" checked={getPreferences().autoOpenLastProject} type="checkbox" />
+						<RadioInput
+							id="auto-open-last"
+							bind:value={() => getPreferences().autoOpenLastProject, value => setPreference("autoOpenLastProject", value)}
+							style="margin-left: auto;"
+						/>
 					</span>
 					<p>{translate("When first opening Manim Interactive, automatically open the last project that was open last time Manim Interactive was open")}.</p>
 				</label>
 			{:else if view === "keybinds"}
 				<h1>{translate("Keybindings")}</h1>
-				<label for="vim-mode">
-					<span>
-						<span>
-							{translate("Vim Mode")}
-							<div title="This feature is currently experimental"><BeakerIcon stroke="#a6e3a1" style="width: 1rem; height: 1rem;" /></div>
-						</span>
-						<input oninput={updateBooleanPreference("vimMode")} id="vim-mode" checked={getPreferences().vimMode} type="checkbox" />
-					</span>
-					<p>{translate("Enable keyboard navigation with Vim-style bindings")}.</p>
-				</label>
 				<span>
 					<button class="add-keybinding"><PlusIcon stroke="var(--text)" style="width: 1rem; height: 1rem;" /></button>
 				</span>
@@ -441,18 +434,6 @@
 
 		> *:first-child {
 			margin-bottom: 0.25rem;
-		}
-
-		> span > span {
-			gap: 1rem;
-
-			> div {
-				width: fit-content;
-				height: 100%;
-				display: flex;
-				align-items: center;
-				justify-content: center;
-			}
 		}
 	}
 

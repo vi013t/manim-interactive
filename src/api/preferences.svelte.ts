@@ -236,16 +236,18 @@ let preferences = $state({
 	showWaits: false,
 	showTooltips: true,
 	timelineSnappingByDefault: true,
+	collapseWaitsByDefault: false,
 	keybindings: [
-		keybinding(action("Save And Recompile Project"), key("s", "ctrl")),
-		keybinding(action("Open Project"), key("o", "ctrl")),
-		keybinding(action("Add New"), key("a", "shift")),
-		keybinding(action("Deselect"), key("Escape")),
-		keybinding(action("Deselect"), key("d", "ctrl")),
-		keybinding(action("Play"), key(" ")),
-		keybinding(action("Open Preferences"), key(".", "ctrl")),
-		keybinding(action("Open Project Settings"), key(",", "ctrl")),
-	],
+		{ action: "Save And Recompile Project", key: key("s", "ctrl") },
+		{ action: "Open Project", key: key("o", "ctrl") },
+		{ action: "New Project", key: key("n", "ctrl") },
+		{ action: "Add New", key: key("a", "shift") },
+		{ action: "Deselect", key: key("Escape") },
+		{ action: "Deselect", key: key("d", "ctrl") },
+		{ action: "Play", key: key(" ") },
+		{ action: "Open Preferences", key: key(".", "ctrl") },
+		{ action: "Open Project Settings", key: key(",", "ctrl") },
+	] satisfies Keybinding[],
 });
 
 export type Preferences = typeof preferences;
@@ -259,11 +261,11 @@ export function onPreferenceChange(name: Preference, hook: (value: unknown) => v
 export type Preference = keyof typeof preferences;
 
 export function savePreferences() {
-	localStorage.setItem("manim-interactive-preferences", JSON.stringify(preferences));
+	localStorage.setItem("preferences", JSON.stringify(preferences));
 }
 
 export function loadPreferences() {
-	preferences = JSON.parse(localStorage.getItem("manim-interactive-preferences")!);
+	preferences = JSON.parse(localStorage.getItem("preferences")!);
 }
 
 export function getPreferences(): DeepReadonly<Preferences> {
