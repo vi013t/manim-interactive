@@ -80,10 +80,28 @@
 	}
 
 	let panelElement: HTMLElement | null = $state(null);
+
+	let resizing = $state(false);
+
+	function resize() {
+		resizing = true;
+	}
+
+	let width: string | undefined = $state(undefined);
+
+	onMount(() => {
+		document.addEventListener("mousemove", event => {
+			if (resizing) {
+				width = `clamp(10rem, ${event.clientX - panelElement!.getBoundingClientRect().left}px, 50vw)`;
+			}
+		});
+
+		document.addEventListener("mouseup", () => (resizing = false));
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section bind:this={panelElement} id="object-panel" onmousedown={panelMouseDown}>
+<section style:width bind:this={panelElement} id="object-panel" onmousedown={panelMouseDown}>
 	<div class="header">
 		<h1>{translate("Objects")}</h1>
 		<button bind:this={plusButton} onclick={clickPlusButton}>
@@ -104,8 +122,9 @@
 	<div style:height="100%;" oncontextmenu={addObject}></div>
 
 	<AddObjectMenu bind:this={objectMenu} {top} {left} openers={[plusButton]} />
+	<div onmousedown={resize} class="resizer {resizing ? 'resizing' : ''}" style:background={resizing ? "var(--lavender)" : undefined}></div>
 </section>
-{#if mouseDown}
+{#if mouseDown && !resizing}
 	<SelectRectangle point1={selectPoint1} point2={selectPoint2} />
 {/if}
 
@@ -118,16 +137,22 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.25rem;
+		width: 16.6666%;
+	}
 
-		&::after {
-			content: "";
-			height: 100%;
-			width: 4px;
-			position: absolute;
-			left: calc(100% - 2px);
-			top: 0px;
-			z-index: 999;
-			cursor: ew-resize;
+	.resizer {
+		position: absolute;
+		right: 100%;
+		top: 0px;
+		left: 100%;
+		transform: translateX(-100%);
+		height: 100%;
+		width: 3px;
+		cursor: ew-resize;
+
+		&:not(.resizing):hover {
+			background: var(--lavender);
+			opacity: 50%;
 		}
 	}
 

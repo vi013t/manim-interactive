@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { getFromCache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
+import { cache, getFromCache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
@@ -121,6 +121,9 @@ const actions = [
 			videoLoaded = true;
 			videoGenerated = true;
 
+			localStorage.setItem("project", serializeProject());
+			localStorage.setItem("reloadProject", "true");
+
 			await saveData;
 		},
 	},
@@ -237,6 +240,7 @@ let preferences = $state({
 	showTooltips: true,
 	timelineSnappingByDefault: true,
 	collapseWaitsByDefault: false,
+	pipOnTopByDefault: true,
 	keybindings: [
 		{ action: "Save And Recompile Project", key: key("s", "ctrl") },
 		{ action: "Open Project", key: key("o", "ctrl") },
@@ -266,6 +270,8 @@ export function savePreferences() {
 
 export function loadPreferences() {
 	preferences = JSON.parse(localStorage.getItem("preferences")!);
+	cache("videoPipAlwaysOnTop", preferences.pipOnTopByDefault);
+	cache("timelineSnapping", preferences.timelineSnappingByDefault);
 }
 
 export function getPreferences(): DeepReadonly<Preferences> {

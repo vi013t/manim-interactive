@@ -9,9 +9,11 @@
   "permissions": [
     "core:default",
 	"core:window:allow-destroy",
+	"core:window:allow-set-always-on-top",
 	"core:window:allow-set-size",
 	"core:webview:allow-internal-toggle-devtools",
 	"core:webview:allow-create-webview-window",
+	"core:window:allow-set-fullscreen",
     "opener:default",
     "fs:default",
     "core:window:default",

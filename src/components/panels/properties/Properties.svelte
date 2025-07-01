@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from "svelte";
 	import { getPossibleProperties, property, type PropertyType } from "../../../api/manim/property";
 	import { addError, getSelectableFromId, getSingleSelection, removeError, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
@@ -79,10 +80,29 @@
 				})
 			: null,
 	);
+
+	let resizing = $state(false);
+
+	function resize() {
+		resizing = true;
+	}
+
+	let width: string | undefined = $state(undefined);
+	let panel: HTMLElement;
+
+	onMount(() => {
+		document.addEventListener("mousemove", event => {
+			if (resizing) {
+				width = `clamp(10rem, ${event.clientX - panel.getBoundingClientRect().left}px, calc(100% - 10rem))`;
+			}
+		});
+
+		document.addEventListener("mouseup", () => (resizing = false));
+	});
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section id="properties-panel" oncontextmenu={addProperty}>
+<section bind:this={panel} style:width id="properties-panel" oncontextmenu={addProperty}>
 	<div class="header">
 		<h1>{translate("Properties")}</h1>
 		<button onclick={clickPlusButton}>
@@ -117,10 +137,28 @@
 			{/if}
 		{/key}
 	</div>
+	<div onmousedown={resize} class="resizer {resizing ? 'resizing' : ''}" style:background={resizing ? "var(--lavender)" : undefined}></div>
 </section>
 
 <style>
+	.resizer {
+		position: absolute;
+		right: 100%;
+		top: 0px;
+		left: 100%;
+		transform: translateX(-50%);
+		height: 100%;
+		width: 3px;
+		cursor: ew-resize;
+
+		&:not(.resizing):hover {
+			background: var(--lavender);
+			opacity: 50%;
+		}
+	}
+
 	section {
+		position: relative;
 		background-color: var(--mantle);
 		height: 100%;
 		padding: 1rem;

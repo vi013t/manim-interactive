@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { invoke } from "@tauri-apps/api/core";
+	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { onMount } from "svelte";
 	import { cache, getFromCache, getMouseX, getMouseY, showNewProjectWindow, updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, runAction, savePreferences } from "../api/preferences.svelte";
@@ -22,8 +23,12 @@
 	let left: string;
 	let menu: AddMenu;
 
+	getCurrentWindow().listen("close-pip", event => {
+		cache("videoState", "normal");
+	});
+
 	// Preferences
-	if (localStorage.getItem("manim-interactive-preferences")) loadPreferences();
+	if (localStorage.getItem("preferences")) loadPreferences();
 	else savePreferences();
 
 	if (getPreferences().autoOpenLastProject) {
@@ -54,6 +59,11 @@
 		loadFonts();
 		checkRequirements();
 	});
+
+	function unpipVideo() {
+		getFromCache("videoPipWindow")!.close();
+		cache("videoState", "normal");
+	}
 </script>
 
 <main>
@@ -68,12 +78,14 @@
 					<div class="video-popped-out">
 						<h1>Video Popped Out</h1>
 						<p>The video is currently popped out in it's own Picture-in-Picture window.</p>
-						<button onclick={() => cache("videoState", "normal")}>Bring Video Back</button>
+						<button onclick={unpipVideo}>Bring Video Back</button>
 					</div>
 				{/if}
 				<div class="bottom"><Properties /><VariablesPanel /></div>
 			</div>
-			<Timeline />
+			{#if getFromCache("videoState") !== "fullscreen"}
+				<Timeline />
+			{/if}
 		</div>
 		<AddMenu bind:this={menu} top="{getMouseY()}px" left="{getMouseX()}px" />
 	{:else}
@@ -92,8 +104,8 @@
 <style>
 	.video-popped-out {
 		width: 100%;
-		aspect-ratio: 16 / 9;
 		display: flex;
+		padding: 3rem;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
@@ -102,12 +114,12 @@
 
 		h1 {
 			color: var(--text);
-			font-size: 3rem;
+			font-size: 2rem;
 		}
 
 		p {
 			color: var(--overlay-0);
-			font-size: 1.5rem;
+			font-size: 1.25rem;
 		}
 
 		button {
@@ -115,7 +127,7 @@
 			padding-right: 1em;
 			padding-top: 0.5em;
 			padding-bottom: 0.5em;
-			font-size: 1.5rem;
+			font-size: 1.25rem;
 			border-radius: 0.5em;
 			box-shadow: 0px 0px 0.5em black;
 			transition: scale 0.2s;
@@ -192,10 +204,8 @@
 	}
 
 	.container {
-		display: grid;
+		display: flex;
 		width: 100%;
-		grid-template-columns: 1fr 4fr 1fr;
-		grid-template-rows: 1fr;
 		height: 100%;
 	}
 

@@ -110,19 +110,19 @@
 		<button class="first-disableable" disabled={getExplicitProjectLocation() === null} onclick={saveProject}>
 			<span>{translate("Save Project")}</span>
 			{#if getExplicitProjectLocation()}
-			<span>{tryDisplayActionKeybinding("Save And Recompile Project")}</span>
+				<span>{tryDisplayActionKeybinding("Save And Recompile Project")}</span>
 			{/if}
 		</button>
 		<button disabled={getExplicitProjectLocation() === null} onclick={compile}>
 			<span>{translate("Compile Project")}</span>
 			{#if getExplicitProjectLocation()}
-			<span>{tryDisplayActionKeybinding("Compile Project")}</span>
+				<span>{tryDisplayActionKeybinding("Compile Project")}</span>
 			{/if}
 		</button>
 		<button disabled={getExplicitProjectLocation() === null} onclick={projectSettings}>
 			<span>{translate("Project Settings")}</span>
 			{#if getExplicitProjectLocation()}
-			<span>{tryDisplayActionKeybinding("Open Project Settings")}</span>
+				<span>{tryDisplayActionKeybinding("Open Project Settings")}</span>
 			{/if}
 		</button>
 	</ContextMenu>
@@ -255,7 +255,7 @@
 	}
 
 	.video-options {
-		left: 16.67%;
+		left: 16.6666%;
 	}
 
 	.timeline-options {

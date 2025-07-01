@@ -3,7 +3,7 @@
 	import { getFromCache, getPoint } from "../../../api/client.svelte";
 	import { objectPreviewLoaded } from "../../../api/codegen.svelte";
 	import { hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
-	import { getAnimationFromId, getObjectFromId, getProject, getSingleSelection, isAudioLoaded, projectHasErrors } from "../../../api/project.svelte";
+	import { getAnimationFromId, getObjectFromId, getProject, getSingleSelection, isAudioLoaded, projectHasErrors, projectReloadKey } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 	import Video from "./Video.svelte";
@@ -104,92 +104,93 @@
 	});
 </script>
 
-<div id="video-panel" class="container" data-tauri-drag-region={draggable}>
-	{#if !getFromCache("showMovieOverPreview")}
-		{#if animationPreviewVideo}
-			<span class="preview-text">Animation "{getAnimationFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
-		{/if}
-		{#if objectPreviewLoaded()}
-			{#if objectPreviewImage}
-				<span class="preview-text">Object "{getObjectFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
-				<img src={objectPreviewImage} id="preview-image" class="preview" alt="preview" />
+{#key projectReloadKey()}
+	<div id="video-panel" class="container" data-tauri-drag-region={draggable}>
+		{#if !getFromCache("showMovieOverPreview")}
+			{#if animationPreviewVideo}
+				<span class="preview-text">Animation "{getAnimationFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
 			{/if}
-		{:else}
-			<div id="novideo" data-tauri-drag-region={draggable}>
-				<h1>Reloading...</h1>
-				<p>Reloading object preview image after your changes. When the image loads, it will appear here.</p>
-			</div>
-		{/if}
-	{/if}
-
-	{#if getProject().animations.length > 0}
-		{#if !isVideoLoaded() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
-			<div id="novideo" data-tauri-drag-region={draggable}>
-				<h1>Reloading...</h1>
-				<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
-			</div>
-		{:else if projectHasErrors() && !hasEverGeneratedVideo() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
-			<div id="novideo" data-tauri-drag-region={draggable}>
-				<h1>Project Has Errors</h1>
-				<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
-			</div>
+			{#if objectPreviewLoaded()}
+				{#if objectPreviewImage}
+					<span class="preview-text">Object "{getObjectFromId(getSingleSelection()!)!.properties["Name"]}" Preview</span>
+					<img src={objectPreviewImage} id="preview-image" class="preview" alt="preview" />
+				{/if}
+			{:else}
+				<div id="novideo" data-tauri-drag-region={draggable}>
+					<h1>Reloading...</h1>
+					<p>Reloading object preview image after your changes. When the image loads, it will appear here.</p>
+				</div>
+			{/if}
 		{/if}
 
-		{#if isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && ((!objectPreviewImage && !animationPreviewVideo) || getFromCache("showMovieOverPreview"))}
-			<span class="preview-text">Movie "{getProject().settings.outputFileName}"</span>
-		{/if}
+		{#if getProject().animations.length > 0}
+			{#if !isVideoLoaded() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
+				<div id="novideo" data-tauri-drag-region={draggable}>
+					<h1>Reloading...</h1>
+					<p>Reloading animation video after your changes. When the video loads, it will appear here.</p>
+				</div>
+			{:else if projectHasErrors() && !hasEverGeneratedVideo() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
+				<div id="novideo" data-tauri-drag-region={draggable}>
+					<h1>Project Has Errors</h1>
+					<p>The project contains errors, so a video can't be generated. Fix the errors to generate the animation video.</p>
+				</div>
+			{/if}
 
-		{#if !isAudioLoaded()}
+			{#if (isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && !objectPreviewImage && !animationPreviewVideo) || getFromCache("showMovieOverPreview")}
+				<span class="preview-text">Movie "{getProject().settings.outputFileName}"</span>
+			{/if}
+
+			{#if !isAudioLoaded()}
+				<div id="novideo" data-tauri-drag-region={draggable}>
+					<h1>Reloading Audio...</h1>
+					<p>Reloading audio after your changes. When the audio loads, the video will appear here.</p>
+				</div>
+			{/if}
+
+			<!-- svelte-ignore a11y_media_has_caption -->
+			<Video
+				style="display: {isAudioLoaded() && isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache('showMovieOverPreview'))
+					? 'block'
+					: 'none'}"
+				ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
+				onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
+				onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
+				oncontextmenu={event => event.preventDefault()}
+				onplay={onPlay}
+				{draggable}
+				onpause={onPause}
+				id="video-source"
+				class="preview"
+				bind:this={video}
+				src={videoSrc}
+			/>
+		{:else if !objectPreviewImage || getFromCache("showMovieOverPreview")}
 			<div id="novideo" data-tauri-drag-region={draggable}>
-				<h1>Reloading Audio...</h1>
-				<p>Reloading audio after your changes. When the audio loads, the video will appear here.</p>
+				<h1>No Animations Yet</h1>
+				<p>When you add an animation, the video will appear here.</p>
 			</div>
 		{/if}
 
-		<!-- svelte-ignore a11y_media_has_caption -->
-		<Video
-			style="display: {isAudioLoaded() && isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && (!objectPreviewImage || getFromCache('showMovieOverPreview'))
-				? 'block'
-				: 'none'}"
-			ontimeupdate={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
-			onseeked={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
-			onseeking={event => setCurrentTime((event.target as HTMLVideoElement).currentTime + timeOffset)}
-			oncontextmenu={event => event.preventDefault()}
-			onplay={onPlay}
-			{draggable}
-			onpause={onPause}
-			id="video-source"
-			class="preview"
-			bind:this={video}
-			src={videoSrc}
-		/>
-	{:else if !objectPreviewImage || getFromCache("showMovieOverPreview")}
-		<div id="novideo" data-tauri-drag-region={draggable}>
-			<h1>No Animations Yet</h1>
-			<p>When you add an animation, the video will appear here.</p>
-		</div>
-	{/if}
+		<!-- Grid -->
+		<canvas
+			data-tauri-drag-region={draggable}
+			id="grid-canvas"
+			style:opacity={getProject().animations.length > 0 && isVideoLoaded() && getFromCache("grid") ? "100%" : "0%"}
+		></canvas>
 
-	<!-- Grid -->
-	<canvas data-tauri-drag-region={draggable} id="grid-canvas" style:opacity={getProject().animations.length > 0 && isVideoLoaded() && getFromCache("grid") ? "100%" : "0%"}></canvas>
-
-	<!-- Point -->
-	{#if getProject().animations.length > 0 && isVideoLoaded() && getFromCache("grid") && getPoint()}
-		<div class="point" style:left="{videoWidth / 2 + boxSize * getPoint()![0]}px" style:top="{centerY - boxSize * getPoint()![1]}px">
-			<span>({getPoint()![0]}, {getPoint()![1]})</span>
-		</div>
-	{/if}
-</div>
-<CursorCoordinates />
+		<!-- Point -->
+		{#if getProject().animations.length > 0 && isVideoLoaded() && getFromCache("grid") && getPoint()}
+			<div class="point" style:left="{videoWidth / 2 + boxSize * getPoint()![0]}px" style:top="{centerY - boxSize * getPoint()![1]}px">
+				<span>({getPoint()![0]}, {getPoint()![1]})</span>
+			</div>
+		{/if}
+	</div>
+	<CursorCoordinates />
+{/key}
 
 <style>
-	#video-panel {
-		position: relative;
-	}
-
 	.container {
 		width: 100%;
-		aspect-ratio: 16 / 9;
 		position: relative;
 	}
 

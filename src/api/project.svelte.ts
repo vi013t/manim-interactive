@@ -176,8 +176,19 @@ export function serializeProject(): string {
 	return JSON.stringify(project);
 }
 
+let projectReloadCounter = 0;
+
 export function deserializeProject(data: string) {
 	project = JSON.parse(data);
+	projectReloadCounter++;
+}
+
+/**
+ * Returns an opaque value that changes when the project is reloaded. Used for expressions like `{#key}` and `$effect`
+ * to reload components or data when the project data is updated.
+ */
+export function projectReloadKey(): unknown {
+	return projectReloadCounter;
 }
 
 export function resetProject() {

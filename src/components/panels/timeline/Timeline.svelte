@@ -2,16 +2,7 @@
 	import { onMount } from "svelte";
 	import { cache, getFromCache, getHorizontalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
 	import { getPreferences, onPreferenceChange, runAction } from "../../../api/preferences.svelte";
-	import {
-		addToSelection,
-		animationEndTime,
-		getAnimationFromId,
-		getProject,
-		regenerateWaits,
-		select,
-		selected,
-		type ProjectEvent,
-	} from "../../../api/project.svelte";
+	import { addToSelection, animationEndTime, getAnimationFromId, getProject, regenerateWaits, select, selected, type ProjectEvent } from "../../../api/project.svelte";
 	import { currentTime, getRelativeTime } from "../../../api/timeline.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlayIcon from "../../icons/PlayIcon.svelte";
@@ -42,7 +33,6 @@
 	}
 
 	onMount(() => {
-
 		onPreferenceChange("relativeTimestamps", relativeTimestamps => {
 			Array.from(document.querySelectorAll(".timestamp")).forEach(timestamp => {
 				let absoluteTime = Number(timestamp.getAttribute("data-time"));
@@ -93,8 +83,8 @@
 				let minimum = 0;
 				if (draggingEvent.textContent === "End" && getProject().animations.length > 0) {
 					minimum =
-						getProject().animations
-							.filter(animation => animation.properties["Animation Type"] !== "Wait")
+						getProject()
+							.animations.filter(animation => animation.properties["Animation Type"] !== "Wait")
 							.map(animationEndTime)
 							.toSorted((anim1, anim2) => anim2 - anim1)[0] * cellHeight;
 				}
@@ -332,6 +322,7 @@
 		height: 100%;
 		position: relative;
 		overflow: hidden;
+		width: 16.6666%;
 	}
 
 	h1 {

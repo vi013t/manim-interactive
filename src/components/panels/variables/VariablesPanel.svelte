@@ -13,7 +13,7 @@
 		removeError,
 		type ProjectAnimation,
 		type ProjectObject,
-		type ProjectVariable
+		type ProjectVariable,
 	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import LockIcon from "../../icons/LockIcon.svelte";
@@ -236,7 +236,7 @@
 		height: 100%;
 		padding: 1rem;
 		overflow-y: auto;
-		width: 50%;
+		flex-grow: 1;
 	}
 
 	.header {

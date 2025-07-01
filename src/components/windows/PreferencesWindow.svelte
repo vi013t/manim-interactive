@@ -204,6 +204,15 @@
 					</span>
 					<p>{translate("Show tooltips when hovering on buttons or icons that explain them.")}.</p>
 				</label>
+				<label for="pip-on-top">
+					<span>
+						{translate("Picture-in-Picture Starts in Always-On-Top")}
+						<RadioInput id="pip-on-top" bind:value={() => getPreferences().pipOnTopByDefault, value => setPreference("pipOnTopByDefault", value)} style="margin-left: auto;" />
+					</span>
+					<p>
+						{translate("When opening the video in picture-in-picture mode, it will stay on top of other windows unless toggled.")}
+					</p>
+				</label>
 			{:else if view === "timeline"}
 				<h1>{translate("Timeline Settings")}</h1>
 				<label for="timeline-snapping">
@@ -321,11 +330,7 @@
 				<label for="developer-mode">
 					<span>
 						{translate("Developer Mode")}
-						<RadioInput
-							id="developer-mode"
-							bind:value={() => getPreferences().developerMode, value => setPreference("developerMode", value)}
-							style="margin-left: auto;"
-						/>
+						<RadioInput id="developer-mode" bind:value={() => getPreferences().developerMode, value => setPreference("developerMode", value)} style="margin-left: auto;" />
 					</span>
 					<p>{translate("Enabling Developer mode allows adding custom Python scripts for animations or objects with access to the Manim library")}.</p>
 				</label>

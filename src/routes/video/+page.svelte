@@ -1,21 +1,20 @@
 <script lang="ts">
-	import { listen } from '@tauri-apps/api/event';
 	import { getFromCache } from "../../api/client.svelte";
-	import { setProject, type Project } from "../../api/project.svelte";
-	import CloseIcon from "../../components/icons/CloseIcon.svelte";
+	import { deserializeProject } from "../../api/project.svelte";
 	import VideoPanel from "../../components/panels/video/VideoPanel.svelte";
 
-	listen<Project>("data", data => {
-		console.log("Received data in webview");
-		setProject(data.payload);
-	});
+	deserializeProject(localStorage.getItem("project")!);
+
+	setInterval(() => {
+		if (localStorage.getItem("reloadProject")) {
+			deserializeProject(localStorage.getItem("project")!);
+			localStorage.removeItem("reloadProject");
+		}
+	}, 100);
 </script>
 
-<div data-tauri-drag-region style:outline={getFromCache("videoPipAlwaysOnTop") ? "4px solid red" : "none"}>
+<div data-tauri-drag-region style:--after-outline={getFromCache("videoPipAlwaysOnTop") ? "4px solid var(--lavender)" : "none"}>
 	<VideoPanel draggable />
-	<button>
-		<CloseIcon stroke="white" style="width: 1rem; height: 1rem;" />
-	</button>
 </div>
 
 <style>
@@ -23,22 +22,18 @@
 		width: 100%;
 		height: 100%;
 		background-color: var(--crust);
-		outline-offset: -4px;
-	}
 
-	button {
-		position: absolute;
-		top: 1rem;
-		right: 1rem;
-
-		&::before {
+		&::after {
 			content: "";
 			position: absolute;
-			top: 50%;
-			left: 50%;
+			left: 0px;
+			top: 0px;
 			width: 100%;
 			height: 100%;
-			transform: translate(-50%, -50%);
+			z-index: 99999;
+			outline-offset: -4px;
+			outline: var(--after-outline);
+			pointer-events: none;
 		}
 	}
 </style>

@@ -1,3 +1,5 @@
+import type { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+
 let mouseX = $state(0);
 let mouseY = $state(0);
 
@@ -144,6 +146,7 @@ export type Cache = {
 	loopVideo: boolean;
 	videoState: "fullscreen" | "normal" | "pip";
 	videoPipAlwaysOnTop: boolean;
+	videoPipWindow: WebviewWindow | null;
 };
 
 /**
@@ -161,6 +164,7 @@ let storedCache: Cache = $state({
 	loopVideo: false,
 	videoState: "normal",
 	videoPipAlwaysOnTop: true,
+	videoPipWindow: null,
 });
 
 export function cache<Key extends keyof Cache>(key: Key, value: Cache[Key]): void {
