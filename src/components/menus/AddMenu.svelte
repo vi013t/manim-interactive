@@ -106,7 +106,7 @@
 		<RightArrow stroke="var(--blue)" style="width: 1rem; height: 0.8rem; margin-left: 0.5em;" />
 	</button>
 
-	<AddAnimationMenu bind:this={addAnimationMenu} top={verticalExpand === "bottom" ? "1.9rem" : "-5.25rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
+	<AddAnimationMenu bind:this={addAnimationMenu} top={verticalExpand === "bottom" ? "1.9rem" : "-5.25rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} id={getSingleSelection() ?? undefined} />
 	<AddEventMenu bind:this={addEventMenu} top={verticalExpand === "bottom" ? "5.25rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
 	<AddPropertyMenu bind:this={addPropertyMenu} top={verticalExpand === "bottom" ? "9rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />
 	<AddObjectMenu bind:this={addObjectMenu} top={verticalExpand === "bottom" ? "6.75rem" : "-3.5rem"} left={horizontalExpand === "right" ? "100%" : "-100%"} />

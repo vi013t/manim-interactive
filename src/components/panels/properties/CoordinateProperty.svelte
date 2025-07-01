@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { hidePoint, setPoint } from "../../../api/client.svelte";
-	import { setPreference } from "../../../api/preferences.svelte";
-
+	import { cache, hidePoint, setPoint } from "../../../api/client.svelte";
+	
 	let {
 		value = $bindable(),
 		errorMessage = $bindable(),
@@ -58,7 +57,7 @@
 	function blur() {
 		validate();
 		if (errorMessage) return;
-		setPreference("grid", false);
+		cache("grid", false);
 
 		hidePoint();
 
@@ -68,7 +67,7 @@
 	}
 
 	function focus() {
-		setPreference("grid", true);
+		cache("grid", true);
 		validate();
 		if (!errorMessage) setPoint(Number(x), Number(y));
 		previousValue = [x, y, z];

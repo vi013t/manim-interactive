@@ -2,7 +2,9 @@
 	import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 	import { onMount } from "svelte";
 	import type { HTMLVideoAttributes } from "svelte/elements";
-	import { cache, cursorIsIn, getFromCache } from "../../../api/client.svelte";
+	import { type Cache, cache, cursorIsIn, getFromCache } from "../../../api/client.svelte";
+	import { type Preferences } from "../../../api/preferences.svelte";
+	import { getProject, type ProjectAnimation, type ProjectAudio, type ProjectObject } from "../../../api/project.svelte";
 	import FilledPlayIcon from "../../icons/FilledPlayIcon.svelte";
 	import FullscreenIcon from "../../icons/FullscreenIcon.svelte";
 	import MuteIcon from "../../icons/MuteIcon.svelte";
@@ -40,6 +42,14 @@
 		else cache("videoState", "fullscreen");
 	}
 
+	export type WebviewData = { 
+		preferences: Preferences, 
+		cache: Cache, 
+		animations: ProjectAnimation[],
+		objects: ProjectObject[],
+		audios: ProjectAudio[],
+	};
+
 	function togglePip() {
 		if (getFromCache("videoState") === "pip") cache("videoState", "normal");
 		else {
@@ -54,9 +64,14 @@
 				title: "Manim Interactive - Video Picture-in-Picture",
 			});
 
-			webview.once("tauri://created", function () {
-				console.log("initialized");
+			webview.once("tauri://created", () => {
+				console.log("Sending data to webview");
+				webview.emit("project", getProject()).catch(error => {
+					console.log("Error sending data to webview:");
+					console.error(error);
+				});
 			});
+
 			webview.once("tauri://error", function (error) {
 				console.error(error);
 			});

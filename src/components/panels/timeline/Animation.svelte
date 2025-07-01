@@ -7,7 +7,7 @@
 	import {
 		type ProjectAnimation,
 		animationEndTime,
-		getProjectAnimations,
+		getProject,
 		nextAnimation,
 		previousAnimation,
 		regenerateWaits,
@@ -55,7 +55,7 @@
 
 	onMount(() => {
 		if (animation.properties["Animation Type"] !== "Wait") {
-			const otherAnimations = getProjectAnimations().filter(projectAnimation => projectAnimation !== animation);
+			const otherAnimations = getProject().animations.filter(projectAnimation => projectAnimation !== animation);
 			let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
 			animation.properties["Start Time"] = startTime;
 		}
@@ -133,7 +133,7 @@
 
 	let animationTop = $derived.by(() => {
 		let top = 0;
-		getProjectAnimations()
+		getProject().animations
 			.toSorted((anim1, anim2) => anim1.properties["Start Time"]! - anim2.properties["Start Time"]!)
 			.some(projectAnimation => {
 				if (projectAnimation.id === animation.id) return true;

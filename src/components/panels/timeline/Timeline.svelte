@@ -6,9 +6,7 @@
 		addToSelection,
 		animationEndTime,
 		getAnimationFromId,
-		getProjectAnimations,
-		getProjectAudios,
-		getProjectEvents,
+		getProject,
 		regenerateWaits,
 		select,
 		selected,
@@ -93,9 +91,9 @@
 			if (draggingEvent) {
 				const cellHeight = 64;
 				let minimum = 0;
-				if (draggingEvent.textContent === "End" && getProjectAnimations().length > 0) {
+				if (draggingEvent.textContent === "End" && getProject().animations.length > 0) {
 					minimum =
-						getProjectAnimations()
+						getProject().animations
 							.filter(animation => animation.properties["Animation Type"] !== "Wait")
 							.map(animationEndTime)
 							.toSorted((anim1, anim2) => anim2 - anim1)[0] * cellHeight;
@@ -115,7 +113,7 @@
 
 		document.addEventListener("mouseup", event => {
 			if (draggingEvent) {
-				getProjectEvents().find(marker => marker.properties.Name === draggingEvent!.textContent)!.properties.Time = parseInt(draggingEvent.style.top) / 64;
+				getProject().events.find(marker => marker.properties.Name === draggingEvent!.textContent)!.properties.Time = parseInt(draggingEvent.style.top) / 64;
 				regenerateWaits();
 				runAction("Save And Recompile Project");
 			}
@@ -202,17 +200,17 @@
 	<div bind:this={timelineElement} id="timeline-wrapper" onmousedown={timelineMouseDown}>
 		<div id="timeline-content">
 			<!-- Animations -->
-			{#each getProjectAnimations() as animation (animation.id)}
+			{#each getProject().animations as animation (animation.id)}
 				<Animation {animation} {timelineElement} />
 			{/each}
 
 			<!-- Audios -->
-			{#each getProjectAudios() as audio (audio.id)}
+			{#each getProject().audios as audio (audio.id)}
 				<Audio {audio} menu={audioActionsMenu} />
 			{/each}
 
 			<!-- Markers -->
-			{#each getProjectEvents() as marker, index (marker.id)}
+			{#each getProject().events as marker, index (marker.id)}
 				<div
 					oncontextmenu={markerOptions(marker)}
 					bind:this={markers[index]}

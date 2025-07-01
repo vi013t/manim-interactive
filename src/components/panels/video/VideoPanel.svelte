@@ -3,7 +3,7 @@
 	import { getFromCache, getPoint } from "../../../api/client.svelte";
 	import { objectPreviewLoaded } from "../../../api/codegen.svelte";
 	import { hasEverGeneratedVideo, isVideoLoaded } from "../../../api/preferences.svelte";
-	import { getAnimationFromId, getObjectFromId, getProjectAnimations, getProjectSettings, getSingleSelection, isAudioLoaded, projectHasErrors } from "../../../api/project.svelte";
+	import { getAnimationFromId, getObjectFromId, getProject, getSingleSelection, isAudioLoaded, projectHasErrors } from "../../../api/project.svelte";
 	import { setCurrentTime } from "../../../api/timeline.svelte";
 	import CursorCoordinates from "./CursorCoordinates.svelte";
 	import Video from "./Video.svelte";
@@ -122,7 +122,7 @@
 		{/if}
 	{/if}
 
-	{#if getProjectAnimations().length > 0}
+	{#if getProject().animations.length > 0}
 		{#if !isVideoLoaded() && (!objectPreviewImage || getFromCache("showMovieOverPreview"))}
 			<div id="novideo" data-tauri-drag-region={draggable}>
 				<h1>Reloading...</h1>
@@ -136,7 +136,7 @@
 		{/if}
 
 		{#if isVideoLoaded() && !(projectHasErrors() && !hasEverGeneratedVideo()) && ((!objectPreviewImage && !animationPreviewVideo) || getFromCache("showMovieOverPreview"))}
-			<span class="preview-text">Movie "{getProjectSettings().outputFileName}"</span>
+			<span class="preview-text">Movie "{getProject().settings.outputFileName}"</span>
 		{/if}
 
 		{#if !isAudioLoaded()}
@@ -171,10 +171,10 @@
 	{/if}
 
 	<!-- Grid -->
-	<canvas data-tauri-drag-region={draggable} id="grid-canvas" style:opacity={getProjectAnimations().length > 0 && isVideoLoaded() && getFromCache("grid") ? "100%" : "0%"}></canvas>
+	<canvas data-tauri-drag-region={draggable} id="grid-canvas" style:opacity={getProject().animations.length > 0 && isVideoLoaded() && getFromCache("grid") ? "100%" : "0%"}></canvas>
 
 	<!-- Point -->
-	{#if getProjectAnimations().length > 0 && isVideoLoaded() && getFromCache("grid") && getPoint()}
+	{#if getProject().animations.length > 0 && isVideoLoaded() && getFromCache("grid") && getPoint()}
 		<div class="point" style:left="{videoWidth / 2 + boxSize * getPoint()![0]}px" style:top="{centerY - boxSize * getPoint()![1]}px">
 			<span>({getPoint()![0]}, {getPoint()![1]})</span>
 		</div>

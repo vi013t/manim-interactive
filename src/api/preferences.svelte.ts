@@ -5,18 +5,18 @@ import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
 	deselect,
+	deserializeProject,
 	getExplicitProjectLocation,
 	getObjectFromId,
-	getProjectAudios,
+	getProject,
 	getProjectLocation,
-	getProjectSaveData,
-	getProjectSettings,
 	getSingleSelection,
-	loadProjectData,
 	movieLength,
 	projectHasErrors,
+	serializeProject,
 	setProjectLocation,
 } from "./project.svelte";
+import type { DeepReadonly } from "./types";
 
 export function updateKeybinding(index: number, key: Key) {
 	preferences.keybindings[index].key = key;
@@ -42,7 +42,7 @@ const actions = {
 	"Save Project": {
 		name: "Save Project",
 		async run() {
-			const projectData = getProjectSaveData();
+			const projectData = serializeProject();
 			const location = getExplicitProjectLocation();
 
 			if (!location) {
@@ -67,7 +67,7 @@ const actions = {
 		name: "Save And Recompile Project",
 		async run() {
 			videoLoaded = false;
-			const projectData = getProjectSaveData();
+			const projectData = serializeProject();
 			const location = getExplicitProjectLocation();
 
 			if (!location) {
@@ -98,24 +98,24 @@ const actions = {
 			await invoke("recompile", {
 				projectPath: await getProjectLocation(),
 				code: generateCode(),
-				fps: getProjectSettings().fps,
-				fileFormat: getProjectSettings().fileFormat,
-				renderer: getProjectSettings().renderer.toLowerCase(),
-				resolutionWidth: getProjectSettings().resolution[0],
-				resolutionHeight: getProjectSettings().resolution[1],
-				outputFileName: getProjectSettings().outputFileName,
+				fps: getProject().settings.fps,
+				fileFormat: getProject().settings.fileFormat,
+				renderer: getProject().settings.renderer.toLowerCase(),
+				resolutionWidth: getProject().settings.resolution[0],
+				resolutionHeight: getProject().settings.resolution[1],
+				outputFileName: getProject().settings.outputFileName,
 			});
 
 			const videoData = await invoke<string>("load_video", {
 				path: await getProjectLocation(),
 				lowRes: getFromCache("lowRes"),
-				resolutionHeight: getProjectSettings().resolution[1],
-				fps: getProjectSettings().fps,
-				outputFileName: getProjectSettings().outputFileName,
-				fileFormat: getProjectSettings().fileFormat,
+				resolutionHeight: getProject().settings.resolution[1],
+				fps: getProject().settings.fps,
+				outputFileName: getProject().settings.outputFileName,
+				fileFormat: getProject().settings.fileFormat,
 			});
 
-			cache("videoData", `data:video/${getProjectSettings().fileFormat};base64,${videoData}`);
+			cache("videoData", `data:video/${getProject().settings.fileFormat};base64,${videoData}`);
 
 			if (getSingleSelection() === null || getObjectFromId(getSingleSelection()!) === null) {
 				(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
@@ -138,7 +138,7 @@ const actions = {
 			// Directory Chosen
 			if (typeof selected === "string") {
 				setProjectLocation(selected);
-				loadProjectData(await invoke("get_project_data", { path: selected }));
+				deserializeProject(await invoke("get_project_data", { path: selected }));
 				localStorage.setItem("last-project", selected);
 				videoGenerated = false;
 			}
@@ -188,7 +188,7 @@ const actions = {
 	"Compile Project": {
 		name: "Compile Project",
 		async run() {
-			const projectData = getProjectSaveData();
+			const projectData = serializeProject();
 
 			const saveData = invoke("save_project_data", {
 				path: await getProjectLocation(),
@@ -205,13 +205,13 @@ const actions = {
 			await invoke("compile", {
 				projectPath: await getProjectLocation(),
 				code: generateCode(),
-				resolutionWidth: getProjectSettings().resolution[0],
-				resolutionHeight: getProjectSettings().resolution[1],
-				renderer: getProjectSettings().renderer.toLowerCase(),
-				fileFormat: getProjectSettings().fileFormat,
-				fps: getProjectSettings().fps,
-				outputFileName: getProjectSettings().outputFileName,
-				audios: getProjectAudios().map(audio => ({
+				resolutionWidth: getProject().settings.resolution[0],
+				resolutionHeight: getProject().settings.resolution[1],
+				renderer: getProject().settings.renderer.toLowerCase(),
+				fileFormat: getProject().settings.fileFormat,
+				fps: getProject().settings.fps,
+				outputFileName: getProject().settings.outputFileName,
+				audios: getProject().audios.map(audio => ({
 					id: audio.id,
 					data: audio.properties["Embedded Source"]!,
 					duration: audio.duration,
@@ -250,9 +250,7 @@ let preferences = $state({
 	],
 });
 
-type Preferences = typeof preferences;
-
-type DeepReadonly<T> = { readonly [Key in keyof T]: DeepReadonly<T[Key]> };
+export type Preferences = typeof preferences;
 
 let preferenceHooks: { name: Preference; hook: (value: unknown) => void }[] = [];
 
@@ -272,6 +270,10 @@ export function loadPreferences() {
 
 export function getPreferences(): DeepReadonly<Preferences> {
 	return preferences;
+}
+
+export function setPreferences(newPreferences: Preferences): void {
+	preferences = newPreferences;
 }
 
 export function bindPreference<Name extends Preference>(preferenceName: Name): [() => DeepReadonly<Preferences[Name]>, (value: Preferences[Name]) => void] {

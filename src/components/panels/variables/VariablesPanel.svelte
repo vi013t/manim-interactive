@@ -6,14 +6,14 @@
 		addError,
 		deleteProjectItem,
 		getItemFromId,
-		getProjectVariables,
+		getProject,
 		getSingleSelection,
 		getVariableDependencies,
 		isVariableUsed,
 		removeError,
 		type ProjectAnimation,
 		type ProjectObject,
-		type ProjectVariable,
+		type ProjectVariable
 	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import LockIcon from "../../icons/LockIcon.svelte";
@@ -109,7 +109,7 @@
 		</button>
 	</div>
 
-	{#if getProjectVariables().length === 0}
+	{#if getProject().variables.length === 0}
 		<div class="novariable">
 			<h1>No Variables Yet</h1>
 			<p>The project has no variables yet. When it does, they will appear here.</p>
@@ -117,7 +117,7 @@
 	{/if}
 
 	<div class="variables">
-		{#each getProjectVariables() as variable (variable.id)}
+		{#each getProject().variables as variable (variable.id)}
 			{@const Icon = getPropertyTypeIcon(variable.type.base)}
 			<span class="variable">
 				<span>

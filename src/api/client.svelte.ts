@@ -183,6 +183,10 @@ export function getCache(): Cache {
 	return storedCache;
 }
 
+export function setCache(cache: Cache): void {
+	storedCache = cache;
+}
+
 export function isInSelectionBox(element: HTMLElement): boolean {
 	let selectionBox = document.getElementById("selection-box");
 	if (!selectionBox) return false;

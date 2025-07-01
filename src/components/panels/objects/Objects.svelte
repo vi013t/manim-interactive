@@ -4,7 +4,7 @@
 	import { onMount } from "svelte";
 	import { getHorizontalExpandDirection, getVerticalExpandDirection, isInSelectionBox } from "../../../api/client.svelte";
 	import { getProperty } from "../../../api/manim/property";
-	import { addToSelection, getObjectFromId, getProjectObjects, isObjectInGroup, isObjectUsed, select, selected } from "../../../api/project.svelte";
+	import { addToSelection, getObjectFromId, getProject, isObjectInGroup, isObjectUsed, select, selected } from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import PlusIcon from "../../icons/PlusIcon.svelte";
 	import AddObjectMenu from "../../menus/AddObjectMenu.svelte";
@@ -32,7 +32,7 @@
 	}
 
 	let sortedObjects = $derived(
-		getProjectObjects().toSorted((obj1, obj2) => {
+		getProject().objects.toSorted((obj1, obj2) => {
 			if (!isObjectUsed(obj1)) {
 				if (!isObjectUsed(obj2)) {
 					return obj1.properties["Name"].localeCompare(obj2.properties["Name"]);

@@ -2,7 +2,7 @@
 	import { objects, type ObjectProperties } from "../../api/manim/objects";
 	import { getAnimationObjects, getProperty } from "../../api/manim/property";
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
-	import { addProjectObject, deleteProjectItem, getObjectFromId, getProjectAnimations, isNameTaken, nextId, select } from "../../api/project.svelte";
+	import { addProjectObject, deleteProjectItem, getObjectFromId, getProject, isNameTaken, nextId, select } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import AnimationIcon from "../icons/AnimationIcon.svelte";
 	import CalendarIcon from "../icons/CalendarIcon.svelte";
@@ -50,7 +50,7 @@
 		menu.hide();
 		if (isGroup && getProperty(getObjectFromId(ids[0])!, "Objects")!.length > 0) {
 			confirmDeleteGroupWindow.show();
-		} else if (getProjectAnimations().some(animation => ids.some(id => getAnimationObjects(animation).includes(id)))) {
+		} else if (getProject().animations.some(animation => ids.some(id => getAnimationObjects(animation).includes(id)))) {
 			confirmDeleteObjectWindow.show();
 		} else {
 			ids.forEach(id => deleteProjectItem(id));

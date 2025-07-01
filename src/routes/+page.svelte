@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
 	import { cache, getFromCache, getMouseX, getMouseY, showNewProjectWindow, updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, runAction, savePreferences } from "../api/preferences.svelte";
-	import { getExplicitProjectLocation, loadProjectData, setProjectLocation } from "../api/project.svelte";
+	import { deserializeProject, getExplicitProjectLocation, setProjectLocation } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
 	import { loadTheme } from "../api/theme.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
@@ -29,7 +29,7 @@
 	if (getPreferences().autoOpenLastProject) {
 		let projectLocation = localStorage.getItem("last-project");
 		if (projectLocation) setProjectLocation(projectLocation);
-		invoke<string>("get_project_data", { path: projectLocation }).then(loadProjectData);
+		invoke<string>("get_project_data", { path: projectLocation }).then(deserializeProject);
 	}
 
 	onMount(() => {

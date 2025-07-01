@@ -9,15 +9,15 @@
 		getAudioFromId,
 		getItemFromId,
 		getObjectFromId,
+		getProject,
 		getProjectVariableFromId,
 		getProjectVariableFromName,
-		getProjectVariables,
 		getPropertiesFromId,
 		getSingleSelection,
 		isNameTaken,
 		nextId,
 		recompileAudio,
-		removeError,
+		removeError
 	} from "../../../api/project.svelte";
 	import { translate } from "../../../api/translate.svelte";
 	import ErrorIcon from "../../icons/ErrorIcon.svelte";
@@ -172,7 +172,7 @@
 						variable = value;
 						setProperty({ variableId: getProjectVariableFromName(value)!.id });
 					}}
-					options={getProjectVariables()
+					options={getProject().variables
 						.filter(variable => variable.type.base === property.base)
 						.map(variable => ({ name: variable.name, icon: getPropertyTypeIcon(property.base), color: getPropertyTypeColor(property.base) }))}
 					style="width: 2rem; background-color: transparent;"

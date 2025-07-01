@@ -2,8 +2,7 @@
 	import { getPreferences, runAction } from "../../api/preferences.svelte";
 	import {
 		deleteProjectItem,
-		getProjectAnimations,
-		getProjectObjects,
+		getProject,
 		getProjectVariableFromId,
 		type ProjectAnimation,
 		type ProjectObject,
@@ -29,8 +28,8 @@
 	}
 
 	function deleteVariable(variable: ProjectVariable) {
-		getProjectObjects().forEach(object => deleteVariableDependencies(object, variable));
-		getProjectAnimations().forEach(animation => deleteVariableDependencies(animation, variable));
+		getProject().objects.forEach(object => deleteVariableDependencies(object, variable));
+		getProject().animations.forEach(animation => deleteVariableDependencies(animation, variable));
 		deleteProjectItem(variable.id);
 	}
 

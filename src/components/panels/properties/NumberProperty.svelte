@@ -6,7 +6,7 @@
 		animationEndTime,
 		getAnimationFromId,
 		getItemFromId,
-		getProjectAnimations,
+		getProject,
 		getPropertiesFromId,
 		intervalsOverlap,
 		type ProjectAnimation,
@@ -43,7 +43,7 @@
 		if (value > maximum) return `Value cannot be greater than ${maximum}`;
 		if (
 			name === "Duration" &&
-			getProjectAnimations()
+			getProject().animations
 				.filter(animation => animation.id !== id)
 				.some(projectAnimation =>
 					intervalsOverlap(
@@ -57,7 +57,7 @@
 		if (
 			name === "Start Time" &&
 			getAnimationFromId(id!) &&
-			getProjectAnimations()
+			getProject().animations
 				.filter(animation => animation.id !== id)
 				.some(projectAnimation =>
 					intervalsOverlap(

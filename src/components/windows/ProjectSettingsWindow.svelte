@@ -1,10 +1,9 @@
 <script lang="ts">
 	import { closeProjectSettingsWindow, isProjectSettingsWindowOpen, openProjectSettingsWindow } from "../../api/client.svelte";
-	import { getProjectLibraries, getProjectSettings } from "../../api/project.svelte";
+	import { getProject } from "../../api/project.svelte";
 	import GearIcon from "../icons/GearIcon.svelte";
 	import PackageIcon from "../icons/PackageIcon.svelte";
 	import ProjectorIcon from "../icons/ProjectorIcon.svelte";
-	import TrashIcon from "../icons/TrashIcon.svelte";
 	import Select from "../util/Select.svelte";
 	import Window from "./Window.svelte";
 
@@ -40,11 +39,11 @@
 	}
 
 	function setOutputWidth(event: FocusEvent) {
-		getProjectSettings().resolution[0] = Number((event.target as HTMLInputElement).value);
+		getProject().settings.resolution[0] = Number((event.target as HTMLInputElement).value);
 	}
 
 	function setOutputHeight(event: FocusEvent) {
-		getProjectSettings().resolution[1] = Number((event.target as HTMLInputElement).value);
+		getProject().settings.resolution[1] = Number((event.target as HTMLInputElement).value);
 	}
 
 	$effect(() => {
@@ -86,47 +85,41 @@
 				</span>
 				<span>
 					<span>File Type:</span>
-					<Select options={["mp4", "mov", "webm"]} value={getProjectSettings().fileFormat} onSelect={format => (getProjectSettings().fileFormat = format)} />
+					<Select options={["mp4", "mov", "webm"]} value={getProject().settings.fileFormat} onSelect={format => (getProject().settings.fileFormat = format as any)} />
 				</span>
 				<span>
 					<span>Renderer:</span>
-					<Select options={["Cairo", "OpenGL"]} value={getProjectSettings().renderer} onSelect={renderer => (getProjectSettings().renderer = renderer)} />
+					<Select options={["Cairo", "OpenGL"]} value={getProject().settings.renderer} onSelect={renderer => (getProject().settings.renderer = renderer as any)} />
 				</span>
 				<span>
 					<span>Frames Per Second:</span>
-					<input type="text" value={getProjectSettings().fps} />
+					<input type="text" value={getProject().settings.fps} />
 					<Select
 						title="Presets"
 						style="width: 7rem"
 						onSelect={value => {
-							getProjectSettings().fps = Number(value);
+							getProject().settings.fps = Number(value);
 						}}
 						options={["15", "24", "30", "59", "60"]}
 					/>
 				</span>
 				<span class="resolution">
 					<span>Resolution:</span>
-					<input onblur={setOutputWidth} type="text" value={getProjectSettings().resolution[0]} />
+					<input onblur={setOutputWidth} type="text" value={getProject().settings.resolution[0]} />
 					<span class="x">x</span>
-					<input onblur={setOutputHeight} type="text" value={getProjectSettings().resolution[1]} />
+					<input onblur={setOutputHeight} type="text" value={getProject().settings.resolution[1]} />
 					<Select
 						title="Presets"
 						style="width: 7rem"
 						onSelect={value => {
 							let [width, _x, height] = value.split(" ");
-							getProjectSettings().resolution = [Number(width), Number(height)];
+							getProject().settings.resolution = [Number(width), Number(height)];
 						}}
 						options={["854 x 480", "1280 x 720", "1920 x 1080", "2560 x 1440", "3840 x 2160"]}
 					/>
 				</span>
 			{:else if view === "libraries"}
 				<h1>External Libraries</h1>
-				{#each getProjectLibraries() as library (library)}
-					<div class="library">
-						<span>{library}</span>
-						<TrashIcon stroke="var(--red)" style="width: 1rem; height: 1rem;" />
-					</div>
-				{/each}
 			{/if}
 		</div>
 	</div>
@@ -149,22 +142,6 @@
 		}
 	}
 
-	.library {
-		display: flex;
-		gap: 0.5rem;
-		align-items: center;
-		margin-left: 2rem;
-
-		> span {
-			background-color: var(--mantle);
-			padding-left: 1rem;
-			padding-right: 1rem;
-			padding-top: 0.5rem;
-			padding-bottom: 0.5rem;
-			border-radius: 0.5rem;
-			width: fit-content;
-		}
-	}
 
 	.content {
 		width: 100%;

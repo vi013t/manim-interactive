@@ -1,4 +1,4 @@
-import { animationEndTime, getProjectAnimations } from "./project.svelte";
+import { animationEndTime, getProject } from "./project.svelte";
 
 let timeInSeconds = $state(0);
 
@@ -11,8 +11,8 @@ export function setCurrentTime(newTime: number) {
 }
 
 export function getRelativeTime(absoluteTime: number) {
-	let available = getProjectAnimations()
-		.map(animation => absoluteTime - animationEndTime(animation))
+	let available = getProject()
+		.animations.map(animation => absoluteTime - animationEndTime(animation))
 		.filter(timeDifference => timeDifference >= 0);
 	return available.length === 0 ? absoluteTime : Math.min(...available);
 }

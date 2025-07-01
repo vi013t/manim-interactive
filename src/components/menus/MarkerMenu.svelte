@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { deleteProjectItem, getItemFromId, type ProjectMarker } from "../../api/project.svelte";
+	import { deleteProjectItem, getItemFromId, type ProjectEvent } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import TrashIcon from "../icons/TrashIcon.svelte";
 	import TypeIcon from "../icons/TypeIcon.svelte";
@@ -34,7 +34,7 @@
 
 <ContextMenu bind:this={menu} {top} {left}>
 	<span>Marker Actions</span>
-	{#if getItemFromId<ProjectMarker>(id)?.name !== "End"}
+	{#if getItemFromId<ProjectEvent>(id)?.properties.Name !== "End"}
 		<button onclick={renameMarker}>
 			<TypeIcon stroke="var(--blue)" style="width: 1rem; height: 1rem; margin-right: 0.5em;" />
 			{translate("Rename Marker")}

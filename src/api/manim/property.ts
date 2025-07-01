@@ -14,15 +14,7 @@ import TextIcon from "../../components/icons/TextIcon.svelte";
 import TransformIcon from "../../components/icons/TransformIcon.svelte";
 import { type SelectOption } from "../../components/util/Select.svelte";
 import { audioProperties, type AudioProperties, type AudioProperty } from "../audio";
-import {
-	getProjectAnimations,
-	getProjectAudios,
-	getProjectObjects,
-	getProjectVariableFromId,
-	type ProjectAnimation,
-	type ProjectAudio,
-	type ProjectObject,
-} from "../project.svelte";
+import { getProject, getProjectVariableFromId, type ProjectAnimation, type ProjectAudio, type ProjectObject } from "../project.svelte";
 import { animations, type AnimationProperties, type AnimationProperty, type AnimationPropertyName, type AnimationPropertyValue } from "./animations";
 import { objects, type ObjectProperties, type ObjectProperty, type ObjectPropertyName, type ObjectPropertyValue } from "./objects";
 
@@ -717,9 +709,9 @@ export function getPossibleProperties(
 
 export function addProperty(id: number, name: ObjectPropertyName | AnimationPropertyName, value: unknown) {
 	(
-		(getProjectObjects().find(object => object.id === id) ??
-			getProjectAnimations().find(animation => animation.id === id) ??
-			getProjectAudios().find(audio => audio.id === id)) as any
+		(getProject().objects.find(object => object.id === id) ??
+			getProject().animations.find(animation => animation.id === id) ??
+			getProject().audios.find(audio => audio.id === id)) as any
 	).properties[name] = value;
 }
 

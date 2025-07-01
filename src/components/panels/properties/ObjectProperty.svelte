@@ -2,7 +2,7 @@
 	import { onMount } from "svelte";
 	import { getObjectCategory, objects } from "../../../api/manim/objects";
 	import { getProperty } from "../../../api/manim/property";
-	import { getItemFromId, getProjectObjects, type ProjectObject, selected } from "../../../api/project.svelte";
+	import { getItemFromId, getProject, type ProjectObject, selected } from "../../../api/project.svelte";
 	import Select from "../../util/Select.svelte";
 
 	let {
@@ -42,7 +42,7 @@
 
 <Select
 	{locked}
-	options={getProjectObjects()
+	options={getProject().objects
 		.filter(object => !selected().includes(object.id))
 		.map(object => {
 			const manimObject = objects.find(manimObject => manimObject.name === getProperty(object, "Object Type")!)!;
@@ -50,7 +50,7 @@
 			return { name: getProperty(object, "Name")!, icon: manimObject.icon, color: category.color };
 		})}
 	onSelect={name => {
-		value = getProjectObjects().find(projectObject => getProperty(projectObject, "Name") === name)!.id;
+		value = getProject().objects.find(projectObject => getProperty(projectObject, "Name") === name)!.id;
 		trySetProperty();
 	}}
 	bind:value={choice}

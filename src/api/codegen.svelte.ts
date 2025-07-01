@@ -11,17 +11,7 @@ import {
 	type PositionalProperty,
 	type Property,
 } from "./manim/property";
-import {
-	getObjectFromId,
-	getProjectAnimations,
-	getProjectEvents,
-	getProjectLocation,
-	getProjectVariables,
-	topologicalProjectObjects,
-	type ProjectAnimation,
-	type ProjectEvent,
-	type ProjectObject,
-} from "./project.svelte";
+import { getObjectFromId, getProject, getProjectLocation, topologicalProjectObjects, type ProjectAnimation, type ProjectEvent, type ProjectObject } from "./project.svelte";
 
 export function codegenObject(object: Omit<ProjectObject, "previewData"> & { previewData?: string }): string {
 	const possibleProperties = getPossibleProperties(object);
@@ -100,8 +90,8 @@ let isAnimationPreviewLoaded = $state(true);
 
 export async function generateObjectPreview(object: Omit<ProjectObject, "previewData"> & { previewData?: string }): Promise<ProjectObject> {
 	isObjectPreviewLoaded = false;
-	const variableLines = getProjectVariables()
-		.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
+	const variableLines = getProject()
+		.variables.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
 		.join("\n");
 	const imageData = await invoke<string>("generate_object_preview", {
 		path: await getProjectLocation(),
@@ -115,8 +105,8 @@ export async function generateObjectPreview(object: Omit<ProjectObject, "preview
 
 export async function generateAnimationPreview(animation: Omit<ProjectAnimation, "previewData"> & { previewData?: string }): Promise<ProjectAnimation> {
 	isAnimationPreviewLoaded = false;
-	const variableLines = getProjectVariables()
-		.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
+	const variableLines = getProject()
+		.variables.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
 		.join("\n");
 	const videoData = await invoke<string>("generate_animation_preview", {
 		path: await getProjectLocation(),
@@ -139,7 +129,7 @@ export function animationPreviewLoaded() {
 }
 
 export function generateCode(): string {
-	let animations = (getProjectAnimations() as (ProjectAnimation | ProjectEvent)[]).concat(getProjectEvents()).toSorted((first, other) => {
+	let animations = (getProject().animations as (ProjectAnimation | ProjectEvent)[]).concat(getProject().events).toSorted((first, other) => {
 		let startTime1 = first.type === "animation" ? first.properties["Start Time"]! : first.properties.Time!;
 		let startTime2 = other.type === "animation" ? other.properties["Start Time"]! : other.properties.Time!;
 
@@ -151,8 +141,8 @@ export function generateCode(): string {
 		return startTime1 - startTime2;
 	});
 
-	const variableLines = getProjectVariables()
-		.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
+	const variableLines = getProject()
+		.variables.map(variable => `\t\tvariable_${variable.id} = ${propertyValueToString(variable.type, variable.value)}`)
 		.join("\n");
 
 	const objectLines = topologicalProjectObjects()

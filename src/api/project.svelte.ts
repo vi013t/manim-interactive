@@ -12,7 +12,54 @@ import { getPreferences, runAction } from "./preferences.svelte";
 
 let projectLocation: string | null = $state(null);
 let projectName: string | null = $state(null);
-let id = 0;
+
+export type Project = {
+	animations: ProjectAnimation[];
+	objects: ProjectObject[];
+	audios: ProjectAudio[];
+	events: ProjectEvent[];
+	variables: ProjectVariable[];
+	nextId: number;
+	cache: {
+		videoData: string | null;
+		audioData: string | null;
+	};
+	settings: {
+		fileFormat: "mp4" | "webm" | "mov";
+		resolution: [number, number];
+		renderer: "Cairo" | "OpenGL";
+		fps: number;
+		outputFileName: string;
+	};
+};
+
+let project: Project = $state({
+	animations: [],
+	objects: [],
+	audios: [],
+	events: [],
+	variables: [],
+	nextId: 0,
+	cache: {
+		videoData: null,
+		audioData: null,
+	},
+	settings: {
+		fileFormat: "mp4",
+		resolution: [1920, 1080],
+		renderer: "Cairo",
+		fps: 60,
+		outputFileName: "Main",
+	},
+});
+
+export function getProject(): Project {
+	return project;
+}
+
+export function setProject(newProject: Project): void {
+	project = newProject;
+}
 
 export type ProjectVariable = {
 	id: number;
@@ -22,14 +69,8 @@ export type ProjectVariable = {
 	locked: boolean;
 };
 
-let projectVariables: ProjectVariable[] = $state([]);
-let projectObjects: ProjectObject[] = $state([]);
-let projectAnimations: ProjectAnimation[] = $state([]);
-let projectAudios: ProjectAudio[] = $state([]);
-let projectLibraries: Set<string> = $state(new Set(["manim"]));
-
 export function addProjectVariable(variable: ProjectVariable) {
-	projectVariables.push(variable);
+	project.variables.push(variable);
 }
 
 export function getVariableDependencies(object: ProjectObject | ProjectAnimation): number[] {
@@ -40,24 +81,18 @@ export function getVariableDependencies(object: ProjectObject | ProjectAnimation
 
 export function isVariableUsed(variable: ProjectVariable): boolean {
 	return (
-		getProjectObjects().some(object => getVariableDependencies(object).includes(variable.id)) ||
-		getProjectAnimations().some(animation => getVariableDependencies(animation).includes(variable.id))
+		getProject().objects.some(object => getVariableDependencies(object).includes(variable.id)) ||
+		getProject().animations.some(animation => getVariableDependencies(animation).includes(variable.id))
 	);
 }
 
 export function getProjectVariableFromName(name: string): ProjectVariable | null {
-	return projectVariables.find(variable => variable.name === name) ?? null;
+	return project.variables.find(variable => variable.name === name) ?? null;
 }
 
 export function getProjectVariableFromId(id: number): ProjectVariable | null {
-	return projectVariables.find(variable => variable.id === id) ?? null;
+	return project.variables.find(variable => variable.id === id) ?? null;
 }
-
-export function getProjectVariables(): ProjectVariable[] {
-	return projectVariables;
-}
-
-let projectEvents: ProjectEvent[] = $state([]);
 
 export type ProjectAudio = {
 	id: number;
@@ -69,27 +104,24 @@ export type ProjectAudio = {
 let audioLoaded = $state(true);
 
 export async function recompileAudio() {
-	if (getProjectAudios().length === 0) {
+	if (getProject().audios.length === 0) {
 		(document.getElementById("master-audio") as HTMLAudioElement).src = ``;
 		return;
 	}
 
 	audioLoaded = false;
-	saveToProjectCache(
-		"masterAudio",
-		await invoke<string>("merge_audios", {
-			projectPath: await getProjectLocation(),
-			audios: getProjectAudios().map(audio => ({
-				id: audio.id,
-				duration: audio.duration,
-				data: audio.properties["Embedded Source"]!,
-				start_time: audio.properties["Start Time"]!,
-			})),
-			videoLength: movieLength(),
-			outputPath: null,
-		})
-	);
-	(document.getElementById("master-audio") as HTMLAudioElement).src = `data:audio/mp3;base64,${getFromProjectCache("masterAudio")}`;
+	project.cache.audioData = await invoke<string>("merge_audios", {
+		projectPath: await getProjectLocation(),
+		audios: getProject().audios.map(audio => ({
+			id: audio.id,
+			duration: audio.duration,
+			data: audio.properties["Embedded Source"]!,
+			start_time: audio.properties["Start Time"]!,
+		})),
+		videoLength: movieLength(),
+		outputPath: null,
+	});
+	(document.getElementById("master-audio") as HTMLAudioElement).src = `data:audio/mp3;base64,${project.cache.audioData}`;
 	audioLoaded = true;
 }
 
@@ -105,7 +137,7 @@ export async function addProjectAudio(name: string, data: string) {
 		});
 	});
 
-	projectAudios.push({
+	project.audios.push({
 		type: "audio",
 		duration,
 		id: nextId(),
@@ -117,26 +149,6 @@ export async function addProjectAudio(name: string, data: string) {
 	});
 
 	await recompileAudio();
-}
-
-export function getProjectAudios() {
-	return projectAudios;
-}
-
-export function getProjectLibraries() {
-	return projectLibraries;
-}
-
-export function addProjectLibrary(library: string) {
-	projectLibraries.add(library);
-}
-
-export function removeProjectLibrary(name: string) {
-	projectLibraries.delete(name);
-}
-
-export function getProjectEvents() {
-	return projectEvents;
 }
 
 export function getExplicitProjectLocation(): string | null {
@@ -160,48 +172,40 @@ export async function getVideoLocation(): Promise<string> {
 	return join(await getProjectLocation(), "media", "videos", "main", "1080p60", "Main.mp4");
 }
 
-export function getProjectSaveData(): string {
-	return JSON.stringify({
-		objects: projectObjects,
-		animations: projectAnimations,
-		audios: projectAudios,
-		markers: projectEvents,
-		variables: projectVariables,
-		nextId: id,
-	});
+export function serializeProject(): string {
+	return JSON.stringify(project);
 }
 
-export function loadProjectData(data: string) {
-	const { objects, animations, nextId, audios, markers, variables } = JSON.parse(data);
-	projectAnimations = animations;
-	projectObjects = objects;
-	projectAudios = audios;
-	projectVariables = variables;
-	projectEvents = markers;
-	id = nextId;
+export function deserializeProject(data: string) {
+	project = JSON.parse(data);
 }
 
 export function resetProject() {
-	projectAnimations = [];
-	projectObjects = [];
-	projectAudios = [];
-	projectEvents = [];
-	projectVariables = [];
-	id = 0;
+	project = {
+		animations: [],
+		objects: [],
+		audios: [],
+		events: [],
+		variables: [],
+		nextId: 0,
+		cache: {
+			videoData: null,
+			audioData: null,
+		},
+		settings: {
+			fileFormat: "mp4",
+			resolution: [1920, 1080],
+			renderer: "Cairo",
+			fps: 60,
+			outputFileName: "Main",
+		},
+	};
 	addEndMarker();
-}
-
-export function getProjectAnimations(): ProjectAnimation[] {
-	return projectAnimations;
-}
-
-export function getProjectObjects(): ProjectObject[] {
-	return projectObjects;
 }
 
 export async function addProjectAnimation(animation: ProjectAnimation) {
 	const anim = await generateAnimationPreview(animation);
-	projectAnimations.push(anim);
+	project.animations.push(anim);
 	regenerateWaits();
 	updateEndMarker();
 }
@@ -256,7 +260,7 @@ export function checkForObjectDependencyCycles(): boolean {
 		return false;
 	}
 
-	return projectObjects.some(object => dfs(object.id));
+	return project.objects.some(object => dfs(object.id));
 }
 
 export function animationEndTime(animation: ProjectAnimation): number {
@@ -264,23 +268,23 @@ export function animationEndTime(animation: ProjectAnimation): number {
 }
 
 export function nextId() {
-	return id++;
+	return project.nextId++;
 }
 
 export async function addProjectObject(object: Omit<ProjectObject, "previewData">) {
 	const obj = await generateObjectPreview(object);
-	projectObjects.push(obj);
+	project.objects.push(obj);
 }
 
 export function addProjectEvent(event: ProjectEvent): void {
-	projectEvents.push(event);
+	project.events.push(event);
 }
 
 export function deleteProjectItem(id: number) {
 	if (selected().includes(id)) select(selected().filter(sel => sel !== id));
 
-	getProjectObjects()
-		.filter(object => getProperty(object, "Object Type") === "Group")
+	getProject()
+		.objects.filter(object => getProperty(object, "Object Type") === "Group")
 		.forEach(group => {
 			(group.properties as any)["Objects"] = group.properties["Objects"]!.filter(contentId => contentId !== id);
 		});
@@ -289,17 +293,15 @@ export function deleteProjectItem(id: number) {
 		deleteProjectItem(objectId as number);
 	});
 
-	projectObjects = projectObjects.filter(object => object.id !== id);
-	projectAnimations = projectAnimations.filter(animation => animation.properties["Object"] !== id && animation.id !== id);
-	projectAudios = projectAudios.filter(audio => audio.id !== id);
-	projectVariables = projectVariables.filter(variable => variable.id !== id);
-	projectEvents = projectEvents.filter(marker => marker.id !== id);
+	project.objects = project.objects.filter(object => object.id !== id);
+	project.animations = project.animations.filter(animation => animation.properties["Object"] !== id && animation.id !== id);
+	project.audios = project.audios.filter(audio => audio.id !== id);
+	project.variables = project.variables.filter(variable => variable.id !== id);
+	project.events = project.events.filter(marker => marker.id !== id);
 	errors = errors.filter(error => error.objectId !== id);
 
 	if (getPreferences().autosave) runAction("Save And Recompile Project");
 }
-
-type Selectable = ProjectObject | ProjectAnimation;
 
 let selectedItems: number[] = $state([]);
 
@@ -333,36 +335,36 @@ export function areMultipleSelected(): boolean {
 }
 
 export function getPropertiesFromId<T extends ProjectObject | ProjectAnimation | ProjectAudio>(id: number): Properties<T> | null {
-	return (getProjectObjects().find(object => object.id === id)?.properties ??
-		getProjectAnimations().find(animation => animation.id === id)?.properties ??
-		getProjectAudios().find(audio => audio.id === id)?.properties ??
+	return (getProject().objects.find(object => object.id === id)?.properties ??
+		getProject().animations.find(animation => animation.id === id)?.properties ??
+		getProject().audios.find(audio => audio.id === id)?.properties ??
 		null) as Properties<T> | null;
 }
 
 export function getItemFromId<T extends ProjectObject | ProjectAnimation | ProjectEvent>(id: number): T | null {
-	return (getProjectObjects().find(object => object.id === id) ??
-		getProjectAnimations().find(animation => animation.id === id) ??
-		getProjectEvents().find(marker => marker.id === id) ??
+	return (getProject().objects.find(object => object.id === id) ??
+		getProject().animations.find(animation => animation.id === id) ??
+		getProject().events.find(marker => marker.id === id) ??
 		null) as T | null;
 }
 
 export function getSelectableFromId<T extends ProjectObject | ProjectAnimation | ProjectAudio>(id: number): T | null {
-	return (getProjectObjects().find(object => object.id === id) ??
-		getProjectAnimations().find(animation => animation.id === id) ??
-		getProjectAudios().find(audio => audio.id === id) ??
+	return (getProject().objects.find(object => object.id === id) ??
+		getProject().animations.find(animation => animation.id === id) ??
+		getProject().audios.find(audio => audio.id === id) ??
 		null) as T | null;
 }
 
 export function getObjectFromId(id: number): ProjectObject | null {
-	return getProjectObjects().find(object => object.id === id) ?? null;
+	return getProject().objects.find(object => object.id === id) ?? null;
 }
 
 export function getAnimationFromId(id: number): ProjectAnimation | null {
-	return getProjectAnimations().find(animation => animation.id === id) ?? null;
+	return getProject().animations.find(animation => animation.id === id) ?? null;
 }
 
 export function getAudioFromId(id: number): ProjectAudio | null {
-	return getProjectAudios().find(audio => audio.id === id) ?? null;
+	return getProject().audios.find(audio => audio.id === id) ?? null;
 }
 
 type Error = PropertyError;
@@ -435,10 +437,10 @@ export function removeNotification(id: number): void {
 
 export function isNameTaken(name: string, exclude?: number): boolean {
 	return (
-		projectObjects.some(object => getProperty(object, "Name") === name && (exclude === undefined || object.id !== exclude)) ||
-		projectVariables.some(variable => variable.name === name && (exclude === undefined || variable.id !== exclude)) ||
-		projectAnimations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude)) ||
-		projectEvents.some(event => event.properties.Name === name && (exclude === undefined || event.id !== exclude))
+		project.objects.some(object => getProperty(object, "Name") === name && (exclude === undefined || object.id !== exclude)) ||
+		project.variables.some(variable => variable.name === name && (exclude === undefined || variable.id !== exclude)) ||
+		project.animations.some(animation => getProperty(animation, "Name") === name && (exclude === undefined || animation.id !== exclude)) ||
+		project.events.some(event => event.properties.Name === name && (exclude === undefined || event.id !== exclude))
 	);
 }
 
@@ -452,7 +454,7 @@ export function topologicalProjectObjects(): ProjectObject[] {
 		}
 	}
 
-	projectObjects.forEach(obj => {
+	project.objects.forEach(obj => {
 		visit(obj);
 	});
 
@@ -460,8 +462,8 @@ export function topologicalProjectObjects(): ProjectObject[] {
 }
 
 export function animationIntersectsOther(animation: ProjectAnimation) {
-	return getProjectAnimations()
-		.filter(projectAnimation => projectAnimation.id !== animation.id)
+	return getProject()
+		.animations.filter(projectAnimation => projectAnimation.id !== animation.id)
 		.some(projectAnimation =>
 			intervalsOverlap([getProperty(projectAnimation, "Start Time")!, animationEndTime(projectAnimation)], [getProperty(animation, "Start Time")!, animationEndTime(animation)])
 		);
@@ -473,8 +475,8 @@ export function intervalsOverlap([start1, end1]: [number, number], [start2, end2
 
 export function nextAnimation(animation: ProjectAnimation): ProjectAnimation | null {
 	return (
-		getProjectAnimations()
-			.filter(projectAnimation => projectAnimation.id !== animation.id && projectAnimation.properties["Animation Type"] !== "Wait")
+		getProject()
+			.animations.filter(projectAnimation => projectAnimation.id !== animation.id && projectAnimation.properties["Animation Type"] !== "Wait")
 			.toSorted((anim1, anim2) => getProperty(anim1, "Start Time")! - getProperty(anim2, "Start Time")!)
 			.find(projectAnimation => getProperty(projectAnimation, "Start Time")! > getProperty(animation, "Start Time")!) ?? null
 	);
@@ -482,8 +484,8 @@ export function nextAnimation(animation: ProjectAnimation): ProjectAnimation | n
 
 export function previousAnimation(animation: ProjectAnimation): ProjectAnimation | null {
 	return (
-		getProjectAnimations()
-			.filter(projectAnimation => projectAnimation.id !== animation.id && projectAnimation.properties["Animation Type"] !== "Wait")
+		getProject()
+			.animations.filter(projectAnimation => projectAnimation.id !== animation.id && projectAnimation.properties["Animation Type"] !== "Wait")
 			.toSorted((anim1, anim2) => getProperty(anim1, "Start Time")! - getProperty(anim2, "Start Time")!)
 			.toReversed()
 			.find(projectAnimation => getProperty(projectAnimation, "Start Time")! < getProperty(animation, "Start Time")!) ?? null
@@ -492,11 +494,11 @@ export function previousAnimation(animation: ProjectAnimation): ProjectAnimation
 
 export function isObjectUsed(object: ProjectObject): boolean {
 	return (
-		projectAnimations.some(animation => getAnimationObjects(animation).includes(object.id)) ||
+		project.animations.some(animation => getAnimationObjects(animation).includes(object.id)) ||
 		(getProperty(object, "Object Type") === "Group" && getProperty(object, "Objects")!.length > 0) ||
 		(() => {
 			let properties = getPossibleProperties(object);
-			return projectObjects.some(object => {
+			return project.objects.some(object => {
 				return Object.entries(object.properties).some(([propertyName, propertyValue]) => {
 					let propertyBase = properties.find(property => property.name === propertyName);
 					if (!propertyBase) return false;
@@ -508,36 +510,36 @@ export function isObjectUsed(object: ProjectObject): boolean {
 }
 
 export function lastAnimationEndTime(): number {
-	if (projectAnimations.length === 0) return 0;
-	return projectAnimations.map(animation => animationEndTime(animation)).toSorted((anim1, anim2) => anim2 - anim1)[0];
+	if (project.animations.length === 0) return 0;
+	return project.animations.map(animation => animationEndTime(animation)).toSorted((anim1, anim2) => anim2 - anim1)[0];
 }
 
 export function movieLength(): number {
-	return projectEvents.find(event => event.properties.Name === "End")!.properties.Time!;
+	return project.events.find(event => event.properties.Name === "End")!.properties.Time!;
 }
 
 export function addEndMarker() {
-	projectEvents.push({ id: nextId(), type: "event", properties: { Time: 0, Name: "End", "Event Type": "Empty Event" } });
+	project.events.push({ id: nextId(), type: "event", properties: { Time: 0, Name: "End", "Event Type": "Empty Event" } });
 	runAction("Save Project");
 }
 
 export function updateEndMarker() {
-	let endMarker = projectEvents.find(event => event.properties.Name === "End")!;
-	let lastAnimation = projectAnimations.toSorted((anim1, anim2) => animationEndTime(anim2) - animationEndTime(anim1))[0];
+	let endMarker = project.events.find(event => event.properties.Name === "End")!;
+	let lastAnimation = project.animations.toSorted((anim1, anim2) => animationEndTime(anim2) - animationEndTime(anim1))[0];
 	endMarker.properties.Time = animationEndTime(lastAnimation);
 }
 
 export function isObjectInGroup(id: number) {
-	return projectObjects
+	return project.objects
 		.filter(object => getProperty(object, "Object Type") === "Group")
 		.some(group => getProperty(group, "Objects")!.includes(id) && getProperty(group, "Group in Hierarchy") !== false);
 }
 
 export function regenerateWaits() {
-	projectAnimations = getProjectAnimations().filter(animation => animation.properties["Animation Type"] !== "Wait");
+	project.animations = getProject().animations.filter(animation => animation.properties["Animation Type"] !== "Wait");
 
-	let times = (getProjectAnimations() as (ProjectAnimation | ProjectEvent)[])
-		.concat(getProjectEvents())
+	let times = (getProject().animations as (ProjectAnimation | ProjectEvent)[])
+		.concat(getProject().events)
 		.toSorted((first, other) => {
 			let startTime1 = first.type === "animation" ? first.properties["Start Time"]! : first.properties.Time!;
 			let startTime2 = other.type === "animation" ? other.properties["Start Time"]! : other.properties.Time!;
@@ -572,34 +574,6 @@ export function regenerateWaits() {
 		}
 	});
 
-	projectAnimations.push(...waits);
+	project.animations.push(...waits);
 	runAction("Save Project");
-}
-
-let projectSettings = $state({
-	fileFormat: "mp4",
-	resolution: [1920, 1080],
-	renderer: "Cairo",
-	fps: 60,
-	outputFileName: "Main",
-});
-
-export function getProjectSettings() {
-	return projectSettings;
-}
-
-export type ProjectCache = {
-	masterAudio: string | null;
-};
-
-let projectCache: ProjectCache = $state({
-	masterAudio: null,
-});
-
-export function saveToProjectCache<Key extends keyof ProjectCache>(key: Key, value: ProjectCache[Key]): void {
-	projectCache[key] = value;
-}
-
-export function getFromProjectCache<Key extends keyof ProjectCache>(key: Key): ProjectCache[Key] {
-	return projectCache[key];
 }
