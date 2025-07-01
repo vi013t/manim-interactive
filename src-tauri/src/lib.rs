@@ -38,24 +38,24 @@ pub fn run() {
 
 #[tauri::command]
 async fn recompile(
-    project_path: String,
-    code: String,
+    project_path: &str,
+    code: &str,
     resolution_width: u32,
     resolution_height: u32,
-    renderer: String,
-    file_format: String,
+    renderer: &str,
+    file_format: &str,
     fps: u32,
-    output_file_name: String,
-) {
+    output_file_name: &str,
+) -> Result<(), String> {
     let output_file = format!("{output_file_name}.{file_format}");
     std::fs::write(Path::new(&project_path).join("main.py"), code).unwrap();
-    Command::new("manim")
+    let status = Command::new("manim")
         .arg("--resolution")
         .arg(format!("{resolution_width},{resolution_height}"))
         .arg("--renderer")
         .arg(renderer)
         .arg("--format")
-        .arg(&file_format)
+        .arg(file_format)
         .arg("--fps")
         .arg(format!("{fps}"))
         .arg("--output_file")
@@ -63,40 +63,44 @@ async fn recompile(
         .arg("main.py")
         .current_dir(project_path)
         .stdout(Stdio::null())
-        .spawn()
-        .unwrap()
-        .wait()
+        .status()
         .unwrap();
+
+    if !status.success() {
+        return Err("Error running Manim during recompilation".to_owned());
+    }
+
+    Ok(())
 }
 
 #[tauri::command]
 async fn compile(
     project_path: String,
-    code: String,
+    code: &str,
     resolution_width: u32,
     resolution_height: u32,
-    renderer: String,
-    file_format: String,
+    renderer: &str,
+    file_format: &str,
     fps: u32,
-    output_file_name: String,
+    output_file_name: &str,
     audios: Vec<Audio>,
     video_length: f32,
     open_when_finished: bool,
-) {
+) -> Result<(), String> {
     println!("\n{} project...", "Compiling".bold().green());
 
     println!("    {} Python...", "Running".bold().green());
     recompile(
-        project_path.clone(),
+        &project_path,
         code,
         resolution_width,
         resolution_height,
         renderer,
-        file_format.clone(),
+        file_format,
         fps,
-        output_file_name.clone(),
+        output_file_name,
     )
-    .await;
+    .await?;
 
     let video_path = Path::new(&project_path)
         .join("media")
@@ -108,7 +112,7 @@ async fn compile(
     let audio_path = Path::new(&project_path).join("cache").join("output").join("audio.mp3");
 
     println!("    {} Audios...", "Merging".bold().green());
-    merge_audios(Path::new(&project_path).into(), audios, video_length, Some(audio_path.clone())).await;
+    merge_audios(Path::new(&project_path).into(), audios, video_length, Some(audio_path.clone())).await?;
 
     println!("    {} audio to video...", "Adding".bold().green());
     let output_path = Path::new(&project_path).join("output").join(format!("{output_file_name}.{file_format}"));
@@ -121,6 +125,8 @@ async fn compile(
     }
 
     println!("{}\n", "Done!".bold().green());
+
+    Ok(())
 }
 
 #[tauri::command]
@@ -318,7 +324,7 @@ struct Audio {
 }
 
 #[tauri::command]
-async fn merge_audios(project_path: PathBuf, audios: Vec<Audio>, video_length: f32, output_path: Option<PathBuf>) -> String {
+async fn merge_audios(project_path: PathBuf, audios: Vec<Audio>, video_length: f32, output_path: Option<PathBuf>) -> Result<String, String> {
     let output_path = output_path.unwrap_or_else(|| project_path.join("cache").join("output").join("audio.mp3"));
     let raw_audio_cache_path = project_path.join("cache").join("audios").join("raw");
 
@@ -348,7 +354,7 @@ async fn merge_audios(project_path: PathBuf, audios: Vec<Audio>, video_length: f
         // Ending Silence
         if audio.start_time + audio.duration < video_length {
             print!("            {} end for audio {}... ", "Padding".bold().green(), audio.id);
-            add_end_silence(&project_path, video_length - audio.duration - audio.start_time, file_path, &output_path);
+            add_end_silence(&project_path, video_length - audio.duration - audio.start_time, file_path, &output_path)?;
             file_path = output_path.clone();
         } else {
             println!("            {} end pad for audio {}...", "Skipping".bold().green(), audio.id);
@@ -373,7 +379,7 @@ async fn merge_audios(project_path: PathBuf, audios: Vec<Audio>, video_length: f
         .wait()
         .unwrap();
 
-    load_file_base64_data(output_path).await.unwrap()
+    load_file_base64_data(output_path).await
 }
 
 fn add_audio_to_video<ProjectPath: AsRef<Path>, AudioPath: AsRef<Path>, VideoPath: AsRef<Path>, OutputPath: AsRef<Path>>(
@@ -429,7 +435,7 @@ fn add_end_silence<ProjectPath: AsRef<Path>, InputPath: AsRef<Path>, OutputPath:
     end_silence: f32,
     audio_file_path: InputPath,
     output_file_path: OutputPath,
-) {
+) -> Result<(), String> {
     let mut command = Command::new("ffmpeg");
     command
         .arg("-y")
@@ -442,4 +448,9 @@ fn add_end_silence<ProjectPath: AsRef<Path>, InputPath: AsRef<Path>, OutputPath:
         .stdout(Stdio::null());
     println!("{}", format!("({command:?})").dimmed());
     let status = command.status().unwrap();
+    if !status.success() {
+        return Err("Error adding end silence to audio segment".to_owned());
+    }
+
+    Ok(())
 }

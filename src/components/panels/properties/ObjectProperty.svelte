@@ -41,6 +41,7 @@
 </script>
 
 <Select
+	{width}
 	{locked}
 	options={getProject().objects
 		.filter(object => !selected().includes(object.id))

@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { cache, getFromCache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
+import { getFromCache, openPreferencesWindow, openProjectSettingsWindow, showAddMenu, showNewProjectWindow } from "./client.svelte";
 import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
@@ -106,7 +106,7 @@ const actions = {
 				outputFileName: getProject().settings.outputFileName,
 			});
 
-			const videoData = await invoke<string>("load_video", {
+			getProject().cache.videoData = await invoke<string>("load_video", {
 				path: await getProjectLocation(),
 				lowRes: getFromCache("lowRes"),
 				resolutionHeight: getProject().settings.resolution[1],
@@ -114,8 +114,6 @@ const actions = {
 				outputFileName: getProject().settings.outputFileName,
 				fileFormat: getProject().settings.fileFormat,
 			});
-
-			cache("videoData", `data:video/${getProject().settings.fileFormat};base64,${videoData}`);
 
 			if (getSingleSelection() === null || getObjectFromId(getSingleSelection()!) === null) {
 				(document.getElementById("video-source") as HTMLVideoElement | null)?.play();

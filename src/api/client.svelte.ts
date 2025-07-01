@@ -134,7 +134,6 @@ export function isNewProjectWindowOpen(): boolean {
 }
 
 export type Cache = {
-	videoData: string | null;
 	slidesMode: boolean;
 	showMovieOverPreview: boolean;
 	grid: boolean;
@@ -152,7 +151,6 @@ export type Cache = {
  * session and not saved between window restarts.
  */
 let storedCache: Cache = $state({
-	videoData: null,
 	slidesMode: false,
 	showMovieOverPreview: false,
 	grid: false,

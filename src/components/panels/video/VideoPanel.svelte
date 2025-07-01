@@ -89,7 +89,7 @@
 
 	let timeOffset = $derived(animationPreviewVideo && !getFromCache("showMovieOverPreview") ? getAnimationFromId(getSingleSelection()!)!.properties["Start Time"]! : 0);
 
-	let videoSrc = $derived(animationPreviewVideo && !getFromCache("showMovieOverPreview") ? animationPreviewVideo : getFromCache("videoData")!);
+	let videoSrc = $derived(animationPreviewVideo && !getFromCache("showMovieOverPreview") ? animationPreviewVideo : `data:video/mp4;base64,${getProject().cache.videoData!}`);
 
 	$effect(() => {
 		// This does nothing - but it tells $effect() to reload and call again when videoSrc changes
