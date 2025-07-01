@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getCurrentWindow } from "@tauri-apps/api/window";
 	import { cache, getFromCache, type CacheKey } from "../../api/client.svelte";
-	import { getPreferences, runAction, savePreferences, setPreference, type Preference } from "../../api/preferences.svelte";
+	import { getPreferences, runAction, savePreferences, setPreference, tryDisplayActionKeybinding, type Preference } from "../../api/preferences.svelte";
 	import { getExplicitProjectLocation, getProjectName } from "../../api/project.svelte";
 	import { translate } from "../../api/translate.svelte";
 	import icon from "../../assets/icon.png";
@@ -101,7 +101,7 @@
 	<ContextMenu bind:this={projectMenu} top="2rem" left="2rem" openers={[projectButton]}>
 		<button onclick={newProject}>
 			<span>{translate("New Project")}</span>
-			<span>Ctrl+N</span>
+			<span>{tryDisplayActionKeybinding("New Project")}</span>
 		</button>
 		<button onclick={openProject}>
 			<span>{translate("Open Project")}</span>
@@ -110,19 +110,19 @@
 		<button class="first-disableable" disabled={getExplicitProjectLocation() === null} onclick={saveProject}>
 			<span>{translate("Save Project")}</span>
 			{#if getExplicitProjectLocation()}
-				<span>Ctrl+S</span>
+			<span>{tryDisplayActionKeybinding("Save And Recompile Project")}</span>
 			{/if}
 		</button>
 		<button disabled={getExplicitProjectLocation() === null} onclick={compile}>
 			<span>{translate("Compile Project")}</span>
 			{#if getExplicitProjectLocation()}
-				<span>Ctrl+C</span>
+			<span>{tryDisplayActionKeybinding("Compile Project")}</span>
 			{/if}
 		</button>
 		<button disabled={getExplicitProjectLocation() === null} onclick={projectSettings}>
 			<span>{translate("Project Settings")}</span>
 			{#if getExplicitProjectLocation()}
-				<span>Ctrl+,</span>
+			<span>{tryDisplayActionKeybinding("Open Project Settings")}</span>
 			{/if}
 		</button>
 	</ContextMenu>
@@ -131,7 +131,7 @@
 	<ContextMenu bind:this={windowMenu} top="2rem" left="6rem" openers={[windowButton]}>
 		<button onclick={preferences}>
 			<span>{translate("Preferences")}</span>
-			<span>Ctrl+.</span>
+			<span>{tryDisplayActionKeybinding("Open Preferences")}</span>
 		</button>
 	</ContextMenu>
 

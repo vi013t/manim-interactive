@@ -283,7 +283,7 @@
 					<span class="keybinding-entry">
 						<span>
 							{translate("Action")}:
-							<Select options={getActions().map(action => action.name)} bind:value={keybinding.action} onSelect={savePreferences} width="15rem" />
+							<Select height="1.5rem" options={getActions().map(action => action.name)} bind:value={keybinding.action} onSelect={savePreferences} width="15rem" />
 						</span>
 						<span class="binding">
 							{translate("Keybind")}:
@@ -321,7 +321,11 @@
 				<label for="developer-mode">
 					<span>
 						{translate("Developer Mode")}
-						<input checked={getPreferences().developerMode} id="developer-mode" type="checkbox" oninput={updateBooleanPreference("developerMode")} />
+						<RadioInput
+							id="developer-mode"
+							bind:value={() => getPreferences().developerMode, value => setPreference("developerMode", value)}
+							style="margin-left: auto;"
+						/>
 					</span>
 					<p>{translate("Enabling Developer mode allows adding custom Python scripts for animations or objects with access to the Manim library")}.</p>
 				</label>
@@ -366,6 +370,10 @@
 	.keybinding-entry {
 		margin-left: 2rem;
 
+		> * {
+			gap: 0.5rem;
+		}
+
 		.revert {
 			width: fit-content;
 			border-radius: 0.5rem;
@@ -375,10 +383,8 @@
 		.key {
 			background: var(--mantle);
 			width: fit-content;
-			margin-left: 1rem;
 			border-radius: 0.5rem;
-			padding-top: 0.5rem;
-			padding-bottom: 0.5rem;
+			padding: 0.5rem;
 			width: 8rem;
 			height: 100%;
 		}

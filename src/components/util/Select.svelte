@@ -14,6 +14,7 @@
 		title = undefined,
 		children,
 		width = "20rem",
+		height = "fit-content",
 		locked,
 		additionalButtonText,
 		additionalButtonClick,
@@ -22,6 +23,7 @@
 	}: {
 		value?: SelectOption;
 		width?: string;
+		height?: string;
 		itemOverride?: string;
 		onSelect?: (value: string) => void;
 		options: SelectOption[];
@@ -71,7 +73,7 @@
 			{@render children()}
 		</div>
 	{:else}
-		<button onclick={onSelectClick} class="header" style:outline={isError ? "2px solid var(--red)" : "none"}>
+		<button style:height onclick={onSelectClick} class="header" style:outline={isError ? "2px solid var(--red)" : "none"}>
 			{#if title}
 				{title}
 			{:else if value}

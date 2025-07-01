@@ -38,8 +38,8 @@ export function hasEverGeneratedVideo(): boolean {
 	return videoGenerated;
 }
 
-const actions = {
-	"Save Project": {
+const actions = [
+	{
 		name: "Save Project",
 		async run() {
 			const projectData = serializeProject();
@@ -63,7 +63,7 @@ const actions = {
 			});
 		},
 	},
-	"Save And Recompile Project": {
+	{
 		name: "Save And Recompile Project",
 		async run() {
 			videoLoaded = false;
@@ -124,7 +124,7 @@ const actions = {
 			await saveData;
 		},
 	},
-	"Open Project": {
+	{
 		name: "Open Project",
 		async run() {
 			const selected = await open({
@@ -147,43 +147,43 @@ const actions = {
 			}
 		},
 	},
-	"Add New": {
+	{
 		name: "Add New",
 		run() {
 			showAddMenu();
 		},
 	},
-	Play: {
+	{
 		name: "Play",
 		run() {
 			(document.getElementById("video-source") as HTMLVideoElement | null)?.play();
 		},
 	},
-	"New Project": {
+	{
 		name: "New Project",
 		async run() {
 			showNewProjectWindow();
 		},
 	},
-	Deselect: {
+	{
 		name: "Deselect",
 		run() {
 			deselect();
 		},
 	},
-	"Open Preferences": {
+	{
 		name: "Open Preferences",
 		run() {
 			openPreferencesWindow();
 		},
 	},
-	"Open Project Settings": {
+	{
 		name: "Open Project Settings",
 		run() {
 			openProjectSettingsWindow();
 		},
 	},
-	"Compile Project": {
+	{
 		name: "Compile Project",
 		async run() {
 			const projectData = serializeProject();
@@ -222,7 +222,7 @@ const actions = {
 			await saveData;
 		},
 	},
-} as const;
+] as const satisfies { name: string; run: (() => void) | (() => Promise<void>) }[];
 
 let preferences = $state({
 	previews: true,
@@ -308,19 +308,16 @@ export function isVideoLoaded() {
 	return videoLoaded;
 }
 
-type ActionData<Name extends ActionName> = (typeof actions)[Name] extends Action<infer Data> ? Data : never;
-
-export async function runAction<Name extends ActionName>(name: Name, data?: ActionData<Name>): Promise<void> {
-	let action = actions[name];
+export async function runAction<Name extends ActionName>(name: Name): Promise<void> {
+	let action = actions.find(action => action.name === name)!;
 	await action.run();
-	if ("undo" in action) undoHistory.push({ action: action as any, data });
 }
 
 export function getActions(): Action<any>[] {
 	return Object.values(actions);
 }
 
-type ActionName = keyof typeof actions;
+type ActionName = typeof actions extends (infer A)[] ? (A extends { name: string } ? A["name"] : never) : never;
 
 export function key(key: string, ...modifiers: KeyModifier[]): Key {
 	return { key, modifiers };
@@ -353,4 +350,14 @@ let undoHistory: { action: Action<unknown>; data: unknown }[] = [];
 export function undo() {
 	let action = undoHistory.pop();
 	action?.action.undo!(action.data);
+}
+
+export function getKeybindingForAction(name: ActionName): Keybinding | null {
+	return preferences.keybindings.find(keybinding => keybinding.action === name) ?? null;
+}
+
+export function tryDisplayActionKeybinding(name: ActionName): string {
+	const keybinding = getKeybindingForAction(name);
+	if (!keybinding) return "";
+	return displayKey(keybinding.key);
 }
