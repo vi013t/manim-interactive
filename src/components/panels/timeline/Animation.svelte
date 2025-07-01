@@ -54,12 +54,6 @@
 	}
 
 	onMount(() => {
-		if (animation.properties["Animation Type"] !== "Wait") {
-			const otherAnimations = getProject().animations.filter(projectAnimation => projectAnimation !== animation);
-			let startTime = otherAnimations.length ? Math.max(...otherAnimations.map(animation => animationEndTime(animation))) : 0;
-			animation.properties["Start Time"] = startTime;
-		}
-
 		document.addEventListener("mousemove", event => {
 			const cellHeight = 64;
 			if (timelineElement) {
@@ -132,9 +126,10 @@
 	let element: HTMLElement;
 
 	let animationTop = $derived.by(() => {
+		if (!getFromCache("collapseWaitTimes")) return `${animation.properties["Start Time"]! * 4}rem`;
 		let top = 0;
-		getProject().animations
-			.toSorted((anim1, anim2) => anim1.properties["Start Time"]! - anim2.properties["Start Time"]!)
+		getProject()
+			.animations.toSorted((anim1, anim2) => anim1.properties["Start Time"]! - anim2.properties["Start Time"]!)
 			.some(projectAnimation => {
 				if (projectAnimation.id === animation.id) return true;
 				if (projectAnimation.properties["Animation Type"] === "Wait") return false;
@@ -142,8 +137,12 @@
 				return false;
 			});
 		if (animation.properties["Animation Type"] === "Wait") top--;
-		return getFromCache("collapseWaitTimes") ? `${top * 4}rem` : `${animation.properties["Start Time"]! * 4}rem`;
+		return `${top * 4}rem`;
 	});
+
+	setInterval(() => {
+		if (animation.properties["Animation Type"] !== "Wait") console.log(animationTop, animation.properties["Start Time"], animation);
+	}, 1000);
 
 	let animationHeight = $derived.by(() => {
 		if (getFromCache("collapseWaitTimes") && animation.properties["Animation Type"] === "Wait") return "4rem";

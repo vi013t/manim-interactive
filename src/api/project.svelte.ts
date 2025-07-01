@@ -216,6 +216,9 @@ export function resetProject() {
 
 export async function addProjectAnimation(animation: ProjectAnimation) {
 	const anim = await generateAnimationPreview(animation);
+	const nonWaits = getProject().animations.filter(projectAnimation => projectAnimation.properties["Animation Type"] !== "Wait");
+	let startTime = nonWaits.length ? Math.max(...nonWaits.map(animation => animationEndTime(animation))) : 0;
+	animation.properties["Start Time"] = startTime;
 	project.animations.push(anim);
 	regenerateWaits();
 	updateEndMarker();

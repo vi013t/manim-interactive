@@ -20,6 +20,7 @@
 	import UnfullscreenIcon from "../../icons/UnfullscreenIcon.svelte";
 	import VideoLoopIcon from "../../icons/VideoLoopIcon.svelte";
 	import VolumeIcon from "../../icons/VolumeIcon.svelte";
+	import Tooltip from "../../util/Tooltip.svelte";
 
 	let { draggable = false, ...attributes }: { draggable?: boolean } & Omit<HTMLVideoAttributes, "controls" | "loop"> = $props();
 
@@ -332,9 +333,9 @@
 				</button>
 			</div>
 			<div class="pip-controls-right">
-				<button onclick={togglePipAlwaysOnTop}>
+				<Tooltip text="Toggle always on top" element="button" onclick={togglePipAlwaysOnTop}>
 					<CaretIcon stroke={getFromCache("videoPipAlwaysOnTop") ? "white" : "#777777"} style="width: 1.25rem; height: 1.25rem;" />
-				</button>
+				</Tooltip>
 				<button onclick={closePip}>
 					<CloseIcon stroke="white" style="width: 1.25rem; height: 1.25rem;" />
 				</button>

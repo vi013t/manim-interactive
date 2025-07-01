@@ -227,7 +227,7 @@
 
 	#novideo {
 		width: 100%;
-		height: 100%;
+		aspect-ratio: 16 / 9;
 		background-color: var(--crust);
 		display: flex;
 		flex-direction: column;
