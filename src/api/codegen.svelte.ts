@@ -112,7 +112,7 @@ export async function generateAnimationPreview(animation: Omit<ProjectAnimation,
 		path: await getProjectLocation(),
 		id: animation.id,
 		code: `from manim import *\n\nclass Main(Scene):\n\tdef construct(self):\n${variableLines}\n\n${getAnimationObjects(animation as ProjectAnimation).map(
-			object => `\n\t\tobject_${object} = ${codegenObject(getObjectFromId(object)!)}`
+			object => `\n\t\tobject_${object} = ${codegenObject(getObjectFromId(object)!)}`,
 		)}\n\n\t\tself.play(${codegenAnimation(animation)})`,
 	});
 	animation.previewData = videoData;

@@ -154,7 +154,7 @@ const singleObjectProperties = [
 				"Ease In Out Elastic",
 				"Ease In Bounce",
 				"Ease Out Bounce",
-				"Ease In Out Bounce"
+				"Ease In Out Bounce",
 			)
 			.default("Smooth")
 			.codegen(value => {

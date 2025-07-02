@@ -16,18 +16,6 @@
 	let view = $state("general");
 	let hoverView: string | null = $state(null);
 
-	function isUserTyping() {
-		const active = document.activeElement as HTMLElement;
-
-		if (!active) return false;
-
-		// Check if active element is an input, textarea, or contenteditable
-		const isInputOrTextarea = active.tagName === "INPUT" || active.tagName === "TEXTAREA";
-		const isContentEditable = active.isContentEditable;
-
-		return isInputOrTextarea || isContentEditable;
-	}
-
 	function backgroundColor(viewName: string) {
 		return view === viewName ? "rgba(180, 150, 255, 20%)" : hoverView === viewName ? "rgba(180, 150, 255, 10%)" : "transparent";
 	}
@@ -96,7 +84,7 @@
 					<input type="text" value={getProject().settings.fps} />
 					<Select
 						title="Presets"
-						style="width: 7rem"
+						width="7rem"
 						onSelect={value => {
 							getProject().settings.fps = Number(value);
 						}}
@@ -110,7 +98,7 @@
 					<input onblur={setOutputHeight} type="text" value={getProject().settings.resolution[1]} />
 					<Select
 						title="Presets"
-						style="width: 7rem"
+						width="7rem"
 						onSelect={value => {
 							let [width, _x, height] = value.split(" ");
 							getProject().settings.resolution = [Number(width), Number(height)];

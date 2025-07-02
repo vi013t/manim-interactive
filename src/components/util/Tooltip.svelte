@@ -37,7 +37,7 @@
 {/snippet}
 
 {#if children || element !== "div" || Object.keys(rest).length > 0}
-	<svelte:element this={element} {...rest} style:position="relative" style:z-index="99999">
+	<svelte:element this={element} {...rest} style:position="relative">
 		{@render children()}
 		{@render content()}
 	</svelte:element>
@@ -63,6 +63,7 @@
 		font-size: 0.85rem;
 		text-align: left;
 		text-transform: none;
+		z-index: 9999;
 
 		&::after {
 			content: "";
