@@ -172,10 +172,13 @@
 		if (isPlaying) video.pause();
 		else video.play();
 	}
+
+	let width: string | undefined = $state(undefined);
+	let panel: HTMLElement;
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<section id="timeline">
+<section style:width id="timeline" bind:this={panel}>
 	<div class="header">
 		<h1>{translate("Timeline")}</h1>
 		<button onclick={togglePlay}>
@@ -322,7 +325,7 @@
 		height: 100%;
 		position: relative;
 		overflow: hidden;
-		width: 16.6666%;
+		flex-grow: 1;
 	}
 
 	h1 {

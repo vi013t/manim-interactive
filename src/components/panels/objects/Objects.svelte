@@ -92,7 +92,7 @@
 	onMount(() => {
 		document.addEventListener("mousemove", event => {
 			if (resizing) {
-				width = `clamp(10rem, ${event.clientX - panelElement!.getBoundingClientRect().left}px, 50vw)`;
+				width = `clamp(10rem, ${event.clientX - panelElement!.getBoundingClientRect().left}px, 90vw)`;
 			}
 		});
 
@@ -142,10 +142,8 @@
 
 	.resizer {
 		position: absolute;
-		right: 100%;
 		top: 0px;
-		left: 100%;
-		transform: translateX(-100%);
+		right: 0%;
 		height: 100%;
 		width: 3px;
 		cursor: ew-resize;

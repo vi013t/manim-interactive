@@ -5,7 +5,6 @@ import { generateCode } from "./codegen.svelte";
 import {
 	addNotification,
 	deselect,
-	deserializeProject,
 	getExplicitProjectLocation,
 	getObjectFromId,
 	getProject,
@@ -14,6 +13,7 @@ import {
 	movieLength,
 	projectHasErrors,
 	serializeProject,
+	setProject,
 	setProjectLocation,
 } from "./project.svelte";
 import type { DeepReadonly } from "./types";
@@ -42,7 +42,6 @@ const actions = [
 	{
 		name: "Save Project",
 		async run() {
-			const projectData = serializeProject();
 			const location = getExplicitProjectLocation();
 
 			if (!location) {
@@ -59,7 +58,7 @@ const actions = [
 
 			await invoke("save_project_data", {
 				path: await getProjectLocation(),
-				data: projectData,
+				data: getProject(),
 			});
 		},
 	},
@@ -67,7 +66,6 @@ const actions = [
 		name: "Save And Recompile Project",
 		async run() {
 			videoLoaded = false;
-			const projectData = serializeProject();
 			const location = getExplicitProjectLocation();
 
 			if (!location) {
@@ -84,7 +82,7 @@ const actions = [
 
 			const saveData = invoke("save_project_data", {
 				path: await getProjectLocation(),
-				data: projectData,
+				data: getProject(),
 			});
 
 			if (projectHasErrors()) {
@@ -139,7 +137,7 @@ const actions = [
 			// Directory Chosen
 			if (typeof selected === "string") {
 				setProjectLocation(selected);
-				deserializeProject(await invoke("get_project_data", { path: selected }));
+				setProject(await invoke("get_project_data", { path: selected }));
 				localStorage.setItem("last-project", selected);
 				videoGenerated = false;
 			}
@@ -189,11 +187,9 @@ const actions = [
 	{
 		name: "Compile Project",
 		async run() {
-			const projectData = serializeProject();
-
 			const saveData = invoke("save_project_data", {
 				path: await getProjectLocation(),
-				data: projectData,
+				data: getProject(),
 			});
 
 			if (projectHasErrors()) {

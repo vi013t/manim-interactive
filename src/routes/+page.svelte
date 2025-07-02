@@ -4,7 +4,7 @@
 	import { onMount } from "svelte";
 	import { cache, getFromCache, getMouseX, getMouseY, showNewProjectWindow, updateMouseCoordinates } from "../api/client.svelte";
 	import { getPreferences, loadPreferences, runAction, savePreferences } from "../api/preferences.svelte";
-	import { deserializeProject, getExplicitProjectLocation, setProjectLocation } from "../api/project.svelte";
+	import { getExplicitProjectLocation, getProject, setProject, setProjectLocation, type Project } from "../api/project.svelte";
 	import { checkRequirements, loadFonts } from "../api/system.svelte";
 	import { loadTheme } from "../api/theme.svelte";
 	import AddMenu from "../components/menus/AddMenu.svelte";
@@ -21,7 +21,11 @@
 
 	let top: string;
 	let left: string;
-	let menu: AddMenu;
+	let menu: AddMenu | null = $state(null);
+
+	getCurrentWindow().onCloseRequested(async event => {
+		await getFromCache("videoPipWindow")?.close();
+	});
 
 	getCurrentWindow().listen("close-pip", event => {
 		cache("videoState", "normal");
@@ -34,7 +38,7 @@
 	if (getPreferences().autoOpenLastProject) {
 		let projectLocation = localStorage.getItem("last-project");
 		if (projectLocation) setProjectLocation(projectLocation);
-		invoke<string>("get_project_data", { path: projectLocation }).then(deserializeProject);
+		invoke<Project>("get_project_data", { path: projectLocation }).then(setProject);
 	}
 
 	onMount(() => {
@@ -51,19 +55,40 @@
 			if (event.key === "A") {
 				top = `${mouseY}px`;
 				left = `${mouseX}px`;
-				menu.show();
+				menu!.show();
 			}
 		});
 
 		loadTheme();
 		loadFonts();
 		checkRequirements();
+
+		invoke("serialize_project", { project: getProject() });
 	});
 
 	function unpipVideo() {
 		getFromCache("videoPipWindow")!.close();
 		cache("videoState", "normal");
 	}
+
+	let resizing = $state(false);
+
+	function resize() {
+		resizing = true;
+	}
+
+	let width: string | undefined = $state(undefined);
+	let middlePanel: HTMLElement | null = $state(null);
+
+	onMount(() => {
+		document.addEventListener("mousemove", event => {
+			if (resizing) {
+				width = `clamp(30rem, ${event.clientX - middlePanel!.getBoundingClientRect().left}px, 67%)`;
+			}
+		});
+
+		document.addEventListener("mouseup", () => (resizing = false));
+	});
 </script>
 
 <main>
@@ -71,7 +96,7 @@
 	{#if getExplicitProjectLocation()}
 		<div class="container">
 			<Objects />
-			<div class="inner">
+			<div class="inner" bind:this={middlePanel} style:width>
 				{#if getFromCache("videoState") !== "pip"}
 					<VideoPanel />
 				{:else}
@@ -82,6 +107,7 @@
 					</div>
 				{/if}
 				<div class="bottom"><Properties /><VariablesPanel /></div>
+				<div onmousedown={resize} class="resizer {resizing ? 'resizing' : ''}" style:background={resizing ? "var(--lavender)" : undefined}></div>
 			</div>
 			{#if getFromCache("videoState") !== "fullscreen"}
 				<Timeline />
@@ -102,6 +128,21 @@
 <Notifications />
 
 <style>
+	.resizer {
+		position: absolute;
+		top: 0px;
+		right: 0%;
+		height: 100%;
+		width: 3px;
+		cursor: ew-resize;
+		z-index: 9999;
+
+		&:not(.resizing):hover {
+			background: var(--lavender);
+			opacity: 50%;
+		}
+	}
+
 	.video-popped-out {
 		width: 100%;
 		display: flex;
@@ -210,6 +251,7 @@
 	}
 
 	.inner {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		height: 100%;

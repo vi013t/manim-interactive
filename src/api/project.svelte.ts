@@ -58,6 +58,7 @@ export function getProject(): Project {
 }
 
 export function setProject(newProject: Project): void {
+	console.log("project", newProject);
 	project = newProject;
 }
 
