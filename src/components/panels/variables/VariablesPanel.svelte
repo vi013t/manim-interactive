@@ -32,8 +32,8 @@
 
 	function addVariable(event: MouseEvent) {
 		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
+		top = `${event.clientY - document.getElementById("navbar")!.getBoundingClientRect().height}px`;
+		left = `${event.clientX - document.getElementById("object-panel")!.getBoundingClientRect().width}px`;
 		addVariableMenu.show();
 	}
 

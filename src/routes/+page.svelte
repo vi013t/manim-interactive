@@ -107,7 +107,12 @@
 					</div>
 				{/if}
 				<div class="bottom"><Properties /><VariablesPanel /></div>
-				<div onmousedown={resize} class="resizer {resizing ? 'resizing' : ''}" style:background={resizing ? "var(--lavender)" : undefined}></div>
+				<button
+					aria-label="Resize middle panel"
+					onmousedown={resize}
+					class="resizer {resizing ? 'resizing' : ''}"
+					style:background={resizing ? "var(--lavender)" : undefined}
+				></button>
 			</div>
 			{#if getFromCache("videoState") !== "fullscreen"}
 				<Timeline />

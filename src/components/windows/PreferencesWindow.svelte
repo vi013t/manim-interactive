@@ -452,11 +452,6 @@
 		display: flex;
 	}
 
-	input[type="checkbox"] {
-		margin-left: auto;
-		accent-color: var(--lavender);
-	}
-
 	.themes {
 		display: flex;
 		margin-left: 2rem;

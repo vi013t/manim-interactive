@@ -39,8 +39,8 @@
 
 	function addProperty(event: MouseEvent) {
 		event.preventDefault();
-		top = `${event.clientY}px`;
-		left = `${event.clientX}px`;
+		top = `${event.clientY - document.getElementById("navbar")!.getBoundingClientRect().height}px`;
+		left = `${event.clientX - panel.getBoundingClientRect().width}px`;
 		propertiesMenu.show();
 	}
 
