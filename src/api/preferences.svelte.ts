@@ -237,6 +237,7 @@ let preferences = $state({
 	timelineSnappingByDefault: true,
 	collapseWaitsByDefault: false,
 	pipOnTopByDefault: true,
+	uiScale: 1,
 	keybindings: [
 		{ action: "Save And Recompile Project", key: key("s", "ctrl") },
 		{ action: "Open Project", key: key("o", "ctrl") },
@@ -285,6 +286,7 @@ export function bindPreference<Name extends Preference>(preferenceName: Name): [
 export function setPreference(name: Preference, value: any) {
 	preferences[name] = value;
 	preferenceHooks.filter(listener => listener.name === name).forEach(listener => listener.hook(value));
+	if (name === "uiScale") document.body.style.zoom = `${value}`;
 	savePreferences();
 }
 

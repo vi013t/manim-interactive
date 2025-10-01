@@ -183,6 +183,10 @@
 					/>
 					<button class="create">{translate("Create New Theme")}</button>
 				</div>
+				<div class="themes">
+					{translate("UI Scaling")}: 
+					<Select bind:value={() => `${getPreferences().uiScale * 100}%`, value => setPreference("uiScale", parseInt(value) / 100)} options={["50%", "75%", "100%", "133%", "150%", "200%"]} />
+				</div>
 				<label for="preview-videos">
 					<span>
 						{translate("Object & Animation Previews")}
@@ -467,5 +471,15 @@
 			width: fit-content;
 			padding: 0.5rem;
 		}
+	}
+
+	.ui-scale {
+		display: flex;
+		align-items: center;
+
+		> * {
+		width: fit-content
+		}
+
 	}
 </style>
